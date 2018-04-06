@@ -3,6 +3,8 @@
 # ProgettoIngSwFLK
 Prova Finale di Ingegneria del Software
 
+Come un abile artigiano, userai gli strumenti del mestiere per costruire una magnifica vetrata della Sagrada Familia pezzo per pezzo, scegliendo tra diverse parti, ognuna con un colore e sfumatura caratteristica, da combinare per creare il proprio capolavoro.
+Maggiori informazioni al link https://www.kickstarter.com/projects/floodgategames/sagrada-a-game-of-dice-drafting-and-window-craftin.
 
 
 ## Partecipanti al progetto:
