@@ -1,7 +1,9 @@
-package it.polimi.ingsw.objective_cards;
+package it.polimi.ingsw.objectivecards;
+
+import java.io.Serializable;
 
 
-public abstract class ObjectiveCard {
+public abstract class ObjectiveCard implements Serializable {
 
     private String name;
     private String description;
@@ -27,4 +29,10 @@ public abstract class ObjectiveCard {
 
     public abstract int calcScore();
 
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ObjectiveCard))
+            return false;
+        else
+            return this.name.equals(((ObjectiveCard) obj).getName());
+    }
 }

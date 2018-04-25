@@ -1,4 +1,4 @@
-package it.polimi.ingsw.tool_cards;
+package it.polimi.ingsw.toolcards;
 
 
 public abstract class ToolCard {
@@ -31,4 +31,10 @@ public abstract class ToolCard {
 
     public abstract void effect();
 
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ToolCard))
+            return false;
+        else
+            return this.name.equals(((ToolCard) obj).getName());
+    }
 }
