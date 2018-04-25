@@ -11,6 +11,15 @@ public class PublicObjectiveCard8 extends ObjectiveCard {
 
     public int calcScore() {
         // TODO
+        /*
+         *  score = 0
+         *  Map<Integer, Long> map = Arrays.stream(row).map(x -> x.value).collect(Collectors.groupingBy(e -> e, Collectors.counting()));
+         *  if map.size() == 5
+         *      min = map.values().stream().min(Comparator.naturalOrder())
+         *      if min.isPresent()
+         *          score += this.score * min.get();
+         *  return score
+         */
         return this.getScore();
     }
 

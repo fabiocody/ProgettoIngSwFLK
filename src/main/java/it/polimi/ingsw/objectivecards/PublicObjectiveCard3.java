@@ -11,6 +11,13 @@ public class PublicObjectiveCard3 extends ObjectiveCard {
 
     public int calcScore() {
         // TODO
+        /*
+         *  score = 0
+         *  for row in grid
+         *      if Arrays.stream(row).map(x -> x.value).distinct().collect(Collectors.toList()).size() == row.length
+         *          score += this.score
+         *  return score
+         */
         return this.getScore();
     }
 

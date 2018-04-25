@@ -11,6 +11,9 @@ public class PrivateObjectiveCard3 extends ObjectiveCard {
 
     public int calcScore() {
         // TODO
+        /*
+         *  return Arrays.stream(Arrays.stream(grid).filter(x -> x.color == Colors.GREEN).mapToInt(x -> x.value).sum()
+         */
         return this.getScore();
     }
 }
