@@ -17,13 +17,16 @@ public class PublicObjectiveCard9 extends ObjectiveCard {
          *          if (i > 0 && j > 0 && grid[i-1][j-1].getColor() == grid[i][j].getColor()) {
          *              diagonals.add(grid[i][j]);
          *              diagonals.add(grid[i-1][j-1]);
-         *          } else if (i > 0 && j < 4 && grid[i-1][j+1].getColor() == grid[i][j].getColor()) {
+         *          }
+         *          if (i > 0 && j < 4 && grid[i-1][j+1].getColor() == grid[i][j].getColor()) {
          *              diagonals.add(grid[i][j]);
          *              diagonals.add(grid[i-1][j+1]);
-         *          } else if (i < 3 && j > 0 && grid[i+1][j-1].getColor() == grid[i][j].getColor()) {
+         *          }
+         *          if (i < 3 && j > 0 && grid[i+1][j-1].getColor() == grid[i][j].getColor()) {
          *              diagonals.add(grid[i][j]);
          *              diagonals.add(grid[i+1][j-1]);
-         *          } else if (i < 3 && j < 4 && grid[i+1][j+1].getColor() == grid[i][j].getColor()) {
+         *          }
+         *          if (i < 3 && j < 4 && grid[i+1][j+1].getColor() == grid[i][j].getColor()) {
          *              diagonals.add(grid[i][j]);
          *              diagonals.add(grid[i+1][j+1]);
          *          }
