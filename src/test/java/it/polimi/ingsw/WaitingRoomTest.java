@@ -25,11 +25,8 @@ class WaitingRoomTest {
         assertTrue(waitingRoom.addPlayer("Peter"));
         assertEquals(3, waitingRoom.getNicknames().size());
         assertFalse(waitingRoom.addPlayer("Peter"));
-        assertTrue(waitingRoom.addPlayer("Paul"));
-        assertEquals(4, waitingRoom.getNicknames().size());
-        assertFalse(waitingRoom.addPlayer("Paul"));
-        assertFalse(waitingRoom.addPlayer("Bruce"));
-        assertEquals(4, waitingRoom.getNicknames().size());
+        assertTrue(waitingRoom.addPlayer("John"));
+        assertEquals(0, waitingRoom.getNicknames().size());
     }
 
 }

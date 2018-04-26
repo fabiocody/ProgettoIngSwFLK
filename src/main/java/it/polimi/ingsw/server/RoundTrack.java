@@ -1,7 +1,7 @@
 package it.polimi.ingsw.server;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 
 public class RoundTrack {
@@ -15,7 +15,7 @@ public class RoundTrack {
 
     public List<Die> getDice() {
         if (this.dice == null)
-            this.dice = new ArrayList<>();
+            this.dice = new Vector<>();
         return this.dice;
     }
 

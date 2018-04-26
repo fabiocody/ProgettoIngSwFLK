@@ -57,9 +57,17 @@ public class Player {
             throw new IllegalStateException("Cannot set a new Private Objective Card");
     }
 
+    public String toString() {
+        return this.getNickname();
+    }
+
 }
 
 
 class WindowPattern {   // TODO Remove mockup
+
+    public int getFavorTokens() {
+        return 0;
+    }
 
 }
