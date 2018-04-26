@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ToolCardsTest {
 
     @Test
-    void testToolCards() {
+    void generatorTest() {
         List<ToolCard> cards = ToolCardsGenerator.generate();
         assertEquals(3, cards.size());
         assertNotEquals(cards.get(0), cards.get(1));

@@ -18,7 +18,7 @@ public class PublicObjectiveCard3 extends ObjectiveCard {
          *          score += this.score
          *  return score
          */
-        return this.getScore();
+        return this.getVictoryPoints();
     }
 
 }

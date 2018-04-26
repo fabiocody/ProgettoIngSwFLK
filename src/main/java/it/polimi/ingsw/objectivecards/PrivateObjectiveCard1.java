@@ -5,16 +5,15 @@ public class PrivateObjectiveCard1 extends ObjectiveCard {
 
     public PrivateObjectiveCard1() {
         super("Sfumature Rosse",
-                "Somma dei valori su tutti i dati rossi",
-                null);
+                "Somma dei valori su tutti i dati rossi");
     }
 
     public int calcScore() {
         // TODO
         /*
-         *  return Arrays.stream(Arrays.stream(grid).filter(x -> x.color == Colors.RED).mapToInt(x -> x.value).sum()
+         *  return Arrays.stream(grid).filter(x -> x.color == Colors.RED).mapToInt(x -> x.value).sum()
          */
-        return this.getScore();
+        return this.getVictoryPoints();
     }
 
 }

@@ -15,10 +15,10 @@ public class PublicObjectiveCard2 extends ObjectiveCard {
          *  score = 0
          *  for column in grid
          *      if Arrays.stream(column).map(x -> x.color).distinct().collect(Collectors.toList()).size() == column.length
-         *          score += this.score
+         *          score += this.getVictoryPoints()
          *  return score
          */
-        return this.getScore();
+        return this.getVictoryPoints();
     }
 
 }

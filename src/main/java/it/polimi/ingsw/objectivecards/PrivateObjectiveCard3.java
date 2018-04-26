@@ -5,15 +5,14 @@ public class PrivateObjectiveCard3 extends ObjectiveCard {
 
     public PrivateObjectiveCard3() {
         super("Sfumature Verdi",
-                "Somma dei valori su tutti i dadi verdi",
-                null);
+                "Somma dei valori su tutti i dadi verdi");
     }
 
     public int calcScore() {
         // TODO
         /*
-         *  return Arrays.stream(Arrays.stream(grid).filter(x -> x.color == Colors.GREEN).mapToInt(x -> x.value).sum()
+         *  return Arrays.stream(grid).filter(x -> x.color == Colors.GREEN).mapToInt(x -> x.value).sum()
          */
-        return this.getScore();
+        return this.getVictoryPoints();
     }
 }

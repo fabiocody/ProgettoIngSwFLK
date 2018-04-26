@@ -36,18 +36,19 @@ public class ObjectiveCardsGenerator {
     private void generatePrivates() {
         if (generatedPrivates == null) {
             generatedPrivates = new Vector<>();
-        }
-        for (int i = 0; i < this.numberOfPlayers; i++) {
-            ObjectiveCard newCard;
-            do {
-                String className = "it.polimi.ingsw.objectivecards.PrivateObjectiveCard" + ThreadLocalRandom.current().nextInt(1, 6);
-                try {
-                    newCard = (ObjectiveCard) Class.forName(className).newInstance();
-                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                    // TODO
-                    break;
-                }
-            } while (generatedPrivates.contains(newCard));
+            for (int i = 0; i < this.numberOfPlayers; i++) {
+                ObjectiveCard newCard = null;
+                do {
+                    String className = "it.polimi.ingsw.objectivecards.PrivateObjectiveCard" + ThreadLocalRandom.current().nextInt(1, 6);
+                    try {
+                        newCard = (ObjectiveCard) Class.forName(className).newInstance();
+                    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                        // TODO
+                        break;
+                    }
+                } while (generatedPrivates.contains(newCard));
+                generatedPrivates.add(newCard);
+            }
         }
     }
 

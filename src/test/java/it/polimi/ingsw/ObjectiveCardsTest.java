@@ -1,33 +1,45 @@
 package it.polimi.ingsw;
 
-import it.polimi.ingsw.objectivecards.ObjectiveCard;
-import it.polimi.ingsw.objectivecards.ObjectiveCardsGenerator;
+import it.polimi.ingsw.objectivecards.*;
 import org.junit.jupiter.api.*;
-import java.util.List;
+import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
 class ObjectiveCardsTest {
 
     private static ObjectiveCardsGenerator generator;
+    private static int numberOfPlayers = 3;
 
     @BeforeAll
     static void setUp() {
-        generator = new ObjectiveCardsGenerator(4);
+        generator = new ObjectiveCardsGenerator(numberOfPlayers);
     }
 
     @Test
-    void publicCardsTest() {
+    void publicGeneratorTest() {
         List<ObjectiveCard> cards = generator.generatePublic();
         assertEquals(3, cards.size());
-        assertNotEquals(cards.get(0), cards.get(1));
-        assertNotEquals(cards.get(0), cards.get(2));
-        assertNotEquals(cards.get(1), cards.get(2));
+        for (int i = 0; i < 3; i++)
+            assertNotNull(cards.get(i));
+        Set<ObjectiveCard> set = new HashSet<>(cards);
+        assertEquals(cards.size(), set.size());
     }
 
     @Test
-    void privateCardsTest() {
-
+    void privateGeneratorTest() {
+        List<ObjectiveCard> cards = new ArrayList<>();
+        for (int i = 0; i < numberOfPlayers; i++) {
+            cards.add(generator.dealPrivate());
+            assertNotNull(cards.get(i));
+        }
+        assertEquals(numberOfPlayers, cards.size());
+        Set<ObjectiveCard> set = new HashSet<>(cards);
+        assertEquals(cards.size(), set.size());
+        assertThrows(NoMoreCardsException.class, () -> cards.add(generator.dealPrivate()));
+        assertEquals(numberOfPlayers, cards.size());
+        set = new HashSet<>(cards);
+        assertEquals(cards.size(), set.size());
     }
 
 }

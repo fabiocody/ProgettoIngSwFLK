@@ -20,7 +20,7 @@ public class PublicObjectiveCard8 extends ObjectiveCard {
          *          score += this.score * min.get();
          *  return score
          */
-        return this.getScore();
+        return this.getVictoryPoints();
     }
 
 }

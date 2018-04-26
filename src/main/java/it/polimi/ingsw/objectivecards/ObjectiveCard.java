@@ -7,12 +7,16 @@ public abstract class ObjectiveCard implements Serializable {
 
     private String name;
     private String description;
-    private Integer score;
+    private Integer victoryPoints;
 
-    public ObjectiveCard(String name, String description, Integer score) {
+    public ObjectiveCard(String name, String description, Integer victoryPoints) {
         this.name = name;
         this.description = description;
-        this.score = score;
+        this.victoryPoints = victoryPoints;
+    }
+
+    public ObjectiveCard(String name, String description) {
+        this(name, description, null);
     }
 
     public String getName() {
@@ -23,8 +27,8 @@ public abstract class ObjectiveCard implements Serializable {
         return this.description;
     }
 
-    public Integer getScore() {
-        return this.score;
+    public Integer getVictoryPoints() {
+        return this.victoryPoints;
     }
 
     public abstract int calcScore();
