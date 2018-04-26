@@ -24,6 +24,7 @@ class ObjectiveCardsTest {
             assertNotNull(cards.get(i));
         Set<ObjectiveCard> set = new HashSet<>(cards);
         assertEquals(cards.size(), set.size());
+        assertThrows(NoMoreCardsException.class, () -> generator.generatePublic());
     }
 
     @Test

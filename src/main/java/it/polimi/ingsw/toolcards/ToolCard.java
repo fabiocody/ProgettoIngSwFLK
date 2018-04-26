@@ -37,4 +37,13 @@ public abstract class ToolCard {
         else
             return this.name.equals(((ToolCard) obj).getName());
     }
+
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    public String toString() {
+        return this.getName() + " -> " + this.getDescription();
+    }
+
 }

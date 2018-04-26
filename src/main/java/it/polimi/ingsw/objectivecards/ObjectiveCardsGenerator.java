@@ -10,12 +10,15 @@ public class ObjectiveCardsGenerator {
 
     private List<ObjectiveCard> generatedPrivates;
     private int numberOfPlayers;
+    private boolean publicsAlreadyGenerated;
 
     public ObjectiveCardsGenerator(int numberOfPlayers) {
         this.numberOfPlayers = numberOfPlayers;
+        this.publicsAlreadyGenerated = false;
     }
 
     public List<ObjectiveCard> generatePublic() {
+        if (publicsAlreadyGenerated) throw new NoMoreCardsException();
         List<ObjectiveCard> generatedPublics = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             ObjectiveCard newCard = null;
@@ -30,6 +33,7 @@ public class ObjectiveCardsGenerator {
             } while (generatedPublics.contains(newCard));
             generatedPublics.add(newCard);
         }
+        this.publicsAlreadyGenerated = true;
         return generatedPublics;
     }
 
@@ -58,6 +62,10 @@ public class ObjectiveCardsGenerator {
             throw new NoMoreCardsException();
         else
             return generatedPrivates.remove(0);
+    }
+
+    public String toString() {
+        return super.toString() + "\nRemaining public objective cards: " + (publicsAlreadyGenerated ? 0 : 3) + "\nRemaining private objective cards: " + (generatedPrivates == null ? 4 : generatedPrivates.size());
     }
 
 }

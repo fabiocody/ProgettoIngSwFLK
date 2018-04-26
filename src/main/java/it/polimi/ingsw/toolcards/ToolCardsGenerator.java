@@ -7,6 +7,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class ToolCardsGenerator {
 
+    private ToolCardsGenerator() {
+        throw new IllegalStateException();
+    }
+
     public static List<ToolCard> generate() {
         List<ToolCard> cards = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
