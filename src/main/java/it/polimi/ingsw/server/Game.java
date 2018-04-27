@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server;
 
+import it.polimi.ingsw.dice.DiceGenerator;
 import it.polimi.ingsw.objectivecards.*;
 import it.polimi.ingsw.toolcards.*;
 import java.util.*;
@@ -44,7 +45,7 @@ public class Game implements Runnable {
 
     public synchronized DiceGenerator getDiceGenerator() {
         if (this.diceGenerator == null)
-            this.diceGenerator = new DiceGenerator();
+            this.diceGenerator = new DiceGenerator(this.getNumberOfPlayers());
         return this.diceGenerator;
     }
 
@@ -113,9 +114,4 @@ public class Game implements Runnable {
         }
         this.endGame();
     }
-}
-
-
-class DiceGenerator {   // TODO Remove mock up
-
 }
