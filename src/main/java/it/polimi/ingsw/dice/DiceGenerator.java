@@ -9,13 +9,14 @@ public class DiceGenerator {
 
     private ThreadLocalRandom random;
     private List<Die> draftPool;
-    private int numberOfPlayers; //serve classe Game
+    private int numberOfPlayers; 
     private Map<Colors, Integer> remainingDice;
 
-    public DiceGenerator() {
+    public DiceGenerator(int numOfStartingPlayers) {  //serve implementazione classe Game per metodo getNumberOfPlayers()
         random = ThreadLocalRandom.current();
         draftPool = new ArrayList<>();
-        numberOfPlayers = Game.getNumberOfPlayers(); //serve implementazione classe Game per metodo getNumberOfPlayers()
+        numberOfPlayers = numOfStartingPlayers;
+
 
         remainingDice = new HashMap<>();
         remainingDice.put(Colors.RED, 18);
@@ -51,7 +52,7 @@ public class DiceGenerator {
     }
 
     public void generateDraftPool() {
-        for (int i = 0; i<=numberOfPlayers+1; i++) {
+        for (int i = 0; i < (2*numberOfPlayers)+1; i++) {
             Die die = generate();
             draftPool.add(die);
         }
