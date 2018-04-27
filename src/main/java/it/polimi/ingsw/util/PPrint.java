@@ -1,5 +1,6 @@
 package it.polimi.ingsw.util;
 
+
 public class PPrint {
 
     private static void printColored(String str, Colors color) {
