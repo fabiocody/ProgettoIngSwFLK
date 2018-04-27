@@ -30,7 +30,7 @@ public class DieTest {
 
     @Test
     public void generateTest() {
-        DiceGenerator diceGenerator = new DiceGenerator();
+        DiceGenerator diceGenerator = new DiceGenerator(4);
         Die testDie = diceGenerator.generate();
         assertNotNull(testDie);
     }
