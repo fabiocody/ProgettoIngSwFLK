@@ -3,6 +3,7 @@ package it.polimi.ingsw.server;
 import it.polimi.ingsw.objectivecards.*;
 import it.polimi.ingsw.toolcards.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 
@@ -15,6 +16,7 @@ public class Game implements Runnable {
     private DiceGenerator diceGenerator;
     private List<ToolCard> toolCards;
     private RoundTrack roundTrack;
+    private Map<Player, Integer> finalScores;
 
     Game(List<String> players) {
         this.players = players.stream().map(Player::new).collect(Collectors.toList());
@@ -58,6 +60,14 @@ public class Game implements Runnable {
         return this.roundTrack;
     }
 
+    public synchronized Map<Player, Integer> getFinalScores() {
+        if (!this.getRoundTrack().isGameOver())
+            throw new IllegalStateException("Cannot get final scores before game over");
+        else if (this.finalScores == null)
+            this.finalScores = new ConcurrentHashMap<>();
+        return this.finalScores;
+    }
+
     // Setup method to be called at game starting
     private void setup() {
         this.players.forEach(p -> p.setPrivateObjectiveCard(this.getObjectiveCardsGenerator().dealPrivate()));
@@ -71,21 +81,36 @@ public class Game implements Runnable {
     // This method is supposed to be counting VP for each player.
     // Scores are stored in a map.
     private void endGame() {
-        Map<Player, Integer> scores = new HashMap<>();
+        this.players.forEach(p -> new Thread(() -> this.calcScoreForPlayer(p)).start());
+    }
+
+    private void calcScoreForPlayer(Player player) {
+        int score = 0;
+        for (ObjectiveCard c : this.getPublicObjectiveCards()) score += c.calcScore();
+        score += player.getPrivateObjectiveCard().calcScore();
+        score += player.getFavorTokens();
+        // TODO -1 VP for each open space in the window
+        // pseudo:  windowPattern.grid.stream().filter(c -> c.die == null).count()
+        this.getFinalScores().put(player, score);
+    }
+
+    private void setActivePlayer(Player player) {
         for (Player p : this.players) {
-            int score = 0;
-            for (ObjectiveCard c : this.getPublicObjectiveCards()) score += c.calcScore();
-            score += p.getPrivateObjectiveCard().calcScore();
-            score += p.getFavorTokens();
-            // TODO -1 VP for each open space in the window
-            // pseudo:  windowPatter.grid.stream().filter(c -> c.die == null).count()
-            scores.put(p, score);
+            p.setActive(p.equals(player));
         }
     }
 
     public void run() {
         this.setup();
-        // TODO
+        List<Integer> playersOrder = Arrays.asList(0, 1, 2, 3, 3, 2, 1, 0);
+        while (!this.getRoundTrack().isGameOver()) {
+            for (int i : playersOrder) {
+                // TODO
+                this.setActivePlayer(this.players.get(i));
+            }
+            this.getRoundTrack().incrementRound();
+            Collections.rotate(this.players, -1);   // shift starting player
+        }
         this.endGame();
     }
 }

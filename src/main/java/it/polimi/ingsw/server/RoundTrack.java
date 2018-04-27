@@ -9,9 +9,11 @@ public class RoundTrack {
 
     private List<Die> dice;     // Dice placed on the round track. The order doesn't matter.
     private int currentRound;
+    private boolean gameOver;
 
     public RoundTrack() {
         this.currentRound = 1;
+        this.gameOver = false;
     }
 
     public List<Die> getDice() {
@@ -25,10 +27,16 @@ public class RoundTrack {
     }
 
     // Increment round. Throw GameOverException when the 10th round is over.
-    public void incrementRound() throws GameOverException {
-        if (this.currentRound >= 10)
-            throw new GameOverException();
-        this.currentRound++;
+    public void incrementRound() {
+        if (this.currentRound == 10 && !gameOver) {
+            this.gameOver = true;
+        } else if (!gameOver) {
+            this.currentRound++;
+        }
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
     }
 
     // Place what remains of the Draft Pool into the dice list

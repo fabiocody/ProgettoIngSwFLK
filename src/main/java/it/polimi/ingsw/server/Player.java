@@ -12,6 +12,7 @@ public class Player {
     private boolean windowPatternSet;   // True iff this player has already been assigned a Window Pattern (to prevent alterations)
     private ObjectiveCard privateObjectiveCard;
     private boolean privateObjectiveCardSet;    // True iff this player has already been assigned a Private Objective Card (to prevent alterations)
+    private boolean active;
 
     public Player(String nickname, int favorTokens) {
         this.nickname = nickname;
@@ -46,7 +47,7 @@ public class Player {
             this.windowPattern = windowPattern;
             this.windowPatternSet = true;
         } else {
-            throw new IllegalStateException("Cannot set a new Window Pattern");
+            throw new IllegalStateException("Cannot set another Window Pattern");
         }
     }
 
@@ -60,8 +61,16 @@ public class Player {
             this.privateObjectiveCard = privateObjectiveCard;
             this.privateObjectiveCardSet = true;
         } else {
-            throw new IllegalStateException("Cannot set a new Private Objective Card");
+            throw new IllegalStateException("Cannot set another Private Objective Card");
         }
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public String toString() {
