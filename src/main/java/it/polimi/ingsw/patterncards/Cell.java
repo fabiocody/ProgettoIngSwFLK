@@ -1,10 +1,13 @@
 package it.polimi.ingsw.patterncards;
+
+import it.polimi.ingsw.dice.Die;
 import it.polimi.ingsw.util.*;
+
 
 public class Cell {
     private Colors cellColor;
     private Integer cellValue;
-    //private Die placedDie;
+    private Die placedDie;
 
     public Cell(Colors cellColor, Integer cellValue){
         this.cellColor = cellColor;
@@ -17,6 +20,10 @@ public class Cell {
 
     public Integer getCellValue(){
         return this.cellValue;
+    }
+
+    public Die getPlacedDie() {
+        return placedDie;
     }
 
     /*public void placeDie(Die d, PlacementConstraint withConstraint){
@@ -35,13 +42,13 @@ public class Cell {
     @Override
     public String toString() {
         String cell ="";
-        if(this.cellColor != null && this.cellValue != null)
+        if (this.cellColor != null && this.cellValue != null)
             cell = this.cellColor.escape() + this.cellValue + " " + Colors.RESET.escape();
-        else if(this.cellColor == null && this.cellValue != null)
+        else if (this.cellColor == null && this.cellValue != null)
             cell = this.cellValue + " " + Colors.RESET.escape();
-        else if(this.cellColor != null && this.cellValue == null)
+        else if (this.cellColor != null && this.cellValue == null)
             cell = this.cellColor.escape() + "0 " + Colors.RESET.escape();
-        else if(this.cellColor == null && this.cellValue == null)
+        else if (this.cellColor == null && this.cellValue == null)
             cell = "0 " +Colors.RESET.escape();
         return cell;
     }
@@ -49,5 +56,6 @@ public class Cell {
     public void dump(){
         System.out.println(this.toString());
     }
+
 }
 
