@@ -6,6 +6,7 @@ import java.util.Observer;
 import java.util.Vector;
 
 
+// Main server class
 public class SagradaServer implements Observer {
 
     private WaitingRoom waitingRoom;
@@ -25,6 +26,7 @@ public class SagradaServer implements Observer {
         return this.games;
     }
 
+    // Observer method, instantiate and start a game when called
     public void update(Observable o, Object arg) {
         if (o instanceof WaitingRoom) {
             Game newGame = (Game) arg;

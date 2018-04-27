@@ -3,14 +3,15 @@ package it.polimi.ingsw.server;
 import it.polimi.ingsw.objectivecards.ObjectiveCard;
 
 
+// This class represents a player
 public class Player {
 
     private String nickname;
     private int favorTokens;
     private WindowPattern windowPattern;
-    private boolean windowPatternSet;
+    private boolean windowPatternSet;   // Is true when this player has already been assigned a Window Pattern
     private ObjectiveCard privateObjectiveCard;
-    private boolean privateObjectiveCardSet;
+    private boolean privateObjectiveCardSet;    // Is true when this player has already been assigned a Private Objective Card
 
     public Player(String nickname, int favorTokens) {
         this.nickname = nickname;
@@ -39,6 +40,7 @@ public class Player {
         return this.windowPattern;
     }
 
+    // This method is designed to allow only one assignment of windowPattern
     public void setWindowPattern(WindowPattern windowPattern) {
         if (!windowPatternSet)
             this.windowPattern = windowPattern;
@@ -50,6 +52,7 @@ public class Player {
         return this.privateObjectiveCard;
     }
 
+    // This method is designed to allow only one assignment of privateObjectiveCard
     public void setPrivateObjectiveCard(ObjectiveCard privateObjectiveCard) {
         if (!privateObjectiveCardSet)
             this.privateObjectiveCard = privateObjectiveCard;
@@ -69,5 +72,6 @@ class WindowPattern {   // TODO Remove mockup
     public int getFavorTokens() {
         return 0;
     }
+
 
 }

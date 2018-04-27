@@ -3,10 +3,11 @@ package it.polimi.ingsw.server;
 import java.util.*;
 
 
+// This class represent the waiting room of the server
 public class WaitingRoom extends Observable {
 
     private List<String> nicknames;
-    private int timeout;
+    private long timeout;
     private Timer timer;
 
     public WaitingRoom() {
@@ -31,6 +32,8 @@ public class WaitingRoom extends Observable {
         this.timer = null;
     }
 
+    // Add player to this waiting room.
+    // Game creation occurs when timer expires or when 4 players are reached.
     public synchronized boolean addPlayer(String nickname) {
         if (this.getNicknames().contains(nickname))
             return false;
@@ -41,18 +44,20 @@ public class WaitingRoom extends Observable {
                     public void run() {
                         createGame();
                     }
-                }, this.timeout * 1000);
+                }, this.timeout * 1000);        // delay is in milliseconds
         } else if (this.getNicknames().size() == 4) {
             this.createGame();
         }
         return true;
     }
 
+    // Create a new game with the first N players of the list.
+    // The timer is canceled and SagradaServer is notified.
     private synchronized void createGame() {
         List<String> currentNicknames = new ArrayList<>(this.getNicknames().subList(0, this.getNicknames().size()));
         this.getNicknames().removeAll(currentNicknames);
         this.cancelTimer();
-        this.setChanged();
+        this.setChanged();      // Needed to make notifyObservers work
         this.notifyObservers(new Game(currentNicknames));
     }
 

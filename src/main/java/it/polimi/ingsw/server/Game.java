@@ -6,13 +6,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
+// This class contains all the information about the current game
 public class Game implements Runnable {
 
     private List<Player> players;
     private ObjectiveCardsGenerator objectiveCardsGenerator;
+    private List<ObjectiveCard> publicObjectiveCards;
     private DiceGenerator diceGenerator;
     private List<ToolCard> toolCards;
-    private List<ObjectiveCard> objectiveCards;
+    private RoundTrack roundTrack;
 
     Game(List<String> players) {
         this.players = players.stream().map(Player::new).collect(Collectors.toList());
@@ -32,7 +34,13 @@ public class Game implements Runnable {
         return objectiveCardsGenerator;
     }
 
-    private synchronized DiceGenerator getDiceGenerator() {
+    public synchronized List<ObjectiveCard> getPublicObjectiveCards() {
+        if (this.publicObjectiveCards == null)
+            return new Vector<>();
+        return new Vector<>(this.publicObjectiveCards);
+    }
+
+    public synchronized DiceGenerator getDiceGenerator() {
         if (this.diceGenerator == null)
             this.diceGenerator = new DiceGenerator();
         return this.diceGenerator;
@@ -44,24 +52,41 @@ public class Game implements Runnable {
         return new Vector<>(this.toolCards);
     }
 
-    public synchronized List<ObjectiveCard> getObjectiveCards() {
-        if (this.objectiveCards == null)
-            return new Vector<>();
-        return new Vector<>(this.objectiveCards);
+    public synchronized RoundTrack getRoundTrack() {
+        if (this.roundTrack == null)
+            this.roundTrack = new RoundTrack();
+        return this.roundTrack;
     }
 
-    private synchronized void setup() {
+    // Setup method to be called at game starting
+    private void setup() {
         this.players.forEach(p -> p.setPrivateObjectiveCard(this.getObjectiveCardsGenerator().dealPrivate()));
-        // TODO Window patterns
+        // TODO Window patterns setup
         this.players.forEach(p -> p.setFavorTokens(p.getWindowPattern().getFavorTokens()));
         this.toolCards = ToolCardsGenerator.generate();
-        this.objectiveCards = this.getObjectiveCardsGenerator().generatePublic();
+        this.publicObjectiveCards = this.getObjectiveCardsGenerator().generatePublic();
         Collections.shuffle(this.players);
+    }
+
+    // This method is supposed to be counting VP for each player.
+    // Scores are stored in a map.
+    private void endGame() {
+        Map<Player, Integer> scores = new HashMap<>();
+        for (Player p : this.players) {
+            int score = 0;
+            for (ObjectiveCard c : this.getPublicObjectiveCards()) score += c.calcScore();
+            score += p.getPrivateObjectiveCard().calcScore();
+            score += p.getFavorTokens();
+            // TODO -1 VP for each open space in the window
+            // pseudo:  windowPatter.grid.stream().filter(c -> c.die == null).count()
+            scores.put(p, score);
+        }
     }
 
     public void run() {
         this.setup();
         // TODO
+        this.endGame();
     }
 }
 
