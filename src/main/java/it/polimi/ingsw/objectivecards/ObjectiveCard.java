@@ -1,5 +1,7 @@
 package it.polimi.ingsw.objectivecards;
 
+import it.polimi.ingsw.patterncards.Cell;
+
 
 public abstract class ObjectiveCard {
 
@@ -29,7 +31,7 @@ public abstract class ObjectiveCard {
         return this.victoryPoints;
     }
 
-    public abstract int calcScore();
+    public abstract int calcScore(Cell[] grid);
 
     public boolean equals(Object obj) {
         if (!(obj instanceof ObjectiveCard))

@@ -43,4 +43,6 @@ class ObjectiveCardsTest {
         assertEquals(cards.size(), set.size());
     }
 
+    // TODO write tests for concrete cards (calcScore)
+
 }
