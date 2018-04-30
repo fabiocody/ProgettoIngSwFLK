@@ -10,7 +10,6 @@ public class ValueConstraint extends Constraint {
     }
 
     public boolean checkConstraint(Cell[] grid, int position, Die d) {
-        //TODO
-        return true;
+        return grid[position].getCellValue() == null || grid[position].getCellValue() == d.getValue();
     }
 }

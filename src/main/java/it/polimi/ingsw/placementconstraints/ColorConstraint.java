@@ -3,6 +3,8 @@ package it.polimi.ingsw.placementconstraints;
 import it.polimi.ingsw.dice.Die;
 import it.polimi.ingsw.patterncards.Cell;
 
+import java.util.List;
+
 public class ColorConstraint extends Constraint {
 
     public ColorConstraint(PlacementConstraint p) {
@@ -10,7 +12,7 @@ public class ColorConstraint extends Constraint {
     }
 
     public boolean checkConstraint(Cell[] grid, int position, Die d) {
-        //TODO
-        return true;
+        return grid[position].getCellColor() == null || grid[position].getCellColor() == d.getColor();
     }
 }
+
