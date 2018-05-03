@@ -24,7 +24,7 @@ public class Game implements Runnable {
     }
 
     public List<Player> getPlayers() {
-        return this.players;
+        return new Vector<>(this.players);
     }
 
     public int getNumberOfPlayers() {
@@ -39,7 +39,7 @@ public class Game implements Runnable {
 
     public synchronized List<ObjectiveCard> getPublicObjectiveCards() {
         if (this.publicObjectiveCards == null)
-            return new Vector<>();
+            throw new IllegalStateException("Cannot get Public Objective Cards before they are generated");
         return new Vector<>(this.publicObjectiveCards);
     }
 
@@ -51,7 +51,7 @@ public class Game implements Runnable {
 
     public synchronized List<ToolCard> getToolCards() {
         if (this.toolCards == null)
-            return new Vector<>();
+            throw new IllegalStateException("Cannot get Public Tool Cards before they are generated");
         return new Vector<>(this.toolCards);
     }
 
@@ -91,7 +91,7 @@ public class Game implements Runnable {
         score += player.getPrivateObjectiveCard().calcScore();
         score += player.getFavorTokens();
         // TODO -1 VP for each open space in the window
-        // pseudo:  windowPattern.grid.stream().filter(c -> c.die == null).count()
+        // pseudo:  score -= windowPattern.grid.stream().filter(c -> c.die == null).count()
         this.getFinalScores().put(player, score);
     }
 
