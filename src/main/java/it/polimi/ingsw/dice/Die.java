@@ -22,4 +22,8 @@ public class Die {
     public void roll() {
         this.value = ThreadLocalRandom.current().nextInt(1,7);
     }
+
+    public String toString() {
+        return this.color.escape() + "[" + this.value + "]" + Colors.RESET.escape();
+    }
 }

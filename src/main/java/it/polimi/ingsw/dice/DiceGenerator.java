@@ -38,7 +38,8 @@ public class DiceGenerator {
             throw new NoMoreDiceException("there are no more dice");
         }
 
-        Colors randomColor = Colors.values()[random.nextInt(0, Colors.values().length - 1)];
+        List<Colors> remainingColors = new ArrayList<>(remainingDice.keySet());
+        Colors randomColor = remainingColors.get(random.nextInt(0, remainingColors.size()));
         Integer value = remainingDice.get(randomColor);
 
         die.color = randomColor;
