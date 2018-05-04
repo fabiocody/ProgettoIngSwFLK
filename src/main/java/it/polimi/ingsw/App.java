@@ -10,10 +10,6 @@ import java.util.List;
 public class App 
 {
     public static void main( String[] args ) {
-        PatternCardsGenerator a = new PatternCardsGenerator();
-        List <WindowPattern> b = a.getCards();
-
-        for(WindowPattern c: b)
-            c.dump();
+        System.out.println("Hello World");
     }
 }

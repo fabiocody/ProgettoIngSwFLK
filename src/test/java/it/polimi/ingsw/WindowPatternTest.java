@@ -1,5 +1,8 @@
-package it.polimi.ingsw.patterncards;
+package it.polimi.ingsw;
 
+import it.polimi.ingsw.patterncards.Cell;
+import it.polimi.ingsw.patterncards.PatternCardsGenerator;
+import it.polimi.ingsw.patterncards.WindowPattern;
 import it.polimi.ingsw.util.Colors;
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class WindowPatternTest {
     @Test
     public void difficultyTest() {
-        PatternCardsGenerator gen = new PatternCardsGenerator();
+        PatternCardsGenerator gen = new PatternCardsGenerator(4);
         List<WindowPattern> patterns = gen.getCards();
 
         for (WindowPattern wp : patterns) {
@@ -21,7 +24,7 @@ public class WindowPatternTest {
 
     @Test
     public void patternNumberTest(){
-        PatternCardsGenerator gen = new PatternCardsGenerator();
+        PatternCardsGenerator gen = new PatternCardsGenerator(4);
         List<WindowPattern> patterns = gen.getCards();
 
         for (WindowPattern wp : patterns) {
@@ -32,7 +35,7 @@ public class WindowPatternTest {
 
     @Test
     public void patternCardTest() {
-        PatternCardsGenerator gen = new PatternCardsGenerator();
+        PatternCardsGenerator gen = new PatternCardsGenerator(4);
         List<WindowPattern> patterns = gen.getCards();
         for (int i = 0; i < patterns.size(); i += 2) {
             assertTrue(patterns.get(i).getPatternNumber()%2 == 0);
@@ -42,7 +45,7 @@ public class WindowPatternTest {
 
     @Test
     public void numberOfCellsTest(){
-        PatternCardsGenerator gen = new PatternCardsGenerator();
+        PatternCardsGenerator gen = new PatternCardsGenerator(4);
         List<WindowPattern> patterns = gen.getCards();
         for (WindowPattern wp : patterns) {
             assertTrue(wp.getGrid().length == 20);
@@ -51,7 +54,7 @@ public class WindowPatternTest {
 
     @Test
     public void cellValueTest(){
-        PatternCardsGenerator gen = new PatternCardsGenerator();
+        PatternCardsGenerator gen = new PatternCardsGenerator(4);
         List<WindowPattern> patterns = gen.getCards();
         for (WindowPattern wp : patterns) {
             for(Cell c: wp.getGrid()) {
@@ -65,7 +68,7 @@ public class WindowPatternTest {
 
     @Test
     public void cellColorTest(){
-        PatternCardsGenerator gen = new PatternCardsGenerator();
+        PatternCardsGenerator gen = new PatternCardsGenerator(4);
         List<WindowPattern> patterns = gen.getCards();
         for (WindowPattern wp : patterns) {
             for(Cell c: wp.getGrid()){
