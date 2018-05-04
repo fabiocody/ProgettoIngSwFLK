@@ -19,7 +19,7 @@ public class PublicObjectiveCard8 extends ObjectiveCard {
                 .filter(c -> c.getPlacedDie() != null)
                 .map(c -> c.getPlacedDie().getValue())
                 .collect(Collectors.groupingBy(e -> e, Collectors.counting()));
-        if (map.size() == 5) {
+        if (map.size() == 6) {
             Optional<Long> min = map.values().stream().min(Comparator.naturalOrder());
             if (min.isPresent()) score += min.get() * this.getVictoryPoints();
         }
