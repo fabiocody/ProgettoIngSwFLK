@@ -1,5 +1,7 @@
 package it.polimi.ingsw.patterncards;
 
+import it.polimi.ingsw.dice.Die;
+import it.polimi.ingsw.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.util.*;
 
 public class WindowPattern {
@@ -640,10 +642,6 @@ public class WindowPattern {
         }
     }
 
-    /*public boolean checkConstraint(){
-        //TODO
-    }*/
-
     public int getDifficulty() {
         return this.difficulty;
     }
@@ -654,6 +652,23 @@ public class WindowPattern {
 
     public int getPatternNumber(){
         return this.patternNumber;
+    }
+
+    public void placeDie(Die d, int position, PlacementConstraint withConstraint){
+        if(withConstraint.checkConstraint(this.grid, position, d))
+            this.grid[position].setPlacedDie(d);
+        else
+            throw new InvalidPlacementException("Die " + d + " cannot be placed in position " + position);
+    }
+
+    public void placeDie(Die d, int position){
+        this.placeDie(d, position, PlacementConstraint.standardConstraint());
+    }
+
+    public void moveDie(int position, int destination, PlacementConstraint withConstraint){
+        Die d = this.grid[position].getPlacedDie();
+        this.placeDie(d,destination,withConstraint);
+        this.grid[position].setPlacedDie(null);
     }
 
     @Override

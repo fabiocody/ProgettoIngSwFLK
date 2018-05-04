@@ -1,6 +1,7 @@
 package it.polimi.ingsw.patterncards;
 
 import it.polimi.ingsw.dice.Die;
+import it.polimi.ingsw.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.util.*;
 
 
@@ -26,19 +27,10 @@ public class Cell {
         return placedDie;
     }
 
-    /*public void placeDie(Die d, PlacementConstraint withConstraint){
-        //TODO
-    }*/
-
-/*    public void placeDie(Die d){
-        this.placedDie = d;
+    void setPlacedDie(Die placedDie) {
+        this.placedDie = placedDie;
     }
 
-    public void moveDie(Die d, Cell destination){
-        destination.placeDie(d);
-        this.placedDie = null;
-    }
-*/
     @Override
     public String toString() {
         String cell ="";
