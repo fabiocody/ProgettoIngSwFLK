@@ -1,5 +1,6 @@
 package it.polimi.ingsw.dice;
 
+import it.polimi.ingsw.util.Colorify;
 import it.polimi.ingsw.util.Colors;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -36,6 +37,6 @@ public class Die {
     }
 
     public String toString() {
-        return this.color.escape() + "[" + this.value + "]" + Colors.RESET.escape();
+        return Colorify.colorify("[" + this.value + "]" , this.color);
     }
 }

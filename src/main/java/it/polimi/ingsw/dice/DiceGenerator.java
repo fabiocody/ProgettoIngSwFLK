@@ -30,7 +30,7 @@ public class DiceGenerator {
         return draftPool;
     }
 
-    public Die generate() throws NoMoreDiceException {
+    public Die generate() {
         if (remainingDice.isEmpty()) {
             throw new NoMoreDiceException("there are no more dice");
         }
@@ -57,11 +57,11 @@ public class DiceGenerator {
     }
 
     public String toString() {
-        return "in the bag there are: " + "\n"+ Colors.RED.escape() + "[" + remainingDice.get(Colors.RED)+ "]" + Colors.RESET.escape() + " red dice remaining" + "\n"
-                + Colors.GREEN.escape() + "[" + remainingDice.get(Colors.GREEN)+ "]" + Colors.RESET.escape() + " green dice remaining" + "\n"
-                + Colors.YELLOW.escape() + "[" + remainingDice.get(Colors.YELLOW)+ "]" + Colors.RESET.escape() + " yellow dice remaining" + "\n"
-                + Colors.BLUE.escape() + "[" + remainingDice.get(Colors.BLUE)+ "]" + Colors.RESET.escape() + " blue dice remaining" + "\n"
-                + Colors.PURPLE.escape() + "[" + remainingDice.get(Colors.PURPLE)+ "]" + Colors.RESET.escape() + " purple dice remaining";
+        return "in the bag there are: " + "\n"+ Colorify.colorify("[" + remainingDice.get(Colors.RED) + "]" , Colors.RED) + " red dice remaining" + "\n"
+                + Colorify.colorify("[" + remainingDice.get(Colors.GREEN) + "]" , Colors.GREEN) + " green dice remaining" + "\n"
+                + Colorify.colorify("[" + remainingDice.get(Colors.YELLOW) + "]" , Colors.YELLOW) + " yellow dice remaining" + "\n"
+                + Colorify.colorify("[" + remainingDice.get(Colors.BLUE) + "]" , Colors.BLUE) + " blue dice remaining" + "\n"
+                + Colorify.colorify("[" + remainingDice.get(Colors.PURPLE) + "]" , Colors.PURPLE) + " purple dice remaining";
     }
 }
 
