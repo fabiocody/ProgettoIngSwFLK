@@ -14,6 +14,7 @@ public class Die {
 
     public Die(Colors color) {
         this.color = color;
+        this.roll();
     }
 
     public Die() {}
@@ -28,10 +29,6 @@ public class Die {
 
     public void setValue(int newVal) {
         this.value = newVal;
-    }
-
-    public void setColor(Colors color) {
-        this.color = color;
     }
 
     public void roll() {
