@@ -27,4 +27,14 @@ public class PatternCardsGenerator {
     public List <WindowPattern> getCards(){
         return this.generatedCards;
     }
+
+    public List <WindowPattern> getCard(){
+        if(this.generatedCards.isEmpty())
+            throw new IllegalStateException("No more pattern cards");
+
+        List<WindowPattern> card = new ArrayList<>();
+        card.add(this.generatedCards.remove(0));
+        card.add(this.generatedCards.remove(0));
+        return card;
+    }
 }
