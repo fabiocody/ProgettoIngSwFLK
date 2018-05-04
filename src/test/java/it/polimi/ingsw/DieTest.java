@@ -6,6 +6,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import it.polimi.ingsw.dice.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 public class DieTest {
 
@@ -34,5 +39,34 @@ public class DieTest {
     public void generateTest() {
         Die d = generator.generate();
         assertNotNull(d);
+    }
+
+    @Test
+    public void maxDiceGenerated() {
+        DiceGenerator generator = new DiceGenerator(4);
+        for (int i=0; i<90; i++) {
+            assertNotNull(generator.generate());
+        }
+        assertThrows(NoMoreDiceException.class, generator::generate);
+    }
+
+    @Test
+    public void maxDiceColorGenerator() {
+        DiceGenerator generator = new DiceGenerator(4);
+        Map<Colors, Integer> generatedDice = new HashMap<>();
+        generatedDice.put(Colors.RED, 0);
+        generatedDice.put(Colors.GREEN, 0);
+        generatedDice.put(Colors.YELLOW, 0);
+        generatedDice.put(Colors.BLUE, 0);
+        generatedDice.put(Colors.PURPLE, 0);
+
+        for (int i=0; i<90; i++) {
+            Die d = generator.generate();
+            generatedDice.replace(d.getColor(), generatedDice.get(d.getColor())+1);
+        }
+
+        for (Integer v : generatedDice.values())
+            assertEquals(18, v.intValue());
+
     }
 }

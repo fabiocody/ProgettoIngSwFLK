@@ -12,12 +12,10 @@ public class DiceGenerator {
     private int numberOfPlayers; 
     private Map<Colors, Integer> remainingDice;
 
-    public DiceGenerator(int numOfStartingPlayers) {  //serve implementazione classe Game per metodo getNumberOfPlayers()
+    public DiceGenerator(int numOfStartingPlayers) {
         random = ThreadLocalRandom.current();
         draftPool = new ArrayList<>();
         numberOfPlayers = numOfStartingPlayers;
-
-
         remainingDice = new HashMap<>();
         remainingDice.put(Colors.RED, 18);
         remainingDice.put(Colors.GREEN, 18);
@@ -32,22 +30,17 @@ public class DiceGenerator {
     }
 
     public Die generate() throws NoMoreDiceException {
-        Die die = new Die();
-
         if (remainingDice.isEmpty()) {
             throw new NoMoreDiceException("there are no more dice");
         }
-
-        Colors randomColor = Colors.values()[random.nextInt(0, Colors.values().length - 1)];
+        List<Colors> remainingColors = new ArrayList<>(remainingDice.keySet());
+        Colors randomColor = remainingColors.get(random.nextInt(0, remainingColors.size()));
         Integer value = remainingDice.get(randomColor);
-
-        die.color = randomColor;
+        Die die = new Die(randomColor);
         die.roll();
         remainingDice.replace(randomColor, value, value-1);
-
         if ( remainingDice.get(randomColor) == 0 )
             remainingDice.remove(randomColor);
-
         return die;
     }
 
@@ -59,8 +52,7 @@ public class DiceGenerator {
     }
 
     public Die drawDieFromDraftPool(int index) {
-        Die die = draftPool.remove(index);
-        return die;
+        return draftPool.remove(index);
     }
 }
 
