@@ -1,6 +1,7 @@
 package it.polimi.ingsw.dice;
 
 import it.polimi.ingsw.util.Colors;
+import it.polimi.ingsw.util.Colorify;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -53,6 +54,14 @@ public class DiceGenerator {
 
     public Die drawDieFromDraftPool(int index) {
         return draftPool.remove(index);
+    }
+
+    public String toString() {
+        return "in the bag there are: " + "\n"+ Colors.RED.escape() + "[" + remainingDice.get(Colors.RED)+ "]" + Colors.RESET.escape() + " red dice remaining" + "\n"
+                + Colors.GREEN.escape() + "[" + remainingDice.get(Colors.GREEN)+ "]" + Colors.RESET.escape() + " green dice remaining" + "\n"
+                + Colors.YELLOW.escape() + "[" + remainingDice.get(Colors.YELLOW)+ "]" + Colors.RESET.escape() + " yellow dice remaining" + "\n"
+                + Colors.BLUE.escape() + "[" + remainingDice.get(Colors.BLUE)+ "]" + Colors.RESET.escape() + " blue dice remaining" + "\n"
+                + Colors.PURPLE.escape() + "[" + remainingDice.get(Colors.PURPLE)+ "]" + Colors.RESET.escape() + " purple dice remaining";
     }
 }
 
