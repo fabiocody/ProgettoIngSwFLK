@@ -1,5 +1,10 @@
 package it.polimi.ingsw.objectivecards;
 
+import it.polimi.ingsw.dice.Die;
+import it.polimi.ingsw.patterncards.Cell;
+import it.polimi.ingsw.util.Colors;
+import java.util.Arrays;
+
 
 public class PrivateObjectiveCard3 extends ObjectiveCard {
 
@@ -8,11 +13,12 @@ public class PrivateObjectiveCard3 extends ObjectiveCard {
                 "Somma dei valori su tutti i dadi verdi");
     }
 
-    public int calcScore() {
-        // TODO
-        /*
-         *  return Arrays.stream(grid).filter(x -> x.color == Colors.GREEN).mapToInt(x -> x.value).sum()
-         */
-        return this.getVictoryPoints();
+    public int calcScore(Cell[] grid) {
+        return Arrays.stream(grid)
+                .filter(c -> c.getPlacedDie() != null)
+                .map(Cell::getPlacedDie)
+                .filter(d -> d.getColor() == Colors.GREEN)
+                .mapToInt(Die::getValue)
+                .sum();
     }
 }

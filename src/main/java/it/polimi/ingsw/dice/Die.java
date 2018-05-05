@@ -4,8 +4,20 @@ import it.polimi.ingsw.util.Colors;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Die {
-    int value;
-    Colors color;
+    private int value;
+    private Colors color;
+
+    public Die(Colors color, int value) {
+        this.color = color;
+        this.value = value;
+    }
+
+    public Die(Colors color) {
+        this.color = color;
+        this.roll();
+    }
+
+    public Die() {}
 
     public int getValue() {
         return this.value;
@@ -20,6 +32,10 @@ public class Die {
     }
 
     public void roll() {
-        this.value = ThreadLocalRandom.current().nextInt(1,7);
+        this.setValue(ThreadLocalRandom.current().nextInt(1,7));
+    }
+
+    public String toString() {
+        return this.color.escape() + "[" + this.value + "]" + Colors.RESET.escape();
     }
 }

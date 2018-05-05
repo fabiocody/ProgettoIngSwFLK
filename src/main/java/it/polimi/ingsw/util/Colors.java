@@ -3,11 +3,11 @@ package it.polimi.ingsw.util;
 
 public enum Colors {
 
-    RED("\u001B[91m"),
-    GREEN("\u001B[92m"),
-    YELLOW("\u001B[93m"),
-    BLUE("\u001B[94m"),
-    PURPLE("\u001B[95m"),
+    RED("\u001B[31m"),
+    GREEN("\u001B[32m"),
+    YELLOW("\u001B[33m"),
+    BLUE("\u001B[34m"),
+    PURPLE("\u001B[35m"),
     RESET("\u001B[0m");
 
     private String ansiCode;

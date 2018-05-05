@@ -1,5 +1,9 @@
 package it.polimi.ingsw.objectivecards;
 
+import it.polimi.ingsw.patterncards.Cell;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 
 public class PublicObjectiveCard3 extends ObjectiveCard {
 
@@ -9,16 +13,18 @@ public class PublicObjectiveCard3 extends ObjectiveCard {
                 5);
     }
 
-    public int calcScore() {
-        // TODO
-        /*
-         *  score = 0
-         *  for row in grid
-         *      if Arrays.stream(row).map(x -> x.value).distinct().collect(Collectors.toList()).size() == row.length
-         *          score += this.score
-         *  return score
-         */
-        return this.getVictoryPoints();
+    public int calcScore(Cell[] grid) {
+        int score = 0;
+        for (int i = 0; i < 4; i++) {
+            int numberOfDistinctValues = Arrays.stream(Arrays.copyOfRange(grid, i * 5, (i + 1) * 5))
+                    .filter(c -> c.getPlacedDie() != null)
+                    .map(c -> c.getPlacedDie().getValue())
+                    .distinct()
+                    .collect(Collectors.toList())
+                    .size();
+            if (numberOfDistinctValues == 5) score += this.getVictoryPoints();
+        }
+        return score;
     }
 
 }
