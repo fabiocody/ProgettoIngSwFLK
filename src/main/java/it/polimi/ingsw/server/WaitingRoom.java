@@ -6,12 +6,19 @@ import java.util.*;
 // This class represent the waiting room of the server
 public class WaitingRoom extends Observable {
 
+    private static WaitingRoom instance;
     private List<String> nicknames;
     private long timeout;
     private Timer timer;
 
-    public WaitingRoom() {
+    private WaitingRoom() {
         this.timeout = 2;  // TODO configuration file
+    }
+
+    public static WaitingRoom getInstance() {
+        if (instance == null)
+            instance = new WaitingRoom();
+        return instance;
     }
 
     public List<String> getNicknames() {

@@ -7,26 +7,19 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class WaitingRoomTest {
 
-    private static WaitingRoom waitingRoom;
-
-    @BeforeAll
-    static void setup() {
-        waitingRoom = new WaitingRoom();
-    }
-
     @Test
     void addPlayerTest() {
-        assertTrue(waitingRoom.addPlayer("James"));
-        assertEquals(1, waitingRoom.getNicknames().size());
-        assertFalse(waitingRoom.addPlayer("James"));
-        assertTrue(waitingRoom.addPlayer("George"));
-        assertEquals(2, waitingRoom.getNicknames().size());
-        assertFalse(waitingRoom.addPlayer("George"));
-        assertTrue(waitingRoom.addPlayer("Peter"));
-        assertEquals(3, waitingRoom.getNicknames().size());
-        assertFalse(waitingRoom.addPlayer("Peter"));
-        assertTrue(waitingRoom.addPlayer("John"));
-        assertEquals(0, waitingRoom.getNicknames().size());
+        assertTrue(WaitingRoom.getInstance().addPlayer("James"));
+        assertEquals(1, WaitingRoom.getInstance().getNicknames().size());
+        assertFalse(WaitingRoom.getInstance().addPlayer("James"));
+        assertTrue(WaitingRoom.getInstance().addPlayer("George"));
+        assertEquals(2, WaitingRoom.getInstance().getNicknames().size());
+        assertFalse(WaitingRoom.getInstance().addPlayer("George"));
+        assertTrue(WaitingRoom.getInstance().addPlayer("Peter"));
+        assertEquals(3, WaitingRoom.getInstance().getNicknames().size());
+        assertFalse(WaitingRoom.getInstance().addPlayer("Peter"));
+        assertTrue(WaitingRoom.getInstance().addPlayer("John"));
+        assertEquals(0, WaitingRoom.getInstance().getNicknames().size());
     }
 
 }

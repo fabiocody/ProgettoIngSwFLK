@@ -12,12 +12,8 @@ public class SagradaServer implements Observer {
     private WaitingRoom waitingRoom;
     private List<Game> games;
 
-    public WaitingRoom getWaitingRoom() {
-        if (this.waitingRoom == null) {
-            this.waitingRoom = new WaitingRoom();
-            this.waitingRoom.addObserver(this);
-        }
-        return this.waitingRoom;
+    SagradaServer() {
+        WaitingRoom.getInstance().addObserver(this);
     }
 
     List<Game> getGames() {

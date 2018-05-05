@@ -19,7 +19,7 @@ public class Game implements Runnable {
     private RoundTrack roundTrack;
     private Map<Player, Integer> finalScores;
 
-    Game(List<String> players) {
+    public Game(List<String> players) {
         this.players = players.stream().map(Player::new).collect(Collectors.toList());
     }
 
