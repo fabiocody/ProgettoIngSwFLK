@@ -27,13 +27,13 @@ public class WaitingRoom extends Observable {
         return this.nicknames;
     }
 
-    private synchronized Timer getTimer() {
+    private Timer getTimer() {
         if (this.timer == null)
             this.timer = new Timer(true);
         return this.timer;
     }
 
-    private synchronized void cancelTimer() {
+    private void cancelTimer() {
         getTimer().cancel();
         getTimer().purge();
         this.timer = null;

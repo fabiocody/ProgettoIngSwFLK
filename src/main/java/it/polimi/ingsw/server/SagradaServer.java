@@ -24,6 +24,6 @@ public class SagradaServer implements Observer {
     // Observer method, instantiate and start a game when called
     public void update(Observable o, Object arg) {
         if (o instanceof WaitingRoom)
-            new Thread(() -> getGames().add((Game) arg)).start();
+            getGames().add((Game) arg);
     }
 }

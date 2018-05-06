@@ -10,6 +10,8 @@ public class TurnManager extends Observable {
     private List<Player> players;
     private List<Integer> playersOrder;
     private int index;
+    private Timer timer;
+    private int timeout = 30;     // TODO Load from file
 
     public TurnManager(List<Player> players) {
         this.players = players;
@@ -18,6 +20,7 @@ public class TurnManager extends Observable {
         this.playersOrder = Stream.concat(forwardRange, backRange).collect(Collectors.toList());
         this.index = 0;
         this.setActivePlayer(this.getCurrentPlayer());
+        // TODO Set timer for first turn of first round
     }
 
     private int getNumberOfPlayers() {
@@ -39,6 +42,7 @@ public class TurnManager extends Observable {
     }
 
     public void nextTurn() {
+        this.cancelTimer();
         this.index++;
         if (this.index == this.playersOrder.size()) {
             this.index = 0;
@@ -47,6 +51,23 @@ public class TurnManager extends Observable {
             this.notifyObservers();
         }
         this.setActivePlayer(this.getCurrentPlayer());
+        this.getTimer().schedule(new TimerTask() {
+            public void run() {
+                nextTurn();
+            }
+        }, this.timeout * 1000);        // delay is in milliseconds
+    }
+
+    private Timer getTimer() {
+        if (this.timer == null)
+            this.timer = new Timer(true);
+        return this.timer;
+    }
+
+    private void cancelTimer() {
+        getTimer().cancel();
+        getTimer().purge();
+        this.timer = null;
     }
 
 }
