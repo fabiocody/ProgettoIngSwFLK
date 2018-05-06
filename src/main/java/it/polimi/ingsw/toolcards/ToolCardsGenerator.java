@@ -1,7 +1,6 @@
 package it.polimi.ingsw.toolcards;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -12,16 +11,15 @@ public class ToolCardsGenerator {
     }
 
     public static List<ToolCard> generate() {
-        List<ToolCard> cards = new ArrayList<>();
+        List<ToolCard> cards = new Vector<>();
         for (int i = 0; i < 3; i++) {
-            ToolCard newCard = null;
+            ToolCard newCard;
             do {
                 String className = "it.polimi.ingsw.toolcards.ToolCard" + ThreadLocalRandom.current().nextInt(1, 13);
                 try {
                     newCard = (ToolCard) Class.forName(className).newInstance();
                 } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                    // TODO
-                    break;
+                    throw new NoSuchToolCardException(className);
                 }
             } while (cards.contains(newCard));
             cards.add(newCard);
