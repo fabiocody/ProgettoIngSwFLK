@@ -3,16 +3,10 @@ package it.polimi.ingsw.server;
 import it.polimi.ingsw.dice.DiceGenerator;
 import it.polimi.ingsw.objectivecards.*;
 import it.polimi.ingsw.patterncards.PatternCardsGenerator;
-import it.polimi.ingsw.patterncards.WindowPattern;
 import it.polimi.ingsw.toolcards.*;
-
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 
 // This class contains all the information about the current game
