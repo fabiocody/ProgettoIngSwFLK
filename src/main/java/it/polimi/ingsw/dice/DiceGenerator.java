@@ -1,7 +1,6 @@
 package it.polimi.ingsw.dice;
 
-import it.polimi.ingsw.util.Colors;
-import it.polimi.ingsw.util.Colorify;
+import it.polimi.ingsw.util.*;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -17,7 +16,7 @@ public class DiceGenerator {
         random = ThreadLocalRandom.current();
         draftPool = new ArrayList<>();
         numberOfPlayers = numOfStartingPlayers;
-        remainingDice = new HashMap<>();
+        remainingDice = new EnumMap<>(Colors.class);
         remainingDice.put(Colors.RED, 18);
         remainingDice.put(Colors.GREEN, 18);
         remainingDice.put(Colors.YELLOW, 18);
