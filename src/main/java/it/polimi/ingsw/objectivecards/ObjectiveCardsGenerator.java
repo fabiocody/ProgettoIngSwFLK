@@ -8,15 +8,15 @@ public class ObjectiveCardsGenerator {
 
     private List<ObjectiveCard> generatedPrivates;
     private int numberOfPlayers;
-    private boolean publicsAlreadyGenerated;
+    private boolean publicCardsAlreadyGenerated;
 
     public ObjectiveCardsGenerator(int numberOfPlayers) {
         this.numberOfPlayers = numberOfPlayers;
-        this.publicsAlreadyGenerated = false;
+        this.publicCardsAlreadyGenerated = false;
     }
 
-    public List<ObjectiveCard> generatePublic() {
-        if (publicsAlreadyGenerated) throw new NoMoreCardsException();
+    public synchronized List<ObjectiveCard> generatePublic() {
+        if (publicCardsAlreadyGenerated) throw new NoMoreCardsException();
         List<ObjectiveCard> generatedPublics = new Vector<>();
         for (int i = 0; i < 3; i++) {
             ObjectiveCard newCard;
@@ -30,11 +30,11 @@ public class ObjectiveCardsGenerator {
             } while (generatedPublics.contains(newCard));
             generatedPublics.add(newCard);
         }
-        this.publicsAlreadyGenerated = true;
+        this.publicCardsAlreadyGenerated = true;
         return generatedPublics;
     }
 
-    private void generatePrivates() {
+    private synchronized void generatePrivates() {
         if (generatedPrivates == null) {
             generatedPrivates = new Vector<>();
             for (int i = 0; i < this.numberOfPlayers; i++) {
@@ -61,7 +61,7 @@ public class ObjectiveCardsGenerator {
     }
 
     public String toString() {
-        return super.toString() + "\nRemaining public objective cards: " + (publicsAlreadyGenerated ? 0 : 3) + "\nRemaining private objective cards: " + (generatedPrivates == null ? 4 : generatedPrivates.size());
+        return super.toString() + "\nRemaining public objective cards: " + (publicCardsAlreadyGenerated ? 0 : 3) + "\nRemaining private objective cards: " + (generatedPrivates == null ? 4 : generatedPrivates.size());
     }
 
 }
