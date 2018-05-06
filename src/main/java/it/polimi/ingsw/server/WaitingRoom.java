@@ -15,25 +15,25 @@ public class WaitingRoom extends Observable {
         this.timeout = 2;  // TODO configuration file
     }
 
-    public static WaitingRoom getInstance() {
+    public static synchronized WaitingRoom getInstance() {
         if (instance == null)
             instance = new WaitingRoom();
         return instance;
     }
 
-    public List<String> getNicknames() {
+    public synchronized List<String> getNicknames() {
         if (this.nicknames == null)
             this.nicknames = new Vector<>();
         return this.nicknames;
     }
 
-    private Timer getTimer() {
+    private synchronized Timer getTimer() {
         if (this.timer == null)
             this.timer = new Timer(true);
         return this.timer;
     }
 
-    private void cancelTimer() {
+    private synchronized void cancelTimer() {
         getTimer().cancel();
         getTimer().purge();
         this.timer = null;

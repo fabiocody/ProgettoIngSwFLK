@@ -9,7 +9,6 @@ import java.util.Vector;
 // Main server class
 public class SagradaServer implements Observer {
 
-    private WaitingRoom waitingRoom;
     private List<Game> games;
 
     SagradaServer() {
@@ -24,10 +23,7 @@ public class SagradaServer implements Observer {
 
     // Observer method, instantiate and start a game when called
     public void update(Observable o, Object arg) {
-        if (o instanceof WaitingRoom) {
-            Game newGame = (Game) arg;
-            getGames().add(newGame);
-            new Thread(newGame).start();
-        }
+        if (o instanceof WaitingRoom)
+            new Thread(() -> getGames().add((Game) arg)).start();
     }
 }

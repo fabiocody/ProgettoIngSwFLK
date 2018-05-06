@@ -1,11 +1,13 @@
 package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.objectivecards.ObjectiveCard;
+import it.polimi.ingsw.patterncards.WindowPattern;
 
 
 // This class represents a player
 public class Player {
 
+    // Attributes
     private String nickname;
     private int favorTokens;
     private WindowPattern windowPattern;
@@ -14,15 +16,14 @@ public class Player {
     private boolean privateObjectiveCardSet;    // True iff this player has already been assigned a Private Objective Card (to prevent alterations)
     private boolean active;
 
-    public Player(String nickname, int favorTokens) {
-        this.nickname = nickname;
-        this.favorTokens = favorTokens;
-        this.windowPatternSet = false;
-        this.privateObjectiveCardSet = false;
-    }
+    // Locks
+    private final Object favorTokensLock = new Object();
+    private final Object windowPatternLock = new Object();
+    private final Object privateObjectiveCardLock = new Object();
+    private final Object activeLock = new Object();
 
     public Player(String nickname) {
-        this(nickname, 0);
+        this.nickname = nickname;
     }
 
     public String getNickname() {
@@ -30,61 +31,74 @@ public class Player {
     }
 
     public int getFavorTokens() {
-        return this.favorTokens;
+        synchronized (favorTokensLock) {
+            return this.favorTokens;
+        }
     }
 
     public void setFavorTokens(int favorTokens) {
-        this.favorTokens = favorTokens;
+        synchronized (favorTokensLock) {
+            this.favorTokens = favorTokens;
+        }
     }
 
     public WindowPattern getWindowPattern() {
-        return this.windowPattern;
+        synchronized (windowPatternLock) {
+            if (this.windowPattern == null)
+                throw new IllegalStateException("Window Pattern not assigned yet");
+            return this.windowPattern;
+        }
     }
 
     // This method is designed to allow only one assignment of windowPattern
     public void setWindowPattern(WindowPattern windowPattern) {
-        if (!windowPatternSet) {
-            this.windowPattern = windowPattern;
-            this.windowPatternSet = true;
-        } else {
-            throw new IllegalStateException("Cannot set another Window Pattern");
+        synchronized (windowPatternLock) {
+            if (!windowPatternSet) {
+                this.windowPattern = windowPattern;
+                this.windowPatternSet = true;
+                synchronized (favorTokensLock) {
+                    this.setFavorTokens(this.getWindowPattern().getDifficulty());
+                }
+            } else {
+                throw new IllegalStateException("Cannot set another Window Pattern");
+            }
         }
     }
 
     public ObjectiveCard getPrivateObjectiveCard() {
-        return this.privateObjectiveCard;
+        synchronized (privateObjectiveCardLock) {
+            if (this.privateObjectiveCard == null)
+                throw new IllegalStateException("Private Objective Card not assigned yet");
+            return this.privateObjectiveCard;
+        }
     }
 
     // This method is designed to allow only one assignment of privateObjectiveCard
     public void setPrivateObjectiveCard(ObjectiveCard privateObjectiveCard) {
-        if (!privateObjectiveCardSet) {
-            this.privateObjectiveCard = privateObjectiveCard;
-            this.privateObjectiveCardSet = true;
-        } else {
-            throw new IllegalStateException("Cannot set another Private Objective Card");
+        synchronized (privateObjectiveCardLock) {
+            if (!privateObjectiveCardSet) {
+                this.privateObjectiveCard = privateObjectiveCard;
+                this.privateObjectiveCardSet = true;
+            } else {
+                throw new IllegalStateException("Cannot set another Private Objective Card");
+            }
         }
     }
 
     public boolean isActive() {
-        return active;
+        synchronized (activeLock) {
+            return active;
+        }
     }
 
     public void setActive(boolean active) {
-        this.active = active;
+        synchronized (activeLock) {
+            this.active = active;
+        }
     }
 
-    public String toString() {
+    public synchronized String toString() {
         return this.getNickname();
     }
-
-}
-
-
-class WindowPattern {   // TODO Remove mockup
-
-    public int getFavorTokens() {
-        return 0;
-    }
-
 
 }
