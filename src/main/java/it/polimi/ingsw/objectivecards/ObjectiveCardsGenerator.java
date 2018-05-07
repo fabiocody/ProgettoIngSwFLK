@@ -1,8 +1,6 @@
 package it.polimi.ingsw.objectivecards;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -10,45 +8,43 @@ public class ObjectiveCardsGenerator {
 
     private List<ObjectiveCard> generatedPrivates;
     private int numberOfPlayers;
-    private boolean publicsAlreadyGenerated;
+    private boolean publicCardsAlreadyGenerated;
 
     public ObjectiveCardsGenerator(int numberOfPlayers) {
         this.numberOfPlayers = numberOfPlayers;
-        this.publicsAlreadyGenerated = false;
+        this.publicCardsAlreadyGenerated = false;
     }
 
-    public List<ObjectiveCard> generatePublic() {
-        if (publicsAlreadyGenerated) throw new NoMoreCardsException();
-        List<ObjectiveCard> generatedPublics = new ArrayList<>();
+    public synchronized List<ObjectiveCard> generatePublic() {
+        if (publicCardsAlreadyGenerated) throw new NoMoreCardsException();
+        List<ObjectiveCard> generatedPublics = new Vector<>();
         for (int i = 0; i < 3; i++) {
-            ObjectiveCard newCard = null;
+            ObjectiveCard newCard;
             do {
                 String className = "it.polimi.ingsw.objectivecards.PublicObjectiveCard" + ThreadLocalRandom.current().nextInt(1, 11);
                 try {
                     newCard = (ObjectiveCard)Class.forName(className).newInstance();
                 } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                    // TODO
-                    break;
+                    throw new NoSuchObjectiveCardException(className);
                 }
             } while (generatedPublics.contains(newCard));
             generatedPublics.add(newCard);
         }
-        this.publicsAlreadyGenerated = true;
+        this.publicCardsAlreadyGenerated = true;
         return generatedPublics;
     }
 
-    private void generatePrivates() {
+    private synchronized void generatePrivates() {
         if (generatedPrivates == null) {
             generatedPrivates = new Vector<>();
             for (int i = 0; i < this.numberOfPlayers; i++) {
-                ObjectiveCard newCard = null;
+                ObjectiveCard newCard;
                 do {
                     String className = "it.polimi.ingsw.objectivecards.PrivateObjectiveCard" + ThreadLocalRandom.current().nextInt(1, 6);
                     try {
                         newCard = (ObjectiveCard) Class.forName(className).newInstance();
                     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                        // TODO
-                        break;
+                        throw new NoSuchObjectiveCardException(className);
                     }
                 } while (generatedPrivates.contains(newCard));
                 generatedPrivates.add(newCard);
@@ -65,7 +61,7 @@ public class ObjectiveCardsGenerator {
     }
 
     public String toString() {
-        return super.toString() + "\nRemaining public objective cards: " + (publicsAlreadyGenerated ? 0 : 3) + "\nRemaining private objective cards: " + (generatedPrivates == null ? 4 : generatedPrivates.size());
+        return super.toString() + "\nRemaining public objective cards: " + (publicCardsAlreadyGenerated ? 0 : 3) + "\nRemaining private objective cards: " + (generatedPrivates == null ? 4 : generatedPrivates.size());
     }
 
 }
