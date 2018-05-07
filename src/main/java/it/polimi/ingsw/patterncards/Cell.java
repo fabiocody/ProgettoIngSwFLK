@@ -1,8 +1,9 @@
 package it.polimi.ingsw.patterncards;
 
 import it.polimi.ingsw.dice.Die;
-import it.polimi.ingsw.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.util.*;
+
+import java.awt.*;
 
 
 public class Cell {
@@ -33,16 +34,14 @@ public class Cell {
 
     @Override
     public String toString() {
-        String cell ="";
         if (this.cellColor != null && this.cellValue != null)
-            cell = this.cellColor.escape() + this.cellValue + " " + Colors.RESET.escape();
+            return Colorify.colorify(this.cellValue + " ", this.cellColor);
         else if (this.cellColor == null && this.cellValue != null)
-            cell = this.cellValue + " " + Colors.RESET.escape();
-        else if (this.cellColor != null && this.cellValue == null)
-            cell = this.cellColor.escape() + "0 " + Colors.RESET.escape();
-        else if (this.cellColor == null && this.cellValue == null)
-            cell = "0 " +Colors.RESET.escape();
-        return cell;
+            return Colorify.colorify(this.cellValue + " ", Colors.RESET);
+        else if (this.cellColor != null)
+            return Colorify.colorify("0 ", this.cellColor);
+        else
+            return Colorify.colorify("0 ", Colors.RESET);
     }
 
     public void dump(){

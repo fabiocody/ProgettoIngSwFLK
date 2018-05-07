@@ -650,6 +650,12 @@ public class WindowPattern {
         return this.grid;
     }
 
+    public Cell getCellAt(int i, int j){
+        if(i < 0 || i > 3 || j < 0 || j > 4)
+            throw new IndexOutOfBoundsException();
+        return this.grid[5*i + j];
+    }
+
     public int getPatternNumber(){
         return this.patternNumber;
     }

@@ -2,8 +2,8 @@ package it.polimi.ingsw.placementconstraints;
 
 import it.polimi.ingsw.dice.Die;
 import it.polimi.ingsw.patterncards.Cell;
-
 import java.util.List;
+
 
 public class OrthogonalConstraint extends Constraint {
 
@@ -17,6 +17,7 @@ public class OrthogonalConstraint extends Constraint {
                 .map(x -> grid[x].getPlacedDie())
                 .filter(die -> die.getColor() == d.getColor() || die.getValue() == d.getValue())
                 .count();
-        return result == 0;
+        return result == 0 && super.checkConstraint(grid, position, d);
     }
+
 }
