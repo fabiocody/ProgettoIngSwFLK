@@ -6,9 +6,9 @@ import it.polimi.ingsw.util.*;
 
 public class WindowPattern {
 
-    private int difficulty;
+    private final int difficulty;
     private Cell[] grid;
-    private int patternNumber;
+    private final int patternNumber;
 
     public WindowPattern(int patternNumber) {
 
@@ -650,24 +650,30 @@ public class WindowPattern {
         return this.grid;
     }
 
-    public Cell getCellAt(int i, int j){
+    public synchronized Cell getCellAt(int i){
+        if(i < 0 || i > 19)
+            throw new IndexOutOfBoundsException();
+        return this.grid[i];
+    }
+
+    public synchronized Cell getCellAt(int i, int j){
         if(i < 0 || i > 3 || j < 0 || j > 4)
             throw new IndexOutOfBoundsException();
-        return this.grid[5*i + j];
+        return this.getCellAt(5*i + j);
     }
 
     public int getPatternNumber(){
         return this.patternNumber;
     }
 
-    public void placeDie(Die d, int position, PlacementConstraint withConstraint){
+    public synchronized void placeDie(Die d, int position, PlacementConstraint withConstraint){
         if(withConstraint.checkConstraint(this.grid, position, d))
             this.grid[position].setPlacedDie(d);
         else
             throw new InvalidPlacementException("Die " + d + " cannot be placed in position " + position);
     }
 
-    public void placeDie(Die d, int position){
+    public synchronized void placeDie(Die d, int position){
         this.placeDie(d, position, PlacementConstraint.standardConstraint());
     }
 
@@ -678,7 +684,7 @@ public class WindowPattern {
     }
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
 
         String pattern = "";
         String line;

@@ -6,7 +6,7 @@ import java.util.Collections;
 
 public class PatternCardsGenerator {
 
-    private List<WindowPattern> generatedCards = new ArrayList<>();
+    private final List<WindowPattern> generatedCards = new ArrayList<>();
 
     public PatternCardsGenerator(int numberOfPlayers){
 
@@ -24,11 +24,11 @@ public class PatternCardsGenerator {
         }
     }
 
-    public List <WindowPattern> getCards(){
+    public synchronized List <WindowPattern> getCards(){
         return this.generatedCards;
     }
 
-    public List <WindowPattern> getCard(){
+    public synchronized List <WindowPattern> getCard(){
         if(this.generatedCards.isEmpty())
             throw new IllegalStateException("No more pattern cards");
 

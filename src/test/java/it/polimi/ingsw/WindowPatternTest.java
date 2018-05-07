@@ -1,11 +1,16 @@
 package it.polimi.ingsw;
 
+import it.polimi.ingsw.dice.Die;
 import it.polimi.ingsw.patterncards.Cell;
 import it.polimi.ingsw.patterncards.PatternCardsGenerator;
 import it.polimi.ingsw.patterncards.WindowPattern;
+import it.polimi.ingsw.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.util.Colors;
 import org.junit.jupiter.api.Test;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -77,5 +82,20 @@ public class WindowPatternTest {
                 }
             }
         }
+    }
+
+    @Test
+    public void BorderConstraintTest(){
+        WindowPattern pattern = new WindowPattern(42);
+        PlacementConstraint con = PlacementConstraint.initialConstraint();
+        Die d = new Die(Colors.getRandomColor(),ThreadLocalRandom.current().nextInt(1, 6));
+        List<Integer> borderPositions = Arrays.asList(0,1,2,3,4,5,9,10,14,15,16,17,18,19);
+        Collections.shuffle(borderPositions);
+        pattern.placeDie(d,borderPositions.get(0),con);
+        for(int i = 0; i < 20; i++){
+            if(i != borderPositions.get(0))
+                assertTrue(pattern.getCellAt(i).getPlacedDie() == null);
+        }
+        assertTrue(pattern.getCellAt(borderPositions.get(0)).getPlacedDie() != null);
     }
 }
