@@ -6,7 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Die {
     private int value;
-    private Colors color;
+    private final Colors color;
 
     public Die(Colors color, int value) {
         this.color = color;
@@ -18,25 +18,23 @@ public class Die {
         this.roll();
     }
 
-    public Die() {}
-
-    public int getValue() {
-        return this.value;
+    public synchronized int getValue() {
+            return this.value;
     }
 
     public Colors getColor() {
-        return this.color;
+            return this.color;
     }
 
-    public void setValue(int newVal) {
-        this.value = newVal;
+    public synchronized void setValue(int newVal) {
+            this.value = newVal;
     }
 
-    public void roll() {
-        this.setValue(ThreadLocalRandom.current().nextInt(1,7));
+    public synchronized void roll() {
+            this.setValue(ThreadLocalRandom.current().nextInt(1, 7));
     }
 
-    public String toString() {
+    public synchronized String toString() {
         return Colorify.colorify("[" + this.value + "]" , this.color);
     }
 }

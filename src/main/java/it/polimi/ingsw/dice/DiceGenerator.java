@@ -26,11 +26,11 @@ public class DiceGenerator {
 
     }
 
-    public List<Die> getDraftPool() {
+    public synchronized List<Die> getDraftPool() {
         return draftPool;
     }
 
-    public Die generate() {
+    public synchronized Die generate() {
         if (remainingDice.isEmpty()) {
             throw new NoMoreDiceException("there are no more dice");
         }
@@ -45,19 +45,20 @@ public class DiceGenerator {
         return die;
     }
 
-    public void generateDraftPool() {
+    public synchronized void generateDraftPool() {
         for (int i = 0; i < (2*numberOfPlayers)+1; i++) {
             Die die = generate();
             draftPool.add(die);
         }
     }
 
-    public Die drawDieFromDraftPool(int index) {
+    public synchronized Die drawDieFromDraftPool(int index) {
         return draftPool.remove(index);
     }
 
-    public String toString() {
-        return "in the bag there are: " + "\n"+ Colorify.colorify("[" + remainingDice.get(Colors.RED) + "]" , Colors.RED) + " red dice remaining" + "\n"
+    public synchronized String toString() {
+        return "in the bag there are: " + "\n"
+                + Colorify.colorify("[" + remainingDice.get(Colors.RED) + "]" , Colors.RED) + " red dice remaining" + "\n"
                 + Colorify.colorify("[" + remainingDice.get(Colors.GREEN) + "]" , Colors.GREEN) + " green dice remaining" + "\n"
                 + Colorify.colorify("[" + remainingDice.get(Colors.YELLOW) + "]" , Colors.YELLOW) + " yellow dice remaining" + "\n"
                 + Colorify.colorify("[" + remainingDice.get(Colors.BLUE) + "]" , Colors.BLUE) + " blue dice remaining" + "\n"
