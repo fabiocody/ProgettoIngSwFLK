@@ -86,7 +86,7 @@ class WindowPatternTest {
     }
 
     @Test
-    void EmptyConstraintTest(){
+    void PlaceDieEmptyConstraintTest(){
         PlacementConstraint con = new EmptyConstraint();
         WindowPattern pattern = new WindowPattern(42);  //default pattern
         Die d1 = new Die(Colors.getRandomColor(),ThreadLocalRandom.current().nextInt(1,6));
@@ -99,6 +99,7 @@ class WindowPatternTest {
                     pattern.placeDie(d2,index,con);
                 });
     }
+
 
     @Test
     void BorderConstraintTest(){
@@ -138,7 +139,6 @@ class WindowPatternTest {
         do{
             j = ThreadLocalRandom.current().nextInt(0,19);
         } while (pattern.getCellAt(j).getCellValue() == null);
-
         Die d = new Die(Colors.getRandomColor(),pattern.getCellAt(j).getCellValue());
         pattern.placeDie(d,j,con);
         assertTrue(pattern.getCellAt(j).getCellValue() == d.getValue());
@@ -160,6 +160,29 @@ class WindowPatternTest {
         }
     }
 
-
+    void OrthogonalConstraintTest(){
+        PlacementConstraint con1 = new EmptyConstraint();
+        PlacementConstraint con2 = new OrthogonalConstraint(new EmptyConstraint());
+        int index = ThreadLocalRandom.current().nextInt(0,19);
+        Colors color = Colors.getRandomColor();
+        int dieValue = ThreadLocalRandom.current().nextInt(1,6);
+        List<Integer> list = Constraint.validOrthogonalPositions(index);
+        Die d1 = new Die(color,ThreadLocalRandom.current().nextInt(1,6));
+        Die d2 = new Die(color,ThreadLocalRandom.current().nextInt(1,6));
+        for(int i: list){
+            WindowPattern pattern = new WindowPattern(42);
+            pattern.placeDie(d1, index,con1);
+            pattern.placeDie(d2,i,con2);
+            assertTrue(pattern.getCellAt(i).getPlacedDie() == d2);
+        }
+        d1 = new Die(Colors.getRandomColor(),dieValue);
+        d2 = new Die(Colors.getRandomColor(),dieValue);
+        for(int i: list){
+            WindowPattern pattern = new WindowPattern(42);
+            pattern.placeDie(d1, index,con1);
+            pattern.placeDie(d2,i,con2);
+            assertTrue(pattern.getCellAt(i).getPlacedDie() == d2);
+        }
+    }
 }
 
