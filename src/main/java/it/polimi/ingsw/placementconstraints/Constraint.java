@@ -20,7 +20,7 @@ public class Constraint implements PlacementConstraint {
         return addedConstraint.checkConstraint(grid, position, d);
     }
 
-    List<Integer> validPositions(int position){
+    public static List<Integer> validPositions(int position){
         List<Integer> list = new ArrayList<>();
         list.addAll(Arrays.asList(  position - 6, position - 5, position - 4,
                                     position - 1,               position + 1,
@@ -48,7 +48,7 @@ public class Constraint implements PlacementConstraint {
         return list;
     }
 
-    List<Integer> validOrthogonalPositions(int position) {
+    public static List<Integer> validOrthogonalPositions(int position) {
         List<Integer> list = validPositions(position);
         list.remove(Integer.valueOf(position - 6));
         list.remove(Integer.valueOf(position - 4));
