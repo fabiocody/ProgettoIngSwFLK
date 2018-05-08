@@ -10,7 +10,7 @@ public class DiceGenerator {
     private ThreadLocalRandom random;
     private List<Die> draftPool;
     private int numberOfPlayers; 
-    private Map<Colors, Integer> remainingDice;
+    private Map<Colors, Integer> remainingDice;         //test commit
 
     public DiceGenerator(int numOfStartingPlayers) {
         random = ThreadLocalRandom.current();
