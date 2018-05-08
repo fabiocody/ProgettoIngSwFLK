@@ -14,7 +14,7 @@ public class DiceGenerator {
 
     public DiceGenerator(int numOfStartingPlayers) {
         random = ThreadLocalRandom.current();
-        draftPool = new ArrayList<>();
+        draftPool = new Vector<>();
         numberOfPlayers = numOfStartingPlayers;
         remainingDice = new EnumMap<>(Colors.class);
         remainingDice.put(Colors.RED, 18);
