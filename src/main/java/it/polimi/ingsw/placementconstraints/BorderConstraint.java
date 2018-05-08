@@ -10,6 +10,7 @@ public class BorderConstraint extends Constraint {
         super(p);
     }
 
+    @Override
     public boolean checkConstraint(Cell[] grid, int position, Die d) {
         return (position % 5 == 0 || position % 5 == 4 || position >= 0 && position < 5 || position >= 15 && position < 20)  && super.checkConstraint(grid, position, d);
     }

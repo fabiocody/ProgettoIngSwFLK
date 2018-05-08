@@ -54,6 +54,10 @@ public class TurnManager extends Observable {
         this.getTimer().schedule(this::nextTurn);
     }
 
+    CountdownTimer getTimerReference() {
+        return this.timer;
+    }
+
     private CountdownTimer getTimer() {
         if (this.timer == null)
             this.timer = new CountdownTimer(this.timeout);

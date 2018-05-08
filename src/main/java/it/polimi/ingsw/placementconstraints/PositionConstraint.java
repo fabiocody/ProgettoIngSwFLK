@@ -11,6 +11,7 @@ public class PositionConstraint extends Constraint {
         super(p);
     }
 
+    @Override
     public boolean checkConstraint(Cell[] grid, int position, Die d) {
         List<Integer> validPositions = validPositions(position);
         Long result = validPositions.stream()

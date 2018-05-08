@@ -165,7 +165,12 @@ public class Game implements Observer {
     }
 
     public void update(Observable o, Object arg) {
-        if (o instanceof RoundTrack) new Thread(this::endGame).start();
+        if (o instanceof RoundTrack) {
+            if (arg.equals("Round incremented"))
+                this.getRoundTrack().putDie(this.getDiceGenerator().getDraftPool());
+            else if (arg.equals("Game over"))
+                new Thread(this::endGame).start();
+        }
     }
 
 }

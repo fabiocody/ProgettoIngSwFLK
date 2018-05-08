@@ -29,6 +29,10 @@ public class WaitingRoom extends Observable {
         return this.nicknames;
     }
 
+    CountdownTimer getTimerReference() {
+        return this.timer;
+    }
+
     private CountdownTimer getTimer() {
         if (this.timer == null)
             this.timer = new CountdownTimer(this.timeout);

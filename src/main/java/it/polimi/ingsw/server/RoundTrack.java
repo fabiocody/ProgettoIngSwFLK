@@ -47,9 +47,11 @@ public class RoundTrack extends Observable implements Observer {
                 if (this.currentRound == 10 && !gameOver) {
                     this.gameOver = true;
                     this.setChanged();
-                    this.notifyObservers();
+                    this.notifyObservers("Game over");
                 } else if (!gameOver) {
                     this.currentRound++;
+                    this.setChanged();
+                    this.notifyObservers("Round incremented");
                 }
             }
         }
@@ -65,6 +67,7 @@ public class RoundTrack extends Observable implements Observer {
     public void putDie(List<Die> fromDraftPool) {
         synchronized (diceLock) {
             this.getDice().addAll(fromDraftPool);
+            fromDraftPool.clear();
         }
     }
 

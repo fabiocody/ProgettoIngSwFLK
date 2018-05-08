@@ -16,6 +16,7 @@ public class Constraint implements PlacementConstraint {
         this.addedConstraint = p;
     }
 
+    @Override
     public boolean checkConstraint(Cell[] grid, int position, Die d) {
         return addedConstraint.checkConstraint(grid, position, d);
     }

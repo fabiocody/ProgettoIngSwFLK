@@ -10,6 +10,7 @@ public class ColorConstraint extends Constraint {
         super(p);
     }
 
+    @Override
     public boolean checkConstraint(Cell[] grid, int position, Die d) {
         return (grid[position].getCellColor() == null || grid[position].getCellColor() == d.getColor()) && super.checkConstraint(grid, position, d);
     }

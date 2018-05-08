@@ -10,6 +10,7 @@ public class ValueConstraint extends Constraint {
         super(p);
     }
 
+    @Override
     public boolean checkConstraint(Cell[] grid, int position, Die d) {
         return (grid[position].getCellValue() == null || grid[position].getCellValue() == d.getValue()) && super.checkConstraint(grid, position, d);
     }
