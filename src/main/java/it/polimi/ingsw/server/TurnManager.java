@@ -11,7 +11,7 @@ public class TurnManager extends Observable {
     private List<Integer> playersOrder;
     private int index;
     private Timer timer;
-    private int timeout = 30;     // TODO Load from file
+    private lon timeout = 30;     // TODO Load from file
 
     public TurnManager(List<Player> players) {
         this.players = players;
