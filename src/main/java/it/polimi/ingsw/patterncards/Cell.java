@@ -24,7 +24,7 @@ public class Cell {
         return this.cellValue;
     }
 
-    public Die getPlacedDie() {
+    public synchronized Die getPlacedDie() {
         return placedDie;
     }
 
