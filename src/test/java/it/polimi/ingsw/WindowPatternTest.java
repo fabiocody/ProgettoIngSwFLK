@@ -78,7 +78,7 @@ class WindowPatternTest {
         for (WindowPattern wp : patterns) {
             for(Cell c: wp.getGrid()){
                 if(c.getCellColor() != null) {
-                    assertTrue(c.getCellColor() instanceof Colors);
+                    assertTrue(c.getCellColor() instanceof Colors && c.getCellColor() != Colors.RESET);
                 }
             }
         }
