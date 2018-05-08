@@ -29,7 +29,7 @@ public class CountdownTimer extends Observable implements Runnable {
     }
 
     public void cancel() {
-        this.timerThread.interrupt();
+        if (this.timerThread != null) this.timerThread.interrupt();
         this.remainingTime = 0;
         this.task = null;
         this.timerThread = null;
@@ -47,7 +47,7 @@ public class CountdownTimer extends Observable implements Runnable {
                 this.notifyObservers(this.remainingTime);
                 Thread.sleep(1000);
             }
-            this.task.run();
+            if (this.task != null) this.task.run();
         } catch (InterruptedException e) {
             //System.out.println("Timer interrupted");
             Thread.currentThread().interrupt();
