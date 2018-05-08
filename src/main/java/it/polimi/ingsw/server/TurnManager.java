@@ -1,6 +1,6 @@
 package it.polimi.ingsw.server;
 
-
+import it.polimi.ingsw.util.CountdownTimer;
 import java.util.*;
 import java.util.stream.*;
 
@@ -10,8 +10,8 @@ public class TurnManager extends Observable {
     private List<Player> players;
     private List<Integer> playersOrder;
     private int index;
-    private Timer timer;
-    private long timeout = 30;     // TODO Load from file
+    private CountdownTimer timer;
+    private int timeout = 30;     // TODO Load from file
 
     public TurnManager(List<Player> players) {
         this.players = players;
@@ -51,22 +51,17 @@ public class TurnManager extends Observable {
             this.notifyObservers();
         }
         this.setActivePlayer(this.getCurrentPlayer());
-        this.getTimer().schedule(new TimerTask() {
-            public void run() {
-                nextTurn();
-            }
-        }, this.timeout * 1000);        // delay is in milliseconds
+        this.getTimer().schedule(this::nextTurn);
     }
 
-    private Timer getTimer() {
+    private CountdownTimer getTimer() {
         if (this.timer == null)
-            this.timer = new Timer(true);
+            this.timer = new CountdownTimer(this.timeout);
         return this.timer;
     }
 
     private void cancelTimer() {
         getTimer().cancel();
-        getTimer().purge();
         this.timer = null;
     }
 

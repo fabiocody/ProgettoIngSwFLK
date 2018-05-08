@@ -1,5 +1,7 @@
 package it.polimi.ingsw.server;
 
+import it.polimi.ingsw.util.CountdownTimer;
+
 import java.util.*;
 
 
@@ -8,8 +10,8 @@ public class WaitingRoom extends Observable {
 
     private static WaitingRoom instance;
     private List<String> nicknames;
-    private long timeout;
-    private Timer timer;
+    private int timeout;
+    private CountdownTimer timer;
 
     private WaitingRoom() {
         this.timeout = 2;  // TODO configuration file
@@ -27,15 +29,14 @@ public class WaitingRoom extends Observable {
         return this.nicknames;
     }
 
-    private Timer getTimer() {
+    private CountdownTimer getTimer() {
         if (this.timer == null)
-            this.timer = new Timer(true);
+            this.timer = new CountdownTimer(this.timeout);
         return this.timer;
     }
 
     private void cancelTimer() {
         getTimer().cancel();
-        getTimer().purge();
         this.timer = null;
     }
 
@@ -47,11 +48,7 @@ public class WaitingRoom extends Observable {
         this.getNicknames().add(nickname);
         if (this.getNicknames().size() == 2) {
             this.cancelTimer();
-            this.getTimer().schedule(new TimerTask() {
-                    public void run() {
-                        createGame();
-                    }
-                }, this.timeout * 1000);        // delay is in milliseconds
+            this.getTimer().schedule(this::createGame);
         } else if (this.getNicknames().size() == 4) {
             this.createGame();
         }
