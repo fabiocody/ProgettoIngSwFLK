@@ -1,5 +1,6 @@
 package it.polimi.ingsw.util;
 
+import java.util.Random;
 
 public enum Colors {
 
@@ -16,4 +17,8 @@ public enum Colors {
 
     public String escape() {return this.ansiCode;}
 
+    public static Colors getRandomColor(){
+        Random random = new Random();
+        return values()[random.nextInt(values().length-1)];
+    }
 }

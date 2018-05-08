@@ -7,8 +7,8 @@ import java.awt.*;
 
 
 public class Cell {
-    private Colors cellColor;
-    private Integer cellValue;
+    private final Colors cellColor;
+    private final Integer cellValue;
     private Die placedDie;
 
     public Cell(Colors cellColor, Integer cellValue){
@@ -28,12 +28,12 @@ public class Cell {
         return placedDie;
     }
 
-    void setPlacedDie(Die placedDie) {
+    synchronized void setPlacedDie(Die placedDie) {
         this.placedDie = placedDie;
     }
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
         if (this.cellColor != null && this.cellValue != null)
             return Colorify.colorify(this.cellValue + " ", this.cellColor);
         else if (this.cellColor == null && this.cellValue != null)
