@@ -124,7 +124,6 @@ class WindowPatternTest {
         do{
             j = ThreadLocalRandom.current().nextInt(0,20);
         } while (pattern.getCellAt(j).getCellColor() == null);
-
         Die d = new Die(pattern.getCellAt(j).getCellColor(),ThreadLocalRandom.current().nextInt(1,7));
         pattern.placeDie(d,j,con);
         assertTrue(pattern.getCellAt(j).getCellColor() == d.getColor());
@@ -146,7 +145,7 @@ class WindowPatternTest {
     @Test
     void PositionConstraintTest(){
         PlacementConstraint con1 = new EmptyConstraint();
-        PlacementConstraint con2 = new PositionConstraint(new EmptyConstraint());
+        PlacementConstraint con2 = new PositionConstraint(con1);
         int index = ThreadLocalRandom.current().nextInt(0,20);
         List<Integer> list = Constraint.validPositions(index);
         Die d1 = new Die(Colors.getRandomColor(),ThreadLocalRandom.current().nextInt(1,7));
