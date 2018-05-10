@@ -1,10 +1,12 @@
 package it.polimi.ingsw;
 
+import it.polimi.ingsw.server.SagradaServer;
+
 
 public class App {
 
-    public static void main( String[] args ) {
-        System.out.println("Project still under development");
+    public static void main(String[] args) {
+        new SagradaServer(42000);
     }
 
 }

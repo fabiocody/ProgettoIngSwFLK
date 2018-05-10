@@ -1,9 +1,15 @@
 package it.polimi.ingsw.server;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 // Main server class
@@ -11,8 +17,36 @@ public class SagradaServer implements Observer {
 
     private List<Game> games;
 
-    SagradaServer() {
+    //Server related
+    private int port;
+    private ServerSocket serverSocket;
+
+    public SagradaServer(int port) {
         WaitingRoom.getInstance().addObserver(this);
+        this.port = port;
+        this.startSocketServer();
+    }
+
+    private void startSocketServer() {
+        ExecutorService executor = Executors.newCachedThreadPool();
+        try {
+            this.serverSocket = new ServerSocket(this.port);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        System.out.println("Server Online");
+        while (true) {
+            try {
+                Socket socket = this.serverSocket.accept();
+                // executor.submit()  TODO passare Handler
+            } catch (IOException e) {
+                e.printStackTrace();
+                break;
+                //TODO
+            }
+        }
+        executor.shutdown();
     }
 
     List<Game> getGames() {
@@ -26,4 +60,5 @@ public class SagradaServer implements Observer {
         if (o instanceof WaitingRoom)
             getGames().add((Game) arg);
     }
+
 }
