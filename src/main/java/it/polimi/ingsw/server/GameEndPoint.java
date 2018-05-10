@@ -1,10 +1,13 @@
 package it.polimi.ingsw.server;
 
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.dice.Die;
 import it.polimi.ingsw.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.patterncards.WindowPattern;
 import it.polimi.ingsw.rmi.GameAPI;
 import it.polimi.ingsw.toolcards.ToolCard;
+
+import java.rmi.RemoteException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -14,46 +17,29 @@ public class GameEndPoint implements GameAPI {
     private Game game;
     private boolean gameSet = false;
 
-    GameEndPoint() {}
-
-    void setGame(Game game) {
-        if (!this.gameSet) {
-            this.game = game;
-            this.gameSet = true;
-        } else {
-            throw new IllegalStateException("Game already set");
-        }
-    }
-
-    private Game getGame() {
-        if (this.game == null) throw new IllegalStateException("Game not set yet");
-        return this.game;
+    GameEndPoint(Game game) {
+        this.game = game;
     }
 
     public List<String> getCurrentPlayers() {
-        return this.getGame().getPlayers().stream()
+        return this.game.getPlayers().stream()
                 .map(Player::getNickname)
                 .collect(Collectors.toList());
     }
 
     @Override
     public void nextTurn() {
-        this.getGame().getTurnManager().nextTurn();
-    }
-
-    @Override
-    public void registerTimerForWaitingRoom(Observer observer) {
-        WaitingRoom.getInstance().getTimerReference().addObserver(observer);
+        this.game.getTurnManager().nextTurn();
     }
 
     @Override
     public void registerTimerForTurnManager(Observer observer) {
-        this.getGame().getTurnManager().getTimerReference().addObserver(observer);
+        this.game.getTurnManager().getTimerReference().addObserver(observer);
     }
 
     @Override
     public Map<String, Integer> getFinalScores() {
-        return this.getGame().getFinalScores().entrySet().stream()
+        return this.game.getFinalScores().entrySet().stream()
                 .collect(Collectors.toMap(
                         e -> e.getKey().getNickname(),
                         Map.Entry::getValue
@@ -62,17 +48,17 @@ public class GameEndPoint implements GameAPI {
 
     @Override
     public List<ObjectiveCard> getPublicObjectiveCards() {
-        return this.getGame().getPublicObjectiveCards();
+        return this.game.getPublicObjectiveCards();
     }
 
     @Override
     public List<ToolCard> getToolCards() {
-        return this.getGame().getToolCards();
+        return this.game.getToolCards();
     }
 
     @Override
     public Player getYourOwnPlayerObject(String nickname) {
-        Optional<Player> result = this.getGame().getPlayers().stream()
+        Optional<Player> result = this.game.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(nickname))
                 .findFirst();
         if (result.isPresent()) return result.get();
@@ -81,7 +67,7 @@ public class GameEndPoint implements GameAPI {
 
     @Override
     public int getFavorTokensOf(String nickname) {
-        Optional<Integer> result = this.getGame().getPlayers().stream()
+        Optional<Integer> result = this.game.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(nickname))
                 .map(Player::getFavorTokens)
                 .findFirst();
@@ -91,7 +77,7 @@ public class GameEndPoint implements GameAPI {
 
     @Override
     public WindowPattern getWindowPatternOf(String nickname) {
-        Optional<WindowPattern> result = this.getGame().getPlayers().stream()
+        Optional<WindowPattern> result = this.game.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(nickname))
                 .map(Player::getWindowPattern)
                 .findFirst();
@@ -101,16 +87,26 @@ public class GameEndPoint implements GameAPI {
 
     @Override
     public int getCurrentRound() {
-        return this.getGame().getRoundTrack().getCurrentRound();
+        return this.game.getRoundTrack().getCurrentRound();
     }
 
     @Override
     public List<Die> getRoundTrackDice() {
-        return new Vector<>(this.getGame().getRoundTrack().getDice());
+        return new Vector<>(this.game.getRoundTrack().getDice());
     }
 
     @Override
     public List<Die> getDraftPool() {
-        return this.getGame().getDiceGenerator().getDraftPool();
+        return this.game.getDiceGenerator().getDraftPool();
+    }
+
+    @Override
+    public void placeDie(int draftPoolIndex, int x, int y) throws RemoteException {
+        // TODO
+    }
+
+    @Override
+    public void useToolCard(int toolCardsIndex, JsonObject data) throws RemoteException {
+        // TODO
     }
 }

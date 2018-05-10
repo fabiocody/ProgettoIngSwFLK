@@ -4,6 +4,7 @@ import it.polimi.ingsw.rmi.WaitingRoomAPI;
 
 import java.rmi.RemoteException;
 import java.util.List;
+import java.util.Observer;
 import java.util.Vector;
 
 public class WaitingRoomEndPoint implements WaitingRoomAPI {
@@ -16,5 +17,10 @@ public class WaitingRoomEndPoint implements WaitingRoomAPI {
     @Override
     public List<String> getWaitingPlayers() {
         return new Vector<>(WaitingRoom.getInstance().getNicknames());
+    }
+
+    @Override
+    public void registerTimerForWaitingRoom(Observer observer) {
+        WaitingRoom.getInstance().getTimerReference().addObserver(observer);
     }
 }

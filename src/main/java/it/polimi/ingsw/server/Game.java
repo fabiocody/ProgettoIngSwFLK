@@ -38,8 +38,8 @@ public class Game implements Observer {
     private final Object publicObjectiveCardsLock = new Object();
     private final Object toolCardsLock = new Object();
 
-    public Game(List<String> players) {
-        this.players = players.stream().map(Player::new).collect(Collectors.toList());
+    public Game(List<Player> players) {
+        this.players = new Vector<>(players);
         this.setup();
     }
 

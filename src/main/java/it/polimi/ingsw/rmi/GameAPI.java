@@ -1,5 +1,6 @@
 package it.polimi.ingsw.rmi;
 
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.dice.*;
 import it.polimi.ingsw.objectivecards.*;
 import it.polimi.ingsw.patterncards.*;
@@ -16,7 +17,6 @@ public interface GameAPI extends Remote {
     // Game
     List<String> getCurrentPlayers() throws RemoteException;
     void nextTurn() throws RemoteException;
-    void registerTimerForWaitingRoom(Observer observer) throws RemoteException;
     void registerTimerForTurnManager(Observer observer) throws RemoteException;
     Map<String, Integer> getFinalScores() throws RemoteException;
     List<ObjectiveCard> getPublicObjectiveCards() throws RemoteException;
@@ -33,5 +33,9 @@ public interface GameAPI extends Remote {
 
     // Dice
     List<Die> getDraftPool() throws RemoteException;
+
+    // Moves
+    void placeDie(int draftPoolIndex, int x, int y) throws RemoteException;
+    void useToolCard(int toolCardsIndex, JsonObject data) throws RemoteException;
 
 }

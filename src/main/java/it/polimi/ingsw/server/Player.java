@@ -3,12 +3,15 @@ package it.polimi.ingsw.server;
 import it.polimi.ingsw.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.patterncards.WindowPattern;
 
+import java.util.UUID;
+
 
 // This class represents a player
 public class Player {
 
     // Attributes
     private String nickname;
+    private UUID id;
     private int favorTokens;
     private WindowPattern windowPattern;
     private boolean windowPatternSet;   // True iff this player has already been assigned a Window Pattern (to prevent alterations)
@@ -24,10 +27,15 @@ public class Player {
 
     public Player(String nickname) {
         this.nickname = nickname;
+        this.id = UUID.randomUUID();
     }
 
     public String getNickname() {
         return this.nickname;
+    }
+
+    UUID getId() {
+        return id;
     }
 
     public int getFavorTokens() {

@@ -9,7 +9,7 @@ import java.util.*;
 public class WaitingRoom extends Observable {
 
     private static WaitingRoom instance;
-    private List<String> nicknames;
+    private List<Player> waitingPlayers;
     private int timeout;
     private CountdownTimer timer;
 
@@ -23,10 +23,10 @@ public class WaitingRoom extends Observable {
         return instance;
     }
 
-    public synchronized List<String> getNicknames() {
-        if (this.nicknames == null)
-            this.nicknames = new Vector<>();
-        return this.nicknames;
+    public synchronized List<Player> getWaitingPlayers() {
+        if (this.waitingPlayers == null)
+            this.waitingPlayers = new Vector<>();
+        return this.waitingPlayers;
     }
 
     CountdownTimer getTimerReference() {
@@ -46,27 +46,29 @@ public class WaitingRoom extends Observable {
 
     // Add player to this waiting room.
     // Game creation occurs when timer expires or when 4 players are reached.
-    public synchronized boolean addPlayer(String nickname) {
-        if (this.getNicknames().contains(nickname))
-            return false;
-        this.getNicknames().add(nickname);
-        if (this.getNicknames().size() == 2) {
+    public synchronized UUID addPlayer(String nickname) {
+        for (Player p : this.getWaitingPlayers()) {     // TODO Make functional (great again)
+            if (p.getNickname().equals(nickname))
+                return null;
+        }
+        Player player = new Player(nickname);
+        this.getWaitingPlayers().add(player);
+        if (this.getWaitingPlayers().size() == 2) {
             this.cancelTimer();
             this.getTimer().schedule(this::createGame);
-        } else if (this.getNicknames().size() == 4) {
+        } else if (this.getWaitingPlayers().size() == 4) {
             this.createGame();
         }
-        return true;
+        return player.getId();
     }
 
     // Create a new game with the first N players of the list.
     // The timer is canceled and SagradaServer is notified.
     private synchronized void createGame() {
-        List<String> currentNicknames = new ArrayList<>(this.getNicknames().subList(0, this.getNicknames().size()));
-        this.getNicknames().removeAll(currentNicknames);
         this.cancelTimer();
         this.setChanged();      // Needed to make notifyObservers work
-        this.notifyObservers(new Game(currentNicknames));
+        this.notifyObservers(new Game(this.getWaitingPlayers()));
+        this.getWaitingPlayers().clear();
     }
 
 }
