@@ -3,18 +3,18 @@ package it.polimi.ingsw.server;
 import it.polimi.ingsw.dice.Die;
 import it.polimi.ingsw.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.patterncards.WindowPattern;
-import it.polimi.ingsw.rmi.ServerAPI;
+import it.polimi.ingsw.rmi.GameAPI;
 import it.polimi.ingsw.toolcards.ToolCard;
 import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class ServerEndPoint implements ServerAPI {
+public class GameEndPoint implements GameAPI {
 
     private Game game;
     private boolean gameSet = false;
 
-    ServerEndPoint() {}
+    GameEndPoint() {}
 
     void setGame(Game game) {
         if (!this.gameSet) {
@@ -107,16 +107,6 @@ public class ServerEndPoint implements ServerAPI {
     @Override
     public List<Die> getRoundTrackDice() {
         return new Vector<>(this.getGame().getRoundTrack().getDice());
-    }
-
-    @Override
-    public boolean addPlayer(String nickname) {
-        return WaitingRoom.getInstance().addPlayer(nickname);
-    }
-
-    @Override
-    public List<String> getWaitingPlayers() {
-        return new Vector<>(WaitingRoom.getInstance().getNicknames());
     }
 
     @Override
