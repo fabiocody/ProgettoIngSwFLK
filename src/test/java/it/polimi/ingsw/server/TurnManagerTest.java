@@ -2,6 +2,9 @@ package it.polimi.ingsw.server;
 
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -9,7 +12,10 @@ class TurnManagerTest {
 
     @Test
     void turnManagerTest2Players() {
-        Game game = new Game(Arrays.asList("Fabio", "Luca"));
+        Game game = new Game(Stream.of("Fabio", "Luca")
+                .map(Player::new)
+                .collect(Collectors.toList())
+        );
         Player nextRoundStartingPlayer = game.getPlayers().get(1);
         assertEquals(game.getPlayers().get(0), game.getTurnManager().getCurrentPlayer());
         game.getTurnManager().nextTurn();
@@ -24,7 +30,10 @@ class TurnManagerTest {
 
     @Test
     void turnManagerTest3Players() {
-        Game game = new Game(Arrays.asList("Fabio", "Luca", "Kai"));
+        Game game = new Game(Stream.of("Fabio", "Luca", "Kai")
+                .map(Player::new)
+                .collect(Collectors.toList())
+        );
         Player nextRoundStartingPlayer = game.getPlayers().get(1);
         assertEquals(game.getPlayers().get(0), game.getTurnManager().getCurrentPlayer());
         game.getTurnManager().nextTurn();
@@ -43,7 +52,10 @@ class TurnManagerTest {
 
     @Test
     void turnManagerTest4Players() {
-        Game game = new Game(Arrays.asList("Fabio", "Luca", "Kai", "Giovanni"));
+        Game game = new Game(Stream.of("Fabio", "Luca", "Kai", "Giovanni")
+                .map(Player::new)
+                .collect(Collectors.toList())
+        );
         Player nextRoundStartingPlayer = game.getPlayers().get(1);
         assertEquals(game.getPlayers().get(0), game.getTurnManager().getCurrentPlayer());
         game.getTurnManager().nextTurn();

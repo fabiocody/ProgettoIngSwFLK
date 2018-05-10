@@ -23,7 +23,7 @@ public interface GameAPI extends Remote {
     List<ToolCard> getToolCards() throws RemoteException;
 
     // Player
-    Player getYourOwnPlayerObject(String nickname) throws RemoteException;
+    Player getYourOwnPlayerObject(UUID id) throws RemoteException;
     int getFavorTokensOf(String nickname) throws RemoteException;
     WindowPattern getWindowPatternOf(String nickname) throws RemoteException;
 

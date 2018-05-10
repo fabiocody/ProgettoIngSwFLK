@@ -57,9 +57,9 @@ public class GameEndPoint implements GameAPI {
     }
 
     @Override
-    public Player getYourOwnPlayerObject(String nickname) {
+    public Player getYourOwnPlayerObject(UUID id) {
         Optional<Player> result = this.game.getPlayers().stream()
-                .filter(p -> p.getNickname().equals(nickname))
+                .filter(p -> p.getId().equals(id))
                 .findFirst();
         if (result.isPresent()) return result.get();
         else throw new NoSuchElementException("No Player object with specified nickname found");
