@@ -22,6 +22,7 @@ public class ServerSocketHandler implements Runnable {
             in = new Scanner(socket.getInputStream());
             out = new PrintWriter(socket.getOutputStream(), true);
             //TODO BODY
+            System.out.println("Connection established!!!");
             in.close();
             out.close();
             socket.close();

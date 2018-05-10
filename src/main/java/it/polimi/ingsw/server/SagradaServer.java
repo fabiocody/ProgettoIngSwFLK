@@ -39,7 +39,7 @@ public class SagradaServer implements Observer {
         while (true) {
             try {
                 Socket socket = this.serverSocket.accept();
-                // executor.submit()  TODO passare Handler
+                executor.submit(new ServerSocketHandler(socket));
             } catch (IOException e) {
                 e.printStackTrace();
                 break;
