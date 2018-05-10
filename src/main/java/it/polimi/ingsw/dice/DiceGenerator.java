@@ -46,7 +46,9 @@ public class DiceGenerator {
 
     public synchronized void putAway (Die die) {
         Colors color = die.getColor();
+        int selectedColorNum = remainingDice.get(color);
         remainingDice.put(color, remainingDice.get(color)+1);
+        assert(selectedColorNum + 1 == remainingDice.get(color));
     }
 
     public synchronized void generateDraftPool() {
