@@ -18,23 +18,22 @@ class DieTest {
         generator = new DiceGenerator(4);
     }
 
-
     @Test
     void valueTest() {
-        Die d = generator.generate();
+        Die d = generator.draw();
         assertTrue(d.getValue() >= 1 && d.getValue() <= 6);
     }
 
     @Test
     void colorTest() {
-        Die d = generator.generate();
+        Die d = generator.draw();
         Colors color = d.getColor();
         assertTrue(color.equals(Colors.RED) || color.equals(Colors.GREEN) || color.equals(Colors.YELLOW) || color.equals(Colors.BLUE) || color.equals(Colors.PURPLE));
     }
 
     @Test
-    void generateTest() {
-        Die d = generator.generate();
+    void drawnTest() {
+        Die d = generator.draw();
         assertNotNull(d);
     }
 
@@ -42,9 +41,9 @@ class DieTest {
     void maxDiceGenerated() {
         DiceGenerator generator = new DiceGenerator(4);
         for (int i=0; i<90; i++) {
-            assertNotNull(generator.generate());
+            assertNotNull(generator.draw());
         }
-        assertThrows(NoMoreDiceException.class, generator::generate);
+        assertThrows(NoMoreDiceException.class, generator::draw);
     }
 
     @Test
@@ -58,7 +57,7 @@ class DieTest {
         generatedDice.put(Colors.PURPLE, 0);
 
         for (int i=0; i<90; i++) {
-            Die d = generator.generate();
+            Die d = generator.draw();
             generatedDice.replace(d.getColor(), generatedDice.get(d.getColor())+1);
         }
 

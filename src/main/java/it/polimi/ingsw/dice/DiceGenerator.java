@@ -9,51 +9,49 @@ public class DiceGenerator {
 
     private ThreadLocalRandom random;
     private List<Die> draftPool;
-    private int numberOfPlayers; 
-    private Map<Colors, Integer> remainingDice;
+    private int numberOfPlayers;
+    private List<Die> generatedDice;
 
     public DiceGenerator(int numOfStartingPlayers) {
         random = ThreadLocalRandom.current();
         draftPool = new Vector<>();
         numberOfPlayers = numOfStartingPlayers;
-        remainingDice = new EnumMap<>(Colors.class);
-        remainingDice.put(Colors.RED, 18);
-        remainingDice.put(Colors.GREEN, 18);
-        remainingDice.put(Colors.YELLOW, 18);
-        remainingDice.put(Colors.BLUE, 18);
-        remainingDice.put(Colors.PURPLE, 18);
-
+        // TODO Generate ALL dices
+        generatedDice = new ArrayList<>();
+        for (Colors c : Colors.values()) {
+            if (c != Colors.RESET) {
+                for (int i=0; i<18; i++) {
+                    Die d = new Die(c);
+                    d.roll();
+                    generatedDice.add(d);
+                }
+            }
+        }
+        Collections.shuffle(generatedDice);
     }
 
     public synchronized List<Die> getDraftPool() {
         return draftPool;
     }
 
-    public synchronized Die generate() {
-        if (remainingDice.isEmpty()) {
+    public synchronized Die draw() {
+        // TODO
+        if (generatedDice.isEmpty()) {
             throw new NoMoreDiceException("there are no more dice");
         }
-        List<Colors> remainingColors = new ArrayList<>(remainingDice.keySet());
-        Colors randomColor = remainingColors.get(random.nextInt(0, remainingColors.size()));
-        Integer value = remainingDice.get(randomColor);
-        Die die = new Die(randomColor);
-        die.roll();
-        remainingDice.replace(randomColor, value, value-1);
-        if ( remainingDice.get(randomColor) == 0 )
-            remainingDice.remove(randomColor);
-        return die;
+        return generatedDice.remove(0);
     }
 
     public synchronized void putAway (Die die) {
-        Colors color = die.getColor();
-        int selectedColorNum = remainingDice.get(color);
-        remainingDice.put(color, remainingDice.get(color)+1);
-        assert(selectedColorNum + 1 == remainingDice.get(color));
+        int previousSize = generatedDice.size();
+        generatedDice.add(die);
+        Collections.shuffle(generatedDice);
+        assert generatedDice.size() == previousSize + 1;
     }
 
     public synchronized void generateDraftPool() {
         for (int i = 0; i < (2*numberOfPlayers)+1; i++) {
-            Die die = generate();
+            Die die = draw();
             draftPool.add(die);
         }
     }
@@ -63,12 +61,7 @@ public class DiceGenerator {
     }
 
     public synchronized String toString() {
-        return "in the bag there are: " + "\n"
-                + Colorify.colorify("[" + remainingDice.get(Colors.RED) + "]" , Colors.RED) + " red dice remaining" + "\n"
-                + Colorify.colorify("[" + remainingDice.get(Colors.GREEN) + "]" , Colors.GREEN) + " green dice remaining" + "\n"
-                + Colorify.colorify("[" + remainingDice.get(Colors.YELLOW) + "]" , Colors.YELLOW) + " yellow dice remaining" + "\n"
-                + Colorify.colorify("[" + remainingDice.get(Colors.BLUE) + "]" , Colors.BLUE) + " blue dice remaining" + "\n"
-                + Colorify.colorify("[" + remainingDice.get(Colors.PURPLE) + "]" , Colors.PURPLE) + " purple dice remaining";
+        return "Remaining dice in bag: " + generatedDice.size();
     }
 }
 
