@@ -15,17 +15,9 @@ public class ServerSocketHandler implements Runnable {
 
     @Override
     public void run() {
-        Scanner in;
-        PrintWriter out;
-
-        try {
-            in = new Scanner(socket.getInputStream());
-            out = new PrintWriter(socket.getOutputStream(), true);
+        try (Scanner in = new Scanner(socket.getInputStream()); PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
             //TODO BODY
             System.out.println("Connection established!!!");
-            in.close();
-            out.close();
-            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
