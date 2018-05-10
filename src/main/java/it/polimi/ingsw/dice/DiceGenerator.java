@@ -44,6 +44,11 @@ public class DiceGenerator {
         return die;
     }
 
+    public synchronized void putAway (Die die) {
+        Colors color = die.getColor();
+        remainingDice.put(color, remainingDice.get(color)+1);
+    }
+
     public synchronized void generateDraftPool() {
         for (int i = 0; i < (2*numberOfPlayers)+1; i++) {
             Die die = generate();
