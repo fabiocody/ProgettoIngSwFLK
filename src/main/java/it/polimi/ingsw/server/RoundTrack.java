@@ -10,6 +10,8 @@ import java.util.Vector;
 
 // This class represent the Round Track
 public class RoundTrack extends Observable implements Observer {
+    // Observes TurnManager
+    // Is observed by Game
 
     // Attributes
     private List<Die> dice;     // Dice placed on the round track. The order doesn't matter.
@@ -48,7 +50,8 @@ public class RoundTrack extends Observable implements Observer {
                     this.gameOver = true;
                     this.setChanged();
                     this.notifyObservers("Game over");
-                } else if (!gameOver) {
+                }
+                if (!gameOver) {
                     this.currentRound++;
                     this.setChanged();
                     this.notifyObservers("Round incremented");

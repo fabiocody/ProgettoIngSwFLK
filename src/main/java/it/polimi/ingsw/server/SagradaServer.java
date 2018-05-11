@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
 
 // Main server class
 public class SagradaServer implements Observer {
+    // Observes WaitingRoom
 
     private List<Game> games;
 
@@ -36,7 +37,7 @@ public class SagradaServer implements Observer {
             return;
         }
         System.out.println("Server Online");
-        while (true) {
+        while (42 == 42) {
             try {
                 Socket socket = this.serverSocket.accept();
                 executor.submit(new ServerSocketHandler(socket));

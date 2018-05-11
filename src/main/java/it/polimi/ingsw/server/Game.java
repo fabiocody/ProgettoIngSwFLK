@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 // This class contains all the information about the current game
 public class Game implements Observer {
+    // Observes RoundTrack
 
     // Game
     private List<Player> players;
@@ -45,6 +46,14 @@ public class Game implements Observer {
 
     public List<Player> getPlayers() {
         return new Vector<>(this.players);
+    }
+
+    public Player getPlayerForNickname(String nickname) {
+        Optional<Player> result = this.players.stream()
+                .filter(p -> p.getNickname().equals(nickname))
+                .findFirst();
+        if (result.isPresent()) return result.get();
+        else throw new NoSuchElementException(nickname);
     }
 
     public int getNumberOfPlayers() {
@@ -127,11 +136,10 @@ public class Game implements Observer {
     private void setup() {
         for (Player player : this.players) {
             player.setPrivateObjectiveCard(this.getObjectiveCardsGenerator().dealPrivate());
+            player.setWindowPatternList(this.getPatternCardsGenerator().getCardsForPlayer());
             // TODO Choose card
-            player.setWindowPattern(this.getPatternCardsGenerator().getCard().get(ThreadLocalRandom.current().nextInt(0, 2)));
-            player.setFavorTokens(player.getWindowPattern().getDifficulty());
         }
-        this.toolCards = ToolCardsGenerator.generate();
+        this.toolCards = ToolCardsGenerator.generate(this);
         this.publicObjectiveCards = this.getObjectiveCardsGenerator().generatePublic();
         // Collections.shuffle(this.players);
     }

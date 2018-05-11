@@ -6,6 +6,7 @@ import java.util.stream.*;
 
 
 public class TurnManager extends Observable {
+    // Is observed by RoundTrack
 
     private List<Player> players;
     private List<Integer> playersOrder;
@@ -39,6 +40,14 @@ public class TurnManager extends Observable {
         for (Player p : this.players) {
             p.setActive(p.equals(player));
         }
+    }
+
+    public boolean isFirstHalfOfRound() {
+        return this.index < this.playersOrder.size() / 2;
+    }
+
+    public boolean isSecondHalfOfRound() {
+        return this.index >= this.playersOrder.size() / 2;
     }
 
     public void nextTurn() {

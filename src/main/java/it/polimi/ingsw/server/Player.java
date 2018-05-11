@@ -2,8 +2,8 @@ package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.patterncards.WindowPattern;
-
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 // This class represents a player
@@ -13,11 +13,17 @@ public class Player {
     private String nickname;
     private UUID id;
     private int favorTokens;
-    private WindowPattern windowPattern;
-    private boolean windowPatternSet;   // True iff this player has already been assigned a Window Pattern (to prevent alterations)
+    private List<WindowPattern> windowPatternList;
     private ObjectiveCard privateObjectiveCard;
-    private boolean privateObjectiveCardSet;    // True iff this player has already been assigned a Private Objective Card (to prevent alterations)
     private boolean active;
+
+    // Flags
+    private boolean windowPatternListSet;   // True iff this player has already been assigned a Window Pattern (to prevent alterations)
+    private boolean privateObjectiveCardSet;    // True iff this player has already been assigned a Private Objective Card (to prevent alterations)
+    private boolean windowPatternChosen;
+    private boolean diePlacedInThisTurn;
+    private boolean toolCardUsedInThisTurn;
+    private boolean secondTurnToBeJumped;
 
     // Locks
     private final Object favorTokensLock = new Object();
@@ -50,25 +56,44 @@ public class Player {
         }
     }
 
-    public WindowPattern getWindowPattern() {
+    public List<WindowPattern> getWindowPatternList() {
         synchronized (windowPatternLock) {
-            if (this.windowPattern == null)
+            if (this.windowPatternList == null)
                 throw new IllegalStateException("Window Pattern not assigned yet");
-            return this.windowPattern;
+            return new Vector<>(this.windowPatternList);
         }
     }
 
-    // This method is designed to allow only one assignment of windowPattern
-    public void setWindowPattern(WindowPattern windowPattern) {
+    public void setWindowPatternList(List<WindowPattern> windowPatternList) {
         synchronized (windowPatternLock) {
-            if (!windowPatternSet) {
-                this.windowPattern = windowPattern;
-                this.windowPatternSet = true;
+            if (!windowPatternListSet) {
+                this.windowPatternList = windowPatternList;
+                this.windowPatternListSet = true;
+            } else {
+                throw new IllegalStateException("Cannot set another list of Window Patterns");
+            }
+        }
+    }
+
+    public WindowPattern getWindowPattern() {
+        synchronized (windowPatternLock) {
+            return this.windowPatternList.get(0);
+        }
+    }
+
+    public void chooseWindowPattern(int index) {
+        synchronized (windowPatternLock) {
+            if (!windowPatternChosen) {
+                WindowPattern chosen = this.windowPatternList.get(index);
+                this.windowPatternList = this.windowPatternList.stream()
+                        .filter(p -> p == chosen)
+                        .collect(Collectors.toList());
+                this.windowPatternChosen = true;
                 synchronized (favorTokensLock) {
                     this.setFavorTokens(this.getWindowPattern().getDifficulty());
                 }
             } else {
-                throw new IllegalStateException("Cannot set another Window Pattern");
+                throw new IllegalStateException("Cannot choose another Window Pattern");
             }
         }
     }
@@ -91,6 +116,30 @@ public class Player {
                 throw new IllegalStateException("Cannot set another Private Objective Card");
             }
         }
+    }
+
+    public boolean isDiePlacedInThisTurn() {
+        return diePlacedInThisTurn;
+    }
+
+    public void setDiePlacedInThisTurn(boolean diePlacedInThisTurn) {
+        this.diePlacedInThisTurn = diePlacedInThisTurn;
+    }
+
+    public boolean isToolCardUsedInThisTurn() {
+        return toolCardUsedInThisTurn;
+    }
+
+    public void setToolCardUsedInThisTurn(boolean toolCardUsedInThisTurn) {
+        this.toolCardUsedInThisTurn = toolCardUsedInThisTurn;
+    }
+
+    public boolean isSecondTurnToBeJumped() {
+        return secondTurnToBeJumped;
+    }
+
+    public void setSecondTurnToBeJumped(boolean secondTurnToBeJumped) {
+        this.secondTurnToBeJumped = secondTurnToBeJumped;
     }
 
     public boolean isActive() {

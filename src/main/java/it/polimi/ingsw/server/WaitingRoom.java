@@ -7,6 +7,7 @@ import java.util.*;
 
 // This class represent the waiting room of the server
 public class WaitingRoom extends Observable {
+    // Is observed by SagradaServer
 
     private static WaitingRoom instance;
     private List<Player> waitingPlayers;

@@ -1,16 +1,21 @@
 package it.polimi.ingsw.toolcards;
 
+import com.google.gson.JsonObject;
+import it.polimi.ingsw.server.Game;
+
 
 public abstract class ToolCard {
 
     private String name;
     private String description;
     private boolean used;
+    private Game game;
 
-    public ToolCard(String name, String description) {
+    public ToolCard(String name, String description, Game game) {
         this.name = name;
         this.description = description;
         this.used = false;
+        this.game = game;
     }
 
     public String getName() {
@@ -25,11 +30,19 @@ public abstract class ToolCard {
         return this.used;
     }
 
-    public void setUsed() {
+    void setUsed() {
         this.used = true;
     }
 
-    public abstract void effect();
+    Game getGame() {
+        return game;
+    }
+
+    int linearizeIndex(int i, int j) {
+        return i*5 + j;
+    }
+
+    public abstract void effect(JsonObject data) throws InvalidEffectResultException;
 
     public boolean equals(Object obj) {
         if (!(obj instanceof ToolCard))
