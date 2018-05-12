@@ -9,6 +9,7 @@ import it.polimi.ingsw.server.*;
 import it.polimi.ingsw.toolcards.*;
 import org.junit.jupiter.api.*;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -153,6 +154,23 @@ class ToolCardsTest {
     @Test
     void toolCard5() {
         // TODO
+        ToolCard toolCard = new ToolCard5(game);
+        game.getRoundTrack().putDie(game.getDiceGenerator().getDraftPool());
+        game.getDiceGenerator().generateDraftPool();
+        int draftPoolIndex = ThreadLocalRandom.current().nextInt(0, game.getDiceGenerator().getDraftPool().size());
+        int roundTrackIndex = ThreadLocalRandom.current().nextInt(0, game.getRoundTrack().getDice().size());
+        Die fromDraftPool = game.getDiceGenerator().getDraftPool().get(draftPoolIndex);
+        Die fromRoundTrack = game.getRoundTrack().getDice().get(roundTrackIndex);
+        JsonObject data = new JsonObject();
+        data.addProperty("draftPoolIndex", draftPoolIndex);
+        data.addProperty("roundTrackIndex", roundTrackIndex);
+        try {
+            toolCard.effect(data);
+            assertEquals(fromDraftPool, game.getRoundTrack().getDice().get(roundTrackIndex));
+            assertEquals(fromRoundTrack, game.getDiceGenerator().getDraftPool().get(draftPoolIndex));
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
