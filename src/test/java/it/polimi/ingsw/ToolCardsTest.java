@@ -3,10 +3,10 @@ package it.polimi.ingsw;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.dice.Die;
 import it.polimi.ingsw.patterncards.WindowPattern;
-import it.polimi.ingsw.placementconstraints.EmptyConstraint;
 import it.polimi.ingsw.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.server.*;
 import it.polimi.ingsw.toolcards.*;
+import it.polimi.ingsw.util.Colors;
 import org.junit.jupiter.api.*;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -154,7 +154,7 @@ class ToolCardsTest {
     @Test
     void toolCard5() {
         ToolCard toolCard = new ToolCard5(game);
-        game.getRoundTrack().putDie(game.getDiceGenerator().getDraftPool());
+        game.getRoundTrack().putDice(game.getDiceGenerator().getDraftPool());
         game.getDiceGenerator().generateDraftPool();
         int draftPoolIndex = ThreadLocalRandom.current().nextInt(0, game.getDiceGenerator().getDraftPool().size());
         int roundTrackIndex = ThreadLocalRandom.current().nextInt(0, game.getRoundTrack().getDice().size());
@@ -294,7 +294,6 @@ class ToolCardsTest {
 
     @Test
     void toolCard11() {
-        // TODO
         ToolCard toolCard = new ToolCard11(game);
         player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
         Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
@@ -327,8 +326,73 @@ class ToolCardsTest {
     }
 
     @Test
-    void toolCard12() {
-        // TODO
+    void toolCard12DontStop() {
+        ToolCard toolCard = new ToolCard12(game);
+        game.getRoundTrack().getDice().add(new Die(Colors.RED, 6));
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
+        Die die = new Die(Colors.RED, 2);
+        player.getWindowPattern().placeDie(die, 2, PlacementConstraint.initialConstraint());
+        die = new Die(Colors.RED, 4);
+        player.getWindowPattern().placeDie(die, 8);
+        JsonObject data = new JsonObject();
+        data.addProperty("player", player.getNickname());
+        data.addProperty("fromCellX", 2);
+        data.addProperty("fromCellY", 0);
+        data.addProperty("toCellX", 2);
+        data.addProperty("toCellY", 2);
+        try {
+            toolCard.effect(data);
+            assertNull(player.getWindowPattern().getCellAt(0, 2 ).getPlacedDie());
+            assertNotNull(player.getWindowPattern().getCellAt(2, 2).getPlacedDie());
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
+        data = new JsonObject();
+        data.addProperty("player", player.getNickname());
+        data.addProperty("fromCellX", 3);
+        data.addProperty("fromCellY", 1);
+        data.addProperty("toCellX", 1);
+        data.addProperty("toCellY", 3);
+        data.addProperty("stop", false);
+        try {
+            toolCard.effect(data);
+            assertNull(player.getWindowPattern().getCellAt(1, 3 ).getPlacedDie());
+            assertNotNull(player.getWindowPattern().getCellAt(3, 1).getPlacedDie());
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void toolCard12Stop() {
+        ToolCard toolCard = new ToolCard12(game);
+        game.getRoundTrack().getDice().add(new Die(Colors.RED, 6));
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
+        Die die = new Die(Colors.RED, 2);
+        player.getWindowPattern().placeDie(die, 2, PlacementConstraint.initialConstraint());
+        die = new Die(Colors.RED, 4);
+        player.getWindowPattern().placeDie(die, 8);
+        JsonObject data = new JsonObject();
+        data.addProperty("player", player.getNickname());
+        data.addProperty("fromCellX", 2);
+        data.addProperty("fromCellY", 0);
+        data.addProperty("toCellX", 2);
+        data.addProperty("toCellY", 2);
+        try {
+            toolCard.effect(data);
+            assertNull(player.getWindowPattern().getCellAt(0, 2 ).getPlacedDie());
+            assertNotNull(player.getWindowPattern().getCellAt(2, 2).getPlacedDie());
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
+        data = new JsonObject();
+        data.addProperty("player", player.getNickname());
+        data.addProperty("stop", true);
+        try {
+            toolCard.effect(data);
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
     }
 
 }
