@@ -32,7 +32,8 @@ public class ToolCard3 extends ToolCard {
             player.getWindowPattern().moveDie(fromIndex, toIndex, constraint);
             this.setUsed();
         } catch (InvalidPlacementException e) {
-            throw new InvalidEffectResultException();
+            throw e;
+            //throw new InvalidEffectResultException();
         }
     }
 

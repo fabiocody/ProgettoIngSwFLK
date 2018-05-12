@@ -47,7 +47,7 @@ public class ToolCard4 extends ToolCard {
             player.getWindowPattern().moveDie(fromIndex, toIndex, PlacementConstraint.standardConstraint());
             this.firstMoveIndex = toIndex;
         } catch (InvalidPlacementException e) {
-            throw new InvalidEffectResultException("Invalid Placement");
+            throw new InvalidEffectResultException("Invalid movement: " + fromIndex + " -> " + toIndex);
         }
     }
 

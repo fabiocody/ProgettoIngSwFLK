@@ -90,23 +90,23 @@ class ToolCardsTest {
     @Test
     void toolCard3() {
         ToolCard toolCard = new ToolCard3(game);
-        player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(2)));
         Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
-        player.getWindowPattern().placeDie(die, 2, PlacementConstraint.initialConstraint());
-        assertNotNull(player.getWindowPattern().getCellAt(2).getPlacedDie());
+        player.getWindowPattern().placeDie(die, 17, PlacementConstraint.initialConstraint());
+        assertNotNull(player.getWindowPattern().getCellAt(17).getPlacedDie());
         die = game.getDiceGenerator().drawDieFromDraftPool(0);
-        player.getWindowPattern().placeDie(die, 8, PlacementConstraint.standardConstraint());
-        assertNotNull(player.getWindowPattern().getCellAt(8).getPlacedDie());
+        player.getWindowPattern().placeDie(die, 11, PlacementConstraint.standardConstraint());
+        assertNotNull(player.getWindowPattern().getCellAt(11).getPlacedDie());
         JsonObject data = new JsonObject();
         data.addProperty("player", player.getNickname());
         data.addProperty("fromCellX", 2);
-        data.addProperty("fromCellY", 0);
-        data.addProperty("toCellX", 4);
+        data.addProperty("fromCellY", 3);
+        data.addProperty("toCellX", 2);
         data.addProperty("toCellY", 1);
         try {
             toolCard.effect(data);
-            assertNull(player.getWindowPattern().getCellAt(2).getPlacedDie());
-            assertNotNull(player.getWindowPattern().getCellAt(1, 4).getPlacedDie());
+            assertNull(player.getWindowPattern().getCellAt(3, 2).getPlacedDie());
+            assertNotNull(player.getWindowPattern().getCellAt(1, 2).getPlacedDie());
         } catch (InvalidEffectResultException e) {
             e.printStackTrace();
         }
@@ -114,7 +114,40 @@ class ToolCardsTest {
 
     @Test
     void toolCard4() {
-        // TODO
+        ToolCard toolCard = new ToolCard4(game);
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(2)));
+        Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
+        player.getWindowPattern().placeDie(die, 17, PlacementConstraint.initialConstraint());
+        assertNotNull(player.getWindowPattern().getCellAt(17).getPlacedDie());
+        die = game.getDiceGenerator().drawDieFromDraftPool(0);
+        player.getWindowPattern().placeDie(die, 11, PlacementConstraint.standardConstraint());
+        assertNotNull(player.getWindowPattern().getCellAt(11).getPlacedDie());
+        JsonObject data = new JsonObject();
+        data.addProperty("player", player.getNickname());
+        data.addProperty("fromCellX", 2);
+        data.addProperty("fromCellY", 3);
+        data.addProperty("toCellX", 2);
+        data.addProperty("toCellY", 1);
+        try {
+            toolCard.effect(data);
+            assertNull(player.getWindowPattern().getCellAt(3, 2).getPlacedDie());
+            assertNotNull(player.getWindowPattern().getCellAt(1, 2).getPlacedDie());
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
+        data = new JsonObject();
+        data.addProperty("player", player.getNickname());
+        data.addProperty("fromCellX", 1);
+        data.addProperty("fromCellY", 2);
+        data.addProperty("toCellX", 3);
+        data.addProperty("toCellY", 2);
+        try {
+            toolCard.effect(data);
+            assertNull(player.getWindowPattern().getCellAt(2, 1).getPlacedDie());
+            assertNotNull(player.getWindowPattern().getCellAt(2, 3).getPlacedDie());
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
