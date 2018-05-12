@@ -5,8 +5,12 @@
 - [Waiting Room](#waiting-room)
 	- [Inserimento di un nuovo giocatore](#inserimento-di-un-nuovo-giocatore)
 	- [Aggiornamento della lista dei giocatori in attesa](#aggiornamento-della-lista-dei-giocatori-in-attesa)
+	- [Registrazione al timer](#registrazione-al-timer)
+	- [Tick del timer](#tick-del-timer)
 - [Game](#game)
 	- [Messaggio di inizio gioco](#messaggio-di-inizio-gioco)
+	- [Registrazione al timer](#registrazione-al-timer)
+	- [Tick del timer](#tick-del-timer)
 	- [Selezione pattern](#selezione-pattern)
 	- [Lista dei giocatori](#lista-dei-giocatori)
 	- [Conclusione del turno](#conclusione-del-turno)
@@ -65,6 +69,38 @@
 }
 ```
 
+### Registrazione al timer
+
+#### Client -> Server
+
+```
+{
+    "player": <nickname: string>,
+    "method": "registerWRTimer",
+    "arg": null
+}
+```
+
+#### Server -> Client
+
+```
+{
+    "msgType": "registerWRTimer",
+    "result": <bool>
+}
+```
+
+### Tick del timer
+
+#### Server -> Client
+
+```
+{
+    "msgType": "wrTimerTick",
+    "tick": <int>
+}
+```
+
 ## Game
 
 ### Messaggio di inizio gioco
@@ -96,6 +132,38 @@
         },
         ...
     ]
+}
+```
+
+### Registrazione al timer
+
+#### Client -> Server
+
+```
+{
+    "player": <nickname: string>,
+    "method": "registerGameTimer",
+    "arg": null
+}
+```
+
+#### Server -> Client
+
+```
+{
+    "msgType": "registerGameTimer",
+    "result": <bool>
+}
+```
+
+### Tick del timer
+
+#### Server -> Client
+
+```
+{
+    "msgType": "gameTimerTick",
+    "tick": <int>
 }
 ```
 
