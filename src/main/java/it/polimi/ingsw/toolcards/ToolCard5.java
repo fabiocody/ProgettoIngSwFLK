@@ -19,6 +19,7 @@ public class ToolCard5 extends ToolCard {
      *  }
      */
     public void effect(JsonObject data) throws InvalidEffectResultException {
+        // TODO Check indexes
         int draftPoolIndex = data.get("draftPoolIndex").getAsInt();
         int roundTrackIndex = data.get("roundTrackIndex").getAsInt();
         try {

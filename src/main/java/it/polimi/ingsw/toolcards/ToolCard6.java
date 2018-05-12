@@ -26,6 +26,7 @@ public class ToolCard6 extends ToolCard {
      *  }
      */
     public void effect(JsonObject data) throws InvalidEffectResultException {
+        // TODO Check index
         if (!dieRolled) rollDie(data);
         else placeDie(data);
     }

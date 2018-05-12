@@ -46,7 +46,7 @@ class ToolCardsTest {
         int oldValue = game.getDiceGenerator().getDraftPool().get(0).getValue();
         JsonObject data = new JsonObject();
         data.addProperty("player", "Fabio");
-        data.addProperty("dieIndex", 0);
+        data.addProperty("draftPoolIndex", 0);
         if (oldValue <= 3)
             data.addProperty("delta", 1);
         else
@@ -260,7 +260,6 @@ class ToolCardsTest {
 
     @Test
     void toolCard9() {
-        // TODO
         ToolCard toolCard = new ToolCard9(game);
         player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
         Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
@@ -282,6 +281,16 @@ class ToolCardsTest {
     @Test
     void toolCard10() {
         // TODO
+        ToolCard toolCard = new ToolCard10(game);
+        int oldValue = game.getDiceGenerator().getDraftPool().get(0).getValue();
+        JsonObject data = new JsonObject();
+        data.addProperty("draftPoolIndex", 0);
+        try {
+            toolCard.effect(data);
+            assertEquals(7 - oldValue, game.getDiceGenerator().getDraftPool().get(0).getValue());
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test

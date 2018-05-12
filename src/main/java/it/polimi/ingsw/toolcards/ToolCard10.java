@@ -18,6 +18,7 @@ public class ToolCard10 extends ToolCard {
      *  }
      */
     public void effect(JsonObject data) {
+        // TODO Check index
         int draftPoolIndex = data.get("draftPoolIndex").getAsInt();
         Die die = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
         int value = die.getValue();

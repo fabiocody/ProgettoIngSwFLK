@@ -15,13 +15,14 @@ public class ToolCard1 extends ToolCard {
     /*
      *  JSON Format
      *  {
-     *      "dieIndex": <int>,
+     *      "draftPoolIndex": <int>,
      *      "delta": <int>
      *  }
      */
     public void effect(JsonObject data) throws InvalidEffectResultException {
+        // TODO Check index
         List<Die> draftPool = this.getGame().getDiceGenerator().getDraftPool();
-        Die d = draftPool.get(data.get("dieIndex").getAsInt());
+        Die d = draftPool.get(data.get("draftPoolIndex").getAsInt());
         int delta = data.get("delta").getAsInt();
         if (delta != 1 && delta != -1)
             throw new InvalidEffectResultException("Invalid delta");

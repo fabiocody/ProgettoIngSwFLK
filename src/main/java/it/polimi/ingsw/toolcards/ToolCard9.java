@@ -23,7 +23,7 @@ public class ToolCard9 extends ToolCard {
      *  }
      */
     public void effect(JsonObject data) throws InvalidEffectResultException {
-        // TODO
+        // TODO Check index
         Player player = this.getGame().getPlayerForNickname(data.get("player").getAsString());
         int draftPoolIndex = data.get("draftPoolIndex").getAsInt();
         int x = data.get("cellX").getAsInt();
