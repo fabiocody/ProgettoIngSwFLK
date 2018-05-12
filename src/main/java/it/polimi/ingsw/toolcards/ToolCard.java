@@ -38,8 +38,8 @@ public abstract class ToolCard {
         return game;
     }
 
-    int linearizeIndex(int i, int j) {
-        return i*5 + j;
+    int linearizeIndex(int x, int y) {
+        return y*5 + x;
     }
 
     public abstract void effect(JsonObject data) throws InvalidEffectResultException;

@@ -2,6 +2,7 @@ package it.polimi.ingsw;
 
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.dice.Die;
+import it.polimi.ingsw.patterncards.WindowPattern;
 import it.polimi.ingsw.placementconstraints.EmptyConstraint;
 import it.polimi.ingsw.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.server.*;
@@ -17,14 +18,16 @@ import static org.junit.jupiter.api.Assertions.*;
 class ToolCardsTest {
 
     private static Game game;
+    private static Player player;
 
     @BeforeEach
     void setup() {
         game = new Game(Stream.of("Fabio", "Luca", "Kai")
                 .map(Player::new)
                 .collect(Collectors.toList())
-        );
+        , false);
         game.getDiceGenerator().generateDraftPool();
+        player = game.getPlayerForNickname("Fabio");
     }
 
     @Test
@@ -62,10 +65,26 @@ class ToolCardsTest {
     @Test
     void toolCard2() {
         ToolCard toolCard = new ToolCard2(game);
-        Player player = game.getPlayerForNickname("Fabio");
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
         Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
-        //player.getWindowPattern().placeDie(die, 0, PlacementConstraint.initialConstraint());
-        // TODO Finire
+        player.getWindowPattern().placeDie(die, 16, PlacementConstraint.initialConstraint());
+        assertNotNull(player.getWindowPattern().getCellAt(16).getPlacedDie());
+        die = game.getDiceGenerator().drawDieFromDraftPool(0);
+        player.getWindowPattern().placeDie(die, 17, PlacementConstraint.standardConstraint());
+        assertNotNull(player.getWindowPattern().getCellAt(17).getPlacedDie());
+        JsonObject data = new JsonObject();
+        data.addProperty("player", player.getNickname());
+        data.addProperty("fromCellX", 1);
+        data.addProperty("fromCellY", 3);
+        data.addProperty("toCellX", 2);
+        data.addProperty("toCellY", 2);
+        try {
+            toolCard.effect(data);
+            assertNull(player.getWindowPattern().getCellAt(16).getPlacedDie());
+            assertNotNull(player.getWindowPattern().getCellAt(2, 2).getPlacedDie());
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
     }
 
 }

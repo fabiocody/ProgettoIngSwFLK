@@ -40,8 +40,12 @@ public class Game implements Observer {
     private final Object toolCardsLock = new Object();
 
     public Game(List<Player> players) {
+        this(players, true);
+    }
+
+    public Game(List<Player> players, boolean doSetup) {
         this.players = new Vector<>(players);
-        this.setup();
+        if (doSetup) this.setup();
     }
 
     public List<Player> getPlayers() {
@@ -155,7 +159,7 @@ public class Game implements Observer {
         }
         pool.shutdown();
         try {
-            pool.awaitTermination(10, TimeUnit.SECONDS);
+            pool.awaitTermination(2, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
             Thread.currentThread().interrupt();
