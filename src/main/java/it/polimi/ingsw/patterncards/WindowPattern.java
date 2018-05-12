@@ -4,6 +4,8 @@ import it.polimi.ingsw.dice.Die;
 import it.polimi.ingsw.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.util.*;
 
+import java.util.Arrays;
+
 public class WindowPattern {
 
     private final int difficulty;
@@ -663,6 +665,10 @@ public class WindowPattern {
 
     public int getPatternNumber(){
         return this.patternNumber;
+    }
+
+    public boolean isGridEmpty() {
+        return Arrays.stream(this.grid).noneMatch(c -> c.getPlacedDie() != null);
     }
 
     public synchronized void placeDie(Die d, int position, PlacementConstraint withConstraint){

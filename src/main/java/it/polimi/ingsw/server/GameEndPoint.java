@@ -3,8 +3,11 @@ package it.polimi.ingsw.server;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.dice.Die;
 import it.polimi.ingsw.objectivecards.ObjectiveCard;
+import it.polimi.ingsw.patterncards.InvalidPlacementException;
 import it.polimi.ingsw.patterncards.WindowPattern;
+import it.polimi.ingsw.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.rmi.GameAPI;
+import it.polimi.ingsw.toolcards.InvalidEffectResultException;
 import it.polimi.ingsw.toolcards.ToolCard;
 
 import java.rmi.RemoteException;
@@ -57,7 +60,7 @@ public class GameEndPoint implements GameAPI {
     }
 
     @Override
-    public Player getYourOwnPlayerObject(UUID id) {
+    public Player getPlayer(UUID id) {
         Optional<Player> result = this.game.getPlayers().stream()
                 .filter(p -> p.getId().equals(id))
                 .findFirst();
@@ -101,12 +104,18 @@ public class GameEndPoint implements GameAPI {
     }
 
     @Override
-    public void placeDie(int draftPoolIndex, int x, int y) throws RemoteException {
-        // TODO
+    public void placeDie(UUID playerID, int draftPoolIndex, int x, int y) throws RemoteException {
+        WindowPattern wp = getPlayer(playerID).getWindowPattern();
+        Die d = this.game.getDiceGenerator().getDraftPool().get(draftPoolIndex);
+        if (wp.isGridEmpty())
+            wp.placeDie(d,5*y+x, PlacementConstraint.initialConstraint());
+        else
+            wp.placeDie(d,5*y+x);
+        this.game.getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
     }
 
     @Override
-    public void useToolCard(int toolCardsIndex, JsonObject data) throws RemoteException {
-        // TODO
+    public void useToolCard(int toolCardsIndex, JsonObject data) throws RemoteException, InvalidEffectResultException {
+        this.game.getToolCards().get(toolCardsIndex).effect(data);
     }
 }
