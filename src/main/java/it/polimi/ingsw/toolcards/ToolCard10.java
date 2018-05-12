@@ -14,7 +14,7 @@ public class ToolCard10 extends ToolCard {
     /*
      *  JSON Format
      *  {
-     *      "draftPoolIndex": int
+     *      "draftPoolIndex": <int>
      *  }
      */
     public void effect(JsonObject data) {

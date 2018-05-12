@@ -8,20 +8,21 @@ import it.polimi.ingsw.server.*;
 
 public class ToolCard6 extends ToolCard {
 
-    private boolean dieRolled = false;
+    private boolean dieRolled;
 
     public ToolCard6(Game game) {
         super("Pennello per Pasta Salda", "Dopo aver scelto un dado, tira nuovamente quel dado\nSe non puoi piazzarlo, riponilo nella riserva", game);
+        this.dieRolled = false;
     }
 
     /*
      *  JSON Format
      *  {
-     *      "player": string,
-     *      "draftPoolIndex": int,
-     *      "x": int,
-     *      "y": int,
-     *      "putAway": bool
+     *      "player": <nickname: string>,
+     *      "draftPoolIndex": <int>,
+     *      "x": <int>,
+     *      "y": <int>,
+     *      "putAway": <bool>
      *  }
      */
     public void effect(JsonObject data) throws InvalidEffectResultException {

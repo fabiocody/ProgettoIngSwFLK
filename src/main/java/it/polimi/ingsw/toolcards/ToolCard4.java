@@ -9,43 +9,58 @@ import java.util.*;
 
 public class ToolCard4 extends ToolCard {
 
+    private boolean firstMoveDone;
+    private Integer firstMoveIndex;
+
     public ToolCard4(Game game) {
         super("Lathekin", "Muovi esattamente due dadi, rispettando tutte le restrizioni di piazzamento", game);
+        this.firstMoveDone = false;
     }
 
     /*
      *  JSON Format
      *  {
-     *      "player": string,
-     *      "1": {
-     *          "fromCellX": int,
-     *          "fromCellY": int,
-     *          "toCellX": int,
-     *          "toCellY": int
-     *      },
-     *      "2": {
-     *          "fromCellX": int,
-     *          "fromCellY": int,
-     *          "toCellX": int,
-     *          "toCellY": int
-     *      }
+     *      "player": <nickname: string>,
+     *      "fromCellX": <int>,
+     *      "fromCellY": <int>,
+     *      "toCellX": <int>,
+     *      "toCellY": <int>
      *  }
      */
     public void effect(JsonObject data) throws InvalidEffectResultException {
-        // TODO Dividere in due mosse
         String nickname = data.get("player").getAsString();
         Player player = this.getGame().getPlayerForNickname(nickname);
-        List<JsonObject> movements = Arrays.asList(data.get("1").getAsJsonObject(), data.get("2").getAsJsonObject());
-        for (JsonObject movement : movements) {
-            int fromIndex = this.linearizeIndex(movement.get("fromCellX").getAsInt(), movement.get("fromCellY").getAsInt());
-            int toIndex = this.linearizeIndex(movement.get("toCellX").getAsInt(), movement.get("toCellY").getAsInt());
-            try {
-                player.getWindowPattern().moveDie(fromIndex, toIndex, PlacementConstraint.standardConstraint());
-            } catch (InvalidPlacementException e) {
-                throw new InvalidEffectResultException();
-            }
+        if (!this.firstMoveDone) {
+            firstMove(data, player);
+            this.firstMoveDone = true;
+        } else {
+            secondMove(data, player);
+            this.firstMoveDone = false;
+            this.setUsed();
         }
-        this.setUsed();
+    }
+
+    private void firstMove(JsonObject data, Player player) throws InvalidEffectResultException {
+        int fromIndex = this.linearizeIndex(data.get("fromCellX").getAsInt(), data.get("fromCellY").getAsInt());
+        int toIndex = this.linearizeIndex(data.get("toCellX").getAsInt(), data.get("toCellY").getAsInt());
+        try {
+            player.getWindowPattern().moveDie(fromIndex, toIndex, PlacementConstraint.standardConstraint());
+            this.firstMoveIndex = toIndex;
+        } catch (InvalidPlacementException e) {
+            throw new InvalidEffectResultException("Invalid Placement");
+        }
+    }
+
+    private void secondMove(JsonObject data, Player player) throws InvalidEffectResultException {
+        int fromIndex = this.linearizeIndex(data.get("fromCellX").getAsInt(), data.get("fromCellY").getAsInt());
+        if (fromIndex == this.firstMoveIndex) throw new InvalidEffectResultException("Cannot move the same die twice");
+        int toIndex = this.linearizeIndex(data.get("toCellX").getAsInt(), data.get("toCellY").getAsInt());
+        try {
+            player.getWindowPattern().moveDie(fromIndex, toIndex, PlacementConstraint.standardConstraint());
+            this.firstMoveIndex = null;
+        } catch (InvalidPlacementException e) {
+            throw new InvalidEffectResultException("Invalid Placement");
+        }
     }
 
 }

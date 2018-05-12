@@ -14,8 +14,8 @@ public class ToolCard5 extends ToolCard {
     /*
      *  JSON Format
      *  {
-     *      "draftPoolIndex": int,
-     *      "roundTrackIndex": int
+     *      "draftPoolIndex": <int>,
+     *      "roundTrackIndex": <int>
      *  }
      */
     public void effect(JsonObject data) throws InvalidEffectResultException {

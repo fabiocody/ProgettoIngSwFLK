@@ -16,10 +16,10 @@ public class ToolCard9 extends ToolCard {
     /*
      *  JSON Format
      *  {
-     *      "player": string,
-     *      "draftPoolIndex": int,
-     *      "cellX": int,
-     *      "cellY": int
+     *      "player": <nickname: string>,
+     *      "draftPoolIndex": <int>,
+     *      "cellX": <int>,
+     *      "cellY": <int>
      *  }
      */
     public void effect(JsonObject data) throws InvalidEffectResultException {

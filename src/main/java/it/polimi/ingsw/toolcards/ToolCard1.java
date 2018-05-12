@@ -15,8 +15,8 @@ public class ToolCard1 extends ToolCard {
     /*
      *  JSON Format
      *  {
-     *      "dieIndex": int,
-     *      "delta": int
+     *      "dieIndex": <int>,
+     *      "delta": <int>
      *  }
      */
     public void effect(JsonObject data) throws InvalidEffectResultException {

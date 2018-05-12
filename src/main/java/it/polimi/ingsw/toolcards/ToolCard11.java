@@ -22,11 +22,11 @@ public class ToolCard11 extends ToolCard {
     /*
      *  JSON Format
      *  {
-     *      "player": string,
-     *      "draftPoolIndex": int,
-     *      "newValue": int,
-     *      "cellX": int,
-     *      "cellY": int,
+     *      "player": <nickname: string>,
+     *      "draftPoolIndex": <int>,
+     *      "newValue": <int>,
+     *      "cellX": <int>,
+     *      "cellY": <int>,
      *  }
      */
     public void effect(JsonObject data) throws InvalidEffectResultException {

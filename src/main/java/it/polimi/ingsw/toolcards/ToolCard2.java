@@ -15,11 +15,11 @@ public class ToolCard2 extends ToolCard {
     /*
      *  JSON Format
      *  {
-     *      "player": string,
-     *      "fromCellX": int,
-     *      "fromCellY": int,
-     *      "toCellX": int,
-     *      "toCellY": int
+     *      "player": <nickname: string>,
+     *      "fromCellX": <int>,
+     *      "fromCellY": <int>,
+     *      "toCellX": <int>,
+     *      "toCellY": <int>
      *  }
      */
     public void effect(JsonObject data) throws InvalidEffectResultException {
