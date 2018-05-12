@@ -25,7 +25,7 @@ public class WindowPattern {
                 grid[5] = new Cell(Colors.GREEN, null);
                 grid[6] = new Cell(null, null);
                 grid[7] = new Cell(null, 5);
-                grid[8] = new Cell(Colors.GREEN, null);
+                grid[8] = new Cell(null, null);
                 grid[9] = new Cell(null, 4);
                 grid[10] = new Cell(null, 3);
                 grid[11] = new Cell(null, null);
