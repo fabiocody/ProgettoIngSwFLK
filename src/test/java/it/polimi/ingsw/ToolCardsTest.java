@@ -261,6 +261,22 @@ class ToolCardsTest {
     @Test
     void toolCard9() {
         // TODO
+        ToolCard toolCard = new ToolCard9(game);
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
+        Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
+        player.getWindowPattern().placeDie(die, 17, PlacementConstraint.initialConstraint());
+        assertNotNull(player.getWindowPattern().getCellAt(17).getPlacedDie());
+        JsonObject data = new JsonObject();
+        data.addProperty("player", player.getNickname());
+        data.addProperty("draftPoolIndex", 0);
+        data.addProperty("cellX", 2);
+        data.addProperty("cellY", 0);
+        try {
+            toolCard.effect(data);
+            assertNotNull(player.getWindowPattern().getCellAt(0, 2).getPlacedDie());
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
