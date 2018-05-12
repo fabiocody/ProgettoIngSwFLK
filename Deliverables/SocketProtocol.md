@@ -1,5 +1,28 @@
 # Socket Protocol
 
+<!-- TOC depthFrom:2 depthTo:3 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [Waiting Room](#waiting-room)
+	- [Inserimento di un nuovo giocatore](#inserimento-di-un-nuovo-giocatore)
+	- [Aggiornamento della lista dei giocatori in attesa](#aggiornamento-della-lista-dei-giocatori-in-attesa)
+- [Game](#game)
+	- [Messaggio di inizio gioco](#messaggio-di-inizio-gioco)
+	- [Selezione pattern](#selezione-pattern)
+	- [Lista dei giocatori](#lista-dei-giocatori)
+	- [Conclusione del turno](#conclusione-del-turno)
+	- [Punteggi finali](#punteggi-finali)
+	- [Carte obiettivo pubblico](#carte-obiettivo-pubblico)
+	- [Carte strumento](#carte-strumento)
+	- [Segnalini favore](#segnalini-favore)
+	- [Pattern](#pattern)
+	- [Dadi sul tracciato dei round](#dadi-sul-tracciato-dei-round)
+	- [Riserva](#riserva)
+- [Mosse del giocatore](#mosse-del-giocatore)
+	- [Posizionamento di un dado](#posizionamento-di-un-dado)
+	- [Uso di una carta strumento](#uso-di-una-carta-strumento)
+
+<!-- /TOC -->
+
 ## Waiting Room
 
 ### Inserimento di un nuovo giocatore
@@ -92,11 +115,11 @@
 
 Dopo questa richiesta il server manda a ciascun client (nel seguente ordine):
 
-- [Lista dei giocatori](###lista-dei-giocatori)
+- [Lista dei giocatori](#lista-dei-giocatori)
 - [Carte strumento](#carte-strumento)
 - [Carte obiettivo pubblico](#carte-obiettivo-pubblico)
-- [Pattern degli altri giocatori](#pattern)
-- [Messaggio di conclusione turno](#invio-della-lista-dei-giocatori) per passare al turno 1
+- [Pattern](#pattern) degli altri giocatori
+- Messaggio di [conclusione del turno](#conclusione-del-turno) per passare al turno 1
 - [Dadi della riserva](#riserva)
 
 ### Lista dei giocatori
@@ -151,7 +174,7 @@ Dopo questa richiesta il server manda a ciascun client (nel seguente ordine):
 }
 ```
 
-### Carte obiettivo pubbliche
+### Carte obiettivo pubblico
 
 #### Server -> Client
 
