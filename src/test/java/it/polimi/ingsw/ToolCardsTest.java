@@ -71,7 +71,7 @@ class ToolCardsTest {
         player.getWindowPattern().placeDie(die, 2, PlacementConstraint.initialConstraint());
         assertNotNull(player.getWindowPattern().getCellAt(2).getPlacedDie());
         die = game.getDiceGenerator().drawDieFromDraftPool(0);
-        player.getWindowPattern().placeDie(die, 8, PlacementConstraint.standardConstraint());
+        player.getWindowPattern().placeDie(die, 8);
         assertNotNull(player.getWindowPattern().getCellAt(8).getPlacedDie());
         JsonObject data = new JsonObject();
         data.addProperty("player", player.getNickname());
@@ -91,12 +91,12 @@ class ToolCardsTest {
     @Test
     void toolCard3() {
         ToolCard toolCard = new ToolCard3(game);
-        player.setWindowPatternList(Arrays.asList(new WindowPattern(2)));
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
         Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
         player.getWindowPattern().placeDie(die, 17, PlacementConstraint.initialConstraint());
         assertNotNull(player.getWindowPattern().getCellAt(17).getPlacedDie());
         die = game.getDiceGenerator().drawDieFromDraftPool(0);
-        player.getWindowPattern().placeDie(die, 11, PlacementConstraint.standardConstraint());
+        player.getWindowPattern().placeDie(die, 11);
         assertNotNull(player.getWindowPattern().getCellAt(11).getPlacedDie());
         JsonObject data = new JsonObject();
         data.addProperty("player", player.getNickname());
@@ -121,7 +121,7 @@ class ToolCardsTest {
         player.getWindowPattern().placeDie(die, 17, PlacementConstraint.initialConstraint());
         assertNotNull(player.getWindowPattern().getCellAt(17).getPlacedDie());
         die = game.getDiceGenerator().drawDieFromDraftPool(0);
-        player.getWindowPattern().placeDie(die, 11, PlacementConstraint.standardConstraint());
+        player.getWindowPattern().placeDie(die, 11);
         assertNotNull(player.getWindowPattern().getCellAt(11).getPlacedDie());
         JsonObject data = new JsonObject();
         data.addProperty("player", player.getNickname());
@@ -153,7 +153,6 @@ class ToolCardsTest {
 
     @Test
     void toolCard5() {
-        // TODO
         ToolCard toolCard = new ToolCard5(game);
         game.getRoundTrack().putDie(game.getDiceGenerator().getDraftPool());
         game.getDiceGenerator().generateDraftPool();
@@ -174,8 +173,53 @@ class ToolCardsTest {
     }
 
     @Test
-    void toolCard6() {
-        // TODO
+    void toolCard6DontPutAway() {
+        ToolCard toolCard = new ToolCard6(game);
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(2)));
+        Die die = game.getDiceGenerator().getDraftPool().get(0);
+        player.getWindowPattern().placeDie(die, 17, PlacementConstraint.initialConstraint());
+        die = game.getDiceGenerator().getDraftPool().get(0);
+        JsonObject data = new JsonObject();
+        data.addProperty("player", player.getNickname());
+        data.addProperty("draftPoolIndex", 0);
+        try {
+            toolCard.effect(data);
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
+        data.addProperty("x", 1);
+        data.addProperty("y", 2);
+        data.addProperty("putAway", false);
+        try {
+            toolCard.effect(data);
+            assertEquals(die, player.getWindowPattern().getCellAt(2, 1).getPlacedDie());
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void toolCard6PutAway() {
+        ToolCard toolCard = new ToolCard6(game);
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(2)));
+        Die die = game.getDiceGenerator().getDraftPool().get(0);
+        player.getWindowPattern().placeDie(die, 17, PlacementConstraint.initialConstraint());
+        die = game.getDiceGenerator().getDraftPool().get(0);
+        JsonObject data = new JsonObject();
+        data.addProperty("player", player.getNickname());
+        data.addProperty("draftPoolIndex", 0);
+        try {
+            toolCard.effect(data);
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
+        data.addProperty("putAway", true);
+        try {
+            toolCard.effect(data);
+            assertEquals(die, game.getDiceGenerator().getDraftPool().get(0));
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
