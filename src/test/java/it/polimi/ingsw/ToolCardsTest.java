@@ -246,7 +246,16 @@ class ToolCardsTest {
 
     @Test
     void toolCard8() {
-        // TODO
+        // TODO vedi ToolCard8
+        ToolCard toolCard = new ToolCard8(game);
+        JsonObject data = new JsonObject();
+        data.addProperty("player", player.getNickname());
+        try {
+            toolCard.effect(data);
+            assertTrue(player.isSecondTurnToBeJumped());
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test

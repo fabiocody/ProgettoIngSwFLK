@@ -16,7 +16,7 @@ public class ToolCard8 extends ToolCard {
      *  }
      */
     public void effect(JsonObject data) {
-        // TODO
+        // TODO definire come viene detto al client di piazzare un altro dado
         Player player = this.getGame().getPlayerForNickname(data.get("player").getAsString());
         player.setSecondTurnToBeJumped(true);
         this.setUsed();
