@@ -15,7 +15,8 @@ public class WaitingRoom extends Observable {
     private CountdownTimer timer;
 
     private WaitingRoom() {
-        this.timeout = 2;  // TODO configuration file
+        this.timeout = 60;  // TODO configuration file
+        this.timer = new CountdownTimer("WaitingRoom", this.timeout);
     }
 
     public static synchronized WaitingRoom getInstance() {
@@ -30,33 +31,19 @@ public class WaitingRoom extends Observable {
         return this.waitingPlayers;
     }
 
-    CountdownTimer getTimerReference() {
+    public CountdownTimer getTimer() {
         return this.timer;
-    }
-
-    private CountdownTimer getTimer() {
-        if (this.timer == null)
-            this.timer = new CountdownTimer(this.timeout);
-        return this.timer;
-    }
-
-    private void cancelTimer() {
-        getTimer().cancel();
-        this.timer = null;
     }
 
     // Add player to this waiting room.
     // Game creation occurs when timer expires or when 4 players are reached.
     public synchronized UUID addPlayer(String nickname) {
-        for (Player p : this.getWaitingPlayers()) {     // TODO Make functional (great again)
-            if (p.getNickname().equals(nickname))
-                return null;
-        }
+        if (this.getWaitingPlayers().stream().anyMatch(p -> p.getNickname().equals(nickname))) return null;
         Player player = new Player(nickname);
         this.getWaitingPlayers().add(player);
         if (this.getWaitingPlayers().size() == 2) {
-            this.cancelTimer();
-            this.getTimer().schedule(this::createGame);
+            this.timer.cancel();
+            this.timer.schedule(this::createGame, this.timeout);
         } else if (this.getWaitingPlayers().size() == 4) {
             this.createGame();
         }
@@ -66,7 +53,7 @@ public class WaitingRoom extends Observable {
     // Create a new game with the first N players of the list.
     // The timer is canceled and SagradaServer is notified.
     private synchronized void createGame() {
-        this.cancelTimer();
+        this.timer.cancel();
         this.setChanged();      // Needed to make notifyObservers work
         this.notifyObservers(new Game(this.getWaitingPlayers()));
         this.getWaitingPlayers().clear();

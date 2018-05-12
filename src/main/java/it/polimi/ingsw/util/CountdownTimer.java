@@ -5,27 +5,38 @@ import java.util.Observable;
 
 public class CountdownTimer extends Observable implements Runnable {
 
+    private String id;
     private int remainingTime;
     private Runnable task;
     private Thread timerThread;
 
-    public CountdownTimer(int timeout) {
+    public CountdownTimer(String id, int timeout) {
+        this.id = id;
         this.remainingTime = timeout;
     }
 
-    public CountdownTimer(Runnable task, int timeout) {
-        this(timeout);
+    public CountdownTimer(String id, int timeout, Runnable task) {
+        this(id, timeout);
         this.schedule(task);
     }
 
-    public void schedule(Runnable task) {
+    public int getRemainingTime() {
+        return this.remainingTime;
+    }
+
+    public void setRemainingTime(int remainingTime) {
+        this.remainingTime = remainingTime;
+    }
+
+    public void schedule(Runnable task, int remainingTime) {
+        this.remainingTime = remainingTime;
         this.task = task;
         this.timerThread = new Thread(this);
         this.start();
     }
 
-    public int getRemainingTime() {
-        return this.remainingTime;
+    public void schedule(Runnable task) {
+        this.schedule(task, this.remainingTime);
     }
 
     public void cancel() {
@@ -42,10 +53,10 @@ public class CountdownTimer extends Observable implements Runnable {
     public void run() {
         try {
             while (this.remainingTime > 0) {
+                Thread.sleep(1000);
                 this.remainingTime -= 1;
                 this.setChanged();
-                this.notifyObservers(this.remainingTime);
-                Thread.sleep(1000);
+                this.notifyObservers(this.id + " " + this.remainingTime);
             }
             if (this.task != null) this.task.run();
         } catch (InterruptedException e) {

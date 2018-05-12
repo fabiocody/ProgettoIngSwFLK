@@ -37,7 +37,7 @@ public class GameEndPoint implements GameAPI {
 
     @Override
     public void registerTimerForTurnManager(Observer observer) {
-        this.game.getTurnManager().getTimerReference().addObserver(observer);
+        this.game.getTurnManager().getTimer().addObserver(observer);
     }
 
     @Override

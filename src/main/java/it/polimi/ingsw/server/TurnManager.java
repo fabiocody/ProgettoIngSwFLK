@@ -20,6 +20,7 @@ public class TurnManager extends Observable {
         Stream<Integer> backRange = IntStream.range(0, this.getNumberOfPlayers()).boxed().sorted(Collections.reverseOrder());
         this.playersOrder = Stream.concat(forwardRange, backRange).collect(Collectors.toList());
         this.index = 0;
+        this.timer = new CountdownTimer("TurnManager", this.timeout);
         this.setActivePlayer(this.getCurrentPlayer());
         // TODO Set timer for first turn of first round
     }
@@ -34,6 +35,10 @@ public class TurnManager extends Observable {
 
     public Player getCurrentPlayer() {
         return this.players.get(this.getCurrentPlayerIndex());
+    }
+
+    public CountdownTimer getTimer() {
+        return this.timer;
     }
 
     private void setActivePlayer(Player player) {
@@ -51,7 +56,7 @@ public class TurnManager extends Observable {
     }
 
     public void nextTurn() {
-        this.cancelTimer();
+        this.timer.cancel();
         this.index++;
         if (this.index == this.playersOrder.size()) {
             this.index = 0;
@@ -60,22 +65,8 @@ public class TurnManager extends Observable {
             this.notifyObservers();
         }
         this.setActivePlayer(this.getCurrentPlayer());
-        this.getTimer().schedule(this::nextTurn);
+        this.timer.schedule(this::nextTurn, this.timeout);
     }
 
-    CountdownTimer getTimerReference() {
-        return this.timer;
-    }
-
-    private CountdownTimer getTimer() {
-        if (this.timer == null)
-            this.timer = new CountdownTimer(this.timeout);
-        return this.timer;
-    }
-
-    private void cancelTimer() {
-        getTimer().cancel();
-        this.timer = null;
-    }
 
 }

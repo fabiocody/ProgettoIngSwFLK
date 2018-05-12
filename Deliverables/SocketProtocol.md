@@ -75,7 +75,7 @@
 
 ```
 {
-    "player": <nickname: string>,
+    "playerID": <uuid: string>,
     "method": "registerWRTimer",
     "arg": null
 }
@@ -141,7 +141,7 @@
 
 ```
 {
-    "player": <nickname: string>,
+    "playerID": <uuid: string>,
     "method": "registerGameTimer",
     "arg": null
 }
