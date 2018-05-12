@@ -52,6 +52,8 @@ public class ToolCard6 extends ToolCard {
             } catch (InvalidPlacementException e) {
                 throw new InvalidEffectResultException();
             }
+        } else {
+            this.setUsed();
         }
     }
 
