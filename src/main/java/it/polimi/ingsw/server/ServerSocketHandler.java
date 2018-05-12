@@ -1,11 +1,12 @@
 package it.polimi.ingsw.server;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import it.polimi.ingsw.util.CountdownTimer;
+import java.io.*;
 import java.net.Socket;
-import java.util.Scanner;
+import java.util.*;
 
-public class ServerSocketHandler implements Runnable {
+
+public class ServerSocketHandler implements Runnable, Observer {
 
     private Socket socket;
 
@@ -15,11 +16,21 @@ public class ServerSocketHandler implements Runnable {
 
     @Override
     public void run() {
-        try (Scanner in = new Scanner(socket.getInputStream()); PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
             //TODO BODY
             System.out.println("Connection established!!!");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o instanceof CountdownTimer) {
+            // TODO "wr <tick>"
+            // TODO "tm <tick>"
+        }
+    }
+
 }
