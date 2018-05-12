@@ -224,7 +224,24 @@ class ToolCardsTest {
 
     @Test
     void toolCard7() {
-        // TODO
+        // Check that at least one die has changed value
+        ToolCard toolCard = new ToolCard7(game);
+        while (!game.getTurnManager().isSecondHalfOfRound())
+            game.getTurnManager().nextTurn();
+        List<Integer> oldDraftPoolValues = game.getDiceGenerator().getDraftPool().stream()
+                .map(Die::getValue)
+                .collect(Collectors.toList());
+        try {
+            toolCard.effect(null);
+            List<Die> list = new ArrayList<>();
+            for (int i = 0; i < game.getDiceGenerator().getDraftPool().size(); i++) {
+                if (game.getDiceGenerator().getDraftPool().get(i).getValue() != oldDraftPoolValues.get(i))
+                    list.add(game.getDiceGenerator().getDraftPool().get(i));
+            }
+            assertTrue(list.size() > 0);
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
