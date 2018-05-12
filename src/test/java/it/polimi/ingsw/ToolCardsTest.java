@@ -187,8 +187,8 @@ class ToolCardsTest {
         } catch (InvalidEffectResultException e) {
             e.printStackTrace();
         }
-        data.addProperty("x", 1);
-        data.addProperty("y", 2);
+        data.addProperty("cellX", 1);
+        data.addProperty("cellY", 2);
         data.addProperty("putAway", false);
         try {
             toolCard.effect(data);
@@ -280,7 +280,6 @@ class ToolCardsTest {
 
     @Test
     void toolCard10() {
-        // TODO
         ToolCard toolCard = new ToolCard10(game);
         int oldValue = game.getDiceGenerator().getDraftPool().get(0).getValue();
         JsonObject data = new JsonObject();
@@ -296,6 +295,35 @@ class ToolCardsTest {
     @Test
     void toolCard11() {
         // TODO
+        ToolCard toolCard = new ToolCard11(game);
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
+        Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
+        player.getWindowPattern().placeDie(die, 17, PlacementConstraint.initialConstraint());
+        JsonObject data = new JsonObject();
+        data.addProperty("player", player.getNickname());
+        data.addProperty("draftPoolIndex", 0);
+        Die oldDie = game.getDiceGenerator().getDraftPool().get(0);
+        try {
+            toolCard.effect(data);
+            assertNotEquals(oldDie, game.getDiceGenerator().getDraftPool().get(0));
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
+        data.addProperty("newValue", 4);
+        try {
+            toolCard.effect(data);
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
+        die = game.getDiceGenerator().getDraftPool().get(0);
+        data.addProperty("cellX", 1);
+        data.addProperty("cellY", 2);
+        try {
+            toolCard.effect(data);
+            assertEquals(die, player.getWindowPattern().getCellAt(2, 1).getPlacedDie());
+        } catch (InvalidEffectResultException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test

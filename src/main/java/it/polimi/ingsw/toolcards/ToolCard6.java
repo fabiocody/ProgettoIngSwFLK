@@ -20,8 +20,8 @@ public class ToolCard6 extends ToolCard {
      *  {
      *      "player": <nickname: string>,
      *      "draftPoolIndex": <int>,
-     *      "x": <int>,
-     *      "y": <int>,
+     *      "cellX": <int>,
+     *      "cellY": <int>,
      *      "putAway": <bool>
      *  }
      */
@@ -39,8 +39,8 @@ public class ToolCard6 extends ToolCard {
 
     private void placeDie(JsonObject data) throws InvalidEffectResultException {
         if (!data.get("putAway").getAsBoolean()) {
-            int x = data.get("x").getAsInt();
-            int y = data.get("y").getAsInt();
+            int x = data.get("cellX").getAsInt();
+            int y = data.get("cellY").getAsInt();
             int index = data.get("draftPoolIndex").getAsInt();
             Die die = this.getGame().getDiceGenerator().getDraftPool().get(index);
             Player player = this.getGame().getPlayerForNickname(data.get("player").getAsString());
