@@ -638,7 +638,6 @@ public class WindowPattern {
                 grid[18] = new Cell(null, null);
                 grid[19] = new Cell(null, null);
                 break;
-
         }
     }
 
