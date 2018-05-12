@@ -25,7 +25,7 @@ public class WindowPattern {
                 grid[5] = new Cell(Colors.GREEN, null);
                 grid[6] = new Cell(null, null);
                 grid[7] = new Cell(null, 5);
-                grid[8] = new Cell(Colors.GREEN, null);
+                grid[8] = new Cell(null, null);
                 grid[9] = new Cell(null, 4);
                 grid[10] = new Cell(null, 3);
                 grid[11] = new Cell(null, null);
@@ -94,8 +94,8 @@ public class WindowPattern {
                 this.grid = new Cell[20];
                 grid[0] = new Cell(Colors.YELLOW, null);
                 grid[1] = new Cell(null, null);
-                grid[2] = new Cell(null, null);
-                grid[3] = new Cell(null, 6);
+                grid[2] = new Cell(null, 6);
+                grid[3] = new Cell(null, null);
                 grid[4] = new Cell(null, null);
                 grid[5] = new Cell(null, null);
                 grid[6] = new Cell(null, 1);
@@ -179,7 +179,7 @@ public class WindowPattern {
                 grid[9] = new Cell(null, null);
                 grid[10] = new Cell(null, null);
                 grid[11] = new Cell(null, 2);
-                grid[12] = new Cell(null, null);
+                grid[12] = new Cell(Colors.PURPLE, null);
                 grid[13] = new Cell(null, 1);
                 grid[14] = new Cell(null, null);
                 grid[15] = new Cell(null, null);
