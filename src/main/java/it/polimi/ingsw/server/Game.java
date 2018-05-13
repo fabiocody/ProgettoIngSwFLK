@@ -40,8 +40,12 @@ public class Game implements Observer {
     private final Object toolCardsLock = new Object();
 
     public Game(List<Player> players) {
+        this(players, true);
+    }
+
+    public Game(List<Player> players, boolean doSetup) {
         this.players = new Vector<>(players);
-        this.setup();
+        if (doSetup) this.setup();
     }
 
     public List<Player> getPlayers() {
@@ -155,7 +159,7 @@ public class Game implements Observer {
         }
         pool.shutdown();
         try {
-            pool.awaitTermination(10, TimeUnit.SECONDS);
+            pool.awaitTermination(2, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
             Thread.currentThread().interrupt();
@@ -175,7 +179,7 @@ public class Game implements Observer {
     public void update(Observable o, Object arg) {
         if (o instanceof RoundTrack) {
             if (arg.equals("Round incremented"))
-                this.getRoundTrack().putDie(this.getDiceGenerator().getDraftPool());
+                this.getRoundTrack().putDice(this.getDiceGenerator().getDraftPool());
             else if (arg.equals("Game over"))
                 new Thread(this::endGame).start();
         }

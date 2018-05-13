@@ -67,7 +67,7 @@ public class RoundTrack extends Observable implements Observer {
     }
 
     // Place what remains of the Draft Pool into the dice list
-    public void putDie(List<Die> fromDraftPool) {
+    public void putDice(List<Die> fromDraftPool) {
         synchronized (diceLock) {
             this.getDice().addAll(fromDraftPool);
             fromDraftPool.clear();

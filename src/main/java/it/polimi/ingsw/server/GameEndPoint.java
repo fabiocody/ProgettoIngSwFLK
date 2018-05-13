@@ -3,12 +3,10 @@ package it.polimi.ingsw.server;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.dice.Die;
 import it.polimi.ingsw.objectivecards.ObjectiveCard;
-import it.polimi.ingsw.patterncards.InvalidPlacementException;
-import it.polimi.ingsw.patterncards.WindowPattern;
+import it.polimi.ingsw.patterncards.*;
 import it.polimi.ingsw.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.rmi.GameAPI;
-import it.polimi.ingsw.toolcards.InvalidEffectResultException;
-import it.polimi.ingsw.toolcards.ToolCard;
+import it.polimi.ingsw.toolcards.*;
 
 import java.rmi.RemoteException;
 import java.util.*;
@@ -115,7 +113,7 @@ public class GameEndPoint implements GameAPI {
     }
 
     @Override
-    public void useToolCard(int toolCardsIndex, JsonObject data) throws RemoteException, InvalidEffectResultException {
+    public void useToolCard(int toolCardsIndex, JsonObject data) throws RemoteException, InvalidEffectResultException, InvalidEffectArgumentException {
         this.game.getToolCards().get(toolCardsIndex).effect(data);
     }
 }

@@ -14,11 +14,13 @@ public class ToolCard10 extends ToolCard {
     /*
      *  JSON Format
      *  {
-     *      "draftPoolIndex": int
+     *      "draftPoolIndex": <int>
      *  }
      */
-    public void effect(JsonObject data) {
+    public void effect(JsonObject data) throws InvalidEffectArgumentException {
         int draftPoolIndex = data.get("draftPoolIndex").getAsInt();
+        if (draftPoolIndex < 0 || draftPoolIndex >= this.getGame().getDiceGenerator().getDraftPool().size())
+            throw new InvalidEffectArgumentException("Invalid draftPoolIndex: " + draftPoolIndex);
         Die die = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
         int value = die.getValue();
         die.setValue(7 - value);

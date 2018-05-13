@@ -15,16 +15,18 @@ public class ToolCard1 extends ToolCard {
     /*
      *  JSON Format
      *  {
-     *      "dieIndex": int,
-     *      "delta": int
+     *      "draftPoolIndex": <int>,
+     *      "delta": <int>
      *  }
      */
-    public void effect(JsonObject data) throws InvalidEffectResultException {
-        List<Die> draftPool = this.getGame().getDiceGenerator().getDraftPool();
-        Die d = draftPool.get(data.get("dieIndex").getAsInt());
+    public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
+        int draftPoolIndex = data.get("draftPoolIndex").getAsInt();
+        if (draftPoolIndex < 0 || draftPoolIndex >= this.getGame().getDiceGenerator().getDraftPool().size())
+            throw new InvalidEffectArgumentException("Invalid draftPoolIndex: " + draftPoolIndex);
         int delta = data.get("delta").getAsInt();
         if (delta != 1 && delta != -1)
-            throw new InvalidEffectResultException("Invalid delta");
+            throw new InvalidEffectArgumentException("Invalid delta: " + delta);
+        Die d = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
         int newValue = d.getValue() + delta;
         if (d.getValue() == 1 && newValue == 6 || d.getValue() == 6 && newValue == 1)
             throw new InvalidEffectResultException("Cannot make a 1 into 6 or a 6 into 1");

@@ -1,7 +1,9 @@
 package it.polimi.ingsw.toolcards;
 
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.server.Game;
+import it.polimi.ingsw.patterncards.*;
+import it.polimi.ingsw.placementconstraints.PlacementConstraint;
+import it.polimi.ingsw.server.*;
 
 
 public abstract class ToolCard {
@@ -38,11 +40,21 @@ public abstract class ToolCard {
         return game;
     }
 
-    int linearizeIndex(int i, int j) {
-        return i*5 + j;
+    int linearizeIndex(int x, int y) {
+        return y*5 + x;
     }
 
-    public abstract void effect(JsonObject data) throws InvalidEffectResultException;
+    void moveDie(Player player, int fromIndex, int toIndex, PlacementConstraint constraint) throws InvalidEffectResultException {
+        try {
+            player.getWindowPattern().moveDie(fromIndex, toIndex, constraint);
+        } catch (InvalidPlacementException e) {
+            Cell fromCell = player.getWindowPattern().getCellAt(fromIndex);
+            Cell toCell = player.getWindowPattern().getCellAt(toIndex);
+            throw new InvalidEffectResultException("Invalid movement from cell at index " + fromIndex + " (with die " + fromCell.getPlacedDie() + ") to cell at index " + toIndex + " (" + toCell + ")");
+        }
+    }
+
+    public abstract void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException;
 
     public boolean equals(Object obj) {
         if (!(obj instanceof ToolCard))
