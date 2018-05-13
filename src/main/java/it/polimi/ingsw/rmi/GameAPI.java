@@ -23,7 +23,7 @@ public interface GameAPI extends Remote {
     List<ToolCard> getToolCards() throws RemoteException;
 
     // Player
-    Player getYourOwnPlayerObject(UUID id) throws RemoteException;
+    Player getPlayer(UUID id) throws RemoteException;
     int getFavorTokensOf(String nickname) throws RemoteException;
     WindowPattern getWindowPatternOf(String nickname) throws RemoteException;
 
@@ -35,7 +35,7 @@ public interface GameAPI extends Remote {
     List<Die> getDraftPool() throws RemoteException;
 
     // Moves
-    void placeDie(int draftPoolIndex, int x, int y) throws RemoteException;
+    void placeDie(UUID playerID, int draftPoolIndex, int x, int y) throws RemoteException;
     void useToolCard(int toolCardsIndex, JsonObject data) throws RemoteException, InvalidEffectResultException, InvalidEffectArgumentException;
-
+    
 }

@@ -21,6 +21,6 @@ public class WaitingRoomEndPoint implements WaitingRoomAPI {
 
     @Override
     public void registerTimerForWaitingRoom(Observer observer) {
-        WaitingRoom.getInstance().getTimerReference().addObserver(observer);
+        WaitingRoom.getInstance().getTimer().addObserver(observer);
     }
 }

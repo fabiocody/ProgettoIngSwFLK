@@ -5,7 +5,7 @@ import java.util.*;
 
 public class PatternCardsGenerator {
 
-    private final List<WindowPattern> generatedCards = new ArrayList<>();
+    private final List<WindowPattern> generatedCards = new Vector<>();
 
     public PatternCardsGenerator(int numberOfPlayers){
 

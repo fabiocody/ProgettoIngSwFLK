@@ -4,6 +4,8 @@ import it.polimi.ingsw.dice.Die;
 import it.polimi.ingsw.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.util.*;
 
+import java.util.Arrays;
+
 public class WindowPattern {
 
     private final int difficulty;
@@ -94,8 +96,8 @@ public class WindowPattern {
                 this.grid = new Cell[20];
                 grid[0] = new Cell(Colors.YELLOW, null);
                 grid[1] = new Cell(null, null);
-                grid[2] = new Cell(null, null);
-                grid[3] = new Cell(null, 6);
+                grid[2] = new Cell(null, 6);
+                grid[3] = new Cell(null, null);
                 grid[4] = new Cell(null, null);
                 grid[5] = new Cell(null, null);
                 grid[6] = new Cell(null, 1);
@@ -179,7 +181,7 @@ public class WindowPattern {
                 grid[9] = new Cell(null, null);
                 grid[10] = new Cell(null, null);
                 grid[11] = new Cell(null, 2);
-                grid[12] = new Cell(null, null);
+                grid[12] = new Cell(Colors.PURPLE, null);
                 grid[13] = new Cell(null, 1);
                 grid[14] = new Cell(null, null);
                 grid[15] = new Cell(null, null);
@@ -638,7 +640,6 @@ public class WindowPattern {
                 grid[18] = new Cell(null, null);
                 grid[19] = new Cell(null, null);
                 break;
-
         }
     }
 
@@ -664,6 +665,10 @@ public class WindowPattern {
 
     public int getPatternNumber(){
         return this.patternNumber;
+    }
+
+    public boolean isGridEmpty() {
+        return Arrays.stream(this.grid).noneMatch(c -> c.getPlacedDie() != null);
     }
 
     public synchronized void placeDie(Die d, int position, PlacementConstraint withConstraint){
