@@ -145,7 +145,7 @@ public class Game implements Observer {
         }
         this.toolCards = ToolCardsGenerator.generate(this);
         this.publicObjectiveCards = this.getObjectiveCardsGenerator().generatePublic();
-        // Collections.shuffle(this.players);
+        this.getDiceGenerator().generateDraftPool();
     }
 
     // This method is supposed to be counting VP for each player.
@@ -178,9 +178,10 @@ public class Game implements Observer {
 
     public void update(Observable o, Object arg) {
         if (o instanceof RoundTrack) {
-            if (arg.equals("Round incremented"))
+            if (arg.equals("Round incremented")) {
                 this.getRoundTrack().putDice(this.getDiceGenerator().getDraftPool());
-            else if (arg.equals("Game over"))
+                this.getDiceGenerator().generateDraftPool();
+            } else if (arg.equals("Game over"))
                 new Thread(this::endGame).start();
         }
     }
