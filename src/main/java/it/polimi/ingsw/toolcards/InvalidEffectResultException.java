@@ -3,11 +3,11 @@ package it.polimi.ingsw.toolcards;
 
 public class InvalidEffectResultException extends Exception {
 
-    public InvalidEffectResultException() {
+    InvalidEffectResultException() {
         super();
     }
 
-    public InvalidEffectResultException(String message) {
+    InvalidEffectResultException(String message) {
         super(message);
     }
 

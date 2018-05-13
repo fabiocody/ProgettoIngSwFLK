@@ -56,12 +56,12 @@ class ToolCardsTest {
             if (oldValue <= 3) assertEquals(oldValue + 1, game.getDiceGenerator().getDraftPool().get(0).getValue());
             else assertEquals(oldValue - 1, game.getDiceGenerator().getDraftPool().get(0).getValue());
             assertTrue(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
         data.remove("delta");
         data.addProperty("delta", 42);
-        assertThrows(InvalidEffectResultException.class, () -> toolCard.effect(data));
+        assertThrows(InvalidEffectArgumentException.class, () -> toolCard.effect(data));
     }
 
     @Test
@@ -85,7 +85,7 @@ class ToolCardsTest {
             assertNull(player.getWindowPattern().getCellAt(2).getPlacedDie());
             assertNotNull(player.getWindowPattern().getCellAt(2, 4).getPlacedDie());
             assertTrue(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
     }
@@ -111,7 +111,7 @@ class ToolCardsTest {
             assertNull(player.getWindowPattern().getCellAt(3, 2).getPlacedDie());
             assertNotNull(player.getWindowPattern().getCellAt(1, 2).getPlacedDie());
             assertTrue(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
     }
@@ -137,7 +137,7 @@ class ToolCardsTest {
             assertNull(player.getWindowPattern().getCellAt(3, 2).getPlacedDie());
             assertNotNull(player.getWindowPattern().getCellAt(1, 2).getPlacedDie());
             assertFalse(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
         data = new JsonObject();
@@ -151,7 +151,7 @@ class ToolCardsTest {
             assertNull(player.getWindowPattern().getCellAt(2, 1).getPlacedDie());
             assertNotNull(player.getWindowPattern().getCellAt(2, 3).getPlacedDie());
             assertTrue(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
     }
@@ -173,7 +173,7 @@ class ToolCardsTest {
             assertEquals(fromDraftPool, game.getRoundTrack().getDice().get(roundTrackIndex));
             assertEquals(fromRoundTrack, game.getDiceGenerator().getDraftPool().get(draftPoolIndex));
             assertTrue(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
     }
@@ -191,7 +191,7 @@ class ToolCardsTest {
         try {
             toolCard.effect(data);
             assertFalse(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
         data.addProperty("cellX", 1);
@@ -201,7 +201,7 @@ class ToolCardsTest {
             toolCard.effect(data);
             assertEquals(die, player.getWindowPattern().getCellAt(2, 1).getPlacedDie());
             assertTrue(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
     }
@@ -219,7 +219,7 @@ class ToolCardsTest {
         try {
             toolCard.effect(data);
             assertFalse(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
         data.addProperty("putAway", true);
@@ -227,7 +227,7 @@ class ToolCardsTest {
             toolCard.effect(data);
             assertEquals(die, game.getDiceGenerator().getDraftPool().get(0));
             assertTrue(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
     }
@@ -250,7 +250,7 @@ class ToolCardsTest {
             }
             assertTrue(list.size() > 0);
             assertTrue(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
     }
@@ -265,7 +265,7 @@ class ToolCardsTest {
             toolCard.effect(data);
             assertTrue(player.isSecondTurnToBeJumped());
             assertTrue(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
     }
@@ -286,7 +286,7 @@ class ToolCardsTest {
             toolCard.effect(data);
             assertNotNull(player.getWindowPattern().getCellAt(0, 2).getPlacedDie());
             assertTrue(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
     }
@@ -301,7 +301,7 @@ class ToolCardsTest {
             toolCard.effect(data);
             assertEquals(7 - oldValue, game.getDiceGenerator().getDraftPool().get(0).getValue());
             assertTrue(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
     }
@@ -320,14 +320,14 @@ class ToolCardsTest {
             toolCard.effect(data);
             assertNotEquals(oldDie, game.getDiceGenerator().getDraftPool().get(0));
             assertFalse(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
         data.addProperty("newValue", 4);
         try {
             toolCard.effect(data);
             assertFalse(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
         die = game.getDiceGenerator().getDraftPool().get(0);
@@ -337,7 +337,7 @@ class ToolCardsTest {
             toolCard.effect(data);
             assertEquals(die, player.getWindowPattern().getCellAt(2, 1).getPlacedDie());
             assertTrue(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
     }
@@ -362,7 +362,7 @@ class ToolCardsTest {
             assertNull(player.getWindowPattern().getCellAt(0, 2 ).getPlacedDie());
             assertNotNull(player.getWindowPattern().getCellAt(2, 2).getPlacedDie());
             assertFalse(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
         data = new JsonObject();
@@ -377,7 +377,7 @@ class ToolCardsTest {
             assertNull(player.getWindowPattern().getCellAt(1, 3 ).getPlacedDie());
             assertNotNull(player.getWindowPattern().getCellAt(3, 1).getPlacedDie());
             assertTrue(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
     }
@@ -402,7 +402,7 @@ class ToolCardsTest {
             assertNull(player.getWindowPattern().getCellAt(0, 2 ).getPlacedDie());
             assertNotNull(player.getWindowPattern().getCellAt(2, 2).getPlacedDie());
             assertFalse(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
         data = new JsonObject();
@@ -411,7 +411,7 @@ class ToolCardsTest {
         try {
             toolCard.effect(data);
             assertTrue(toolCard.isUsed());
-        } catch (InvalidEffectResultException e) {
+        } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
     }

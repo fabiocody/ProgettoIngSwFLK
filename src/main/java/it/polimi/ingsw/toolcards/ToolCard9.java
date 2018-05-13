@@ -22,16 +22,22 @@ public class ToolCard9 extends ToolCard {
      *      "cellY": <int>
      *  }
      */
-    public void effect(JsonObject data) throws InvalidEffectResultException {
+    public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         // TODO Check index
-        Player player = this.getGame().getPlayerForNickname(data.get("player").getAsString());
+        String nickname = data.get("player").getAsString();
+        Player player = this.getGame().getPlayerForNickname(nickname);
         int draftPoolIndex = data.get("draftPoolIndex").getAsInt();
-        int x = data.get("cellX").getAsInt();
-        int y = data.get("cellY").getAsInt();
+        if (draftPoolIndex < 0 || draftPoolIndex >= this.getGame().getDiceGenerator().getDraftPool().size())
+            throw new InvalidEffectArgumentException("Invalid draftPoolIndex: " + draftPoolIndex);
+        int cellX = data.get("cellX").getAsInt();
+        int cellY = data.get("cellY").getAsInt();
+        int cellIndex = this.linearizeIndex(cellX, cellY);
+        if (cellIndex < 0 || cellIndex >= player.getWindowPattern().getGrid().length)
+            throw new InvalidEffectArgumentException("Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")");
         PlacementConstraint constraint = new ColorConstraint(new ValueConstraint(new OrthogonalConstraint(new EmptyConstraint())));
         Die d = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
         try {
-            player.getWindowPattern().placeDie(d, linearizeIndex(x, y), constraint);
+            player.getWindowPattern().placeDie(d, cellIndex, constraint);
             this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
             this.setUsed();
         } catch (InvalidPlacementException e) {

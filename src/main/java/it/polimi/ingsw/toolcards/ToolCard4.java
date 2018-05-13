@@ -1,10 +1,8 @@
 package it.polimi.ingsw.toolcards;
 
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.patterncards.InvalidPlacementException;
 import it.polimi.ingsw.placementconstraints.*;
 import it.polimi.ingsw.server.*;
-import java.util.*;
 
 
 public class ToolCard4 extends ToolCard {
@@ -27,40 +25,38 @@ public class ToolCard4 extends ToolCard {
      *      "toCellY": <int>
      *  }
      */
-    public void effect(JsonObject data) throws InvalidEffectResultException {
+    public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         String nickname = data.get("player").getAsString();
         Player player = this.getGame().getPlayerForNickname(nickname);
+        int fromCellX = data.get("fromCellX").getAsInt();
+        int fromCellY = data.get("fromCellY").getAsInt();
+        int fromIndex = this.linearizeIndex(fromCellX, fromCellY);
+        if (fromIndex < 0 || fromIndex >= player.getWindowPattern().getGrid().length)
+            throw new InvalidEffectArgumentException("Invalid fromIndex: " + fromIndex + " (" + fromCellX + ", " + fromCellY + ")");
+        int toCellX = data.get("toCellX").getAsInt();
+        int toCellY = data.get("toCellY").getAsInt();
+        int toIndex = this.linearizeIndex(toCellX, toCellY);
+        if (toIndex < 0 || toIndex >= player.getWindowPattern().getGrid().length)
+            throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
         if (!this.firstMoveDone) {
-            firstMove(data, player);
+            firstMove(player, fromIndex, toIndex);
             this.firstMoveDone = true;
         } else {
-            secondMove(data, player);
+            secondMove(player, fromIndex, toIndex);
             this.firstMoveDone = false;
             this.setUsed();
         }
     }
 
-    private void firstMove(JsonObject data, Player player) throws InvalidEffectResultException {
-        int fromIndex = this.linearizeIndex(data.get("fromCellX").getAsInt(), data.get("fromCellY").getAsInt());
-        int toIndex = this.linearizeIndex(data.get("toCellX").getAsInt(), data.get("toCellY").getAsInt());
-        try {
-            player.getWindowPattern().moveDie(fromIndex, toIndex, PlacementConstraint.standardConstraint());
-            this.firstMoveIndex = toIndex;
-        } catch (InvalidPlacementException e) {
-            throw new InvalidEffectResultException("Invalid movement: " + fromIndex + " -> " + toIndex);
-        }
+    private void firstMove(Player player, int fromIndex, int toIndex) throws InvalidEffectResultException {
+        this.moveDie(player, fromIndex, toIndex, PlacementConstraint.standardConstraint());
+        this.firstMoveIndex = toIndex;
     }
 
-    private void secondMove(JsonObject data, Player player) throws InvalidEffectResultException {
-        int fromIndex = this.linearizeIndex(data.get("fromCellX").getAsInt(), data.get("fromCellY").getAsInt());
+    private void secondMove(Player player, int fromIndex, int toIndex) throws InvalidEffectResultException {
         if (fromIndex == this.firstMoveIndex) throw new InvalidEffectResultException("Cannot move the same die twice");
-        int toIndex = this.linearizeIndex(data.get("toCellX").getAsInt(), data.get("toCellY").getAsInt());
-        try {
-            player.getWindowPattern().moveDie(fromIndex, toIndex, PlacementConstraint.standardConstraint());
-            this.firstMoveIndex = null;
-        } catch (InvalidPlacementException e) {
-            throw new InvalidEffectResultException("Invalid Placement");
-        }
+        this.moveDie(player, fromIndex, toIndex, PlacementConstraint.standardConstraint());
+        this.firstMoveIndex = null;
     }
 
 }
