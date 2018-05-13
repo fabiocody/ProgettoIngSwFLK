@@ -36,6 +36,6 @@ public interface GameAPI extends Remote {
 
     // Moves
     void placeDie(int draftPoolIndex, int x, int y) throws RemoteException;
-    void useToolCard(int toolCardsIndex, JsonObject data) throws RemoteException;
+    void useToolCard(int toolCardsIndex, JsonObject data) throws RemoteException, InvalidEffectResultException, InvalidEffectArgumentException;
 
 }

@@ -5,6 +5,8 @@ import it.polimi.ingsw.dice.Die;
 import it.polimi.ingsw.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.patterncards.WindowPattern;
 import it.polimi.ingsw.rmi.GameAPI;
+import it.polimi.ingsw.toolcards.InvalidEffectArgumentException;
+import it.polimi.ingsw.toolcards.InvalidEffectResultException;
 import it.polimi.ingsw.toolcards.ToolCard;
 
 import java.rmi.RemoteException;
@@ -106,7 +108,7 @@ public class GameEndPoint implements GameAPI {
     }
 
     @Override
-    public void useToolCard(int toolCardsIndex, JsonObject data) throws RemoteException {
+    public void useToolCard(int toolCardsIndex, JsonObject data) throws RemoteException, InvalidEffectResultException, InvalidEffectArgumentException {
         // TODO
     }
 }
