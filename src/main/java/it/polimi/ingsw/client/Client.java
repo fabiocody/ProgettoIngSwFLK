@@ -11,6 +11,7 @@ public class Client {
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
+    private Scanner stdin;
     private String ip;
     private int port;
     private String nickname;
@@ -28,39 +29,17 @@ public class Client {
         try (Socket socket = this.socket = new Socket(ip, port);
              BufferedReader in = this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              PrintWriter out = this.out = new PrintWriter(socket.getOutputStream(), true);
-             Scanner stdin = new Scanner(System.in)) {
+             Scanner stdin = this.stdin = new Scanner(System.in)) {
             System.out.println("Connection established!!");
 
             // Add Player
-            System.out.print("Nickname >>> ");
-            this.nickname = stdin.nextLine();
-            JsonObject payload = new JsonObject();
-            payload.addProperty("nickname", this.nickname);
-            payload.addProperty("method", "addPlayer");
-            System.out.println(payload.toString());
-            out.println(payload.toString());
-            JsonObject input = this.parseJson(this.readLine());
-            this.uuid = UUID.fromString(input.get("UUID").getAsString());
-            System.out.println(input);
+            this.addPlayer();
 
             // Register for timer
-            payload = new JsonObject();
-            payload.addProperty("playerID", this.uuid.toString());
-            payload.addProperty("method", "registerWRTimer");
-            out.println(payload.toString());
-            System.out.println(this.readLine());
+            this.subscribeToWRTimer();
 
-            // Wait for game to start
-            do {
-                input = this.parseJson(this.readLine());
-                System.out.println(input);
-                if (input.get("msgType").equals("wrTimerTick"))
-                    System.out.println(input.get("tick").getAsInt());
-                // TODO Update waiting players
-            } while (input.get("msgType").getAsString().equals("wrTimerTick"));
-            System.out.println("OUT OF WHILE");
-            if (input.get("msgType").getAsString().equals("gameStarted"))
-                System.out.println("Game started");
+            // Wait for game to start (get timer tick)
+            this.waitForGameToStart();
 
         } catch (IOException e) {
             System.out.println("Connection failed");
@@ -81,6 +60,40 @@ public class Client {
 
     private JsonObject parseJson(String string) {
         return this.jsonParser.parse(string).getAsJsonObject();
+    }
+
+    private void addPlayer() throws IOException {
+        System.out.print("Nickname >>> ");
+        this.nickname = stdin.nextLine();
+        JsonObject payload = new JsonObject();
+        payload.addProperty("nickname", this.nickname);
+        payload.addProperty("method", "addPlayer");
+        System.out.println(payload.toString());
+        out.println(payload.toString());
+        JsonObject input = this.parseJson(this.readLine());
+        this.uuid = UUID.fromString(input.get("UUID").getAsString());
+        System.out.println(input);
+    }
+
+    private void subscribeToWRTimer() throws IOException {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("playerID", this.uuid.toString());
+        payload.addProperty("method", "registerWRTimer");
+        out.println(payload.toString());
+        System.out.println(this.readLine());
+    }
+
+    private void waitForGameToStart() throws IOException {
+        JsonObject input;
+        do {
+            input = this.parseJson(this.readLine());
+            System.out.println(input);
+            if (input.get("msgType").equals("wrTimerTick"))
+                System.out.println(input.get("tick").getAsInt());
+            // TODO Update waiting players
+        } while (input.get("msgType").getAsString().equals("wrTimerTick"));
+        if (input.get("msgType").getAsString().equals("gameStarted"))
+            System.out.println("Game started");
     }
 
     public static void main(String[] args) {

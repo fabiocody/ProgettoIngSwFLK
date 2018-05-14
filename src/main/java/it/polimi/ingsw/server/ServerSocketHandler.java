@@ -21,12 +21,6 @@ public class ServerSocketHandler implements Runnable, Observer {
 
     public ServerSocketHandler(Socket socket) {
         this.socket = socket;
-        try {
-            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.out = new PrintWriter(socket.getOutputStream(), true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         this.jsonParser = new JsonParser();
         WaitingRoom.getInstance().addObserver(this);
     }
@@ -41,40 +35,15 @@ public class ServerSocketHandler implements Runnable, Observer {
             System.out.println("Connection established!!!");
 
             // Add Player
-            JsonObject input = this.parseJson(this.readLine());
-            System.out.println(input.toString());
-            uuid = WaitingRoom.getInstance().addPlayer(input.get("nickname").getAsString());
-            System.out.println("UUID: " + uuid.toString());
-            JsonObject payload = new JsonObject();
-            payload.addProperty("msgType", "addPlayer");
-            payload.addProperty("logged", true);
-            payload.addProperty("UUID", uuid.toString());
-            JsonArray waitingPlayers = new JsonArray();
-            for (Player p : WaitingRoom.getInstance().getWaitingPlayers())
-                waitingPlayers.add(p.getNickname());
-            payload.add("players", waitingPlayers);
-            this.out.println(payload.toString());
-            System.out.println(payload.toString());
+            this.addPlayer();
 
-            // Register for timer
-            input = this.parseJson(this.readLine());
-            // TODO Check UUID
-            if (input.get("method").getAsString().equals("registerWRTimer")) {
-                WaitingRoom.getInstance().getTimer().addObserver(this);
-                System.out.println("Timer registered");
-                payload = new JsonObject();
-                payload.addProperty("msgType", input.get("method").getAsString());
-                payload.addProperty("result", true);
-                out.println(payload.toString());
-            }
+            // Subscribe to WaitingRoom timer
+            this.subscribeToWRTimer();
 
             // Wait for game to start
             while (this.game == null) {
-                try {
-                    wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                try {wait();}
+                catch (InterruptedException e) {e.printStackTrace();}
             }
 
         } catch (IOException e) {
@@ -96,6 +65,36 @@ public class ServerSocketHandler implements Runnable, Observer {
 
     private JsonObject parseJson(String string) {
         return this.jsonParser.parse(string).getAsJsonObject();
+    }
+
+    private void addPlayer() throws IOException {
+        JsonObject input = this.parseJson(this.readLine());
+        System.out.println(input.toString());
+        uuid = WaitingRoom.getInstance().addPlayer(input.get("nickname").getAsString());
+        System.out.println("UUID: " + uuid.toString());
+        JsonObject payload = new JsonObject();
+        payload.addProperty("msgType", "addPlayer");
+        payload.addProperty("logged", true);
+        payload.addProperty("UUID", uuid.toString());
+        JsonArray waitingPlayers = new JsonArray();
+        for (Player p : WaitingRoom.getInstance().getWaitingPlayers())
+            waitingPlayers.add(p.getNickname());
+        payload.add("players", waitingPlayers);
+        this.out.println(payload.toString());
+        System.out.println(payload.toString());
+    }
+
+    private void subscribeToWRTimer() throws IOException {
+        JsonObject input = this.parseJson(this.readLine());
+        // TODO Check UUID
+        if (input.get("method").getAsString().equals("registerWRTimer")) {
+            WaitingRoom.getInstance().getTimer().addObserver(this);
+            System.out.println("Timer registered");
+            JsonObject payload = new JsonObject();
+            payload.addProperty("msgType", input.get("method").getAsString());
+            payload.addProperty("result", true);
+            out.println(payload.toString());
+        }
     }
 
     @Override
