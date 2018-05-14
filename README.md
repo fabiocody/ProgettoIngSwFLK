@@ -3,11 +3,11 @@
 # ProgettoIngSwFLK 
 [![Build Status](https://travis-ci.com/fabiocody/ProgettoIngSwFLK.svg?token=vreerFzSmcFLsbiVv8aF&branch=master)](https://travis-ci.com/fabiocody/ProgettoIngSwFLK)
 
-Come un abile artigiano, userai gli strumenti del mestiere per costruire una magnifica vetrata della Sagrada Familia pezzo per pezzo, scegliendo tra diverse parti, ognuna con un colore e sfumatura caratteristica, da combinare per creare il proprio capolavoro.
-Maggiori informazioni al link https://www.kickstarter.com/projects/floodgategames/sagrada-a-game-of-dice-drafting-and-window-craftin.
+As a skilled artisan, you will use tools-of-the-trade and careful planning to construct a stained glass window masterpiece in the Sagrada Familia. 
+Players will take turns drafting glass pieces, represented by dice; carefully choosing where to place each one in their window.
+Gain prestige by adapting to the preferences of your fickle admirers, and of course, by adding your own artistic flair while completing your glass masterpiece in Sagrada. Further info can be found at this [link](https://www.kickstarter.com/projects/floodgategames/sagrada-a-game-of-dice-drafting-and-window-craftin).
 
-
-## Partecipanti al progetto:
+## Team members
 * Fabio Codiglioni 10484720
 * Luca dell'Oglio 10497928 
 * Kai de Gast 10523952
