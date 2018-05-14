@@ -3,33 +3,33 @@
 <!-- TOC depthFrom:2 depthTo:3 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [Waiting Room](#waiting-room)
-	- [Inserimento di un nuovo giocatore](#inserimento-di-un-nuovo-giocatore)
-	- [Aggiornamento della lista dei giocatori in attesa](#aggiornamento-della-lista-dei-giocatori-in-attesa)
-	- [Registrazione al timer](#registrazione-al-timer)
-	- [Tick del timer](#tick-del-timer)
+	- [Add new player](#add-new-player)
+	- [Update waiting players list](#update-waiting-players-list)
+	- [Subscribe to timer's updates](#subscribe-to-timers-updates)
+	- [Timer tick](#timer-tick)
 - [Game](#game)
-	- [Messaggio di inizio gioco](#messaggio-di-inizio-gioco)
-	- [Registrazione al timer](#registrazione-al-timer)
-	- [Tick del timer](#tick-del-timer)
-	- [Selezione pattern](#selezione-pattern)
-	- [Lista dei giocatori](#lista-dei-giocatori)
-	- [Conclusione del turno](#conclusione-del-turno)
-	- [Punteggi finali](#punteggi-finali)
-	- [Carte obiettivo pubblico](#carte-obiettivo-pubblico)
-	- [Carte strumento](#carte-strumento)
-	- [Segnalini favore](#segnalini-favore)
-	- [Pattern](#pattern)
-	- [Dadi sul tracciato dei round](#dadi-sul-tracciato-dei-round)
-	- [Riserva](#riserva)
-- [Mosse del giocatore](#mosse-del-giocatore)
-	- [Posizionamento di un dado](#posizionamento-di-un-dado)
-	- [Uso di una carta strumento](#uso-di-una-carta-strumento)
+	- [Game started message](#game-started-message)
+	- [Subscribe to timer's updates](#subscribe-to-timers-updates)
+	- [Timer tick](#timer-tick)
+	- [Pattern selection](#pattern-selection)
+	- [Players list](#players-list)
+	- [End turn](#end-turn)
+	- [Final scores](#final-scores)
+	- [Public objective cards](#public-objective-cards)
+	- [Tool cards](#tool-cards)
+	- [Favor tokens](#favor-tokens)
+	- [Window pattern](#window-pattern)
+	- [Dice on Round Track](#dice-on-round-track)
+	- [Draft Pool](#draft-pool)
+- [Player's moves](#players-moves)
+	- [Die placement](#die-placement)
+	- [Tool card usage](#tool-card-usage)
 
 <!-- /TOC -->
 
 ## Waiting Room
 
-### Inserimento di un nuovo giocatore
+### Add new player
 
 #### Client -> Server
 
@@ -55,7 +55,7 @@
 }
 ```
 
-### Aggiornamento della lista dei giocatori in attesa
+### Update waiting players list
 
 #### Server -> Client
 
@@ -69,7 +69,7 @@
 }
 ```
 
-### Registrazione al timer
+### Subscribe to timer's updates
 
 #### Client -> Server
 
@@ -90,7 +90,7 @@
 }
 ```
 
-### Tick del timer
+### Timer tick
 
 #### Server -> Client
 
@@ -103,7 +103,7 @@
 
 ## Game
 
-### Messaggio di inizio gioco
+### Game started message
 
 #### Server -> Client
 
@@ -135,7 +135,7 @@
 }
 ```
 
-### Registrazione al timer
+### Subscribe to timer's updates
 
 #### Client -> Server
 
@@ -156,7 +156,7 @@
 }
 ```
 
-### Tick del timer
+### Timer tick
 
 #### Server -> Client
 
@@ -167,7 +167,7 @@
 }
 ```
 
-### Selezione pattern
+### Pattern selection
 
 #### Client -> Server
 
@@ -181,18 +181,18 @@
 }
 ```
 
-Dopo questa richiesta il server manda a ciascun client (nel seguente ordine):
+After this request, the server will send to each client the following information:
 
-- [Lista dei giocatori](#lista-dei-giocatori)
-- [Carte strumento](#carte-strumento)
-- [Carte obiettivo pubblico](#carte-obiettivo-pubblico)
-- [Pattern](#pattern) degli altri giocatori
-- Messaggio di [conclusione del turno](#conclusione-del-turno) per passare al turno 1
-- [Dadi della riserva](#riserva)
+- [Players list](#players-list)
+- [Tool cards](#tool-cards)
+- [Public objective cards](#public-objective-cards)
+- [Window pattern](#window-pattern)
+- [End turn](#end-turn) message used to determine next active player
+- [Draft Pool](#draft-pool)
 
-### Lista dei giocatori
+### Players list
 
-#### Response
+#### Server -> Client
 
 ```
 {
@@ -204,7 +204,7 @@ Dopo questa richiesta il server manda a ciascun client (nel seguente ordine):
 }
 ```
 
-### Conclusione del turno
+### End turn
 
 #### Client -> Server
 
@@ -216,7 +216,7 @@ Dopo questa richiesta il server manda a ciascun client (nel seguente ordine):
 }
 ```
 
-#### Response
+#### Server -> Client
 
 ```
 {
@@ -228,7 +228,7 @@ Dopo questa richiesta il server manda a ciascun client (nel seguente ordine):
 }
 ```
 
-### Punteggi finali
+### Final scores
 
 #### Server -> Client
 
@@ -242,7 +242,7 @@ Dopo questa richiesta il server manda a ciascun client (nel seguente ordine):
 }
 ```
 
-### Carte obiettivo pubblico
+### Public objective cards
 
 #### Server -> Client
 
@@ -260,7 +260,7 @@ Dopo questa richiesta il server manda a ciascun client (nel seguente ordine):
 }
 ```
 
-### Carte strumento
+### Tool cards
 
 #### Server -> Client
 
@@ -277,7 +277,7 @@ Dopo questa richiesta il server manda a ciascun client (nel seguente ordine):
 }
 ```
 
-### Segnalini favore
+### Favor tokens
 
 #### Server -> Client
 
@@ -290,7 +290,7 @@ Dopo questa richiesta il server manda a ciascun client (nel seguente ordine):
 }
 ```
 
-### Pattern
+### Window pattern
 
 #### Server -> Client
 
@@ -315,7 +315,7 @@ Dopo questa richiesta il server manda a ciascun client (nel seguente ordine):
 }
 ```
 
-### Dadi sul tracciato dei round
+### Dice on Round Track
 
 #### Server -> Client
 
@@ -332,7 +332,7 @@ Dopo questa richiesta il server manda a ciascun client (nel seguente ordine):
 }
 ```
 
-### Riserva
+### Draft Pool
 
 #### Server -> Client
 
@@ -349,11 +349,11 @@ Dopo questa richiesta il server manda a ciascun client (nel seguente ordine):
 }
 ```
 
-## Mosse del giocatore
+## Player's moves
 
-### Posizionamento di un dado
+### Die placement
 
-#### Request
+#### Client -> Server
 
 ```
 {
@@ -367,7 +367,7 @@ Dopo questa richiesta il server manda a ciascun client (nel seguente ordine):
 }
 ```
 
-#### Response
+#### Server -> Client
 
 ```
 {
@@ -376,9 +376,9 @@ Dopo questa richiesta il server manda a ciascun client (nel seguente ordine):
 }
 ```
 
-### Uso di una carta strumento
+### Tool card usage
 
-#### Request
+#### Client -> Server
 
 ```
 {
@@ -391,7 +391,7 @@ Dopo questa richiesta il server manda a ciascun client (nel seguente ordine):
 }
 ```
 
-#### Response
+#### Server -> Client
 
 ```
 {
