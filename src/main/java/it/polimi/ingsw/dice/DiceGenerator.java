@@ -16,7 +16,6 @@ public class DiceGenerator {
         random = ThreadLocalRandom.current();
         draftPool = new Vector<>();
         numberOfPlayers = numOfStartingPlayers;
-        // TODO Generate ALL dices
         generatedDice = new ArrayList<>();
         for (Colors c : Colors.values()) {
             if (c != Colors.RESET) {
@@ -35,7 +34,6 @@ public class DiceGenerator {
     }
 
     public synchronized Die draw() {
-        // TODO
         if (generatedDice.isEmpty()) {
             throw new NoMoreDiceException("there are no more dice");
         }
