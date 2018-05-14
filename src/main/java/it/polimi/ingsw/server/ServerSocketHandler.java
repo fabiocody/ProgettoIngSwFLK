@@ -10,6 +10,7 @@ import java.util.*;
 
 
 public class ServerSocketHandler implements Runnable, Observer {
+    // Observes CountdownTimer (from WaitingRoom and TurnManager) and WaitingRoom
 
     private Socket socket;
     private BufferedReader in;
@@ -27,11 +28,11 @@ public class ServerSocketHandler implements Runnable, Observer {
             e.printStackTrace();
         }
         this.jsonParser = new JsonParser();
+        WaitingRoom.getInstance().addObserver(this);
     }
 
     @Override
     public synchronized void run() {
-        WaitingRoom.getInstance().addObserver(this);
         boolean run = true;
         try (Socket socket = this.socket;
              BufferedReader in = this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -110,6 +111,8 @@ public class ServerSocketHandler implements Runnable, Observer {
             // TODO "tm <tick>"
         } else if (o instanceof WaitingRoom) {
             this.game = (Game) arg;
+            WaitingRoom.getInstance().deleteObserver(this);
+            WaitingRoom.getInstance().getTimer().deleteObserver(this);
         }
     }
 
