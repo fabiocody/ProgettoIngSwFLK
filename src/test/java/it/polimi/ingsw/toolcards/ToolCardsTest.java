@@ -1,4 +1,4 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.toolcards;
 
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
@@ -29,15 +29,6 @@ class ToolCardsTest {
         , false);
         game.getDiceGenerator().generateDraftPool();
         player = game.getPlayerForNickname("Fabio");
-    }
-
-    @Test
-    void generatorTest() {
-        List<ToolCard> cards = ToolCardsGenerator.generate(game);
-        assertEquals(3, cards.size());
-        assertNotEquals(cards.get(0), cards.get(1));
-        assertNotEquals(cards.get(0), cards.get(2));
-        assertNotEquals(cards.get(1), cards.get(2));
     }
 
     @Test
