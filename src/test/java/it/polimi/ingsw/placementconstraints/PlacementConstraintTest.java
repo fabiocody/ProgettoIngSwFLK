@@ -1,104 +1,29 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.placementconstraints;
 
 import it.polimi.ingsw.model.dice.Die;
-import it.polimi.ingsw.model.patterncards.Cell;
 import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
-import it.polimi.ingsw.model.patterncards.PatternCardsGenerator;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.placementconstraints.*;
 import it.polimi.ingsw.util.Colors;
-import org.junit.jupiter.api.Test;
-
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.List;
-
+import java.util.concurrent.ThreadLocalRandom;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class WindowPatternTest {
-    @Test
-     void difficultyTest() {
-        PatternCardsGenerator gen = new PatternCardsGenerator(4);
-        List<WindowPattern> patterns = gen.getCards();
-
-        for (WindowPattern wp : patterns) {
-            assertTrue(wp.getDifficulty() <= 6);
-            assertTrue(wp.getDifficulty() >= 3);
-        }
-    }
-
-    @Test
-    void patternNumberTest(){
-        PatternCardsGenerator gen = new PatternCardsGenerator(4);
-        List<WindowPattern> patterns = gen.getCards();
-
-        for (WindowPattern wp : patterns) {
-            assertTrue(wp.getPatternNumber() <= 23);
-            assertTrue(wp.getPatternNumber() >= 0);
-        }
-    }
-
-    @Test
-    void patternCardTest() {
-        PatternCardsGenerator gen = new PatternCardsGenerator(4);
-        List<WindowPattern> patterns = gen.getCards();
-        for (int i = 0; i < patterns.size(); i += 2) {
-            assertTrue(patterns.get(i).getPatternNumber()%2 == 0);
-            assertTrue(patterns.get(i+1).getPatternNumber() == patterns.get(i).getPatternNumber() + 1);
-        }
-    }
-
-    @Test
-    void numberOfCellsTest(){
-        PatternCardsGenerator gen = new PatternCardsGenerator(4);
-        List<WindowPattern> patterns = gen.getCards();
-        for (WindowPattern wp : patterns) {
-            assertTrue(wp.getGrid().length == 20);
-        }
-    }
-
-    @Test
-    void cellValueTest(){
-        PatternCardsGenerator gen = new PatternCardsGenerator(4);
-        List<WindowPattern> patterns = gen.getCards();
-        for (WindowPattern wp : patterns) {
-            for(Cell c: wp.getGrid()) {
-                if (c.getCellValue() != null) {
-                    assertTrue(c.getCellValue() <= 6);
-                    assertTrue(c.getCellValue() >= 1);
-                }
-            }
-        }
-    }
-
-    @Test
-    void cellColorTest(){
-        PatternCardsGenerator gen = new PatternCardsGenerator(4);
-        List<WindowPattern> patterns = gen.getCards();
-        for (WindowPattern wp : patterns) {
-            for(Cell c: wp.getGrid()){
-                if(c.getCellColor() != null) {
-                    assertTrue(c.getCellColor() instanceof Colors && c.getCellColor() != Colors.RESET);
-                }
-            }
-        }
-    }
-
+class PlacementConstraintTest {
     @Test
     void PlaceDieEmptyConstraintTest(){
         PlacementConstraint con = new EmptyConstraint();
         WindowPattern pattern = new WindowPattern(42);  //default pattern
-        Die d1 = new Die(Colors.getRandomColor(),ThreadLocalRandom.current().nextInt(1,7));
+        Die d1 = new Die(Colors.getRandomColor(), ThreadLocalRandom.current().nextInt(1,7));
         Die d2 = new Die(Colors.getRandomColor(),ThreadLocalRandom.current().nextInt(1,7));
         int index = ThreadLocalRandom.current().nextInt(0,20);
         pattern.placeDie(d1,index,con);
         assertTrue(pattern.getCellAt(index).getPlacedDie() == d1);
         assertThrows(InvalidPlacementException.class,
-                ()->{
-                    pattern.placeDie(d2,index,con);
-                });
+                ()-> pattern.placeDie(d2,index,con));
     }
-
 
     @Test
     void BorderConstraintTest(){
@@ -164,7 +89,7 @@ class WindowPatternTest {
         PlacementConstraint con2 = new OrthogonalConstraint(new EmptyConstraint());
         int index = ThreadLocalRandom.current().nextInt(0,20);
         Colors color = Colors.getRandomColor();
-        int dieValue = ThreadLocalRandom.current().nextInt(1,7);
+        //int dieValue = ThreadLocalRandom.current().nextInt(1,7);
         List<Integer> list = Constraint.validOrthogonalPositions(index);
         Die d1 = new Die(color,ThreadLocalRandom.current().nextInt(1,7));
         Die d2 = new Die(color,ThreadLocalRandom.current().nextInt(1,7));
@@ -172,10 +97,7 @@ class WindowPatternTest {
             WindowPattern pattern = new WindowPattern(42);
             pattern.placeDie(d1, index,con1);
             assertThrows(InvalidPlacementException.class,
-                    ()->{
-                        pattern.placeDie(d2,i,con2);
-                    });
+                    ()-> pattern.placeDie(d2,i,con2));
         }
     }
 }
-
