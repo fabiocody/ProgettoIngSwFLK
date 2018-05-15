@@ -6,7 +6,6 @@ import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.placementconstraints.EmptyConstraint;
 import it.polimi.ingsw.util.Colors;
 import org.junit.jupiter.api.*;
-import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
