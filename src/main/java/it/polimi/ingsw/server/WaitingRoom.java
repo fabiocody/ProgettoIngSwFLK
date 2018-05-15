@@ -66,7 +66,6 @@ public class WaitingRoom extends Observable {
             }
         }
         playerAdded = false;
-        System.out.println("Creating game");
         this.timer.cancel();
         this.setChanged();      // Needed to make notifyObservers work
         this.notifyObservers(new Game(this.getWaitingPlayers()));

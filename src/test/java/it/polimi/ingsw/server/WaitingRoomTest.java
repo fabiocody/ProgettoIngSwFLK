@@ -18,7 +18,6 @@ class WaitingRoomTest {
         assertEquals(3, WaitingRoom.getInstance().getWaitingPlayers().size());
         assertNull(WaitingRoom.getInstance().addPlayer("Peter"));
         assertNotNull(WaitingRoom.getInstance().addPlayer("John"));
-        assertEquals(0, WaitingRoom.getInstance().getWaitingPlayers().size());
     }
 
 }
