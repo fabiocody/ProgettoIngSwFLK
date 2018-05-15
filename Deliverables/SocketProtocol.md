@@ -76,7 +76,7 @@
 ```
 {
     "playerID": <uuid: string>,
-    "method": "registerWRTimer",
+    "method": "subscribeToWRTimer",
     "arg": null
 }
 ```
@@ -85,7 +85,7 @@
 
 ```
 {
-    "msgType": "registerWRTimer",
+    "msgType": "subscribeToWRTimer",
     "result": <bool>
 }
 ```
@@ -142,7 +142,7 @@
 ```
 {
     "playerID": <uuid: string>,
-    "method": "registerGameTimer",
+    "method": "subscribeToGameTimer",
     "arg": null
 }
 ```
@@ -151,7 +151,7 @@
 
 ```
 {
-    "msgType": "registerGameTimer",
+    "msgType": "subscribeToGameTimer",
     "result": <bool>
 }
 ```
