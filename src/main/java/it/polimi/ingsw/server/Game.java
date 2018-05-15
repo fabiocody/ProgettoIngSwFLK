@@ -45,6 +45,7 @@ public class Game implements Observer {
 
     public Game(List<Player> players, boolean doSetup) {
         this.players = new Vector<>(players);
+        Collections.shuffle(this.players);
         if (doSetup) this.setup();
     }
 

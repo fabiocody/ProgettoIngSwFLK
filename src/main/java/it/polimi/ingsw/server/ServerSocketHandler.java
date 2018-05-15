@@ -34,8 +34,12 @@ public class ServerSocketHandler implements Runnable, Observer {
         WaitingRoom.getInstance().addObserver(this);
     }
 
-    private void debug(String string) {
-        System.err.println("[DEBUG] " + string);
+    private void debug(String message) {
+        System.out.println("[DEBUG] " + message);
+    }
+
+    private void error(String message) {
+        System.err.println("[ERROR] " + message);
     }
 
     // REQUESTS HANDLER
@@ -51,14 +55,14 @@ public class ServerSocketHandler implements Runnable, Observer {
                 // UUID validation
                 if (!input.get(method).getAsString().equals(Methods.ADD_PLAYER.getString()) &&
                         !input.get(playerID).getAsString().equals(this.uuid.toString())) {
-                    debug("AUTH ERROR");
+                    error("AUTH ERROR");
                     continue;
                 }
                 Methods calledMethod;
                 try {
                     calledMethod = Methods.getAsMethods(input.get(method).getAsString());
                 } catch (NoSuchElementException e) {
-                    e.printStackTrace();
+                    error("METHOD NOT RECOGNIZED");
                     continue;
                 }
                 debug("Received method " + calledMethod.getString());
@@ -84,6 +88,8 @@ public class ServerSocketHandler implements Runnable, Observer {
                     case USE_TOOL_CARD:
                         // TODO
                         break;
+                    default:
+                        error("METHOD NOT RECOGNIZED");
                 }
             }
         } catch (IOException e) {
@@ -94,7 +100,7 @@ public class ServerSocketHandler implements Runnable, Observer {
     private String readLine() throws IOException {
         String line = in.readLine();
         if (line == null) {
-            debug("Client " + nickname + " (" + uuid + ") disconnected");
+            error("Client " + nickname + " (" + uuid + ") disconnected");
             if (game == null) {
                 // TODO WaitingRoom.getInstance().getWaitingPlayers().remove()
             }

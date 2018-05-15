@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 public class GameEndPoint implements GameAPI {
 
     private Game game;
-    private boolean gameSet = false;
 
     GameEndPoint(Game game) {
         this.game = game;
