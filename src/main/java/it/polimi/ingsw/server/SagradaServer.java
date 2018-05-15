@@ -20,6 +20,7 @@ public class SagradaServer implements Observer {
     //Server related
     private int port;
     private ServerSocket serverSocket;
+    private boolean run = true;
 
     public SagradaServer(int port) {
         WaitingRoom.getInstance().addObserver(this);
@@ -36,14 +37,13 @@ public class SagradaServer implements Observer {
             return;
         }
         System.out.println("Server Online");
-        while (42 == 42) {
+        while (run) {
             try {
                 Socket socket = this.serverSocket.accept();
                 executor.submit(new ServerSocketHandler(socket));
             } catch (IOException e) {
                 e.printStackTrace();
-                break;
-                //TODO
+                run = false;
             }
         }
         executor.shutdown();
