@@ -2,6 +2,7 @@ package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.rmi.WaitingRoomAPI;
 
+import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Observer;
 import java.util.UUID;
@@ -20,7 +21,22 @@ public class WaitingRoomEndPoint implements WaitingRoomAPI {
     }
 
     @Override
-    public void registerTimerForWaitingRoom(Observer observer) {
+    public void subscribeToWaitingRoomTimer(Observer observer) {
         WaitingRoom.getInstance().getTimer().addObserver(observer);
+    }
+
+    @Override
+    public void unsubscribeFromWaitingRoomTimer(Observer observer) {
+        // TODO
+    }
+
+    @Override
+    public void subscribeToWaitingRoom(Observer observer) {
+        // TODO
+    }
+
+    @Override
+    public void unsubscribeFromWaitingRoom(Observer observer) {
+        // TODO
     }
 }
