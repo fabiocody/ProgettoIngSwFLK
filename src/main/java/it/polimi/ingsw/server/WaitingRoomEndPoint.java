@@ -27,16 +27,16 @@ public class WaitingRoomEndPoint implements WaitingRoomAPI {
 
     @Override
     public void unsubscribeFromWaitingRoomTimer(Observer observer) {
-        // TODO
+        WaitingRoom.getInstance().getTimer().deleteObserver(observer);
     }
 
     @Override
     public void subscribeToWaitingRoom(Observer observer) {
-        // TODO
+        WaitingRoom.getInstance().addObserver(observer);
     }
 
     @Override
     public void unsubscribeFromWaitingRoom(Observer observer) {
-        // TODO
+        WaitingRoom.getInstance().deleteObserver(observer);
     }
 }
