@@ -13,6 +13,7 @@ public class WaitingRoom extends Observable {
     private List<Player> waitingPlayers;
     private int timeout;
     private CountdownTimer timer;
+    private boolean playerAdded = false;
 
     private WaitingRoom() {
         this.timeout = 60;  // TODO configuration file
@@ -41,18 +42,31 @@ public class WaitingRoom extends Observable {
         if (this.getWaitingPlayers().stream().anyMatch(p -> p.getNickname().equals(nickname))) return null;
         Player player = new Player(nickname);
         this.getWaitingPlayers().add(player);
+        this.setChanged();
+        this.notifyObservers(this.getWaitingPlayers());
         if (this.getWaitingPlayers().size() == 2) {
             this.timer.cancel();
             this.timer.schedule(this::createGame, this.timeout);
         } else if (this.getWaitingPlayers().size() == 4) {
-            this.createGame();
+            new Thread(this::createGame).start();
         }
+        playerAdded = true;
+        notifyAll();
         return player.getId();
     }
 
     // Create a new game with the first N players of the list.
     // The timer is canceled and SagradaServer is notified.
     private synchronized void createGame() {
+        while (!playerAdded) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        playerAdded = false;
+        System.out.println("Creating game");
         this.timer.cancel();
         this.setChanged();      // Needed to make notifyObservers work
         this.notifyObservers(new Game(this.getWaitingPlayers()));

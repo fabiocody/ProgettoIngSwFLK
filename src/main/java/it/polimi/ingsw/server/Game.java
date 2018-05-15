@@ -46,6 +46,8 @@ public class Game implements Observer {
         this.players = new Vector<>(players);
         Collections.shuffle(this.players);
         if (doSetup) this.setup();
+        this.turnManager = new TurnManager(this.players);
+        this.turnManager.addObserver(this.getRoundTrack());
     }
 
     public List<Player> getPlayers() {
@@ -68,10 +70,6 @@ public class Game implements Observer {
 
     public TurnManager getTurnManager() {
         synchronized (turnManagerLock) {
-            if (this.turnManager == null) {
-                this.turnManager = new TurnManager(this.players);
-                this.turnManager.addObserver(this.getRoundTrack());
-            }
             return this.turnManager;
         }
     }

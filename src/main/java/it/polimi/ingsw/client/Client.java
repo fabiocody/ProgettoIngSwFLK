@@ -13,16 +13,21 @@ public class Client {
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
+    private BufferedReader stdin;
     private String ip;
     private int port;
     private String nickname;
     private UUID uuid;
     private JsonParser jsonParser;
-    private Queue<JsonObject> responsesBuffer;
-    private final Object responsesBufferLock = new Object();
-    private Queue<JsonObject> updatesBuffer;
-    private final Object updatesBufferLock = new Object();
+    private Queue<JsonObject> responseBuffer;
+    private final Object responseBufferLock = new Object();
+    private final Object gameStartedLock = new Object();
     private Thread recvThread;
+
+    // FLAGS
+    private boolean logged = false;
+    private boolean gameStarted = false;
+
 
     // FIELDS CONSTANTS
     private static final String method = "method";
@@ -31,40 +36,23 @@ public class Client {
         this.ip = ip;
         this.port = port;
         this.jsonParser = new JsonParser();
-        this.responsesBuffer = new ConcurrentLinkedQueue<>();
-        this.updatesBuffer = new ConcurrentLinkedQueue<>();
+        this.responseBuffer = new ConcurrentLinkedQueue<>();
         this.startClient();
     }
 
-    private JsonObject pollResponsesBuffer() {
+    private JsonObject pollResponseBuffer() {
         debug("pollResponsesBuffer called");
-        synchronized (responsesBufferLock) {
-            while (responsesBuffer.peek() == null) {
+        synchronized (responseBufferLock) {
+            while (responseBuffer.peek() == null) {
                 try {
                     debug("Waiting on pollResponseBuffer");
-                    responsesBufferLock.wait();
+                    responseBufferLock.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
             debug("Returning from pollResponsesBuffer");
-            return responsesBuffer.poll();
-        }
-    }
-
-    private JsonObject pollUpdatesBuffer() {
-        debug("pollUpdatesBuffer called");
-        synchronized (updatesBufferLock) {
-            while (updatesBuffer.peek() == null) {
-                try {
-                    debug("Waiting on pollUpdatesBuffer");
-                    updatesBufferLock.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            debug("Returning from pollUpdatesBuffer");
-            return updatesBuffer.poll();
+            return responseBuffer.poll();
         }
     }
 
@@ -76,22 +64,28 @@ public class Client {
 
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.out = new PrintWriter(socket.getOutputStream(), true);
+            this.stdin = new BufferedReader(new InputStreamReader(System.in));
 
             recvThread = new Thread(this::recv);
             recvThread.setDaemon(true);
             recvThread.start();
 
             // Add Player
-            this.addPlayer();
-
-            // Register for timer
-            this.subscribeToWRTimer();
+            while (!logged) this.addPlayer();
 
             // Wait for game to start (get timer tick)
-            this.waitForGameToStart();
+            synchronized (this.gameStartedLock) {
+                while (!gameStarted) gameStartedLock.wait();
+            }
+
+            debug("GAME STARTED");
+
+            recvThread.interrupt();
 
         } catch (IOException e) {
             error("Connection failed");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         } finally {
             try {
                 this.in.close();
@@ -138,15 +132,24 @@ public class Client {
                 case NEXT_TURN:
                 case PLACE_DIE:
                 case USE_TOOL_CARD:
-                    synchronized (responsesBufferLock) {
-                        responsesBuffer.add(inputJson);
-                        responsesBufferLock.notifyAll();
+                    synchronized (responseBufferLock) {
+                        responseBuffer.add(inputJson);
+                        responseBufferLock.notifyAll();
                     }
                     debug("Added " + inputJson + " to responsesBuffer");
                     break;
                 case UPDATE_WAITING_PLAYERS:
+                    this.updateWaitingPlayers(inputJson);
+                    break;
                 case WR_TIMER_TICK:
+                    this.wrTimerTick(inputJson);
+                    break;
                 case GAME_STARTED:
+                    synchronized (gameStartedLock) {
+                        gameStarted = true;
+                        gameStartedLock.notifyAll();
+                    }
+                    break;
                 case GAME_TIMER_TICK:
                 case PLAYERS:
                 case FINAL_SCORES:
@@ -156,10 +159,7 @@ public class Client {
                 case WINDOW_PATTERN:
                 case ROUND_TRACK_DICE:
                 case DRAFT_POOL:
-                    synchronized (updatesBufferLock) {
-                        updatesBuffer.add(inputJson);
-                        updatesBufferLock.notifyAll();
-                    }
+
                     debug("Added " + inputJson + " to updatesBuffer");
                     break;
             }
@@ -177,9 +177,7 @@ public class Client {
 
     private String input(String prompt) throws IOException {
         System.out.print(prompt + " ");
-        BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
         String line = stdin.readLine();
-        stdin.close();
         return line;
     }
 
@@ -191,9 +189,15 @@ public class Client {
         payload.addProperty(method, "addPlayer");
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
-        JsonObject input = this.pollResponsesBuffer();
-        this.uuid = UUID.fromString(input.get("UUID").getAsString());
-        debug("INPUT " + input);
+        JsonObject input = this.pollResponseBuffer();
+        logged = input.get("logged").getAsBoolean();
+        if (logged) {
+            this.uuid = UUID.fromString(input.get("UUID").getAsString());
+            debug("INPUT " + input);
+            JsonArray players = input.get("players").getAsJsonArray();
+            if (players.size() < 4)
+                this.subscribeToWRTimer();
+        }
     }
 
     private void subscribeToWRTimer() {
@@ -201,20 +205,15 @@ public class Client {
         payload.addProperty("playerID", this.uuid.toString());
         payload.addProperty(method, "subscribeToWRTimer");
         out.println(payload.toString());
-        debug("INPUT " + this.pollResponsesBuffer());
+        debug("INPUT " + this.pollResponseBuffer());
     }
 
-    private void waitForGameToStart() {
-        JsonObject input;
-        do {
-            input = this.pollUpdatesBuffer();
-            debug(input.toString());
-            if (input.get(method).getAsString().equals("wrTimerTick"))
-                debug("Timer tick " + input.get("tick").getAsInt());
-            // TODO Update waiting players
-        } while (input.get(method).getAsString().equals("wrTimerTick"));
-        if (input.get(method).getAsString().equals("gameStarted"))
-            debug("Game started");
+    private void updateWaitingPlayers(JsonObject input) {
+        System.out.println(input.get("waitingPlayers").getAsJsonArray());
+    }
+
+    private void wrTimerTick(JsonObject input) {
+        System.out.println(input.get("tick").getAsInt());
     }
 
     public static void main(String[] args) {

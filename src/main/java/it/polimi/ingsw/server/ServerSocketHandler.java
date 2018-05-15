@@ -1,6 +1,9 @@
 package it.polimi.ingsw.server;
 
 import com.google.gson.*;
+import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
+import it.polimi.ingsw.model.patterncards.Cell;
+import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.util.CountdownTimer;
 import java.io.*;
 import java.net.*;
@@ -13,6 +16,8 @@ public class ServerSocketHandler implements Runnable, Observer {
     private Socket clientSocket;
     private BufferedReader in;
     private PrintWriter out;
+    private WaitingRoomEndPoint waitingRoomEndPoint;
+    private GameEndPoint gameEndPoint;
     private String nickname;
     private UUID uuid;
     private JsonParser jsonParser;
@@ -31,7 +36,8 @@ public class ServerSocketHandler implements Runnable, Observer {
             e.printStackTrace();
         }
         this.jsonParser = new JsonParser();
-        WaitingRoom.getInstance().addObserver(this);
+        this.waitingRoomEndPoint = new WaitingRoomEndPoint();
+        waitingRoomEndPoint.subscribeToWaitingRoom(this);
     }
 
     private void debug(String message) {
@@ -45,7 +51,7 @@ public class ServerSocketHandler implements Runnable, Observer {
     // REQUESTS HANDLER
 
     @Override
-    public synchronized void run() {
+    public void run() {
         try (Socket socket = this.clientSocket;
              BufferedReader in = this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              PrintWriter out = this.out = new PrintWriter(socket.getOutputStream(), true)) {
@@ -92,7 +98,7 @@ public class ServerSocketHandler implements Runnable, Observer {
                         error("METHOD NOT RECOGNIZED");
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -118,22 +124,31 @@ public class ServerSocketHandler implements Runnable, Observer {
         debug("addPlayer called");
         debug("INPUT " + input.toString());
         nickname = input.get("nickname").getAsString();
-        uuid = WaitingRoom.getInstance().addPlayer(nickname);
-        debug("UUID: " + uuid.toString());
-        JsonObject payload = new JsonObject();
-        payload.addProperty(method, "addPlayer");
-        payload.addProperty("logged", true);
-        payload.addProperty("UUID", uuid.toString());
-        JsonArray waitingPlayers = new JsonArray();
-        for (Player p : WaitingRoom.getInstance().getWaitingPlayers())
-            waitingPlayers.add(p.getNickname());
-        payload.add("players", waitingPlayers);
-        this.out.println(payload.toString());
-        debug("PAYLOAD " + payload.toString());
+        uuid = this.waitingRoomEndPoint.addPlayer(nickname);
+        if (uuid == null) {
+            debug("Login failed for nickname " + nickname);
+            JsonObject payload = new JsonObject();
+            payload.addProperty(method, "addPlayer");
+            payload.addProperty("logged", false);
+            out.println(payload.toString());
+            debug("PAYLOAD " + payload.toString());
+        } else {
+            debug("UUID: " + uuid.toString());
+            JsonObject payload = new JsonObject();
+            payload.addProperty(method, "addPlayer");
+            payload.addProperty("logged", true);
+            payload.addProperty("UUID", uuid.toString());
+            JsonArray waitingPlayers = new JsonArray();
+            for (Player p : this.waitingRoomEndPoint.getWaitingPlayers())
+                waitingPlayers.add(p.getNickname());
+            payload.add("players", waitingPlayers);
+            this.out.println(payload.toString());
+            debug("PAYLOAD " + payload.toString());
+        }
     }
 
     private void subscribeToWRTimer(JsonObject input) {
-        WaitingRoom.getInstance().getTimer().addObserver(this);
+        this.waitingRoomEndPoint.subscribeToWaitingRoomTimer(this);
         debug("Timer registered");
         JsonObject payload = new JsonObject();
         payload.addProperty(method, input.get("method").getAsString());
@@ -150,21 +165,80 @@ public class ServerSocketHandler implements Runnable, Observer {
             if (stringArg.startsWith("WaitingRoom")) {
                 int tick = Integer.parseInt(stringArg.split(" ")[1]);
                 debug("Timer tick (from update): " + tick);
-                sendTickUpdate(tick);
+                this.updateTimerTick(tick);
             }
             // TODO "tm <tick>"
         } else if (o instanceof WaitingRoom) {
-            this.game = (Game) arg;
-            WaitingRoom.getInstance().deleteObserver(this);
-            WaitingRoom.getInstance().getTimer().deleteObserver(this);
+            if (arg instanceof Game) {
+                this.game = (Game) arg;
+                this.gameEndPoint = new GameEndPoint(game);
+                waitingRoomEndPoint.unsubscribeFromWaitingRoom(this);
+                waitingRoomEndPoint.unsubscribeFromWaitingRoomTimer(this);
+                this.startGame();
+            } else if (arg instanceof List && uuid != null) {
+                this.updateWaitingPlayersList((List<Player>) arg);
+            }
         }
     }
 
-    private void sendTickUpdate(int tick) {
+    private void updateTimerTick(int tick) {
+        debug("updateTimerTick called");
         JsonObject payload = new JsonObject();
         payload.addProperty(method,"wrTimerTick");
         payload.addProperty("tick", tick);
         out.println(payload.toString());
+        debug("Timer Tick Update sent");
+    }
+
+    private void updateWaitingPlayersList(List<Player> players) {
+        debug("updateWaitingPlayersList called");
+        JsonObject payload = new JsonObject();
+        payload.addProperty(method, "updateWaitingPlayers");
+        JsonArray array = new JsonArray();
+        for (Player p : players) array.add(p.getNickname());
+        payload.add("waitingPlayers", array);
+        out.println(payload.toString());
+        debug("Update Waiting Players List sent");
+    }
+
+    private void startGame() {
+        debug("startGame called");
+        JsonObject payload = new JsonObject();
+        payload.addProperty(method, "gameStarted");
+        Player player = this.gameEndPoint.getPlayer(uuid);
+        ObjectiveCard privateObjectiveCard = player.getPrivateObjectiveCard();
+
+        // Private objective card
+        JsonObject privateObjectiveCardJSON = new JsonObject();
+        privateObjectiveCardJSON.addProperty("name", privateObjectiveCard.getName());
+        privateObjectiveCardJSON.addProperty("description", privateObjectiveCard.getDescription());
+        privateObjectiveCardJSON.addProperty("victoryPoints", privateObjectiveCard.getVictoryPoints());
+        payload.add("privateObjectiveCard", privateObjectiveCardJSON);
+
+        // Window Patterns
+        List<WindowPattern> windowPatterns = player.getWindowPatternList();
+        JsonArray windowPatternsJSON = new JsonArray();
+        for (WindowPattern wp : windowPatterns) {
+            JsonObject wpJSON = new JsonObject();
+            wpJSON.addProperty("difficulty", wp.getDifficulty());
+            JsonArray grid = new JsonArray();
+            for (Cell c : wp.getGrid()) {
+                JsonObject cellJSON = new JsonObject();
+                cellJSON.addProperty("cellColor", c.getCellColor() != null ? c.getCellColor().toString() : null);
+                cellJSON.addProperty("cellValue", c.getCellValue() != null ? c.getCellValue().toString() : null);
+                cellJSON.add("die", null);
+                grid.add(cellJSON);
+            }
+            windowPatternsJSON.add(grid);
+        }
+        payload.add("windowPatterns", windowPatternsJSON);
+
+        // Active player
+        payload.addProperty("activePlayer", gameEndPoint.getActivePlayer());
+
+        out.println(payload.toString());
+
+        debug("Game started");
     }
 
 }
