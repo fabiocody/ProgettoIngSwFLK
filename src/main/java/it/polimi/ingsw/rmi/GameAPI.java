@@ -24,6 +24,7 @@ public interface GameAPI extends Remote {
 
     // Player
     Player getPlayer(UUID id) throws RemoteException;
+    String getActivePlayer() throws RemoteException;
     int getFavorTokensOf(String nickname) throws RemoteException;
     WindowPattern getWindowPatternOf(String nickname) throws RemoteException;
 

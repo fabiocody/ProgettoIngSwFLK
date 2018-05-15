@@ -66,6 +66,15 @@ public class GameEndPoint implements GameAPI {
     }
 
     @Override
+    public String getActivePlayer(){
+        Optional<Player> result = this.game.getPlayers().stream()
+                .filter(Player::isActive)
+                .findFirst();
+        if (result.isPresent()) return result.get().getNickname();
+        else throw new NoSuchElementException("No Active Player found");
+    }
+
+    @Override
     public int getFavorTokensOf(String nickname) {
         Optional<Integer> result = this.game.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(nickname))
@@ -99,6 +108,7 @@ public class GameEndPoint implements GameAPI {
     public List<Die> getDraftPool() {
         return this.game.getDiceGenerator().getDraftPool();
     }
+
 
     @Override
     public void placeDie(UUID playerID, int draftPoolIndex, int x, int y) throws RemoteException {
