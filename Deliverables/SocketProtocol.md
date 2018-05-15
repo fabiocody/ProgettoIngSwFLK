@@ -45,7 +45,7 @@
 
 ```
 {
-    "msgType": "addPlayer",
+    "method": "addPlayer",
     "logged": <bool>,
     "UUID": <string>,
     "players": [
@@ -61,7 +61,7 @@
 
 ```
 {
-    "msgType": "updateWaitingPlayers",
+    "method": "updateWaitingPlayers",
     "waitingPlayers": [
         <nickname: string>,
         ...
@@ -85,7 +85,7 @@
 
 ```
 {
-    "msgType": "subscribeToWRTimer",
+    "method": "subscribeToWRTimer",
     "result": <bool>
 }
 ```
@@ -96,7 +96,7 @@
 
 ```
 {
-    "msgType": "wrTimerTick",
+    "method": "wrTimerTick",
     "tick": <int>
 }
 ```
@@ -109,7 +109,7 @@
 
 ```
 {
-    "msgType": "gameStarted",
+    "method": "gameStarted",
     "privateObjectiveCard": {
         "name": <string>,
         "description": <string>,
@@ -151,7 +151,7 @@
 
 ```
 {
-    "msgType": "subscribeToGameTimer",
+    "method": "subscribeToGameTimer",
     "result": <bool>
 }
 ```
@@ -162,7 +162,7 @@
 
 ```
 {
-    "msgType": "gameTimerTick",
+    "method": "gameTimerTick",
     "tick": <int>
 }
 ```
@@ -196,7 +196,7 @@ After this request, the server will send to each client the following informatio
 
 ```
 {
-    "msgType": "players",
+    "method": "players",
     "players": [
         <nickname: string>,
         ...
@@ -220,7 +220,7 @@ After this request, the server will send to each client the following informatio
 
 ```
 {
-    "msgType": "nextTurn",
+    "method": "nextTurn",
     "currentRound": <int>,
     "roundOver": <bool>,
     "gameOver": <bool>,
@@ -234,7 +234,7 @@ After this request, the server will send to each client the following informatio
 
 ```
 {
-    "msgType": "finalScores",
+    "method": "finalScores",
     "finalScores": {
         <nickname: string>: <score: int>,
         ...
@@ -248,7 +248,7 @@ After this request, the server will send to each client the following informatio
 
 ```
 {
-    "msgType": "publicObjectiveCards",
+    "method": "publicObjectiveCards",
     "cards": [
         {
             "name": <string>,
@@ -266,7 +266,7 @@ After this request, the server will send to each client the following informatio
 
 ```
 {
-    "msgType": "toolCards",
+    "method": "toolCards",
     "cards": [
         {
             "name": <string>,
@@ -283,7 +283,7 @@ After this request, the server will send to each client the following informatio
 
 ```
 {
-    "msgType": "favorTokens",
+    "method": "favorTokens",
     "favorTokens": {
         <nickname: string>: <favorTokens: int>
     }
@@ -296,7 +296,7 @@ After this request, the server will send to each client the following informatio
 
 ```
 {
-    "msgType": "windowPattern",
+    "method": "windowPattern",
     "player": <nickname: string>,
     "windowPattern": {
         "difficulty": <int>,
@@ -321,7 +321,7 @@ After this request, the server will send to each client the following informatio
 
 ```
 {
-    "msgType": "roundTrackDice",
+    "method": "roundTrackDice",
     "dice": [
         {
             "color": <string>,
@@ -338,7 +338,7 @@ After this request, the server will send to each client the following informatio
 
 ```
 {
-    "msgType": "draftPool",
+    "method": "draftPool",
     "dice": [
         {
             "color": <string>,
@@ -371,7 +371,7 @@ After this request, the server will send to each client the following informatio
 
 ```
 {
-    "msgType": "placeDie",
+    "method": "placeDie",
     "result": <bool>
 }
 ```
@@ -395,7 +395,7 @@ After this request, the server will send to each client the following informatio
 
 ```
 {
-    "msgType": "useToolCard",
+    "method": "useToolCard",
     "result": <bool>
 }
 ```
