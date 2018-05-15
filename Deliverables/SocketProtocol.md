@@ -131,7 +131,8 @@
             ]
         },
         ...
-    ]
+    ],
+    "activePlayer": <nickname: string>
 }
 ```
 
@@ -187,7 +188,6 @@ After this request, the server will send to each client the following informatio
 - [Tool cards](#tool-cards)
 - [Public objective cards](#public-objective-cards)
 - [Window pattern](#window-pattern)
-- [End turn](#end-turn) message used to determine next active player
 - [Draft Pool](#draft-pool)
 
 ### Players list
@@ -224,7 +224,7 @@ After this request, the server will send to each client the following informatio
     "currentRound": <int>,
     "roundOver": <bool>,
     "gameOver": <bool>,
-    "activePlayer": <nickname: bool>
+    "activePlayer": <nickname: string>
 }
 ```
 
