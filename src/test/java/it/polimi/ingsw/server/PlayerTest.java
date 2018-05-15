@@ -1,7 +1,7 @@
 package it.polimi.ingsw.server;
 
-import it.polimi.ingsw.objectivecards.ObjectiveCardsGenerator;
-import it.polimi.ingsw.patterncards.*;
+import it.polimi.ingsw.model.objectivecards.ObjectiveCardsGenerator;
+import it.polimi.ingsw.model.patterncards.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

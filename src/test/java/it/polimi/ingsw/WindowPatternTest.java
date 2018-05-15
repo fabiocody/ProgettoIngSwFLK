@@ -1,11 +1,11 @@
 package it.polimi.ingsw;
 
-import it.polimi.ingsw.dice.Die;
-import it.polimi.ingsw.patterncards.Cell;
-import it.polimi.ingsw.patterncards.InvalidPlacementException;
-import it.polimi.ingsw.patterncards.PatternCardsGenerator;
-import it.polimi.ingsw.patterncards.WindowPattern;
-import it.polimi.ingsw.placementconstraints.*;
+import it.polimi.ingsw.model.dice.Die;
+import it.polimi.ingsw.model.patterncards.Cell;
+import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
+import it.polimi.ingsw.model.patterncards.PatternCardsGenerator;
+import it.polimi.ingsw.model.patterncards.WindowPattern;
+import it.polimi.ingsw.model.placementconstraints.*;
 import it.polimi.ingsw.util.Colors;
 import org.junit.jupiter.api.Test;
 

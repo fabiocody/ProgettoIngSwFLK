@@ -1,9 +1,9 @@
 package it.polimi.ingsw;
 
-import it.polimi.ingsw.dice.Die;
-import it.polimi.ingsw.objectivecards.*;
-import it.polimi.ingsw.patterncards.WindowPattern;
-import it.polimi.ingsw.placementconstraints.EmptyConstraint;
+import it.polimi.ingsw.model.dice.Die;
+import it.polimi.ingsw.model.objectivecards.*;
+import it.polimi.ingsw.model.patterncards.WindowPattern;
+import it.polimi.ingsw.model.placementconstraints.EmptyConstraint;
 import it.polimi.ingsw.util.Colors;
 import org.junit.jupiter.api.*;
 import java.util.*;

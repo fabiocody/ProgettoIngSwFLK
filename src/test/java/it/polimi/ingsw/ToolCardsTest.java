@@ -1,11 +1,11 @@
 package it.polimi.ingsw;
 
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.dice.Die;
-import it.polimi.ingsw.patterncards.WindowPattern;
-import it.polimi.ingsw.placementconstraints.PlacementConstraint;
+import it.polimi.ingsw.model.dice.Die;
+import it.polimi.ingsw.model.patterncards.WindowPattern;
+import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.server.*;
-import it.polimi.ingsw.toolcards.*;
+import it.polimi.ingsw.model.toolcards.*;
 import it.polimi.ingsw.util.Colors;
 import org.junit.jupiter.api.*;
 import java.util.*;

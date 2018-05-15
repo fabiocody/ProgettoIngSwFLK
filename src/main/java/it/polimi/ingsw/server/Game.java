@@ -1,12 +1,11 @@
 package it.polimi.ingsw.server;
 
-import it.polimi.ingsw.dice.DiceGenerator;
-import it.polimi.ingsw.objectivecards.*;
-import it.polimi.ingsw.patterncards.PatternCardsGenerator;
-import it.polimi.ingsw.toolcards.*;
+import it.polimi.ingsw.model.dice.DiceGenerator;
+import it.polimi.ingsw.model.objectivecards.*;
+import it.polimi.ingsw.model.patterncards.PatternCardsGenerator;
+import it.polimi.ingsw.model.toolcards.*;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 
 // This class contains all the information about the current game

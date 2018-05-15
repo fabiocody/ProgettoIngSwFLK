@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import it.polimi.ingsw.util.Colors;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import it.polimi.ingsw.dice.*;
+import it.polimi.ingsw.model.dice.*;
 
 import java.util.*;
 

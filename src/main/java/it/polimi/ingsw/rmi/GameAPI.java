@@ -1,11 +1,11 @@
 package it.polimi.ingsw.rmi;
 
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.dice.*;
-import it.polimi.ingsw.objectivecards.*;
-import it.polimi.ingsw.patterncards.*;
+import it.polimi.ingsw.model.dice.*;
+import it.polimi.ingsw.model.objectivecards.*;
+import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.server.*;
-import it.polimi.ingsw.toolcards.*;
+import it.polimi.ingsw.model.toolcards.*;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

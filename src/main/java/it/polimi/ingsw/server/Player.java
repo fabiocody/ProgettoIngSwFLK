@@ -1,7 +1,7 @@
 package it.polimi.ingsw.server;
 
-import it.polimi.ingsw.objectivecards.ObjectiveCard;
-import it.polimi.ingsw.patterncards.WindowPattern;
+import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
+import it.polimi.ingsw.model.patterncards.WindowPattern;
 import java.util.*;
 import java.util.stream.Collectors;
 

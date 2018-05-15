@@ -1,6 +1,6 @@
 package it.polimi.ingsw.server;
 
-import it.polimi.ingsw.dice.Die;
+import it.polimi.ingsw.model.dice.Die;
 
 import java.util.List;
 import java.util.Observable;

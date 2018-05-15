@@ -1,12 +1,12 @@
 package it.polimi.ingsw.server;
 
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.dice.Die;
-import it.polimi.ingsw.objectivecards.ObjectiveCard;
-import it.polimi.ingsw.patterncards.*;
-import it.polimi.ingsw.placementconstraints.PlacementConstraint;
+import it.polimi.ingsw.model.dice.Die;
+import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
+import it.polimi.ingsw.model.patterncards.*;
+import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.rmi.GameAPI;
-import it.polimi.ingsw.toolcards.*;
+import it.polimi.ingsw.model.toolcards.*;
 
 import java.rmi.RemoteException;
 import java.util.*;
