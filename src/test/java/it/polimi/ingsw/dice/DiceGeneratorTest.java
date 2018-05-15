@@ -1,4 +1,4 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.dice;
 
 import static org.junit.jupiter.api.Assertions.*;
 import it.polimi.ingsw.util.Colors;
@@ -9,7 +9,7 @@ import it.polimi.ingsw.model.dice.*;
 import java.util.*;
 
 
-class DieTest {
+class DiceGeneratorTest {
 
     private static DiceGenerator generator;
 
