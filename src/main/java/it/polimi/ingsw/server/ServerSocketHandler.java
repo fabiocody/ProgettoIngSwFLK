@@ -108,7 +108,8 @@ public class ServerSocketHandler implements Runnable, Observer {
         if (line == null) {
             error("Client " + nickname + " (" + uuid + ") disconnected");
             if (game == null) {
-                // TODO WaitingRoom.getInstance().getWaitingPlayers().remove()
+                WaitingRoom.getInstance().removePlayer(nickname);
+                //game.getTurnManager().suspendPlayer(nickname);
             }
             Thread.currentThread().interrupt();
         }

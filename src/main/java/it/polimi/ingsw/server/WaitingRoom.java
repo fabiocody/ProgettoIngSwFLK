@@ -55,6 +55,11 @@ public class WaitingRoom extends Observable {
         return player.getId();
     }
 
+    synchronized void removePlayer(String nickname) {
+        Optional<Player> player = this.getWaitingPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst();
+        this.getWaitingPlayers().remove(player.orElse(null));
+    }
+
     // Create a new game with the first N players of the list.
     // The timer is canceled and SagradaServer is notified.
     private synchronized void createGame() {

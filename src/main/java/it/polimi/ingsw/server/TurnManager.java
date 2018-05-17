@@ -49,6 +49,20 @@ public class TurnManager extends Observable {
         }
     }
 
+    void suspendPlayer(String nickname) {
+        Optional<Player> player = this.players.stream()
+                .filter(p -> p.getNickname().equals(nickname))
+                .findFirst();
+        player.ifPresent(p -> p.setSuspended(true));
+    }
+
+    void unsuspendPlayer(String nickname) {
+        Optional<Player> player = this.players.stream()
+                .filter(p -> p.getNickname().equals(nickname))
+                .findFirst();
+        player.ifPresent(p -> p.setSuspended(false));
+    }
+
     public boolean isFirstHalfOfRound() {
         return this.index < this.playersOrder.size() / 2;
     }

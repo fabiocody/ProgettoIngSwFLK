@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class WaitingRoomTest {
 
     @Test
-    void waitingRoomAddPlayerTest() {
+    void addPlayerTest() {
         assertNotNull(WaitingRoom.getInstance().addPlayer("James"));
         assertEquals(1, WaitingRoom.getInstance().getWaitingPlayers().size());
         assertNull(WaitingRoom.getInstance().addPlayer("James"));
