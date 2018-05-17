@@ -1,58 +1,61 @@
 package it.polimi.ingsw.server;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.net.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.stream.Stream;
 
 
 // Main server class
 public class SagradaServer implements Observer {
     // Observes WaitingRoom
 
+    private static SagradaServer instance;
+
+    private int port;
+    private boolean run = true;
     private List<Game> games;
 
-    //Server related
-    private int port;
-    private ServerSocket serverSocket;
-    private boolean run = true;
-
-    public SagradaServer(int port) {
+    private SagradaServer() {
         WaitingRoom.getInstance().addObserver(this);
-        this.port = port;
-        this.startSocketServer();
+        this.port = 42000;
     }
 
-    private void startSocketServer() {
+    public static SagradaServer getInstance() {
+        if (instance == null)
+            instance = new SagradaServer();
+        return instance;
+    }
+
+    public void startSocketServer() {
         ExecutorService executor = Executors.newCachedThreadPool();
-        try {
-            this.serverSocket = new ServerSocket(this.port);
+        try (ServerSocket serverSocket = new ServerSocket(this.port);){
+            System.out.println("Server up and running");
+            while (run) {
+                Socket socket = serverSocket.accept();
+                executor.submit(new ServerSocketHandler(socket));
+            }
+            executor.shutdown();
         } catch (IOException e) {
             e.printStackTrace();
-            return;
         }
-        System.out.println("Server Online");
-        while (run) {
-            try {
-                Socket socket = this.serverSocket.accept();
-                executor.submit(new ServerSocketHandler(socket));
-            } catch (IOException e) {
-                e.printStackTrace();
-                run = false;
-            }
-        }
-        executor.shutdown();
     }
 
     List<Game> getGames() {
         if (this.games == null)
             this.games = new Vector<>();
         return this.games;
+    }
+
+    public synchronized boolean isNicknameUsed(String nickname) {
+        Stream<String> gameStream = this.getGames().stream()
+                .flatMap(g -> g.getPlayers().stream())
+                .map(Player::getNickname);
+        Stream<String> waitingRoomStream = WaitingRoom.getInstance().getWaitingPlayers().stream()
+                .map(Player::getNickname);
+        return Stream.concat(gameStream, waitingRoomStream)
+                .anyMatch(n -> n.equals(nickname));
     }
 
     // Observer method, instantiate and start a game when called
