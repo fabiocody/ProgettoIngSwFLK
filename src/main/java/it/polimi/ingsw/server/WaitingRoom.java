@@ -57,7 +57,13 @@ public class WaitingRoom extends Observable {
 
     synchronized void removePlayer(String nickname) {
         Optional<Player> player = this.getWaitingPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst();
-        this.getWaitingPlayers().remove(player.orElse(null));
+        if (player.isPresent()) {
+            this.getWaitingPlayers().remove(player.get());
+            if (this.getWaitingPlayers().size() < 2)
+                this.timer.cancel();
+            this.setChanged();
+            this.notifyObservers(this.getWaitingPlayers());
+        }
     }
 
     // Create a new game with the first N players of the list.

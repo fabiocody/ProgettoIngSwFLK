@@ -57,7 +57,13 @@ public class ServerSocketHandler implements Runnable, Observer {
              PrintWriter out = this.out = new PrintWriter(socket.getOutputStream(), true)) {
             debug("Connected with " + socket.getInetAddress() + ":" + socket.getPort());
             while (this.run) {
-                JsonObject input = this.parseJson(this.readLine());
+                JsonObject input;
+                try {
+                    input = this.parseJson(this.readLine());
+                } catch (NullPointerException e) {
+                    error("JSON parsing failed");
+                    continue;
+                }
                 // UUID validation
                 if (!input.get(method).getAsString().equals(Methods.ADD_PLAYER.getString()) &&
                         !input.get(playerID).getAsString().equals(this.uuid.toString())) {
@@ -106,11 +112,10 @@ public class ServerSocketHandler implements Runnable, Observer {
     private String readLine() throws IOException {
         String line = in.readLine();
         if (line == null) {
-            error("Client " + nickname + " (" + uuid + ") disconnected");
-            if (game == null) {
-                WaitingRoom.getInstance().removePlayer(nickname);
-                //game.getTurnManager().suspendPlayer(nickname);
-            }
+            error("Client with nickname " + nickname + " (UUID: " + uuid + ") disconnected");
+            WaitingRoom.getInstance().removePlayer(nickname);   // TODO Add to end point
+            //game.getTurnManager().suspendPlayer(nickname);
+            run = false;
             Thread.currentThread().interrupt();
         }
         return line;
@@ -198,6 +203,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         JsonArray array = new JsonArray();
         for (Player p : players) array.add(p.getNickname());
         payload.add("waitingPlayers", array);
+        debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
         debug("Update Waiting Players List sent");
     }
