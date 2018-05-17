@@ -20,4 +20,12 @@ class WaitingRoomTest {
         assertNotNull(WaitingRoom.getInstance().addPlayer("John"));
     }
 
+    @Test
+    void removePlayerTest() {
+        WaitingRoom.getInstance().addPlayer("Fabio");
+        assertTrue(SagradaServer.getInstance().isNicknameUsed("Fabio"));
+        WaitingRoom.getInstance().removePlayer("Fabio");
+        assertFalse(SagradaServer.getInstance().isNicknameUsed("Fabio"));
+    }
+
 }
