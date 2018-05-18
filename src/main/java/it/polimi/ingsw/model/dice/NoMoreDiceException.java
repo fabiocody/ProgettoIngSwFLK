@@ -1,8 +1,14 @@
 package it.polimi.ingsw.model.dice;
 
+/**
+ * This exception is thrown when there are no more
+ * dice left in the dice bag
+ *
+ * @author Kai de Gast
+ */
 public class NoMoreDiceException extends RuntimeException {
 
-    public NoMoreDiceException(String message) {
+    NoMoreDiceException(String message) {
         super(message);
     }
 
