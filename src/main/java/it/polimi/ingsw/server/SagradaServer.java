@@ -74,4 +74,8 @@ public class SagradaServer implements Observer {
             getGames().add((Game) arg);
     }
 
+    public static void main(String[] args) {
+        SagradaServer.getInstance().startSocketServer();
+    }
+
 }
