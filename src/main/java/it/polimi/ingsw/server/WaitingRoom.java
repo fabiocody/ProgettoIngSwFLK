@@ -16,7 +16,6 @@ public class WaitingRoom extends Observable {
     private boolean playerAdded = false;
 
     private WaitingRoom() {
-        this.timeout = 60;  // TODO configuration file
         this.timer = new CountdownTimer("WaitingRoom", this.timeout);
     }
 
@@ -30,6 +29,10 @@ public class WaitingRoom extends Observable {
         if (this.waitingPlayers == null)
             this.waitingPlayers = new Vector<>();
         return this.waitingPlayers;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 
     public CountdownTimer getTimer() {

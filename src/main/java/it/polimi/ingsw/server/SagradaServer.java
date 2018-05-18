@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server;
 
+import joptsimple.*;
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
@@ -17,6 +18,7 @@ public class SagradaServer implements Observer {
     private boolean run = true;
     private List<Game> games;
     private boolean debugActive;
+    private int gameTimeout;
 
     private SagradaServer() {
         WaitingRoom.getInstance().addObserver(this);
@@ -29,8 +31,10 @@ public class SagradaServer implements Observer {
         return instance;
     }
 
-    public void startSocketServer(boolean debugActive) {
+    public void startSocketServer(int wrTimeout, int gameTimeout, boolean debugActive) {
         this.debugActive = debugActive;
+        this.gameTimeout = gameTimeout;
+        WaitingRoom.getInstance().setTimeout(wrTimeout);
         ExecutorService executor = Executors.newCachedThreadPool();
         try (ServerSocket serverSocket = new ServerSocket(this.port);){
             System.out.println("Server up and running");
@@ -42,10 +46,6 @@ public class SagradaServer implements Observer {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public void startSocketServer() {
-        this.startSocketServer(false);
     }
 
     List<Game> getGames() {
@@ -68,6 +68,10 @@ public class SagradaServer implements Observer {
         return debugActive;
     }
 
+    public int getGameTimeout() {
+        return gameTimeout;
+    }
+
     // Observer method, instantiate and start a game when called
     public void update(Observable o, Object arg) {
         if (o instanceof WaitingRoom && arg instanceof Game)
@@ -75,7 +79,18 @@ public class SagradaServer implements Observer {
     }
 
     public static void main(String[] args) {
-        SagradaServer.getInstance().startSocketServer();
+        OptionParser parser = new OptionParser();
+        parser.accepts("debug");
+        parser.accepts("wr-timeout").withRequiredArg().required().ofType(Integer.class);
+        parser.accepts("game-timeout").withRequiredArg().required().ofType((Integer.class));
+        try {
+            OptionSet options = parser.parse(args);
+            int wrTimerout = (Integer) options.valueOf("wr-timeout");
+            int gameTimeout = (Integer) options.valueOf("game-timeout");
+            SagradaServer.getInstance().startSocketServer(wrTimerout, gameTimeout, options.has("debug"));
+        } catch (OptionException e) {
+            System.out.println("Usage: ");  // TODO
+        }
     }
 
 }

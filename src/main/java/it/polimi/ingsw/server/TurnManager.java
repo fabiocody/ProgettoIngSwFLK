@@ -12,10 +12,11 @@ public class TurnManager extends Observable {
     private List<Integer> playersOrder;
     private int index;
     private CountdownTimer timer;
-    private int timeout = 30;     // TODO Load from file
+    private int timeout;
 
     public TurnManager(List<Player> players) {
         this.players = players;
+        this.timeout = SagradaServer.getInstance().getGameTimeout();
         Stream<Integer> forwardRange = IntStream.range(0, this.getNumberOfPlayers()).boxed();
         Stream<Integer> backRange = IntStream.range(0, this.getNumberOfPlayers()).boxed().sorted(Collections.reverseOrder());
         this.playersOrder = Stream.concat(forwardRange, backRange).collect(Collectors.toList());
