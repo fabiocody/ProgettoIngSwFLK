@@ -101,6 +101,10 @@
 }
 ```
 
+### Remove Player
+
+#### Client -> Server
+
 ## Game
 
 ### Game started message

@@ -65,7 +65,7 @@ public class Client {
         try {
             this.socket = new Socket(ip, port);
             this.socket.setKeepAlive(true);
-            debug("Connection established");
+            log("Connection established");
 
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.out = new PrintWriter(socket.getOutputStream(), true);
@@ -83,7 +83,7 @@ public class Client {
                 while (!gameStarted) gameStartedLock.wait();
             }
 
-            debug("GAME STARTED");
+            log("GAME STARTED");
 
             recvThread.interrupt();
 
@@ -100,6 +100,10 @@ public class Client {
                 error("Closing");
             }
         }
+    }
+
+    private void log(String message) {
+        System.out.println(message);
     }
 
     private void debug(String message) {
@@ -176,7 +180,7 @@ public class Client {
         String line = in.readLine();
         if (line == null) {
             error("DISCONNECTED");
-            System.exit(1);
+            System.exit(1); // TODO Handle
         }
         return line;
     }
@@ -198,11 +202,15 @@ public class Client {
         JsonObject input = this.pollResponseBuffer();
         logged = input.get("logged").getAsBoolean();
         if (logged) {
+            log("Login successful");
             this.uuid = UUID.fromString(input.get("UUID").getAsString());
             debug("INPUT " + input);
             JsonArray players = input.get("players").getAsJsonArray();
             if (players.size() < 4)
                 this.subscribeToWRTimer();
+            log(players.toString());
+        } else {
+            log("Login failed");
         }
     }
 
@@ -215,11 +223,11 @@ public class Client {
     }
 
     private void updateWaitingPlayers(JsonObject input) {
-        System.out.println(input.get("waitingPlayers").getAsJsonArray());
+        log(input.get("waitingPlayers").getAsJsonArray().toString());
     }
 
     private void wrTimerTick(JsonObject input) {
-        System.out.println(input.get("tick").getAsInt());
+        log(String.valueOf(input.get("tick").getAsInt()));
     }
 
     public static void main(String[] args) {

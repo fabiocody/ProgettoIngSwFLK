@@ -9,8 +9,12 @@ public class SagradaServerTest {
     @Test
     void isNicknameUsedTest() {
         assertFalse(SagradaServer.getInstance().isNicknameUsed("Fabio"));
-        WaitingRoom.getInstance().addPlayer("Fabio");
-        assertTrue(SagradaServer.getInstance().isNicknameUsed("Fabio"));
+        try{
+            WaitingRoom.getInstance().addPlayer("Fabio");
+            assertTrue(SagradaServer.getInstance().isNicknameUsed("Fabio"));
+        } catch (LoginFailedException e) {
+            fail("Login failed");
+        }
     }
 
 }
