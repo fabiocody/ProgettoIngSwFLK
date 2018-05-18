@@ -40,6 +40,10 @@ public class ServerSocketHandler implements Runnable, Observer {
         waitingRoomEndPoint.subscribeToWaitingRoom(this);
     }
 
+    private void log(String message) {
+        System.out.println(message);
+    }
+
     private void debug(String message) {
         if (SagradaServer.getInstance().isDebugActive())
             System.out.println("[DEBUG] " + message);
@@ -56,7 +60,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         try (Socket socket = this.clientSocket;
              BufferedReader in = this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              PrintWriter out = this.out = new PrintWriter(socket.getOutputStream(), true)) {
-            debug("Connected with " + socket.getInetAddress() + ":" + socket.getPort());
+            log("Connected to " + socket.getInetAddress() + ":" + socket.getPort() + " via socket");
             while (this.run) {
                 JsonObject input;
                 try {
@@ -113,8 +117,9 @@ public class ServerSocketHandler implements Runnable, Observer {
     private String readLine() throws IOException {
         String line = in.readLine();
         if (line == null) {
-            error("Client with nickname " + nickname + " (UUID: " + uuid + ") disconnected");
-            WaitingRoom.getInstance().removePlayer(nickname);   // TODO Add to end point
+            String address = clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort();
+            log("Disconnected " + address + " (nickname: " + nickname + ")");
+            waitingRoomEndPoint.removePlayer(nickname);
             //game.getTurnManager().suspendPlayer(nickname);
             run = false;
             Thread.currentThread().interrupt();
@@ -133,6 +138,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         nickname = input.get("nickname").getAsString();
         try {
             uuid = this.waitingRoomEndPoint.addPlayer(nickname);
+            log(nickname + " logged in");
             debug("UUID: " + uuid.toString());
             JsonObject payload = new JsonObject();
             payload.addProperty(method, "addPlayer");
@@ -142,10 +148,10 @@ public class ServerSocketHandler implements Runnable, Observer {
             for (Player p : this.waitingRoomEndPoint.getWaitingPlayers())
                 waitingPlayers.add(p.getNickname());
             payload.add("players", waitingPlayers);
-            this.out.println(payload.toString());
+            out.println(payload.toString());
             debug("PAYLOAD " + payload.toString());
         } catch (LoginFailedException e) {
-            debug("Login failed for nickname " + nickname);
+            log("Login failed for nickname " + nickname);
             JsonObject payload = new JsonObject();
             payload.addProperty(method, "addPlayer");
             payload.addProperty("logged", false);
@@ -246,7 +252,7 @@ public class ServerSocketHandler implements Runnable, Observer {
 
         out.println(payload.toString());
 
-        debug("Game started");
+        log("A game has started for " + nickname);
     }
 
 }
