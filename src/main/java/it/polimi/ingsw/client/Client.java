@@ -25,19 +25,24 @@ public class Client {
     private Thread recvThread;
 
     // FLAGS
+    private boolean debugActive;
     private boolean logged = false;
     private boolean gameStarted = false;
-
 
     // FIELDS CONSTANTS
     private static final String method = "method";
 
-    private Client(String ip, int port) {
+    private Client(String ip, int port, boolean debug) {
         this.ip = ip;
         this.port = port;
+        this.debugActive = debug;
         this.jsonParser = new JsonParser();
         this.responseBuffer = new ConcurrentLinkedQueue<>();
         this.startClient();
+    }
+
+    private Client(String ip, int port) {
+        this(ip, port, false);
     }
 
     private JsonObject pollResponseBuffer() {
@@ -98,7 +103,8 @@ public class Client {
     }
 
     private void debug(String message) {
-        System.out.println("[DEBUG] " + message);
+        if (this.debugActive)
+            System.out.println("[DEBUG] " + message);
     }
 
     private void error(String message) {
@@ -217,9 +223,9 @@ public class Client {
     }
 
     public static void main(String[] args) {
-        /*Scanner stdin = new Scanner(System.in);
+        Scanner stdin = new Scanner(System.in);
         System.out.print("IP >>> ");
-        String ip = stdin.nextLine();*/
-        new Client("127.0.0.1", 42000);
+        String ip = stdin.nextLine();
+        new Client(ip, 42000);
     }
 }

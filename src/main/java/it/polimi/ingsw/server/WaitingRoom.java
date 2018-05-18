@@ -39,7 +39,7 @@ public class WaitingRoom extends Observable {
     // Add player to this waiting room.
     // Game creation occurs when timer expires or when 4 players are reached.
     public synchronized UUID addPlayer(String nickname) {
-        if (this.getWaitingPlayers().stream().anyMatch(p -> p.getNickname().equals(nickname))) return null;
+        if (SagradaServer.getInstance().isNicknameUsed(nickname)) return null;
         Player player = new Player(nickname);
         this.getWaitingPlayers().add(player);
         this.setChanged();
@@ -53,6 +53,17 @@ public class WaitingRoom extends Observable {
         playerAdded = true;
         notifyAll();
         return player.getId();
+    }
+
+    synchronized void removePlayer(String nickname) {
+        Optional<Player> player = this.getWaitingPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst();
+        if (player.isPresent()) {
+            this.getWaitingPlayers().remove(player.get());
+            if (this.getWaitingPlayers().size() < 2)
+                this.timer.cancel();
+            this.setChanged();
+            this.notifyObservers(this.getWaitingPlayers());
+        }
     }
 
     // Create a new game with the first N players of the list.

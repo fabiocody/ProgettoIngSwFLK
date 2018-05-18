@@ -16,6 +16,7 @@ public class Player {
     private List<WindowPattern> windowPatternList;
     private ObjectiveCard privateObjectiveCard;
     private boolean active;
+    private boolean suspended;
 
     // Flags
     private boolean windowPatternListSet;   // True iff this player has already been assigned a Window Pattern (to prevent alterations)
@@ -152,6 +153,14 @@ public class Player {
         synchronized (activeLock) {
             this.active = active;
         }
+    }
+
+    public boolean isSuspended() {
+        return suspended;
+    }
+
+    public void setSuspended(boolean suspended) {
+        this.suspended = suspended;
     }
 
     public synchronized String toString() {

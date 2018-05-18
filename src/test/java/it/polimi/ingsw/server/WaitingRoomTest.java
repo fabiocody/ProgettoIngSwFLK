@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class WaitingRoomTest {
 
     @Test
-    void waitingRoomAddPlayerTest() {
+    void addPlayerTest() {
         assertNotNull(WaitingRoom.getInstance().addPlayer("James"));
         assertEquals(1, WaitingRoom.getInstance().getWaitingPlayers().size());
         assertNull(WaitingRoom.getInstance().addPlayer("James"));
@@ -18,6 +18,14 @@ class WaitingRoomTest {
         assertEquals(3, WaitingRoom.getInstance().getWaitingPlayers().size());
         assertNull(WaitingRoom.getInstance().addPlayer("Peter"));
         assertNotNull(WaitingRoom.getInstance().addPlayer("John"));
+    }
+
+    @Test
+    void removePlayerTest() {
+        WaitingRoom.getInstance().addPlayer("Fabio");
+        assertTrue(SagradaServer.getInstance().isNicknameUsed("Fabio"));
+        WaitingRoom.getInstance().removePlayer("Fabio");
+        assertFalse(SagradaServer.getInstance().isNicknameUsed("Fabio"));
     }
 
 }
