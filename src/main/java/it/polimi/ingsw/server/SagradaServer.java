@@ -89,7 +89,7 @@ public class SagradaServer implements Observer {
             int gameTimeout = (Integer) options.valueOf("game-timeout");
             SagradaServer.getInstance().startSocketServer(wrTimerout, gameTimeout, options.has("debug"));
         } catch (OptionException e) {
-            System.out.println("Usage: ");  // TODO
+            System.out.println("usage: sagradaserver [--debug] --wr-timer X --game-timeout Y");
         }
     }
 
