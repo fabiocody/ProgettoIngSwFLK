@@ -11,7 +11,7 @@ import java.util.Vector;
 public class WaitingRoomEndPoint implements WaitingRoomAPI {
 
     @Override
-    public UUID addPlayer(String nickname) {
+    public UUID addPlayer(String nickname) throws LoginFailedException {
         return WaitingRoom.getInstance().addPlayer(nickname);
     }
 

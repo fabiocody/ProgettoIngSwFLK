@@ -8,24 +8,32 @@ class WaitingRoomTest {
 
     @Test
     void addPlayerTest() {
-        assertNotNull(WaitingRoom.getInstance().addPlayer("James"));
-        assertEquals(1, WaitingRoom.getInstance().getWaitingPlayers().size());
-        assertNull(WaitingRoom.getInstance().addPlayer("James"));
-        assertNotNull(WaitingRoom.getInstance().addPlayer("George"));
-        assertEquals(2, WaitingRoom.getInstance().getWaitingPlayers().size());
-        assertNull(WaitingRoom.getInstance().addPlayer("George"));
-        assertNotNull(WaitingRoom.getInstance().addPlayer("Peter"));
-        assertEquals(3, WaitingRoom.getInstance().getWaitingPlayers().size());
-        assertNull(WaitingRoom.getInstance().addPlayer("Peter"));
-        assertNotNull(WaitingRoom.getInstance().addPlayer("John"));
+        try {
+            assertNotNull(WaitingRoom.getInstance().addPlayer("James"));
+            assertEquals(1, WaitingRoom.getInstance().getWaitingPlayers().size());
+            assertThrows(LoginFailedException.class, () -> WaitingRoom.getInstance().addPlayer("James"));
+            assertNotNull(WaitingRoom.getInstance().addPlayer("George"));
+            assertEquals(2, WaitingRoom.getInstance().getWaitingPlayers().size());
+            assertThrows(LoginFailedException.class, () -> WaitingRoom.getInstance().addPlayer("George"));
+            assertNotNull(WaitingRoom.getInstance().addPlayer("Peter"));
+            assertEquals(3, WaitingRoom.getInstance().getWaitingPlayers().size());
+            assertThrows(LoginFailedException.class, () -> WaitingRoom.getInstance().addPlayer("Peter"));
+            assertNotNull(WaitingRoom.getInstance().addPlayer("John"));
+        } catch (LoginFailedException e) {
+            fail("Login failed");
+        }
     }
 
     @Test
     void removePlayerTest() {
-        WaitingRoom.getInstance().addPlayer("Fabio");
-        assertTrue(SagradaServer.getInstance().isNicknameUsed("Fabio"));
-        WaitingRoom.getInstance().removePlayer("Fabio");
-        assertFalse(SagradaServer.getInstance().isNicknameUsed("Fabio"));
+        try {
+            WaitingRoom.getInstance().addPlayer("Fabio");
+            assertTrue(SagradaServer.getInstance().isNicknameUsed("Fabio"));
+            WaitingRoom.getInstance().removePlayer("Fabio");
+            assertFalse(SagradaServer.getInstance().isNicknameUsed("Fabio"));
+        } catch (LoginFailedException e) {
+            fail("Login failed");
+        }
     }
 
 }

@@ -38,8 +38,9 @@ public class WaitingRoom extends Observable {
 
     // Add player to this waiting room.
     // Game creation occurs when timer expires or when 4 players are reached.
-    public synchronized UUID addPlayer(String nickname) {
-        if (SagradaServer.getInstance().isNicknameUsed(nickname)) return null;
+    public synchronized UUID addPlayer(String nickname) throws LoginFailedException {
+        if (SagradaServer.getInstance().isNicknameUsed(nickname))
+            throw new LoginFailedException(nickname);
         Player player = new Player(nickname);
         this.getWaitingPlayers().add(player);
         this.setChanged();

@@ -131,15 +131,8 @@ public class ServerSocketHandler implements Runnable, Observer {
         debug("addPlayer called");
         debug("INPUT " + input.toString());
         nickname = input.get("nickname").getAsString();
-        uuid = this.waitingRoomEndPoint.addPlayer(nickname);
-        if (uuid == null) {
-            debug("Login failed for nickname " + nickname);
-            JsonObject payload = new JsonObject();
-            payload.addProperty(method, "addPlayer");
-            payload.addProperty("logged", false);
-            out.println(payload.toString());
-            debug("PAYLOAD " + payload.toString());
-        } else {
+        try {
+            uuid = this.waitingRoomEndPoint.addPlayer(nickname);
             debug("UUID: " + uuid.toString());
             JsonObject payload = new JsonObject();
             payload.addProperty(method, "addPlayer");
@@ -150,6 +143,13 @@ public class ServerSocketHandler implements Runnable, Observer {
                 waitingPlayers.add(p.getNickname());
             payload.add("players", waitingPlayers);
             this.out.println(payload.toString());
+            debug("PAYLOAD " + payload.toString());
+        } catch (LoginFailedException e) {
+            debug("Login failed for nickname " + nickname);
+            JsonObject payload = new JsonObject();
+            payload.addProperty(method, "addPlayer");
+            payload.addProperty("logged", false);
+            out.println(payload.toString());
             debug("PAYLOAD " + payload.toString());
         }
     }
