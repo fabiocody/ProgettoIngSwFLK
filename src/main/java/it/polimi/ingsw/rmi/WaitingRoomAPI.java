@@ -12,6 +12,7 @@ public interface WaitingRoomAPI extends Remote {
 
     // WaitingRoom
     UUID addPlayer(String nickname) throws RemoteException;
+    void removePlayer(String nickname) throws RemoteException;
     List<Player> getWaitingPlayers() throws RemoteException;
     void subscribeToWaitingRoomTimer(Observer observer) throws RemoteException;
     void unsubscribeFromWaitingRoomTimer(Observer observer) throws RemoteException;

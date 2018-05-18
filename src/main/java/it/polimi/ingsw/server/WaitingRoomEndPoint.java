@@ -16,6 +16,11 @@ public class WaitingRoomEndPoint implements WaitingRoomAPI {
     }
 
     @Override
+    public void removePlayer(String nickname){
+        WaitingRoom.getInstance().removePlayer(nickname);
+    }
+
+    @Override
     public List<Player> getWaitingPlayers() {
         return new Vector<>(WaitingRoom.getInstance().getWaitingPlayers());
     }
