@@ -41,7 +41,8 @@ public class ServerSocketHandler implements Runnable, Observer {
     }
 
     private void debug(String message) {
-        System.out.println("[DEBUG] " + message);
+        if (SagradaServer.getInstance().isDebugActive())
+            System.out.println("[DEBUG] " + message);
     }
 
     private void error(String message) {

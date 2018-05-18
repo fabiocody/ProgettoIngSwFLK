@@ -217,9 +217,9 @@ public class Client {
     }
 
     public static void main(String[] args) {
-        /*Scanner stdin = new Scanner(System.in);
+        Scanner stdin = new Scanner(System.in);
         System.out.print("IP >>> ");
-        String ip = stdin.nextLine();*/
-        new Client("127.0.0.1", 42000);
+        String ip = stdin.nextLine();
+        new Client(ip, 42000);
     }
 }

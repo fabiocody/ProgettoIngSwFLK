@@ -16,6 +16,7 @@ public class SagradaServer implements Observer {
     private int port;
     private boolean run = true;
     private List<Game> games;
+    private boolean debugActive;
 
     private SagradaServer() {
         WaitingRoom.getInstance().addObserver(this);
@@ -28,7 +29,8 @@ public class SagradaServer implements Observer {
         return instance;
     }
 
-    public void startSocketServer() {
+    public void startSocketServer(boolean debugActive) {
+        this.debugActive = debugActive;
         ExecutorService executor = Executors.newCachedThreadPool();
         try (ServerSocket serverSocket = new ServerSocket(this.port);){
             System.out.println("Server up and running");
@@ -40,6 +42,10 @@ public class SagradaServer implements Observer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void startSocketServer() {
+        this.startSocketServer(false);
     }
 
     List<Game> getGames() {
@@ -56,6 +62,10 @@ public class SagradaServer implements Observer {
                 .map(Player::getNickname);
         return Stream.concat(gameStream, waitingRoomStream)
                 .anyMatch(n -> n.equals(nickname));
+    }
+
+    public boolean isDebugActive() {
+        return debugActive;
     }
 
     // Observer method, instantiate and start a game when called
