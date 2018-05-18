@@ -18,14 +18,14 @@ public class SagradaServer implements Observer {
     private boolean run = true;
     private List<Game> games;
     private boolean debugActive;
-    private int gameTimeout;
+    private int gameTimeout = 30;
 
     private SagradaServer() {
         WaitingRoom.getInstance().addObserver(this);
         this.port = 42000;
     }
 
-    public static SagradaServer getInstance() {
+    public static synchronized SagradaServer getInstance() {
         if (instance == null)
             instance = new SagradaServer();
         return instance;

@@ -12,7 +12,7 @@ public class TurnManager extends Observable {
     private List<Integer> playersOrder;
     private int index;
     private CountdownTimer timer;
-    private int timeout;
+    private int timeout = 30;
 
     public TurnManager(List<Player> players) {
         this.players = players;

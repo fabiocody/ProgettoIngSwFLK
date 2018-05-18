@@ -11,7 +11,7 @@ public class WaitingRoom extends Observable {
 
     private static WaitingRoom instance;
     private List<Player> waitingPlayers;
-    private int timeout;
+    private int timeout = 60;
     private CountdownTimer timer;
     private boolean playerAdded = false;
 

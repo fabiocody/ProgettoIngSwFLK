@@ -1,9 +1,7 @@
 package it.polimi.ingsw.server;
 
 import org.junit.jupiter.api.Test;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -52,7 +50,7 @@ class TurnManagerTest {
 
     @Test
     void turnManagerTest4Players() {
-        Game game = new Game(Stream.of("Fabio", "Luca", "Kai", "Giovanni")
+        Game game = new Game(Stream.of("Fabio", "Luca", "Kai", "Jason")
                 .map(Player::new)
                 .collect(Collectors.toList())
         );
