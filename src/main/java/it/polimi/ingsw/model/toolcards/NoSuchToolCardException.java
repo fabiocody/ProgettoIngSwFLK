@@ -3,6 +3,12 @@ package it.polimi.ingsw.model.toolcards;
 import java.util.NoSuchElementException;
 
 
+/**
+ * This exception is thrown when a Java Reflection Exception is thrown.
+ *
+ * @author Fabio Codiglioni
+ * @see ToolCardsGenerator
+ */
 public class NoSuchToolCardException extends NoSuchElementException {
 
     public NoSuchToolCardException(String message) {

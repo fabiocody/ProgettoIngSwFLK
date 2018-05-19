@@ -1,18 +1,33 @@
 package it.polimi.ingsw.model.toolcards;
 
 import it.polimi.ingsw.server.Game;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 
+/**
+ * This class is used to generate the Tool Cards for a Game.
+ *
+ * @author Fabio Codiglioni
+ */
 public class ToolCardsGenerator {
 
+    /**
+     * This class only contains a static method, so this constructor should never be called.
+     *
+     * @author Fabio Codiglioni
+     */
     private ToolCardsGenerator() {
         throw new IllegalStateException();
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @param game the game the card is part of.
+     * @return a <code>List</code> of three distinct Tool Cards.
+     * @throws NoSuchToolCardException this indicates that a card could not be found.
+     */
     public static List<ToolCard> generate(Game game) {
         List<ToolCard> cards = new Vector<>();
         for (int i = 0; i < 3; i++) {
