@@ -1,7 +1,8 @@
 package it.polimi.ingsw.client;
 
 import com.google.gson.*;
-import it.polimi.ingsw.server.Methods;
+import it.polimi.ingsw.server.*;
+import joptsimple.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
@@ -39,10 +40,6 @@ public class Client {
         this.jsonParser = new JsonParser();
         this.responseBuffer = new ConcurrentLinkedQueue<>();
         this.startClient();
-    }
-
-    private Client(String ip, int port) {
-        this(ip, port, false);
     }
 
     private JsonObject pollResponseBuffer() {
@@ -93,9 +90,9 @@ public class Client {
             e.printStackTrace();
         } finally {
             try {
-                this.in.close();
-                this.out.close();
-                this.socket.close();
+                if (this.in != null) this.in.close();
+                if (this.out != null) this.out.close();
+                if (this.socket != null) this.socket.close();
             } catch (IOException e) {
                 error("Closing");
             }
@@ -231,9 +228,22 @@ public class Client {
     }
 
     public static void main(String[] args) {
-        Scanner stdin = new Scanner(System.in);
-        System.out.print("IP >>> ");
-        String ip = stdin.nextLine();
-        new Client(ip, 42000);
+        OptionParser parser = new OptionParser();
+        parser.accepts("debug");
+        parser.accepts("ip").withRequiredArg();
+        try {
+            OptionSet options = parser.parse(args);
+            String ip;
+            if (options.has("ip")) {
+                ip = (String) options.valueOf("ip");
+            } else {
+                Scanner stdin = new Scanner(System.in);
+                System.out.print("IP >>> ");
+                ip = stdin.nextLine();
+            }
+            new Client(ip, 42000, options.has("debug"));
+        } catch (OptionException e) {
+            System.out.println("usage: sagradaserver [--debug] --wr-timer X --game-timeout Y");
+        }
     }
 }
