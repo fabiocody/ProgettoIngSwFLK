@@ -88,7 +88,7 @@ public class ServerSocketHandler implements Runnable, Observer {
                         this.addPlayer(input);
                         break;
                     case SUBSCRIBE_TO_WR_TIMER:
-                        this.subscribeToWRTimer(input);
+                        this.subscribeToWRTimer();
                         break;
                     case SUBSCRIBE_TO_GAME_TIMER:
                         // TODO
@@ -161,11 +161,11 @@ public class ServerSocketHandler implements Runnable, Observer {
         }
     }
 
-    private void subscribeToWRTimer(JsonObject input) {
+    private void subscribeToWRTimer() {
         this.waitingRoomEndPoint.subscribeToWaitingRoomTimer(this);
         debug("Timer registered");
         JsonObject payload = new JsonObject();
-        payload.addProperty(method, input.get("method").getAsString());
+        payload.addProperty(method, "subscribeToWRTimer");
         payload.addProperty("result", true);
         out.println(payload.toString());
     }

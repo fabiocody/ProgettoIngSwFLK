@@ -133,17 +133,23 @@ public class Client {
             debug("Received method " + recvMethod.getString());
             switch (recvMethod) {
                 case ADD_PLAYER:
+                    break;
                 case SUBSCRIBE_TO_WR_TIMER:
+                    break;
                 case SUBSCRIBE_TO_GAME_TIMER:
+                    break;
                 case CHOOSE_PATTERN:
+                    break;
                 case NEXT_TURN:
+                    break;
                 case PLACE_DIE:
+                    break;
                 case USE_TOOL_CARD:
                     synchronized (responseBufferLock) {
                         responseBuffer.add(inputJson);
                         responseBufferLock.notifyAll();
+                        debug("Added " + inputJson + " to responsesBuffer");
                     }
-                    debug("Added " + inputJson + " to responsesBuffer");
                     break;
                 case UPDATE_WAITING_PLAYERS:
                     this.updateWaitingPlayers(inputJson);
@@ -158,16 +164,22 @@ public class Client {
                     }
                     break;
                 case GAME_TIMER_TICK:
+                    break;
                 case PLAYERS:
+                    break;
                 case FINAL_SCORES:
+                    break;
                 case PUBLIC_OBJECTIVE_CARDS:
+                    break;
                 case TOOL_CARDS:
+                    break;
                 case FAVOR_TOKENS:
+                    break;
                 case WINDOW_PATTERN:
+                    break;
                 case ROUND_TRACK_DICE:
+                    break;
                 case DRAFT_POOL:
-
-                    debug("Added " + inputJson + " to updatesBuffer");
                     break;
             }
         }
