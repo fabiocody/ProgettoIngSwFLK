@@ -66,7 +66,7 @@ public class ServerSocketHandler implements Runnable, Observer {
                 try {
                     input = this.parseJson(this.readLine());
                 } catch (NullPointerException e) {
-                    error("JSON parsing failed");
+                    debug("JSON parsing failed");
                     continue;
                 }
                 // UUID validation
@@ -135,9 +135,10 @@ public class ServerSocketHandler implements Runnable, Observer {
     private void addPlayer(JsonObject input) {
         debug("addPlayer called");
         debug("INPUT " + input.toString());
-        nickname = input.get("nickname").getAsString();
+        String tempNickname = input.get("nickname").getAsString();
         try {
-            uuid = this.waitingRoomEndPoint.addPlayer(nickname);
+            uuid = this.waitingRoomEndPoint.addPlayer(tempNickname);
+            nickname = tempNickname;
             log(nickname + " logged in");
             debug("UUID: " + uuid.toString());
             JsonObject payload = new JsonObject();
@@ -151,7 +152,7 @@ public class ServerSocketHandler implements Runnable, Observer {
             out.println(payload.toString());
             debug("PAYLOAD " + payload.toString());
         } catch (LoginFailedException e) {
-            log("Login failed for nickname " + nickname);
+            log("Login failed for nickname " + tempNickname);
             JsonObject payload = new JsonObject();
             payload.addProperty(method, "addPlayer");
             payload.addProperty("logged", false);
