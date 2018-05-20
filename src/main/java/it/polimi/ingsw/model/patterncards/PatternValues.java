@@ -2,6 +2,13 @@ package it.polimi.ingsw.model.patterncards;
 
 import it.polimi.ingsw.util.Colors;
 
+/**
+ * This class contains the values and colors describing each <code>WindowPattern</code>.
+ * @see     Cell
+ * @see     WindowPattern
+ * @author  Luca dell'Oglio
+ */
+
 public enum PatternValues {
 
     WP0(4,  new Integer[]{  null,null,null,null,1,null,null,5,null,4,3,null,null,null,null,2,null,null,null,null},
@@ -51,7 +58,7 @@ public enum PatternValues {
                             null,Colors.GREEN,null,null,Colors.PURPLE,null,null,null,null,null}),
     WP15(4, new Integer[]{  null,null,null,null,null,2,null,5,null,1,null,null,3,null,null,1,null,6,null,4},
             new Colors[]{   null,null,Colors.GREEN,null,null,null,Colors.YELLOW,null,Colors.BLUE,null,
-                    null,Colors.RED,null,Colors.PURPLE,null,null,null,null,null,null}),
+                            null,Colors.RED,null,Colors.PURPLE,null,null,null,null,null,null}),
     WP16(5, new Integer[]{  3,4,1,5,null,null,6,2,null,null,null,null,null,null,null,5,null,null,null,6},
             new Colors[]{   null,null,null,null,null,null,null,null,null,Colors.YELLOW,
                             null,null,null,Colors.YELLOW,Colors.RED,null,null,Colors.YELLOW,Colors.RED,null}),
@@ -85,19 +92,41 @@ public enum PatternValues {
     private final Integer[] cellValues;
     private final Colors[] cellColors;
 
+    /**
+     * @param   difficulty the difficulty of the pattern(can be null)
+     * @param   cellValues the value of each cell (can be null)
+     * @param   cellColors the color of each cell (can be null)
+     * @author  Luca dell'Oglio
+     */
+
     PatternValues(int difficulty, Integer[] cellValues, Colors[] cellColors){
         this.difficulty = difficulty;
         this.cellValues = cellValues;
         this.cellColors = cellColors;
     }
 
+    /**
+     * @return  the difficulty of the pattern
+     * @author  Luca dell'Oglio
+     */
+
     int getDifficulty(){
         return difficulty;
     }
 
+    /**
+     * @return  the values of the cells of the pattern
+     * @author  Luca dell'Oglio
+     */
+
     Integer[] getCellValues (){
         return cellValues;
     }
+
+    /**
+     * @return  the colors of the cells of the pattern
+     * @author  Luca dell'Oglio
+     */
 
     Colors[] getCellColors (){
         return cellColors;

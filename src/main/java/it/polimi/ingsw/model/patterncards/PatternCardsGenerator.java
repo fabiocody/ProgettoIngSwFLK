@@ -2,10 +2,22 @@ package it.polimi.ingsw.model.patterncards;
 
 import java.util.*;
 
+/**
+ * This class manages the creation and distribution of cards for each player.
+ * @author  Luca dell'Oglio
+ */
 
 public class PatternCardsGenerator {
 
     private final List<WindowPattern> generatedCards = new Vector<>();
+
+    /**
+     * This method creates 2 cards for each player. Each card contains randomly selected odd number pattern and its
+     * consecutive.
+     * @param   numberOfPlayers the number of players playing the game
+     * @throws  InvalidNumberOfPlayersException
+     * @author  Luca dell'Oglio
+     */
 
     public PatternCardsGenerator(int numberOfPlayers){
 
@@ -23,9 +35,21 @@ public class PatternCardsGenerator {
         }
     }
 
+    /**
+     * @return  the cards generated
+     * @author  Luca dell'Oglio
+     */
+
     public synchronized List<WindowPattern> getCards(){
         return this.generatedCards;
     }
+
+    /**
+     * @return  the 2 cards (that will be also removed from <code>generatedCards</code> from which the player will
+     *          choose his/her pattern.
+     * @throws  IllegalStateException
+     * @author  Luca dell'Oglio
+     */
 
     public synchronized List<WindowPattern> getCardsForPlayer(){
         if(this.generatedCards.isEmpty())
