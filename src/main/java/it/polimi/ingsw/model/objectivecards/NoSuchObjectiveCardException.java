@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
  */
 public class NoSuchObjectiveCardException extends NoSuchElementException {
 
-    public NoSuchObjectiveCardException(String message) {
+    NoSuchObjectiveCardException(String message) {
         super(message);
     }
 

@@ -64,9 +64,11 @@ public abstract class ObjectiveCard {
     }
 
     /**
+     * This method computes the Victory Points gained from the card
+     *
      * @author Fabio Codiglioni
      * @param grid the grid of the player you want to compute Victory Points for.
-     * @return the Victory Points awarded from this card.
+     * @return the Victory Points gained from the card.
      */
     public abstract int calcScore(Cell[] grid);
 

@@ -6,13 +6,28 @@ import it.polimi.ingsw.util.Colors;
 import java.util.Arrays;
 
 
+/**
+ * @author Fabio Codiglioni
+ */
 public class PrivateObjectiveCard5 extends ObjectiveCard {
 
+    /**
+     * This constructor initializes the card with its name and description
+     *
+     * @author Fabio Codiglioni
+     */
     public PrivateObjectiveCard5() {
         super("Sfumature Viola",
                 "Somma dei valori su tutti i dadi viola");
     }
 
+    /**
+     * This method computes the Victory Points gained from the card
+     *
+     * @author Fabio Codiglioni
+     * @param grid the grid of the player you want to compute Victory Points for.
+     * @return the Victory Points gained from the card.
+     */
     public int calcScore(Cell[] grid) {
         return Arrays.stream(grid)
                 .filter(c -> c.getPlacedDie() != null)

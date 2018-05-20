@@ -77,7 +77,7 @@ public class WindowPattern {
     /**
      * @param   i the row index
      * @param   j the column index
-     * @return  the cell in the position indexed by <code>i</code>. The <code>grid</code> is considered a
+     * @return  the cell in the position indexed by <code>i,j</code>. The <code>grid</code> is considered a
      *          two-dimensional array
      * @throws  IndexOutOfBoundsException
      * @author  Luca dell'Oglio
