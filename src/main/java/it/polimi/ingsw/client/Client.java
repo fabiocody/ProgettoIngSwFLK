@@ -255,7 +255,7 @@ public class Client {
             }
             new Client(ip, 42000, options.has("debug"));
         } catch (OptionException e) {
-            System.out.println("usage: sagradaserver [--debug] --wr-timer X --game-timeout Y");
+            System.out.println("usage: sagradaclient [--debug] [--ip IP]");
         }
     }
 }
