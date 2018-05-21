@@ -254,7 +254,7 @@ class ToolCardsTest {
         data.addProperty("player", player.getNickname());
         try {
             toolCard.effect(data);
-            assertTrue(player.isSecondTurnToBeJumped());
+            assertTrue(player.isSecondTurnToBeSkipped());
             assertTrue(toolCard.isUsed());
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
