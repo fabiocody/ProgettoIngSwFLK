@@ -8,7 +8,11 @@ import java.util.*;
 import java.util.concurrent.*;
 
 
-// This class contains all the information about the current game
+/**
+ * This class contains all the information about the current game
+ *
+ * @author Fabio Codiglioni
+ */
 public class Game implements Observer {
     // Observes RoundTrack
 
@@ -38,10 +42,11 @@ public class Game implements Observer {
     private final Object publicObjectiveCardsLock = new Object();
     private final Object toolCardsLock = new Object();
 
-    public Game(List<Player> players) {
-        this(players, true);
-    }
-
+    /**
+     * @author Fabio Codiglioni
+     * @param players the list of players taking part in the game.
+     * @param doSetup must be true if you want the game set up along its creation.
+     */
     public Game(List<Player> players, boolean doSetup) {
         this.players = new Vector<>(players);
         Collections.shuffle(this.players);
@@ -50,10 +55,29 @@ public class Game implements Observer {
         this.turnManager.addObserver(this.getRoundTrack());
     }
 
+    /**
+     * This is a shorthand to <code>Game(players, true)</code>.
+     *
+     * @author Fabio Codiglioni
+     * @param players the list of players taking part in the Game.
+     */
+    public Game(List<Player> players) {
+        this(players, true);
+    }
+
+    /**
+     * @author Fabio Codiglioni
+     * @return a thread-safe copy of the list of players.
+     */
     public List<Player> getPlayers() {
         return new Vector<>(this.players);
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @param nickname the nickname to look for.
+     * @return the Player object having the specified nickname.
+     */
     public Player getPlayerForNickname(String nickname) {
         Optional<Player> result = this.players.stream()
                 .filter(p -> p.getNickname().equals(nickname))
@@ -62,18 +86,30 @@ public class Game implements Observer {
         else throw new NoSuchElementException(nickname);
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the number of players taking part in the Game.
+     */
     public int getNumberOfPlayers() {
         synchronized (playersLock) {
             return this.players.size();
         }
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the Turn Manager instance associated with the Game.
+     */
     public TurnManager getTurnManager() {
         synchronized (turnManagerLock) {
             return this.turnManager;
         }
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the Round Track instance associated with the Game.
+     */
     public RoundTrack getRoundTrack() {
         synchronized (roundTrackLock) {
             if (this.roundTrack == null) {
@@ -84,6 +120,11 @@ public class Game implements Observer {
         }
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the map if the final scores of the players.
+     * @throws IllegalStateException thrown when this method is called before the Game is over.
+     */
     public Map<Player, Integer> getFinalScores() {
         synchronized (finalScoresLock) {
             if (!this.getRoundTrack().isGameOver())
@@ -94,6 +135,10 @@ public class Game implements Observer {
         }
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the Objective Card Generator associated with the Game.
+     */
     private ObjectiveCardsGenerator getObjectiveCardsGenerator() {
         synchronized (objectiveCardsGeneratorLock) {
             if (this.objectiveCardsGenerator == null)
@@ -102,6 +147,10 @@ public class Game implements Observer {
         }
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the Pattern Cards Generator associated with the Game.
+     */
     private PatternCardsGenerator getPatternCardsGenerator() {
         synchronized (patternCardsGeneratorLock) {
             if (this.patternCardsGenerator == null)
@@ -110,6 +159,10 @@ public class Game implements Observer {
         }
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the Dice Generator associated with the Game.
+     */
     public DiceGenerator getDiceGenerator() {
         synchronized (diceGeneratorLock) {
             if (this.diceGenerator == null)
@@ -118,6 +171,11 @@ public class Game implements Observer {
         }
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the list of Public Objective Cards associated with the Game.
+     * @throws IllegalStateException thrown when this method is called but the Public Objective Cards hasn't been generated yet.
+     */
     public List<ObjectiveCard> getPublicObjectiveCards() {
         synchronized (publicObjectiveCardsLock) {
             if (this.publicObjectiveCards == null)
@@ -126,6 +184,11 @@ public class Game implements Observer {
         }
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the list of Tool Cards associated with the Game
+     * @throws IllegalStateException thrown when this method is called but the Tool Cards hasn't been generated yet.
+     */
     public synchronized List<ToolCard> getToolCards() {
         synchronized (toolCardsLock) {
             if (this.toolCards == null)
@@ -134,7 +197,12 @@ public class Game implements Observer {
         }
     }
 
-    // Setup method to be called at game starting
+    /**
+     * This method makes the game ready to be played.
+     * It handles patterns and cards dealing.
+     *
+     * @author Fabio Codiglioni
+     */
     private void setup() {
         for (Player player : this.players) {
             player.setPrivateObjectiveCard(this.getObjectiveCardsGenerator().dealPrivate());
@@ -146,8 +214,12 @@ public class Game implements Observer {
         this.getDiceGenerator().generateDraftPool();
     }
 
-    // This method is supposed to be counting VP for each player.
-    // Scores are stored in a map.
+    /**
+     * This method is used to compute Victory Points for each player.
+     * <code>getFinalScores</code> must be called to retrieve the scores.
+     *
+     * @author Fabio Codiglioni
+     */
     private void endGame() {
         ExecutorService pool = Executors.newFixedThreadPool(this.getNumberOfPlayers());
         for (Player p : this.players) {
@@ -165,6 +237,12 @@ public class Game implements Observer {
         assert this.getFinalScores().keySet().containsAll(this.players);
     }
 
+    /**
+     * This method computes the VP for a given Player.
+     *
+     * @author Fabio Codiglioni
+     * @param player the player to consider for the computing of VPs.
+     */
     private void calcScoreForPlayer(Player player) {
         int score = 0;
         for (ObjectiveCard c : this.getPublicObjectiveCards()) score += c.calcScore(player.getWindowPattern().getGrid());
@@ -174,6 +252,14 @@ public class Game implements Observer {
         this.getFinalScores().put(player, score);
     }
 
+    /**
+     * This method is called as a result of a change in an observed object.
+     * Specifically, it handles round incrementing and game over.
+     *
+     * @author Fabio Codiglioni
+     * @param o the object that has triggered the notification.
+     * @param arg the (optional) argument of the notification.
+     */
     public void update(Observable o, Object arg) {
         if (o instanceof RoundTrack) {
             if (arg.equals("Round incremented")) {
