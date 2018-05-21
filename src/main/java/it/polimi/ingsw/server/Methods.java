@@ -1,8 +1,13 @@
 package it.polimi.ingsw.server;
 
-
 import java.util.NoSuchElementException;
 
+
+/**
+ * This Enum defines all the possible methods that can be called by the client to the server and vice versa.
+ *
+ * @author Team
+ */
 public enum Methods {
 
     ADD_PLAYER("addPlayer"),
@@ -28,14 +33,24 @@ public enum Methods {
 
     private String string;
 
-    private Methods(String string) {
+    Methods(String string) {
         this.string = string;
     }
 
+    /**
+     * @author Team
+     * @return the String used to textually represent the method.
+     */
     public String getString() {
         return this.string;
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @param string the String representation of the Method.
+     * @return the Enum value corresponding to the specified String.
+     * @throws NoSuchElementException thrown when there's no Method represented by the given String.
+     */
     public static Methods getAsMethods(String string) {
         for (Methods m : values()) {
             if (m.getString().equals(string))
