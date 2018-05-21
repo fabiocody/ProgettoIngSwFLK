@@ -1,7 +1,13 @@
 package it.polimi.ingsw.util;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
+
+/**
+ * This Enum is used to represent the possible colors of dice, and for color printing.
+ *
+ * @author Team
+ */
 public enum Colors {
 
     RED("\u001B[31m"),
@@ -15,10 +21,15 @@ public enum Colors {
 
     Colors(String ansiCode) {this.ansiCode = ansiCode;}
 
+    /**
+     * @return the ANSI escape code of the color.
+     */
     public String escape() {return this.ansiCode;}
 
+    /**
+     * @return a random value from this Enum, <code>RESET</code> excluded.
+     */
     public static Colors getRandomColor(){
-        Random random = new Random();
-        return values()[random.nextInt(values().length-1)];
+        return values()[ThreadLocalRandom.current().nextInt(values().length-1)];
     }
 }

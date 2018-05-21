@@ -6,7 +6,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-// This class represents a player
+/**
+ * This class represents a player logged in the server.
+ *
+ * @author Fabio Codiglioni
+ */
 public class Player {
 
     // Attributes
@@ -24,7 +28,7 @@ public class Player {
     private boolean windowPatternChosen;
     private boolean diePlacedInThisTurn;
     private boolean toolCardUsedInThisTurn;
-    private boolean secondTurnToBeJumped;
+    private boolean secondTurnToBeSkipped;
 
     // Locks
     private final Object favorTokensLock = new Object();
@@ -32,31 +36,57 @@ public class Player {
     private final Object privateObjectiveCardLock = new Object();
     private final Object activeLock = new Object();
 
+    /**
+     * This methods creates a Player object with a given nickname and computes a random UUID of it.
+     *
+     * @author Fabio Codiglioni
+     * @param nickname the nickname of the player.
+     */
     public Player(String nickname) {
         this.nickname = nickname;
         this.id = UUID.randomUUID();
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the nickname of the Player.
+     */
     public String getNickname() {
         return this.nickname;
     }
 
+    /**
+     * @author Team
+     * @return the UUID of the Player.
+     */
     UUID getId() {
         return id;
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the remaining Favor Tokens of the Player.
+     */
     public int getFavorTokens() {
         synchronized (favorTokensLock) {
             return this.favorTokens;
         }
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @param favorTokens the new value of the Favor Tokens.
+     */
     public void setFavorTokens(int favorTokens) {
         synchronized (favorTokensLock) {
             this.favorTokens = favorTokens;
         }
     }
 
+    /**
+     * @author Team
+     * @return the list of the Window Patterns amongst which the Player has to choose.
+     */
     public List<WindowPattern> getWindowPatternList() {
         synchronized (windowPatternLock) {
             if (this.windowPatternList == null)
@@ -65,6 +95,10 @@ public class Player {
         }
     }
 
+    /**
+     * @author Team
+     * @param windowPatternList the list of the Window Patterns amongst which the Player has to choose.
+     */
     public void setWindowPatternList(List<WindowPattern> windowPatternList) {
         synchronized (windowPatternLock) {
             if (!windowPatternListSet) {
@@ -76,12 +110,22 @@ public class Player {
         }
     }
 
+    /**
+     * @author Team
+     * @return the chosen Window Pattern
+     */
     public WindowPattern getWindowPattern() {
         synchronized (windowPatternLock) {
             return this.windowPatternList.get(0);
         }
     }
 
+    /**
+     * This method is used to choose the Window Pattern the Player is going to use for the Game.
+     *
+     * @author Team
+     * @param index the index of the list from which the player has to choose.
+     */
     public void chooseWindowPattern(int index) {
         synchronized (windowPatternLock) {
             if (!windowPatternChosen) {
@@ -99,6 +143,10 @@ public class Player {
         }
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the Private Objective Card of the Player.
+     */
     public ObjectiveCard getPrivateObjectiveCard() {
         synchronized (privateObjectiveCardLock) {
             if (this.privateObjectiveCard == null)
@@ -107,7 +155,13 @@ public class Player {
         }
     }
 
-    // This method is designed to allow only one assignment of privateObjectiveCard
+    /**
+     * This method is designed to allow only one assignment of a Private Objective Card.
+     *
+     * @author Fabio Codiglioni
+     * @param privateObjectiveCard the Private Objective Card of the Player.
+     * @throws IllegalStateException thrown when calling this method more than once.
+     */
     public void setPrivateObjectiveCard(ObjectiveCard privateObjectiveCard) {
         synchronized (privateObjectiveCardLock) {
             if (!privateObjectiveCardSet) {
@@ -119,50 +173,94 @@ public class Player {
         }
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return true if the Player has already placed a Die in the current turn.
+     */
     public boolean isDiePlacedInThisTurn() {
         return diePlacedInThisTurn;
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @param diePlacedInThisTurn whether or not the Player has placed a Die in the current turn.
+     */
     public void setDiePlacedInThisTurn(boolean diePlacedInThisTurn) {
         this.diePlacedInThisTurn = diePlacedInThisTurn;
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return true if the Player has already used a Tool Card in the current turn.
+     */
     public boolean isToolCardUsedInThisTurn() {
         return toolCardUsedInThisTurn;
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @param toolCardUsedInThisTurn whether or not the Player has already used a Tool Card in the current turn.
+     */
     public void setToolCardUsedInThisTurn(boolean toolCardUsedInThisTurn) {
         this.toolCardUsedInThisTurn = toolCardUsedInThisTurn;
     }
 
-    public boolean isSecondTurnToBeJumped() {
-        return secondTurnToBeJumped;
+    /**
+     * @author Fabio Codiglioni
+     * @return true if the Player has to skip the second turn, as a result of a Tool Card effect.
+     */
+    public boolean isSecondTurnToBeSkipped() {
+        return secondTurnToBeSkipped;
     }
 
-    public void setSecondTurnToBeJumped(boolean secondTurnToBeJumped) {
-        this.secondTurnToBeJumped = secondTurnToBeJumped;
+    /**
+     * @author Fabio Codiglioni
+     * @param secondTurnToBeSkipped whether or not the Player has to skip the second turn.
+     */
+    public void setSecondTurnToBeSkipped(boolean secondTurnToBeSkipped) {
+        this.secondTurnToBeSkipped = secondTurnToBeSkipped;
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return true if this Player is the active Player, i.e. the one actually playing.
+     */
     public boolean isActive() {
         synchronized (activeLock) {
             return active;
         }
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @param active whether or not the Player is active.
+     */
     public void setActive(boolean active) {
         synchronized (activeLock) {
             this.active = active;
         }
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return true if the Player has been suspended due to an expired timer or a network error.
+     */
     public boolean isSuspended() {
         return suspended;
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @param suspended whether or not the Player has to be suspended.
+     */
     public void setSuspended(boolean suspended) {
         this.suspended = suspended;
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the nickname of the Player
+     */
     public synchronized String toString() {
         return this.getNickname();
     }
