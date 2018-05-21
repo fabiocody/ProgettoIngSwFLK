@@ -133,17 +133,11 @@ public class Client {
             debug("Received method " + recvMethod.getString());
             switch (recvMethod) {
                 case ADD_PLAYER:
-                    break;
                 case SUBSCRIBE_TO_WR_TIMER:
-                    break;
                 case SUBSCRIBE_TO_GAME_TIMER:
-                    break;
                 case CHOOSE_PATTERN:
-                    break;
                 case NEXT_TURN:
-                    break;
                 case PLACE_DIE:
-                    break;
                 case USE_TOOL_CARD:
                     synchronized (responseBufferLock) {
                         responseBuffer.add(inputJson);
@@ -164,21 +158,13 @@ public class Client {
                     }
                     break;
                 case GAME_TIMER_TICK:
-                    break;
                 case PLAYERS:
-                    break;
                 case FINAL_SCORES:
-                    break;
                 case PUBLIC_OBJECTIVE_CARDS:
-                    break;
                 case TOOL_CARDS:
-                    break;
                 case FAVOR_TOKENS:
-                    break;
                 case WINDOW_PATTERN:
-                    break;
                 case ROUND_TRACK_DICE:
-                    break;
                 case DRAFT_POOL:
                     break;
             }
@@ -210,11 +196,13 @@ public class Client {
         out.println(payload.toString());
         JsonObject input = this.pollResponseBuffer();
         logged = input.get("logged").getAsBoolean();
+        debug("" + logged);
         if (logged) {
             log("Login successful");
             this.uuid = UUID.fromString(input.get("UUID").getAsString());
             debug("INPUT " + input);
             JsonArray players = input.get("players").getAsJsonArray();
+            debug("SIZE: " + players.size());
             if (players.size() < 4)
                 this.subscribeToWRTimer();
             log(players.toString());
