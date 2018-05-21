@@ -9,6 +9,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 
+/**
+ * this is the main client class
+ *
+ * @author Team
+ */
 public class Client {
 
     private Socket socket;
@@ -33,6 +38,13 @@ public class Client {
     // FIELDS CONSTANTS
     private static final String method = "method";
 
+    /**
+     * this is the constructor of the client
+     *
+     * @param ip the IP address of the server you want to connect to
+     * @param port the port of the server to which it is listening
+     * @param debug debug messages will be shown if true
+     */
     private Client(String ip, int port, boolean debug) {
         this.ip = ip;
         this.port = port;
@@ -42,6 +54,11 @@ public class Client {
         this.startClient();
     }
 
+    /**
+     * this method waits for responses from the server
+     *
+     * @return a JsonObject containing the responses
+     */
     private JsonObject pollResponseBuffer() {
         debug("pollResponsesBuffer called");
         synchronized (responseBufferLock) {
@@ -99,19 +116,37 @@ public class Client {
         }
     }
 
+    /**
+     * this method is used to print standard messages
+     *
+     * @param message that we want to print
+     */
     private void log(String message) {
         System.out.println(message);
     }
 
+    /**
+     * this method is used to print messages intended for debugging
+     *
+     * @param message that we want to print out
+     */
     private void debug(String message) {
         if (this.debugActive)
             System.out.println("[DEBUG] " + message);
     }
 
+    /**
+     * this method is used to print error messages
+     *
+     * @param message that we want to print out
+     */
     private void error(String message) {
         System.err.println("[ERROR] " + message);
     }
 
+    /**
+     * this method, which is executed on a separate thread, waits for the client to execute a valid method
+     */
     private void recv() {
         boolean run = true;
         while (run) {
@@ -185,6 +220,12 @@ public class Client {
         }
     }
 
+    /**
+     * this method analyzes the string of an incoming message
+     *
+     * @return the received string
+     * @throws IOException socket error
+     */
     private String readLine() throws IOException {
         String line = in.readLine();
         if (line == null) {
@@ -194,12 +235,24 @@ public class Client {
         return line;
     }
 
+    /**
+     * this method is used to print the stdin
+     *
+     * @param prompt the input string
+     * @return the string that has been read
+     * @throws IOException socket error
+     */
     private String input(String prompt) throws IOException {
         System.out.print(prompt + " ");
         String line = stdin.readLine();
         return line;
     }
 
+    /**
+     * this method handles log in of a player
+     *
+     * @throws IOException socket error
+     */
     private void addPlayer() throws IOException {
         debug("addPlayer called");
         this.nickname = this.input("Nickname >>>");
@@ -223,6 +276,10 @@ public class Client {
         }
     }
 
+    /**
+     * This method is used to subscribe a client to the waiting room timer, so that the client will receive regular
+     * updates
+     */
     private void subscribeToWRTimer() {
         JsonObject payload = new JsonObject();
         payload.addProperty("playerID", this.uuid.toString());
@@ -231,10 +288,20 @@ public class Client {
         debug("INPUT " + this.pollResponseBuffer());
     }
 
+    /**
+     * This method is used to print out an updated list of waiting players
+     *
+     * @param input data from the server
+     */
     private void updateWaitingPlayers(JsonObject input) {
         log(input.get("waitingPlayers").getAsJsonArray().toString());
     }
 
+    /**
+     * This method is used to print out an updated timer
+     *
+     * @param input data from the server
+     */
     private void wrTimerTick(JsonObject input) {
         log(String.valueOf(input.get("tick").getAsInt()));
     }

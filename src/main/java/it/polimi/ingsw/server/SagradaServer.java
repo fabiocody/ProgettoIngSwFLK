@@ -8,7 +8,11 @@ import java.util.concurrent.*;
 import java.util.stream.Stream;
 
 
-// Main server class
+/**
+ * Main server class
+ *
+ * @author Team
+ */
 public class SagradaServer implements Observer {
     // Observes WaitingRoom
 
@@ -20,17 +24,28 @@ public class SagradaServer implements Observer {
     private boolean debugActive;
     private int gameTimeout = 30;
 
+    /**
+     * this method is the constructor that sets the port and adds an observer to the waiting room
+     */
     private SagradaServer() {
         WaitingRoom.getInstance().addObserver(this);
         this.port = 42000;
     }
 
+    /**
+     * @return the only instance of the server
+     */
     public static synchronized SagradaServer getInstance() {
         if (instance == null)
             instance = new SagradaServer();
         return instance;
     }
 
+    /**
+     * @param wrTimeout the duration of the timer for the waiting room
+     * @param gameTimeout the duration of the timer for the game
+     * @param debugActive if present activates the debug messages
+     */
     public void startSocketServer(int wrTimeout, int gameTimeout, boolean debugActive) {
         this.debugActive = debugActive;
         this.gameTimeout = gameTimeout;
@@ -48,12 +63,21 @@ public class SagradaServer implements Observer {
         }
     }
 
+    /**
+     * @return a list of all the active games
+     */
     List<Game> getGames() {
         if (this.games == null)
             this.games = new Vector<>();
         return this.games;
     }
 
+    /**
+     * this method checks if a nickname is already used in an active game
+     *
+     * @param nickname the nickname that we want to check
+     * @return a boolean true if the nickname is already in use or false otherwise
+     */
     public synchronized boolean isNicknameUsed(String nickname) {
         Stream<String> gameStream = this.getGames().stream()
                 .flatMap(g -> g.getPlayers().stream())
@@ -64,15 +88,26 @@ public class SagradaServer implements Observer {
                 .anyMatch(n -> n.equals(nickname));
     }
 
+    /**
+     * @return true if the debug option is active or false otherwise
+     */
     public boolean isDebugActive() {
         return debugActive;
     }
 
+    /**
+     * @return the duration of the timer for the game
+     */
     public int getGameTimeout() {
         return gameTimeout;
     }
 
-    // Observer method, instantiate and start a game when called
+    /**
+     * Observer method, instantiate and start a game when called
+     *
+     * @param o the object that has triggered the update
+     * @param arg the arguments of the update
+     */
     public void update(Observable o, Object arg) {
         if (o instanceof WaitingRoom && arg instanceof Game)
             getGames().add((Game) arg);
