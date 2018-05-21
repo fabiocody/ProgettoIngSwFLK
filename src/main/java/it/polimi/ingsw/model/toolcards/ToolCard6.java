@@ -6,24 +6,41 @@ import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.server.*;
 
 
+/**
+ * @author Fabio Codiglioni
+ */
 public class ToolCard6 extends ToolCard {
 
     private boolean dieRolled;
 
+    /**
+     * This constructor initializes the card with its name and description.
+     *
+     * @author Fabio Codiglioni
+     * @param game the game object this card is part of.
+     */
     public ToolCard6(Game game) {
         super("Pennello per Pasta Salda", "Dopo aver scelto un dado, tira nuovamente quel dado\nSe non puoi piazzarlo, riponilo nella riserva", game);
         this.dieRolled = false;
     }
 
-    /*
-     *  JSON Format
-     *  {
-     *      "player": <nickname: string>,
-     *      "draftPoolIndex": <int>,
-     *      "cellX": <int>,
-     *      "cellY": <int>,
-     *      "putAway": <bool>
-     *  }
+    /**
+     * This method represents the effect of the Tool Card.
+     * It takes in a JSON object formatted as follows: <br>
+     * <code>
+     *     { <br>
+     *         &ensp;"player": &lt;nickname: string&gt;,<br>
+     *         &ensp;"draftPoolIndex": &lt;int&gt;,<br>
+     *         &ensp;"cellX": &lt;int&gt;,<br>
+     *         &ensp;"cellY": &lt;int&gt;,<br>
+     *         &ensp;"putAway": &lt;bool&gt;<br>
+     *     }
+     * </code>
+     *
+     * @author Fabio Codiglioni
+     * @param data the data the effect needs.
+     * @throws InvalidEffectResultException thrown if the effect produces an invalid result.
+     * @throws InvalidEffectArgumentException thrown if <code>data</code> contains any invalid values.
      */
     public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         int draftPoolIndex = data.get("draftPoolIndex").getAsInt();
@@ -36,11 +53,25 @@ public class ToolCard6 extends ToolCard {
         }
     }
 
+    /**
+     * This method handles the rolling of the specified die from the Draft Pool.
+     *
+     * @param draftPoolIndex the index of the die from the Draft Pool you want to roll.
+     */
     private void rollDie(int draftPoolIndex) {
         this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex).roll();
         dieRolled = true;
     }
 
+    /**
+     * This method handles the placement of the previously rolled die.
+     *
+     * @author Fabio Codiglioni
+     * @param data the JSON data passed to the <code>effect</code> method.
+     * @param draftPoolIndex the index of the die from the Draft Pool you want to roll.
+     * @throws InvalidEffectResultException thrown when the placement if invalid.
+     * @throws InvalidEffectArgumentException thrown when a field of data has an invalid value.
+     */
     private void placeDie(JsonObject data, int draftPoolIndex) throws InvalidEffectResultException, InvalidEffectArgumentException {
         if (!data.get("putAway").getAsBoolean()) {
             String nickname = data.get("player").getAsString();

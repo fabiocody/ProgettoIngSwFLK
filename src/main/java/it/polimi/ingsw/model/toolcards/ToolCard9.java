@@ -7,23 +7,39 @@ import it.polimi.ingsw.model.placementconstraints.*;
 import it.polimi.ingsw.server.*;
 
 
+/**
+ * @author Fabio Codiglioni
+ */
 public class ToolCard9 extends ToolCard {
 
+    /**
+     * This constructor initializes the card with its name and description.
+     *
+     * @author Fabio Codiglioni
+     * @param game the game object this card is part of.
+     */
     public ToolCard9(Game game) {
         super("Riga in Sughero", "Dopo aver scelto un dado, piazzalo in una casella che non sia adiacente a un altro dado\nDevi rispettare tutte le restrizioni di piazzamento", game);
     }
 
-    /*
-     *  JSON Format
-     *  {
-     *      "player": <nickname: string>,
-     *      "draftPoolIndex": <int>,
-     *      "cellX": <int>,
-     *      "cellY": <int>
-     *  }
+    /**
+     * This method represents the effect of the Tool Card.
+     * It takes in a JSON object formatted as follows: <br>
+     * <code>
+     *     { <br>
+     *         &ensp;"player": &lt;nickname: string&gt;,<br>
+     *         &ensp;"draftPoolIndex": &lt;int&gt;,<br>
+     *         &ensp;"cellX": &lt;int&gt;,<br>
+     *         &ensp;"cellY": &lt;int&gt;<br>
+     *     }
+     * </code>
+     *
+     * @author Fabio Codiglioni
+     * @param data the data the effect needs.
+     * @throws InvalidEffectResultException thrown if the effect produces an invalid result.
+     * @throws InvalidEffectArgumentException thrown if <code>data</code> contains any invalid values.
      */
     public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
-        // TODO Check index
         String nickname = data.get("player").getAsString();
         Player player = this.getGame().getPlayerForNickname(nickname);
         int draftPoolIndex = data.get("draftPoolIndex").getAsInt();

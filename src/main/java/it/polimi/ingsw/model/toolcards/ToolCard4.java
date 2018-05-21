@@ -5,25 +5,42 @@ import it.polimi.ingsw.model.placementconstraints.*;
 import it.polimi.ingsw.server.*;
 
 
+/**
+ * @author Fabio Codiglioni
+ */
 public class ToolCard4 extends ToolCard {
 
     private boolean firstMoveDone;
     private Integer firstMoveIndex;
 
+    /**
+     * This constructor initializes the card with its name and description.
+     *
+     * @author Fabio Codiglioni
+     * @param game the game object this card is part of.
+     */
     public ToolCard4(Game game) {
         super("Lathekin", "Muovi esattamente due dadi, rispettando tutte le restrizioni di piazzamento", game);
         this.firstMoveDone = false;
     }
 
-    /*
-     *  JSON Format
-     *  {
-     *      "player": <nickname: string>,
-     *      "fromCellX": <int>,
-     *      "fromCellY": <int>,
-     *      "toCellX": <int>,
-     *      "toCellY": <int>
-     *  }
+    /**
+     * This method represents the effect of the Tool Card.
+     * It takes in a JSON object formatted as follows: <br>
+     * <code>
+     *     { <br>
+     *         &ensp;"player": &lt;nickname: string&gt;,<br>
+     *         &ensp;"fromCellX": &lt;int&gt;,<br>
+     *         &ensp;"fromCellY": &lt;int&gt;,<br>
+     *         &ensp;"toCellX": &lt;int&gt;,<br>
+     *         &ensp;"toCellY": &lt;int&gt;<br>
+     *     }
+     * </code>
+     *
+     * @author Fabio Codiglioni
+     * @param data the data the effect needs.
+     * @throws InvalidEffectResultException thrown if the effect produces an invalid result.
+     * @throws InvalidEffectArgumentException thrown if <code>data</code> contains any invalid values.
      */
     public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         String nickname = data.get("player").getAsString();
@@ -48,11 +65,27 @@ public class ToolCard4 extends ToolCard {
         }
     }
 
+    /**
+     * This methods executes the first of the two movements.
+     *
+     * @param player the player using the card.
+     * @param fromIndex the starting cell of the movement.
+     * @param toIndex the end cell of the movement.
+     * @throws InvalidEffectResultException thrown when the placement is invalid.
+     */
     private void firstMove(Player player, int fromIndex, int toIndex) throws InvalidEffectResultException {
         this.moveDie(player, fromIndex, toIndex, PlacementConstraint.standardConstraint());
         this.firstMoveIndex = toIndex;
     }
 
+    /**
+     * This method executes the second of the two movements.
+     *
+     * @param player the player using the card.
+     * @param fromIndex the stating cell of the movement.
+     * @param toIndex the end cell of the movement.
+     * @throws InvalidEffectResultException thrown when the placement is invalid.
+     */
     private void secondMove(Player player, int fromIndex, int toIndex) throws InvalidEffectResultException {
         if (fromIndex == this.firstMoveIndex) throw new InvalidEffectResultException("Cannot move the same die twice");
         this.moveDie(player, fromIndex, toIndex, PlacementConstraint.standardConstraint());

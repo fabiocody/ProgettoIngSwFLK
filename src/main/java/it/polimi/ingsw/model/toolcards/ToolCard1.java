@@ -5,18 +5,35 @@ import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.server.Game;
 
 
+/**
+ * @author Fabio Codiglioni
+ */
 public class ToolCard1 extends ToolCard {
 
+    /**
+     * This constructor initializes the card with its name and description.
+     *
+     * @author Fabio Codiglioni
+     * @param game the game object this card is part of.
+     */
     public ToolCard1(Game game) {
         super("Pinza Sgrossatrice", "Dopo aver scelto un dado, aumenta o diminuisci il valore del dado scelto di 1\nNon puoi cambiare un 6 in 1 o un 1 in 6", game);
     }
 
-    /*
-     *  JSON Format
-     *  {
-     *      "draftPoolIndex": <int>,
-     *      "delta": <int>
-     *  }
+    /**
+     * This method represents the effect of the Tool Card.
+     * It takes in a JSON object formatted as follows: <br>
+     * <code>
+     *     { <br>
+     *     &ensp;"draftPoolIndex": &lt;int&gt;, <br>
+     *     &ensp;"delta": &lt;int&gt; <br>
+     *     }
+     * </code>
+     *
+     * @author Fabio Codiglioni
+     * @param data the data the effect needs.
+     * @throws InvalidEffectResultException thrown if the effect produces an invalid result.
+     * @throws InvalidEffectArgumentException thrown if <code>data</code> contains any invalid values.
      */
     public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         int draftPoolIndex = data.get("draftPoolIndex").getAsInt();

@@ -7,26 +7,42 @@ import it.polimi.ingsw.server.*;
 import it.polimi.ingsw.util.Colors;
 
 
+/**
+ * @author Fabio Codiglioni
+ */
 public class ToolCard12 extends ToolCard {
 
     private Colors firstMoveColor;
     private Integer firstMoveIndex;
 
-
+    /**
+     * This constructor initializes the card with its name and description.
+     *
+     * @author Fabio Codiglioni
+     * @param game the game object this card is part of.
+     */
     public ToolCard12(Game game) {
         super("Taglierina Manuale", "Muovi fino a due dadi dello stesso colore di un solo dado sul Tracciato dei Round\nDevi rispettare tutte le restrizioni di piazzamento", game);
     }
 
-    /*
-     *  JSON Format
-     *  {
-     *      "player": <nickname: string>,
-     *      "fromCellX": <int>,
-     *      "fromCellY": <int>,
-     *      "toCellX": <int>,
-     *      "toCellY": <int>,
-     *      "stop": <bool>
-     *  }
+    /**
+     * This method represents the effect of the Tool Card.
+     * It takes in a JSON object formatted as follows: <br>
+     * <code>
+     *     { <br>
+     *         &ensp;"player": &lt;nickname: string&gt;,<br>
+     *         &ensp;"fromCellX": &lt;int&gt;,<br>
+     *         &ensp;"fromCellY": &lt;int&gt;,<br>
+     *         &ensp;"toCellX": &lt;int&gt;,<br>
+     *         &ensp;"toCellY": &lt;int&gt;,<br>
+     *         &ensp;"stop": &lt;bool&gt;<br>
+     *     }
+     * </code>
+     *
+     * @author Fabio Codiglioni
+     * @param data the data the effect needs.
+     * @throws InvalidEffectResultException thrown if the effect produces an invalid result.
+     * @throws InvalidEffectArgumentException thrown if <code>data</code> contains any invalid values.
      */
     public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         if (this.firstMoveColor == null && this.firstMoveIndex == null) {
@@ -41,6 +57,13 @@ public class ToolCard12 extends ToolCard {
         }
     }
 
+    /**
+     * This method handles the first of the two movements.
+     *
+     * @param data the JSON object passed to <code>effect</code>.
+     * @throws InvalidEffectResultException thrown when the placement is invalid.
+     * @throws InvalidEffectArgumentException thrown when <code>data</code> contains a field with an invalid value.
+     */
     private void firstMove(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         String nickname = data.get("player").getAsString();
         Player player = this.getGame().getPlayerForNickname(nickname);
@@ -66,6 +89,13 @@ public class ToolCard12 extends ToolCard {
         this.firstMoveIndex = toIndex;
     }
 
+    /**
+     * This method handles the second of the two movements.
+     *
+     * @param data the JSON object passed to <code>effect</code>.
+     * @throws InvalidEffectResultException thrown when the placement is invalid.
+     * @throws InvalidEffectArgumentException thrown when <code>data</code> contains a field with an invalid value.
+     */
     private void secondMove(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         String nickname = data.get("player").getAsString();
         Player player = this.getGame().getPlayerForNickname(nickname);

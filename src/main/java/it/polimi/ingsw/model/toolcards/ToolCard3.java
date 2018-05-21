@@ -5,21 +5,38 @@ import it.polimi.ingsw.model.placementconstraints.*;
 import it.polimi.ingsw.server.*;
 
 
+/**
+ * @author Fabio Codiglioni
+ */
 public class ToolCard3 extends ToolCard {
 
+    /**
+     * This constructor initializes the card with its name and description.
+     *
+     * @author Fabio Codiglioni
+     * @param game the game object this card is part of.
+     */
     public ToolCard3(Game game) {
         super("Alesatore per lamina di rame", "Muovi un qualsiasi dado nella tua vetrata ignorando le restrizioni di valore\nDevi rispettare tutte le altre restrizioni di piazzamento", game);
     }
 
-    /*
-     *  JSON Format
-     *  {
-     *      "player": <nickname: string>,
-     *      "fromCellX": <int>,
-     *      "fromCellY": <int>,
-     *      "toCellX": <int>,
-     *      "toCellY": <int>
-     *  }
+    /**
+     * This method represents the effect of the Tool Card.
+     * It takes in a JSON object formatted as follows: <br>
+     * <code>
+     *     { <br>
+     *         &ensp;"player": &lt;nickname: string&gt;,<br>
+     *         &ensp;"fromCellX": &lt;int&gt;,<br>
+     *         &ensp;"fromCellY": &lt;int&gt;,<br>
+     *         &ensp;"toCellX": &lt;int&gt;,<br>
+     *         &ensp;"toCellY": &lt;int&gt;<br>
+     *     }
+     * </code>
+     *
+     * @author Fabio Codiglioni
+     * @param data the data the effect needs.
+     * @throws InvalidEffectResultException thrown if the effect produces an invalid result.
+     * @throws InvalidEffectArgumentException thrown if <code>data</code> contains any invalid values.
      */
     public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         String nickname = data.get("player").getAsString();
