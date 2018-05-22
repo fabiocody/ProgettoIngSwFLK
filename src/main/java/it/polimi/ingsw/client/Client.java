@@ -29,6 +29,7 @@ public class Client {
     private final Object responseBufferLock = new Object();
     private final Object gameStartedLock = new Object();
     private Thread recvThread;
+    private Timer probeTimer;
 
     // FLAGS
     private boolean debugActive;
@@ -51,6 +52,7 @@ public class Client {
         this.debugActive = debug;
         this.jsonParser = new JsonParser();
         this.responseBuffer = new ConcurrentLinkedQueue<>();
+        this.probeTimer = new Timer(true);
         this.startClient();
     }
 
@@ -238,8 +240,15 @@ public class Client {
     }
 
     private void probe(JsonObject inputJson) {
+        this.probeTimer.cancel();
         inputJson.addProperty("playerID", this.uuid.toString());
         this.out.println(inputJson.toString());
+        this.probeTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                error("Timer expired");
+            }
+        }, 6000);
     }
 
     /**

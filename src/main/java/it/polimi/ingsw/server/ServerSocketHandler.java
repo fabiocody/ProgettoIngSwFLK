@@ -23,6 +23,7 @@ public class ServerSocketHandler implements Runnable, Observer {
     private JsonParser jsonParser;
     private Game game;
     private boolean run = true;
+    private boolean probed = true;
 
     // FIELDS CONSTANTS
     private static final String method = "method";
@@ -54,21 +55,31 @@ public class ServerSocketHandler implements Runnable, Observer {
     }
 
     private void probe() {
-        JsonObject payload = new JsonObject();
-        payload.addProperty(method, "probe");
-        out.println(payload.toString());
-        try {
-            JsonObject input = this.jsonParser.parse(this.readLine()).getAsJsonObject();
-            if (!input.get(method).equals("probe"))
-                throw new IOException();
-        } catch (IOException e) {
-            String address = clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort();
-            log("Disconnected " + address + " (nickname: " + nickname + ")");
-            waitingRoomEndPoint.removePlayer(nickname);
-            //game.getTurnManager().suspendPlayer(nickname);
-            run = false;
-            Thread.currentThread().interrupt();
+        while (42 == 42) {
+            try {
+                Thread.sleep(5 * 1000);
+            } catch (InterruptedException e) {
+                break;
+            }
+            if (!probed) {
+                error("Probe error");
+                notifyDisconnectedUser();
+                Thread.currentThread().interrupt();
+            }
+            JsonObject payload = new JsonObject();
+            payload.addProperty(method, "probe");
+            out.println(payload.toString());
+            probed = false;
         }
+    }
+
+    private void notifyDisconnectedUser() {
+        String address = clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort();
+        log("Disconnected " + address + " (nickname: " + nickname + ")");
+        waitingRoomEndPoint.removePlayer(nickname);
+        //game.getTurnManager().suspendPlayer(nickname);
+        run = false;
+        Thread.currentThread().interrupt();
     }
 
     // REQUESTS HANDLER
@@ -87,6 +98,7 @@ public class ServerSocketHandler implements Runnable, Observer {
                     debug("JSON parsing failed");
                     continue;
                 }
+                debug("Received: " + input.toString());
                 // UUID validation
                 if (!input.get(method).getAsString().equals(Methods.ADD_PLAYER.getString()) &&
                         !input.get(playerID).getAsString().equals(this.uuid.toString())) {
@@ -123,24 +135,22 @@ public class ServerSocketHandler implements Runnable, Observer {
                     case USE_TOOL_CARD:
                         // TODO
                         break;
+                    case PROBE:
+                        probed = true;
+                        break;
                     default:
                         error("METHOD NOT RECOGNIZED");
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            error("run");
         }
     }
 
     private String readLine() throws IOException {
         String line = in.readLine();
         if (line == null) {
-            String address = clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort();
-            log("Disconnected " + address + " (nickname: " + nickname + ")");
-            waitingRoomEndPoint.removePlayer(nickname);
-            //game.getTurnManager().suspendPlayer(nickname);
-            run = false;
-            Thread.currentThread().interrupt();
+            this.notifyDisconnectedUser();
         }
         return line;
     }
