@@ -52,7 +52,6 @@ public class Client {
         this.debugActive = debug;
         this.jsonParser = new JsonParser();
         this.responseBuffer = new ConcurrentLinkedQueue<>();
-        this.startClient();
     }
 
     /**
@@ -76,7 +75,7 @@ public class Client {
         }
     }
 
-    private void startClient() {
+    boolean startClient() {
         try {
             this.socket = new Socket(ip, port);
             //this.socket.setKeepAlive(true);
@@ -104,6 +103,7 @@ public class Client {
 
         } catch (IOException e) {
             error("Connection failed");
+            return false;
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
@@ -115,6 +115,7 @@ public class Client {
                 error("Closing");
             }
         }
+        return true;
     }
 
     /**
@@ -220,7 +221,6 @@ public class Client {
         String line = in.readLine();
         if (line == null) {
             error("DISCONNECTED");
-            System.exit(1); // TODO Handle
         }
         return line;
     }
@@ -325,7 +325,9 @@ public class Client {
                 System.out.print("IP >>> ");
                 ip = stdin.nextLine();
             }
-            new Client(ip, 42000, options.has("debug"));
+            Client client = new Client(ip, 42000, options.has("debug"));
+            while (!client.startClient())
+                client = new Client(ip, 42000, options.has("debug"));
         } catch (OptionException e) {
             System.out.println("usage: sagradaclient [--debug] [--ip IP]");
         }
