@@ -28,7 +28,8 @@ public enum Methods {
     ROUND_TRACK_DICE("roundTrackDice"),
     DRAFT_POOL("draftPool"),
     PLACE_DIE("placeDie"),
-    USE_TOOL_CARD("useToolCard");
+    USE_TOOL_CARD("useToolCard"),
+    PROBE("probe");
 
 
     private String string;

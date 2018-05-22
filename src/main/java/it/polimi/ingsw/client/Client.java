@@ -78,7 +78,7 @@ public class Client {
     private void startClient() {
         try {
             this.socket = new Socket(ip, port);
-            this.socket.setKeepAlive(true);
+            //this.socket.setKeepAlive(true);
             log("Connection established");
 
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -155,7 +155,7 @@ public class Client {
                 inputJson = this.jsonParser.parse(this.readLine()).getAsJsonObject();
                 debug(inputJson.toString());
             } catch (IOException e) {
-                e.printStackTrace();
+                error("Connection aborted");
                 break;
             }
             Methods recvMethod;
@@ -202,6 +202,9 @@ public class Client {
                 case ROUND_TRACK_DICE:
                 case DRAFT_POOL:
                     break;
+                case PROBE:
+                    this.probe(inputJson);
+                    break;
             }
         }
     }
@@ -232,6 +235,10 @@ public class Client {
         System.out.print(prompt + " ");
         String line = stdin.readLine();
         return line;
+    }
+
+    private void probe(JsonObject inputJson) {
+        this.out.println(inputJson.toString());
     }
 
     /**

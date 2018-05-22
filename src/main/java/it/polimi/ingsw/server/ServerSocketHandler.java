@@ -30,11 +30,11 @@ public class ServerSocketHandler implements Runnable, Observer {
 
     public ServerSocketHandler(Socket socket) {
         this.clientSocket = socket;
-        try {
+        /*try {
             this.clientSocket.setKeepAlive(true);
         } catch (SocketException e) {
             e.printStackTrace();
-        }
+        }*/
         this.jsonParser = new JsonParser();
         this.waitingRoomEndPoint = new WaitingRoomEndPoint();
         waitingRoomEndPoint.subscribeToWaitingRoom(this);
@@ -53,6 +53,24 @@ public class ServerSocketHandler implements Runnable, Observer {
         System.err.println("[ERROR] " + message);
     }
 
+    private void probe() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty(method, "probe");
+        out.println(payload.toString());
+        try {
+            JsonObject input = this.jsonParser.parse(this.readLine()).getAsJsonObject();
+            if (!input.get(method).equals("probe"))
+                throw new IOException();
+        } catch (IOException e) {
+            String address = clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort();
+            log("Disconnected " + address + " (nickname: " + nickname + ")");
+            waitingRoomEndPoint.removePlayer(nickname);
+            //game.getTurnManager().suspendPlayer(nickname);
+            run = false;
+            Thread.currentThread().interrupt();
+        }
+    }
+
     // REQUESTS HANDLER
 
     @Override
@@ -61,6 +79,7 @@ public class ServerSocketHandler implements Runnable, Observer {
              BufferedReader in = this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              PrintWriter out = this.out = new PrintWriter(socket.getOutputStream(), true)) {
             log("Connected to " + socket.getInetAddress() + ":" + socket.getPort() + " via socket");
+            new Thread(this::probe).start();
             while (this.run) {
                 JsonObject input;
                 try {
