@@ -238,6 +238,7 @@ public class Client {
     }
 
     private void probe(JsonObject inputJson) {
+        inputJson.addProperty("playerID", this.uuid.toString());
         this.out.println(inputJson.toString());
     }
 

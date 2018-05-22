@@ -79,7 +79,6 @@ public class ServerSocketHandler implements Runnable, Observer {
              BufferedReader in = this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              PrintWriter out = this.out = new PrintWriter(socket.getOutputStream(), true)) {
             log("Connected to " + socket.getInetAddress() + ":" + socket.getPort() + " via socket");
-            new Thread(this::probe).start();
             while (this.run) {
                 JsonObject input;
                 try {
@@ -170,6 +169,7 @@ public class ServerSocketHandler implements Runnable, Observer {
             payload.add("players", waitingPlayers);
             out.println(payload.toString());
             debug("PAYLOAD " + payload.toString());
+            new Thread(this::probe).start();
         } catch (LoginFailedException e) {
             log("Login failed for nickname " + tempNickname);
             JsonObject payload = new JsonObject();
