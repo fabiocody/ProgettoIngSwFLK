@@ -2,6 +2,8 @@
 
 <!-- TOC depthFrom:2 depthTo:3 withLinks:1 updateOnSave:1 orderedList:0 -->
 
+- [Generic Messages](#generic-messages)
+	- [Probe](#probe)
 - [Waiting Room](#waiting-room)
 	- [Add new player](#add-new-player)
 	- [Update waiting players list](#update-waiting-players-list)
@@ -26,6 +28,27 @@
 	- [Tool card usage](#tool-card-usage)
 
 <!-- /TOC -->
+
+## Generic Messages
+
+### Probe
+
+#### Client -> Server
+
+```
+{
+    "playerID": <uuid: string>,
+    "method": "probe"
+}
+```
+
+#### Server -> Client
+
+```
+{
+    "method": "probe"
+}
+```
 
 ## Waiting Room
 
@@ -100,10 +123,6 @@
     "tick": <int>
 }
 ```
-
-### Remove Player
-
-#### Client -> Server
 
 ## Game
 
