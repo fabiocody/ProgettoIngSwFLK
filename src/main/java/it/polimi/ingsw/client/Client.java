@@ -322,6 +322,7 @@ public class Client {
         OptionParser parser = new OptionParser();
         parser.accepts("debug");
         parser.accepts("ip").withRequiredArg();
+        parser.accepts("port").withRequiredArg().ofType(Integer.class);
         try {
             OptionSet options = parser.parse(args);
             String ip;
@@ -332,10 +333,16 @@ public class Client {
                 System.out.print("IP >>> ");
                 ip = stdin.nextLine();
             }
-            Client client = new Client(ip, 42000, options.has("debug"));
+            int port;
+            if (options.has("port")) {
+                port = (int) options.valueOf("port");
+            } else {
+                port = 42000;
+            }
+            Client client = new Client(ip, port, options.has("debug"));
             client.startClient();
         } catch (OptionException e) {
-            System.out.println("usage: sagradaclient [--debug] [--ip IP]");
+            System.out.println("usage: sagradaclient [--debug] [--ip IP] [--port PORT]");
         }
     }
 }

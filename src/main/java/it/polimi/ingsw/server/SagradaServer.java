@@ -29,7 +29,6 @@ public class SagradaServer implements Observer {
      */
     private SagradaServer() {
         WaitingRoom.getInstance().addObserver(this);
-        this.port = 42000;
     }
 
     /**
@@ -46,7 +45,8 @@ public class SagradaServer implements Observer {
      * @param gameTimeout the duration of the timer for the game
      * @param debugActive if present activates the debug messages
      */
-    public void startSocketServer(int wrTimeout, int gameTimeout, boolean debugActive) {
+    public void startSocketServer(int port, int wrTimeout, int gameTimeout, boolean debugActive) {
+        this.port = port;
         this.debugActive = debugActive;
         this.gameTimeout = gameTimeout;
         WaitingRoom.getInstance().setTimeout(wrTimeout);
@@ -117,14 +117,21 @@ public class SagradaServer implements Observer {
         OptionParser parser = new OptionParser();
         parser.accepts("debug");
         parser.accepts("wr-timeout").withRequiredArg().required().ofType(Integer.class);
-        parser.accepts("game-timeout").withRequiredArg().required().ofType((Integer.class));
+        parser.accepts("game-timeout").withRequiredArg().required().ofType(Integer.class);
+        parser.accepts("port").withRequiredArg().ofType(Integer.class);
         try {
             OptionSet options = parser.parse(args);
             int wrTimerout = (Integer) options.valueOf("wr-timeout");
             int gameTimeout = (Integer) options.valueOf("game-timeout");
-            SagradaServer.getInstance().startSocketServer(wrTimerout, gameTimeout, options.has("debug"));
+            int port;
+            if (options.has("port")) {
+                port = (int) options.valueOf("port");
+            } else {
+                port = 42000;
+            }
+            SagradaServer.getInstance().startSocketServer(port, wrTimerout, gameTimeout, options.has("debug"));
         } catch (OptionException e) {
-            System.out.println("usage: sagradaserver [--debug] --wr-timer X --game-timeout Y");
+            System.out.println("usage: sagradaserver [--debug] [--port PORT] --wr-timer Y --game-timeout Z");
         }
     }
 
