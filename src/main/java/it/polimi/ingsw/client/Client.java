@@ -75,7 +75,7 @@ public class Client {
         }
     }
 
-    boolean startClient() {
+    void startClient() {
         try {
             this.socket = new Socket(ip, port);
             //this.socket.setKeepAlive(true);
@@ -103,7 +103,6 @@ public class Client {
 
         } catch (IOException e) {
             error("Connection failed");
-            return false;
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
@@ -115,7 +114,6 @@ public class Client {
                 error("Closing");
             }
         }
-        return true;
     }
 
     /**
@@ -238,17 +236,25 @@ public class Client {
         return line;
     }
 
-    private void probe(JsonObject inputJson) {
-        if (this.probeTimer != null) this.probeTimer.cancel();
-        inputJson.addProperty("playerID", this.uuid.toString());
-        this.out.println(inputJson.toString());
+    private void rescheduleProbeTimer() {
+        if (this.probeTimer != null) {
+            this.probeTimer.cancel();
+            this.probeTimer.purge();
+        }
         this.probeTimer = new Timer(true);
         this.probeTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                error("Timer expired");
+                error("Connection lost");
+                System.exit(42);
             }
         }, 6000);
+    }
+
+    private void probe(JsonObject inputJson) {
+        inputJson.addProperty("playerID", this.uuid.toString());
+        this.out.println(inputJson.toString());
+        this.rescheduleProbeTimer();
     }
 
     /**
@@ -276,6 +282,7 @@ public class Client {
             if (players.size() < 4)
                 this.subscribeToWRTimer();
             log(players.toString());
+            this.rescheduleProbeTimer();
         } else {
             log("Login failed");
         }
@@ -326,8 +333,7 @@ public class Client {
                 ip = stdin.nextLine();
             }
             Client client = new Client(ip, 42000, options.has("debug"));
-            while (!client.startClient())
-                client = new Client(ip, 42000, options.has("debug"));
+            client.startClient();
         } catch (OptionException e) {
             System.out.println("usage: sagradaclient [--debug] [--ip IP]");
         }
