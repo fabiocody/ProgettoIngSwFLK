@@ -5,6 +5,11 @@ import java.util.*;
 import java.util.stream.*;
 
 
+/**
+ * This class handles the turns and the related timers.
+ *
+ * @author Fabio Codiglioni
+ */
 public class TurnManager extends Observable {
     // Is observed by RoundTrack
 
@@ -14,6 +19,9 @@ public class TurnManager extends Observable {
     private CountdownTimer timer;
     private int timeout = 30;
 
+    /**
+     * @param players the list of players taking part in the Game.
+     */
     public TurnManager(List<Player> players) {
         this.players = players;
         this.timeout = SagradaServer.getInstance().getGameTimeout();
@@ -26,22 +34,44 @@ public class TurnManager extends Observable {
         // TODO Set timer for first turn of first round
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the number of players taking part in the Game.
+     */
     private int getNumberOfPlayers() {
         return this.players.size();
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the current index in the sequence of players.
+     */
     private int getCurrentPlayerIndex() {
         return this.playersOrder.get(index);
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the current Player.
+     */
     public Player getCurrentPlayer() {
         return this.players.get(this.getCurrentPlayerIndex());
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the timer instance.
+     */
     public CountdownTimer getTimer() {
         return this.timer;
     }
 
+    /**
+     * This method set the specified Player as active, and all the other players as inactive.
+     *
+     * @author Fabio Codiglioni
+     * @param player the player to be set active.
+     */
     private void setActivePlayer(Player player) {
         for (Player p : this.players) {
             p.setActive(p.equals(player));
@@ -50,6 +80,10 @@ public class TurnManager extends Observable {
         }
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @param nickname the nickname of the Player that has to be suspended.
+     */
     void suspendPlayer(String nickname) {
         Optional<Player> player = this.players.stream()
                 .filter(p -> p.getNickname().equals(nickname))
@@ -57,6 +91,10 @@ public class TurnManager extends Observable {
         player.ifPresent(p -> p.setSuspended(true));
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @param nickname the nickname of the Player that has to be set as not suspended.
+     */
     void unsuspendPlayer(String nickname) {
         Optional<Player> player = this.players.stream()
                 .filter(p -> p.getNickname().equals(nickname))
@@ -64,14 +102,26 @@ public class TurnManager extends Observable {
         player.ifPresent(p -> p.setSuspended(false));
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return true if the round is still in its first half.
+     */
     public boolean isFirstHalfOfRound() {
         return this.index < this.playersOrder.size() / 2;
     }
 
+    /**
+     * @return true if the round is in its second half.
+     */
     public boolean isSecondHalfOfRound() {
         return this.index >= this.playersOrder.size() / 2;
     }
 
+    /**
+     * This method has to be called by each Player when the end their turn.
+     *
+     * @author Fabio Codiglioni
+     */
     public void nextTurn() {
         this.timer.cancel();
         this.index++;

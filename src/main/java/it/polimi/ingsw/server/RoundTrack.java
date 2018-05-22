@@ -8,7 +8,11 @@ import java.util.Observer;
 import java.util.Vector;
 
 
-// This class represent the Round Track
+/**
+ * This class represent the Round Track.
+ *
+ * @author Fabio Codiglioni
+ */
 public class RoundTrack extends Observable implements Observer {
     // Observes TurnManager
     // Is observed by Game
@@ -23,11 +27,20 @@ public class RoundTrack extends Observable implements Observer {
     private final Object currentRoundLock = new Object();
     private final Object gameOverLock = new Object();
 
+    /**
+     * @author Fabio Codiglioni
+     */
     public RoundTrack() {
         this.currentRound = 1;
         this.gameOver = false;
     }
 
+    /**
+     * This method returns the list of dice placed on the Round Track, and also instantiate the underlying data structure.
+     *
+     * @author Fabio Codiglioni
+     * @return the list of dice placed on the Round Track.
+     */
     public List<Die> getDice() {
         synchronized (diceLock) {
             if (this.dice == null)
@@ -36,13 +49,21 @@ public class RoundTrack extends Observable implements Observer {
         }
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return the number of the current round.
+     */
     public synchronized int getCurrentRound() {
         synchronized (currentRoundLock) {
             return currentRound;
         }
     }
 
-    // Increment round. Throw GameOverException when the 10th round is over.
+    /**
+     * This method increments the round number, and notify the Game about it.
+     *
+     * @author Fabio Codiglioni
+     */
     public void incrementRound() {
         synchronized (currentRoundLock) {
             synchronized (gameOverLock) {
@@ -60,13 +81,22 @@ public class RoundTrack extends Observable implements Observer {
         }
     }
 
+    /**
+     * @author Fabio Codiglioni
+     * @return true if the game is over.
+     */
     public synchronized boolean isGameOver() {
         synchronized (gameOverLock) {
             return gameOver;
         }
     }
 
-    // Place what remains of the Draft Pool into the dice list
+    /**
+     * This method transfers all the dice from the Draft Pool to the Round Track. The Draft Pool is left empty when this method returns.
+     *
+     * @author Fabio Codiglioni
+     * @param fromDraftPool the Draft Pool from which transferring the dice.
+     */
     public void putDice(List<Die> fromDraftPool) {
         synchronized (diceLock) {
             this.getDice().addAll(fromDraftPool);
@@ -74,6 +104,12 @@ public class RoundTrack extends Observable implements Observer {
         }
     }
 
+    /**
+     * This method receives the updates from <code>TurnManager</code>.
+     *
+     * @param o the observable which sent the notification.
+     * @param arg the argument of the notification.
+     */
     public void update(Observable o, Object arg) {
         if (o instanceof TurnManager) this.incrementRound();
     }
