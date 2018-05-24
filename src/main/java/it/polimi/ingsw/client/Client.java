@@ -1,330 +1,24 @@
 package it.polimi.ingsw.client;
 
-import com.google.gson.*;
-import it.polimi.ingsw.server.*;
 import joptsimple.*;
-import java.io.*;
-import java.net.Socket;
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Scanner;
 
 
-/**
- * this is the main client class
- *
- * @author Team
- */
 public class Client {
 
-    private Socket socket;
-    private BufferedReader in;
-    private PrintWriter out;
-    private BufferedReader stdin;
-    private String ip;
-    private int port;
-    private String nickname;
-    private UUID uuid;
-    private JsonParser jsonParser;
-    private Queue<JsonObject> responseBuffer;
-    private final Object responseBufferLock = new Object();
-    private final Object gameStartedLock = new Object();
-    private Thread recvThread;
-    private Timer probeTimer;
-
-    // FLAGS
-    private boolean debugActive;
-    private boolean logged = false;
-    private boolean gameStarted = false;
-
-    // FIELDS CONSTANTS
-    private static final String method = "method";
-
-    /**
-     * this is the constructor of the client
-     *
-     * @param ip the IP address of the server you want to connect to
-     * @param port the port of the server to which it is listening
-     * @param debug debug messages will be shown if true
-     */
-    private Client(String ip, int port, boolean debug) {
-        this.ip = ip;
-        this.port = port;
-        this.debugActive = debug;
-        this.jsonParser = new JsonParser();
-        this.responseBuffer = new ConcurrentLinkedQueue<>();
-    }
-
-    /**
-     * this method waits for responses from the server
-     *
-     * @return a JsonObject containing the responses
-     */
-    private JsonObject pollResponseBuffer() {
-        debug("pollResponsesBuffer called");
-        synchronized (responseBufferLock) {
-            while (responseBuffer.peek() == null) {
-                try {
-                    debug("Waiting on pollResponseBuffer");
-                    responseBufferLock.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            debug("Returning from pollResponsesBuffer");
-            return responseBuffer.poll();
-        }
-    }
-
-    void startClient() {
-        try {
-            this.socket = new Socket(ip, port);
-            //this.socket.setKeepAlive(true);
-            log("Connection established");
-
-            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.out = new PrintWriter(socket.getOutputStream(), true);
-            this.stdin = new BufferedReader(new InputStreamReader(System.in));
-
-            recvThread = new Thread(this::recv);
-            recvThread.setDaemon(true);
-            recvThread.start();
-
-            // Add Player
-            while (!logged) this.addPlayer();
-
-            // Wait for game to start (get timer tick)
-            synchronized (this.gameStartedLock) {
-                while (!gameStarted) gameStartedLock.wait();
-            }
-
-            log("GAME STARTED");
-
-            recvThread.interrupt();
-
-        } catch (IOException e) {
-            error("Connection failed");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (this.in != null) this.in.close();
-                if (this.out != null) this.out.close();
-                if (this.socket != null) this.socket.close();
-            } catch (IOException e) {
-                error("Closing");
-            }
-        }
-    }
-
-    /**
-     * this method is used to print standard messages
-     *
-     * @param message that we want to print
-     */
-    private void log(String message) {
-        System.out.println(message);
-    }
-
-    /**
-     * this method is used to print messages intended for debugging
-     *
-     * @param message that we want to print out
-     */
-    private void debug(String message) {
-        if (this.debugActive)
-            System.out.println("[DEBUG] " + message);
-    }
-
-    /**
-     * this method is used to print error messages
-     *
-     * @param message that we want to print out
-     */
-    private void error(String message) {
-        System.err.println("[ERROR] " + message);
-    }
-
-    /**
-     * this method, which is executed on a separate thread, waits for the client to execute a valid method
-     */
-    private void recv() {
-        boolean run = true;
-        while (run) {
-            JsonObject inputJson;
-            try {
-                inputJson = this.jsonParser.parse(this.readLine()).getAsJsonObject();
-                debug(inputJson.toString());
-            } catch (IOException e) {
-                error("Connection aborted");
-                break;
-            }
-            Methods recvMethod;
-            try {
-                recvMethod = Methods.getAsMethods(inputJson.get(method).getAsString());
-            } catch (NoSuchElementException e) {
-                error("METHOD NOT RECOGNIZED");
-                continue;
-            }
-            debug("Received method " + recvMethod.getString());
-            switch (recvMethod) {
-                case ADD_PLAYER:
-                case SUBSCRIBE_TO_WR_TIMER:
-                case SUBSCRIBE_TO_GAME_TIMER:
-                case CHOOSE_PATTERN:
-                case NEXT_TURN:
-                case PLACE_DIE:
-                case USE_TOOL_CARD:
-                    synchronized (responseBufferLock) {
-                        responseBuffer.add(inputJson);
-                        responseBufferLock.notifyAll();
-                        debug("Added " + inputJson + " to responsesBuffer");
-                    }
-                    break;
-                case UPDATE_WAITING_PLAYERS:
-                    this.updateWaitingPlayers(inputJson);
-                    break;
-                case WR_TIMER_TICK:
-                    this.wrTimerTick(inputJson);
-                    break;
-                case GAME_STARTED:
-                    synchronized (gameStartedLock) {
-                        gameStarted = true;
-                        gameStartedLock.notifyAll();
-                    }
-                    break;
-                case GAME_TIMER_TICK:
-                case PLAYERS:
-                case FINAL_SCORES:
-                case PUBLIC_OBJECTIVE_CARDS:
-                case TOOL_CARDS:
-                case FAVOR_TOKENS:
-                case WINDOW_PATTERN:
-                case ROUND_TRACK_DICE:
-                case DRAFT_POOL:
-                    break;
-                case PROBE:
-                    this.probe(inputJson);
-                    break;
-            }
-        }
-    }
-
-    /**
-     * this method analyzes the string of an incoming message
-     *
-     * @return the received string
-     * @throws IOException socket error
-     */
-    private String readLine() throws IOException {
-        String line = in.readLine();
-        if (line == null) {
-            error("DISCONNECTED");
-        }
-        return line;
-    }
-
-    /**
-     * this method is used to print the stdin
-     *
-     * @param prompt the input string
-     * @return the string that has been read
-     * @throws IOException socket error
-     */
-    private String input(String prompt) throws IOException {
-        System.out.print(prompt + " ");
-        String line = stdin.readLine();
-        return line;
-    }
-
-    private void rescheduleProbeTimer() {
-        if (this.probeTimer != null) {
-            this.probeTimer.cancel();
-            this.probeTimer.purge();
-        }
-        this.probeTimer = new Timer(true);
-        this.probeTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                error("Connection lost");
-                System.exit(42);
-            }
-        }, 6000);
-    }
-
-    private void probe(JsonObject inputJson) {
-        inputJson.addProperty("playerID", this.uuid.toString());
-        this.out.println(inputJson.toString());
-        this.rescheduleProbeTimer();
-    }
-
-    /**
-     * this method handles log in of a player
-     *
-     * @throws IOException socket error
-     */
-    private void addPlayer() throws IOException {
-        debug("addPlayer called");
-        this.nickname = this.input("Nickname >>>");
-        JsonObject payload = new JsonObject();
-        payload.addProperty("nickname", this.nickname);
-        payload.addProperty(method, "addPlayer");
-        debug("PAYLOAD " + payload.toString());
-        out.println(payload.toString());
-        JsonObject input = this.pollResponseBuffer();
-        logged = input.get("logged").getAsBoolean();
-        debug("" + logged);
-        if (logged) {
-            log("Login successful");
-            this.uuid = UUID.fromString(input.get("UUID").getAsString());
-            debug("INPUT " + input);
-            JsonArray players = input.get("players").getAsJsonArray();
-            debug("SIZE: " + players.size());
-            if (players.size() < 4)
-                this.subscribeToWRTimer();
-            log(players.toString());
-            this.rescheduleProbeTimer();
-        } else {
-            log("Login failed");
-        }
-    }
-
-    /**
-     * This method is used to subscribe a client to the waiting room timer, so that the client will receive regular
-     * updates
-     */
-    private void subscribeToWRTimer() {
-        JsonObject payload = new JsonObject();
-        payload.addProperty("playerID", this.uuid.toString());
-        payload.addProperty(method, "subscribeToWRTimer");
-        out.println(payload.toString());
-        debug("INPUT " + this.pollResponseBuffer());
-    }
-
-    /**
-     * This method is used to print out an updated list of waiting players
-     *
-     * @param input data from the server
-     */
-    private void updateWaitingPlayers(JsonObject input) {
-        log(input.get("waitingPlayers").getAsJsonArray().toString());
-    }
-
-    /**
-     * This method is used to print out an updated timer
-     *
-     * @param input data from the server
-     */
-    private void wrTimerTick(JsonObject input) {
-        log(String.valueOf(input.get("tick").getAsInt()));
-    }
+    private static final String USAGE_STRING = "usage: sagradaclient [--debug] [--ip IP] [--port PORT] [--connection socket|rmi] [--interface cli|gui]";
 
     public static void main(String[] args) {
         OptionParser parser = new OptionParser();
         parser.accepts("debug");
         parser.accepts("ip").withRequiredArg();
-        parser.accepts("port").withRequiredArg().ofType(Integer.class);
+        parser.accepts("port").withRequiredArg().ofType(Integer.class).defaultsTo(42000);
+        parser.accepts("connection").withRequiredArg().ofType(String.class).defaultsTo("socket");
+        parser.accepts("interface").withRequiredArg().ofType(String.class).defaultsTo("cli");
+
         try {
             OptionSet options = parser.parse(args);
+
             String ip;
             if (options.has("ip")) {
                 ip = (String) options.valueOf("ip");
@@ -333,16 +27,27 @@ public class Client {
                 System.out.print("IP >>> ");
                 ip = stdin.nextLine();
             }
-            int port;
-            if (options.has("port")) {
-                port = (int) options.valueOf("port");
-            } else {
-                port = 42000;
+
+            int port = (int) options.valueOf("port");
+
+            String connection = (String) options.valueOf("connection");
+            if (!(connection.equals("socket") || connection.equals("rmi"))) {
+                System.out.println("Invalid type of connection");
+                System.out.println(USAGE_STRING);
             }
-            Client client = new Client(ip, port, options.has("debug"));
+
+            String iface = (String) options.valueOf("interface");
+            if (!(iface.equals("cli") || iface.equals("gui"))) {
+                System.out.println("Invalid type of interface");
+                System.out.println(USAGE_STRING);
+            }
+
+            SocketClient client = new SocketClient(ip, port, options.has("debug"));
             client.startClient();
+
         } catch (OptionException e) {
-            System.out.println("usage: sagradaclient [--debug] [--ip IP] [--port PORT]");
+            System.out.println(USAGE_STRING);
         }
     }
+
 }
