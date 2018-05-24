@@ -1,12 +1,94 @@
 package it.polimi.ingsw.client;
 
 import joptsimple.*;
-import java.util.Scanner;
+
+import java.io.IOException;
+import java.util.*;
 
 
-public class Client {
+public abstract class Client implements Observer {
 
     private static final String USAGE_STRING = "usage: sagradaclient [--debug] [--ip IP] [--port PORT] [--connection socket|rmi] [--interface cli|gui]";
+
+    private String nickname;
+    private UUID uuid;
+    private ClientNetwork network;
+    private boolean debugActive;
+    private boolean logged = false;
+
+    Client(ClientNetwork network, boolean debugActive) {
+        this.debugActive = debugActive;
+        this.network = network;
+        this.network.addObserver(this);
+        try {
+            network.setup();
+            log("Connection established");
+        } catch (IOException e) {
+            error("Connection failed");
+        }
+    }
+
+    String getNickname() {
+        return nickname;
+    }
+
+    void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    UUID getUUID() {
+        return uuid;
+    }
+
+    void setUUID(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    ClientNetwork getNetwork() {
+        return network;
+    }
+
+    boolean isDebugActive() {
+        return debugActive;
+    }
+
+    boolean isLogged() {
+        return logged;
+    }
+
+    void setLogged(boolean logged) {
+        this.logged = logged;
+    }
+
+    /**
+     * this method is used to print standard messages
+     *
+     * @param message that we want to print
+     */
+    void log(String message) {
+        System.out.println(message);
+    }
+
+    /**
+     * this method is used to print messages intended for debugging
+     *
+     * @param message that we want to print out
+     */
+    void debug(String message) {
+        if (this.isDebugActive())
+            System.out.println("[DEBUG] " + message);
+    }
+
+    /**
+     * this method is used to print error messages
+     *
+     * @param message that we want to print out
+     */
+    void error(String message) {
+        System.err.println("[ERROR] " + message);
+    }
+
+    abstract void start();
 
     public static void main(String[] args) {
         OptionParser parser = new OptionParser();
@@ -42,8 +124,9 @@ public class Client {
                 System.out.println(USAGE_STRING);
             }
 
-            SocketClient client = new SocketClient(ip, port, options.has("debug"));
-            client.startClient();
+            ClientNetwork socketClient = new SocketClient(ip, port, options.has("debug"));
+            Client client = new ClientCLI(socketClient, options.has("debug"));
+            client.start();
 
         } catch (OptionException e) {
             System.out.println(USAGE_STRING);

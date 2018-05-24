@@ -58,7 +58,7 @@
 
 ```
 {
-    "player": <nickname: string>,
+    "nickname": <string>,
     "method": "addPlayer",
     "arg": null
 }
@@ -85,7 +85,7 @@
 ```
 {
     "method": "updateWaitingPlayers",
-    "waitingPlayers": [
+    "players": [
         <nickname: string>,
         ...
     ]

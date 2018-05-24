@@ -239,7 +239,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         payload.addProperty(method, "updateWaitingPlayers");
         JsonArray array = new JsonArray();
         for (Player p : players) array.add(p.getNickname());
-        payload.add("waitingPlayers", array);
+        payload.add("players", array);
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
         debug("Update Waiting Players List sent");
