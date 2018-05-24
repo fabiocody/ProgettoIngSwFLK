@@ -19,6 +19,7 @@ public class ClientCLI extends Client {
             do addPlayer(); while (!this.isLogged());
             Thread.sleep(100 * 1000);
             // TODO Wait until game starts
+            while (!active) Thread.sleep(10);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -83,9 +84,11 @@ public class ClientCLI extends Client {
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof ClientNetwork) {
-            if (arg instanceof Iterable) {
+            if (arg instanceof List) {      // Window Patterns
+                printWindowPatterns((List) arg);
+            } else if (arg instanceof Integer) {    // Timer ticks
                 log(arg.toString());
-            } else if (arg instanceof Integer) {
+            } else if (arg instanceof Iterable) {   // Players
                 log(arg.toString());
             }
         }

@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.*;
 
 
 /**
@@ -277,7 +278,14 @@ public class SocketClient extends ClientNetwork {
     }
 
     private void gameStarted(JsonObject input) {
-
+        // TODO Private Objectve Card and active player
+        JsonArray windowPatterns = input.getAsJsonArray("windowPatterns");
+        //List strings = new Gson().fromJson(windowPatterns, List.class).stream()
+        List strings = StreamSupport.stream(windowPatterns.spliterator(), false)
+                .map(obj -> obj.getAsJsonObject().get("cliString").getAsString())
+                .collect(Collectors.toList());
+        setChanged();
+        notifyObservers(strings);
     }
 
 }

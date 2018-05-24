@@ -245,6 +245,22 @@ public class ServerSocketHandler implements Runnable, Observer {
         debug("Update Waiting Players List sent");
     }
 
+    private JsonObject createWindowPatternJSON(WindowPattern wp) {
+        JsonObject wpJSON = new JsonObject();
+        wpJSON.addProperty("difficulty", wp.getDifficulty());
+        JsonArray grid = new JsonArray();
+        for (Cell c : wp.getGrid()) {
+            JsonObject cellJSON = new JsonObject();
+            cellJSON.addProperty("cellColor", c.getCellColor() != null ? c.getCellColor().toString() : null);
+            cellJSON.addProperty("cellValue", c.getCellValue() != null ? c.getCellValue().toString() : null);
+            cellJSON.add("die", null);
+            grid.add(cellJSON);
+        }
+        wpJSON.add("grid", grid);
+        wpJSON.addProperty("cliString", wp.toString());
+        return wpJSON;
+    }
+
     private void startGame() {
         debug("startGame called");
         JsonObject payload = new JsonObject();
@@ -263,17 +279,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         List<WindowPattern> windowPatterns = player.getWindowPatternList();
         JsonArray windowPatternsJSON = new JsonArray();
         for (WindowPattern wp : windowPatterns) {
-            JsonObject wpJSON = new JsonObject();
-            wpJSON.addProperty("difficulty", wp.getDifficulty());
-            JsonArray grid = new JsonArray();
-            for (Cell c : wp.getGrid()) {
-                JsonObject cellJSON = new JsonObject();
-                cellJSON.addProperty("cellColor", c.getCellColor() != null ? c.getCellColor().toString() : null);
-                cellJSON.addProperty("cellValue", c.getCellValue() != null ? c.getCellValue().toString() : null);
-                cellJSON.add("die", null);
-                grid.add(cellJSON);
-            }
-            windowPatternsJSON.add(grid);
+            windowPatternsJSON.add(createWindowPatternJSON(wp));
         }
         payload.add("windowPatterns", windowPatternsJSON);
 
