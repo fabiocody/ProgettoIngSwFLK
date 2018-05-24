@@ -151,7 +151,8 @@
                     }
                 },
                 ...
-            ]
+            ],
+            "cliString": <string>
         },
         ...
     ],
@@ -333,7 +334,8 @@ After this request, the server will send to each client the following informatio
                 }
             },
             ...
-        ]
+        ],
+        "cliString": <string>
     }
 }
 ```
@@ -348,7 +350,8 @@ After this request, the server will send to each client the following informatio
     "dice": [
         {
             "color": <string>,
-            "value": <int>
+            "value": <int>,
+            "cliString": <string>
         },
         ...
     ]
@@ -365,7 +368,8 @@ After this request, the server will send to each client the following informatio
     "dice": [
         {
             "color": <string>,
-            "value": <int>
+            "value": <int>,
+            "cliString": <string>
         },
         ...
     ]
