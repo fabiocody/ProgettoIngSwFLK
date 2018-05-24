@@ -59,6 +59,27 @@ public class ClientCLI extends Client {
         else log("Login failed");
     }
 
+    private static String concatWindowPatterns(String[] pattern1, String[] pattern2) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < pattern1.length; i++) {
+            builder.append(pattern1[i]);
+            for (int k = 0; k < 5; k++) builder.append(" ");
+            builder.append(pattern2[i]);
+            builder.append("\n");
+        }
+        builder.deleteCharAt(builder.length() - 1);
+        return builder.toString();
+    }
+
+    private static void printWindowPatterns(List<String> patterns) {
+        String toPrint = concatWindowPatterns(patterns.get(0).split("\n"), patterns.get(1).split("\n"));
+        if (patterns.size() == 3)
+            toPrint += "\n\n" + patterns.get(2);
+        else if (patterns.size() == 4)
+            toPrint += "\n\n" + concatWindowPatterns(patterns.get(2).split("\n"), patterns.get(3).split("\n"));
+        System.out.println(toPrint);
+    }
+
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof ClientNetwork) {

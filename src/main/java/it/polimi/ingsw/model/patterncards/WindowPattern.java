@@ -178,9 +178,7 @@ public class WindowPattern {
                 if (cell.getPlacedDie() != null) {
                     builder.append(cell.getPlacedDie().toString());
                 } else {
-                    builder.append(" ");
                     builder.append(cell.toString());
-                    builder.append(" ");
                 }
                 builder.append("|");
             }
@@ -188,13 +186,16 @@ public class WindowPattern {
             for (int k = 0; k < 5*3 + 6; k++) builder.append("-");
             builder.append("\n");
         }
-        builder.deleteCharAt(builder.length() - 1);
+        builder.append(getPatternName());
+        for (int k = getPatternName().length(); k < 20; k++)
+            builder.append(" ");
+        builder.append(getDifficulty());
         return builder.toString();
     }
 
     public void dump(){
         System.out.println("Carta numero " + this.getPatternNumber());
-        System.out.println(this.getPatternName() + ",difficoltà " + this.getDifficulty());
+        System.out.println("Difficoltà " + this.getDifficulty());
         System.out.println(this.toString());
     }
 }

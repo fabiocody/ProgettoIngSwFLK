@@ -72,13 +72,13 @@ public class Cell {
     @Override
     public synchronized String toString() {
         if (this.cellColor != null && this.cellValue != null)
-            return ansi().fg(this.cellColor).a(this.cellValue).toString();
+            return ansi().fg(this.cellColor).a(" " + this.cellValue + " ").toString();
         else if (this.cellColor == null && this.cellValue != null)
-            return ansi().a(this.cellValue).toString();
+            return ansi().a(" " + this.cellValue + " ").toString();
         else if (this.cellColor != null)
-            return ansi().block(this.cellColor).toString();
+            return ansi().block(this.cellColor).block(this.cellColor).block(this.cellColor).toString();
         else
-            return " ";
+            return "   ";
     }
 
     public void dump(){
