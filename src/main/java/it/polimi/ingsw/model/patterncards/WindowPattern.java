@@ -159,24 +159,33 @@ public class WindowPattern {
 
     @Override
     public synchronized String toString() {
-        String pattern = "";
-        String line;
-
-        System.out.println("Carta numero " + this.getPatternNumber());
-        System.out.println("Difficoltà " + this.getDifficulty());
-
-        for(int i=0; i < 4 ; i++){
-            line="";
-            for(int j = 0; j < 5; j++)
-                line = line + ((this.getGrid())[5*i + j]).toString();
-            line = line + "\n";
-            pattern = pattern + line;
+        StringBuilder builder = new StringBuilder();
+        for (int k = 0; k < 5*3 + 6; k++) builder.append("-");
+        builder.append("\n");
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 5; j++) {
+                if (j == 0) builder.append("|");
+                Cell cell = this.getCellAt(i, j);
+                if (cell.getPlacedDie() != null) {
+                    builder.append(cell.getPlacedDie().toString());
+                } else {
+                    builder.append(" ");
+                    builder.append(cell.toString());
+                    builder.append(" ");
+                }
+                builder.append("|");
+            }
+            builder.append("\n");
+            for (int k = 0; k < 5*3 + 6; k++) builder.append("-");
+            builder.append("\n");
         }
-
-        return pattern;
+        builder.deleteCharAt(builder.length() - 1);
+        return builder.toString();
     }
 
     public void dump(){
+        System.out.println("Carta numero " + this.getPatternNumber());
+        System.out.println("Difficoltà " + this.getDifficulty());
         System.out.println(this.toString());
     }
 }

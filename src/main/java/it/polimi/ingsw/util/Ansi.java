@@ -91,6 +91,11 @@ public class Ansi {
         return this;
     }
 
+    public Ansi a(int value) {
+        this.builder.append(value);
+        return this;
+    }
+
     // MISC
 
     public String toString() {

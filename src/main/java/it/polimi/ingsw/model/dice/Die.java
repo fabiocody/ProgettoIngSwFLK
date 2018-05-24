@@ -1,8 +1,9 @@
 package it.polimi.ingsw.model.dice;
 
-import it.polimi.ingsw.util.Colorify;
 import it.polimi.ingsw.util.Colors;
 import java.util.concurrent.ThreadLocalRandom;
+import static it.polimi.ingsw.util.Ansi.*;
+
 
 public class Die {
     private int value;
@@ -60,6 +61,6 @@ public class Die {
      * @return "[x]" colored as the die, where x is the value
      */
     public synchronized String toString() {
-        return Colorify.colorify("[" + this.value + "]" , this.color);
+        return ansi().fg(this.color).a("[" + this.value + "]").reset().toString();
     }
 }

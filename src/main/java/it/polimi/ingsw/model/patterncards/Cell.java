@@ -2,6 +2,7 @@ package it.polimi.ingsw.model.patterncards;
 
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.util.*;
+import static it.polimi.ingsw.util.Ansi.*;
 
 /**
  * This class describes a pattern cell.
@@ -71,13 +72,13 @@ public class Cell {
     @Override
     public synchronized String toString() {
         if (this.cellColor != null && this.cellValue != null)
-            return Colorify.colorify(this.cellValue + " ", this.cellColor);
+            return ansi().fg(this.cellColor).a(this.cellValue).toString();
         else if (this.cellColor == null && this.cellValue != null)
-            return Colorify.colorify(this.cellValue + " ", Colors.RESET);
+            return ansi().a(this.cellValue).toString();
         else if (this.cellColor != null)
-            return Colorify.colorify("0 ", this.cellColor);
+            return ansi().block(this.cellColor).toString();
         else
-            return Colorify.colorify("0 ", Colors.RESET);
+            return " ";
     }
 
     public void dump(){
