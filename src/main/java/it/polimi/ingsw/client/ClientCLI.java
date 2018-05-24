@@ -3,11 +3,16 @@ package it.polimi.ingsw.client;
 import java.io.*;
 import java.util.*;
 
+import static it.polimi.ingsw.util.Ansi.ansi;
+
 
 public class ClientCLI extends Client {
 
     private BufferedReader stdin;
     private boolean active = false;
+
+    private String wrTimeout;
+    private String wrPlayers;
 
     ClientCLI(ClientNetwork network, boolean debugActive) {
         super(network, debugActive);
@@ -78,7 +83,17 @@ public class ClientCLI extends Client {
             toPrint += "\n\n" + patterns.get(2);
         else if (patterns.size() == 4)
             toPrint += "\n\n" + concatWindowPatterns(patterns.get(2).split("\n"), patterns.get(3).split("\n"));
-        System.out.println(toPrint);
+        System.out.println(ansi().clear().a(toPrint));
+    }
+
+    private void updateWaitingRoomMessages() {
+        System.out.println(ansi().clear()
+                .a("Waiting players: ")
+                .a(this.wrPlayers)
+                .a("\n")
+                .a("Time left to game start: ")
+                .a(this.wrTimeout != null ? this.wrTimeout : "∞")
+        );
     }
 
     @Override
@@ -87,9 +102,14 @@ public class ClientCLI extends Client {
             if (arg instanceof List) {      // Window Patterns
                 printWindowPatterns((List) arg);
             } else if (arg instanceof Integer) {    // Timer ticks
-                log(arg.toString());
+                this.wrTimeout = arg.toString();
+                updateWaitingRoomMessages();
             } else if (arg instanceof Iterable) {   // Players
-                log(arg.toString());
+                this.wrPlayers = arg.toString().replace("[", "")
+                        .replace("]", "")
+                        .replace("\",", ",")
+                        .replace("\"", " ");
+                updateWaitingRoomMessages();
             }
         }
     }

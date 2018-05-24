@@ -21,7 +21,11 @@ public class Ansi {
     }
 
     public Ansi clear() {
-        this.builder.append("\033[H\033[2J");
+        if (System.console() != null)
+            this.builder.append("\033[H\033[2J");
+        else
+            for (int i = 0; i < 100; i++)
+                this.builder.append("\n");
         return this;
     }
 
