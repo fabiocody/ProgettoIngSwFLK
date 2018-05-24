@@ -14,6 +14,7 @@ public class WindowPattern {
     private final int difficulty;
     private Cell[] grid;
     private final int patternNumber;
+    private final String name;
 
     /**
      * @param   patternNumber the number that identifies the pattern, if it's negative or bigger than 23 then the
@@ -36,6 +37,7 @@ public class WindowPattern {
 
         PatternValues values = PatternValues.valueOf(patternID);
         this.difficulty = values.getDifficulty();
+        this.name = values.getPatternName();
         this.grid = new Cell[20];
         for (int i = 0; i < 20; i++) {
             grid[i] = new Cell(values.getCellColors()[i],values.getCellValues()[i]);
@@ -61,10 +63,17 @@ public class WindowPattern {
     }
 
     /**
+     * @return  the name of the pattern
+     * @author  Luca dell'Oglio
+     */
+
+    public String getPatternName(){return this.name;}
+
+    /**
      * @param   i the array index
      * @return  the cell in the position indexed by <code>i</code>. The <code>grid</code> is considered a
      *          one-dimensional array
-     * @throws IndexOutOfBoundsException
+     * @throws  IndexOutOfBoundsException
      * @author  Luca dell'Oglio
      */
 
@@ -185,7 +194,7 @@ public class WindowPattern {
 
     public void dump(){
         System.out.println("Carta numero " + this.getPatternNumber());
-        System.out.println("Difficoltà " + this.getDifficulty());
+        System.out.println(this.getPatternName() + ",difficoltà " + this.getDifficulty());
         System.out.println(this.toString());
     }
 }
