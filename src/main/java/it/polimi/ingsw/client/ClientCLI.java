@@ -1,6 +1,10 @@
 package it.polimi.ingsw.client;
 
+import it.polimi.ingsw.util.Ansi;
+
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 import static it.polimi.ingsw.util.Ansi.ansi;
@@ -8,7 +12,14 @@ import static it.polimi.ingsw.util.Ansi.ansi;
 
 public class ClientCLI extends Client {
 
+    private String ttyConfig;
+
     private BufferedReader stdin;
+    private StringBuilder stdinBuffer = new StringBuilder();
+    private final Object stdinBufferLock = new Object();
+
+    private boolean stopAsyncInput = false;
+    private boolean gameCreated = false;
     private boolean active = false;
 
     private String wrTimeout;
@@ -19,15 +30,16 @@ public class ClientCLI extends Client {
     }
 
     void start() {
+        System.out.print(ansi().clear());
         try {
             this.stdin = new BufferedReader(new InputStreamReader(System.in));
             do addPlayer(); while (!this.isLogged());
-            Thread.sleep(100 * 1000);
-            // TODO Wait until game starts
-            while (!active) Thread.sleep(10);
+            String input;
+            do {
+                input = asyncInput("waitingRoomMessage");
+            } while (!stopAsyncInput && !input.equalsIgnoreCase("exit"));
+
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
             try {
@@ -40,16 +52,103 @@ public class ClientCLI extends Client {
     }
 
     /**
-     * this method is used to print the stdin
+     * This method is used to read from stdin.
      *
-     * @param prompt the input string
-     * @return the string that has been read
-     * @throws IOException socket error
+     * @param prompt the prompt to the input.
+     * @return the string that has been read.
+     * @throws IOException thrown if an IO error occurs.
      */
     private String input(String prompt) throws IOException {
         System.out.print(prompt + " ");
         String line = stdin.readLine();
         return line;
+    }
+
+    private String asyncInput(String methodName) throws IOException {
+        String bufferString = "";
+        try {
+            setTerminalToCBreak();
+            synchronized (stdinBufferLock) {
+                if (stdinBuffer == null) stdinBuffer = new StringBuilder();
+            }
+            while (!stopAsyncInput) {
+                if (System.in.available() != 0) {
+                    int c = System.in.read();
+                    if (c == 0x0A) {
+                        synchronized (stdinBufferLock) {
+                            bufferString = stdinBuffer.toString();
+                            stdinBuffer = new StringBuilder();
+                        }
+                        break;
+                    } else if (c == 0x7F) {
+                        synchronized (stdinBufferLock) {
+                            if (stdinBuffer.length() > 0) stdinBuffer.deleteCharAt(stdinBuffer.length() - 1);
+                        }
+                    } else {
+                        synchronized (stdinBufferLock) {
+                            stdinBuffer.append((char) c);
+                        }
+                    }
+                    Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
+                    System.out.print(method.invoke(this));
+                }
+            }
+        } catch (InterruptedException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                stty(ttyConfig.trim());
+            }
+            catch (Exception e) {
+                error("Exception restoring tty config");
+            }
+        }
+        if (!stopAsyncInput) {
+            try {
+                Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
+                System.out.print(method.invoke(this));
+            } catch (NoSuchMethodException | ClassNotFoundException | InvocationTargetException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return bufferString;
+    }
+
+    /**
+     * This method is used to put the terminal in raw mode, in order to simultaneously read from stdin and write to stdout.
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    private void setTerminalToCBreak() throws IOException, InterruptedException {
+        ttyConfig = stty("-g");
+        stty("-icanon min 1");      // set the console to be character-buffered instead of line-buffered
+        stty("-echo");              // disable character echoing
+    }
+
+    /**
+     *  This method execute the stty command with the specified arguments
+     *  against the current active terminal.
+     */
+    private static String stty(final String args) throws IOException, InterruptedException {
+        String cmd = "stty " + args + " < /dev/tty";
+        return exec(new String[] {"sh", "-c", cmd});
+    }
+
+    /**
+     *  Execute the specified command and return the output
+     *  (both stdout and stderr).
+     */
+    private static String exec(final String[] cmd) throws IOException, InterruptedException {
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        Process p = Runtime.getRuntime().exec(cmd);
+        int c;
+        InputStream in = p.getInputStream();
+        while ((c = in.read()) != -1) bout.write(c);
+        in = p.getErrorStream();
+        while ((c = in.read()) != -1) bout.write(c);
+        p.waitFor();
+        return new String(bout.toByteArray());
     }
 
     /**
@@ -83,33 +182,44 @@ public class ClientCLI extends Client {
             toPrint += "\n\n" + patterns.get(2);
         else if (patterns.size() == 4)
             toPrint += "\n\n" + concatWindowPatterns(patterns.get(2).split("\n"), patterns.get(3).split("\n"));
-        System.out.println(ansi().clear().a(toPrint));
+        log(ansi().clear().a(toPrint).toString());
     }
 
-    private void updateWaitingRoomMessages() {
-        System.out.println(ansi().clear()
-                .a("Waiting players: ")
-                .a(this.wrPlayers)
-                .a("\n")
-                .a("Time left to game start: ")
-                .a(this.wrTimeout != null ? this.wrTimeout : "∞")
-        );
+    private String waitingRoomMessage() {
+        synchronized (stdinBufferLock) {
+            Ansi message = ansi().clearLine().cursorUp(1).clearLine().cursorUp(1).clearLine()
+                    .a("Giocatori in attesa: ")
+                    .a(this.wrPlayers)
+                    .a("\n")
+                    .a("Tempo rimasto: ")
+                    .a(this.wrTimeout != null ? this.wrTimeout : "∞")
+                    .a("\n")
+                    .a(">>> ")
+                    .a(stdinBuffer.toString());
+            return message.toString();
+        }
     }
 
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof ClientNetwork) {
             if (arg instanceof List) {      // Window Patterns
+                stopAsyncInput = true;
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 printWindowPatterns((List) arg);
             } else if (arg instanceof Integer) {    // Timer ticks
                 this.wrTimeout = arg.toString();
-                updateWaitingRoomMessages();
+                System.out.print(waitingRoomMessage());
             } else if (arg instanceof Iterable) {   // Players
                 this.wrPlayers = arg.toString().replace("[", "")
                         .replace("]", "")
                         .replace("\",", ",")
                         .replace("\"", " ");
-                updateWaitingRoomMessages();
+                System.out.print(waitingRoomMessage());
             }
         }
     }

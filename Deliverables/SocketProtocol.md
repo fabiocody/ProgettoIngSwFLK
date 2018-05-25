@@ -126,13 +126,13 @@
 
 ## Game
 
-### Game started message
+### Game setup message
 
 #### Server -> Client
 
 ```
 {
-    "method": "gameStarted",
+    "method": "gameSetup",
     "privateObjectiveCard": {
         "name": <string>,
         "description": <string>,
@@ -155,8 +155,7 @@
             "cliString": <string>
         },
         ...
-    ],
-    "activePlayer": <nickname: string>
+    ]
 }
 ```
 
@@ -213,6 +212,18 @@ After this request, the server will send to each client the following informatio
 - [Public objective cards](#public-objective-cards)
 - [Window pattern](#window-pattern)
 - [Draft Pool](#draft-pool)
+- [Game started message](#game-started-message)]
+
+### Game started message
+
+#### Server -> Client
+
+```
+{
+    "method": "gameStarted",
+    "activePlayer": <nickname: string>
+}
+```
 
 ### Players list
 

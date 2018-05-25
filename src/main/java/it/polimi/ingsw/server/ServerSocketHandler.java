@@ -23,6 +23,7 @@ public class ServerSocketHandler implements Runnable, Observer {
     private JsonParser jsonParser;
     private Game game;
     private boolean run = true;
+    private Thread probeThread;
     private boolean probed = true;
 
     // FIELDS CONSTANTS
@@ -151,6 +152,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         String line = in.readLine();
         if (line == null) {
             this.notifyDisconnectedUser();
+            this.probeThread.interrupt();
         }
         return line;
     }
@@ -179,7 +181,8 @@ public class ServerSocketHandler implements Runnable, Observer {
             payload.add("players", waitingPlayers);
             out.println(payload.toString());
             debug("PAYLOAD " + payload.toString());
-            new Thread(this::probe).start();
+            this.probeThread = new Thread(this::probe);
+            this.probeThread.start();
         } catch (LoginFailedException e) {
             log("Login failed for nickname " + tempNickname);
             JsonObject payload = new JsonObject();
@@ -217,7 +220,7 @@ public class ServerSocketHandler implements Runnable, Observer {
                 this.gameEndPoint = new GameEndPoint(game);
                 waitingRoomEndPoint.unsubscribeFromWaitingRoom(this);
                 waitingRoomEndPoint.unsubscribeFromWaitingRoomTimer(this);
-                this.startGame();
+                this.setupGame();
             } else if (arg instanceof List && uuid != null) {
                 this.updateWaitingPlayersList((List<Player>) arg);
             }
@@ -261,10 +264,10 @@ public class ServerSocketHandler implements Runnable, Observer {
         return wpJSON;
     }
 
-    private void startGame() {
-        debug("startGame called");
+    private void setupGame() {
+        debug("setupGame called");
         JsonObject payload = new JsonObject();
-        payload.addProperty(method, "gameStarted");
+        payload.addProperty(method, "gameSetup");
         Player player = this.gameEndPoint.getPlayer(uuid);
         ObjectiveCard privateObjectiveCard = player.getPrivateObjectiveCard();
 

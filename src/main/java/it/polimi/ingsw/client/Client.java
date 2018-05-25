@@ -1,7 +1,6 @@
 package it.polimi.ingsw.client;
 
 import joptsimple.*;
-
 import java.io.IOException;
 import java.util.*;
 
@@ -65,7 +64,7 @@ public abstract class Client implements Observer {
      *
      * @param message that we want to print
      */
-    void log(String message) {
+    static void log(String message) {
         System.out.println(message);
     }
 
@@ -84,7 +83,7 @@ public abstract class Client implements Observer {
      *
      * @param message that we want to print out
      */
-    void error(String message) {
+    static void error(String message) {
         System.err.println("[ERROR] " + message);
     }
 

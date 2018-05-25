@@ -66,6 +66,16 @@ public class Ansi {
         return this;
     }
 
+    public Ansi saveCursorPosition() {
+        this.builder.append("\033[s");
+        return this;
+    }
+
+    public Ansi restoreCursorPosition() {
+        this.builder.append("\033[u");
+        return this;
+    }
+
     // FG COLORS
 
     public Ansi fg(Colors color) {

@@ -154,9 +154,10 @@ public class SocketClient extends ClientNetwork {
                 case WR_TIMER_TICK:
                     this.wrTimerTick(inputJson);
                     break;
-                case GAME_STARTED:
-                    this.gameStarted(inputJson);
+                case GAME_SETUP:
+                    this.gameSetup(inputJson);
                     break;
+                case GAME_STARTED:
                 case GAME_TIMER_TICK:
                 case PLAYERS:
                 case FINAL_SCORES:
@@ -277,10 +278,9 @@ public class SocketClient extends ClientNetwork {
         notifyObservers(input.get("tick").getAsInt());
     }
 
-    private void gameStarted(JsonObject input) {
-        // TODO Private Objectve Card and active player
+    private void gameSetup(JsonObject input) {
+        // TODO Private Objectve Card
         JsonArray windowPatterns = input.getAsJsonArray("windowPatterns");
-        //List strings = new Gson().fromJson(windowPatterns, List.class).stream()
         List strings = StreamSupport.stream(windowPatterns.spliterator(), false)
                 .map(obj -> obj.getAsJsonObject().get("cliString").getAsString())
                 .collect(Collectors.toList());
