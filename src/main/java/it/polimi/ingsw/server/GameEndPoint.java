@@ -95,6 +95,11 @@ public class GameEndPoint implements GameAPI {
     }
 
     @Override
+    public void choosePattern(UUID id, int patternIndex){
+        getPlayer(id).chooseWindowPattern(patternIndex);
+    }
+
+    @Override
     public int getCurrentRound() {
         return this.game.getRoundTrack().getCurrentRound();
     }
