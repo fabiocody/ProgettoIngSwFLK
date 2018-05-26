@@ -1,6 +1,5 @@
 package it.polimi.ingsw.server;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import it.polimi.ingsw.model.dice.DiceGenerator;
 import it.polimi.ingsw.model.objectivecards.*;
 import it.polimi.ingsw.model.patterncards.PatternCardsGenerator;
