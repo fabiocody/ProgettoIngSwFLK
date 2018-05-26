@@ -10,17 +10,18 @@
 	- [Subscribe to timer's updates](#subscribe-to-timers-updates)
 	- [Timer tick](#timer-tick)
 - [Game](#game)
-	- [Game started message](#game-started-message)
+	- [Game setup message](#game-setup-message)
 	- [Subscribe to timer's updates](#subscribe-to-timers-updates)
 	- [Timer tick](#timer-tick)
 	- [Pattern selection](#pattern-selection)
+	- [Game started message](#game-started-message)
 	- [Players list](#players-list)
 	- [End turn](#end-turn)
 	- [Final scores](#final-scores)
 	- [Public objective cards](#public-objective-cards)
 	- [Tool cards](#tool-cards)
 	- [Favor tokens](#favor-tokens)
-	- [Window pattern](#window-pattern)
+	- [Window patterns](#window-patterns)
 	- [Dice on Round Track](#dice-on-round-track)
 	- [Draft Pool](#draft-pool)
 - [Player's moves](#players-moves)
@@ -210,9 +211,9 @@ After this request, the server will send to each client the following informatio
 - [Players list](#players-list)
 - [Tool cards](#tool-cards)
 - [Public objective cards](#public-objective-cards)
-- [Window pattern](#window-pattern)
+- [Window patterns](#window-patterns)
 - [Draft Pool](#draft-pool)
-- [Game started message](#game-started-message)]
+- [Game started message](#game-started-message)
 
 ### Game started message
 
@@ -325,28 +326,31 @@ After this request, the server will send to each client the following informatio
 }
 ```
 
-### Window pattern
+### Window patterns
 
 #### Server -> Client
 
 ```
 {
-    "method": "windowPattern",
+    "method": "windowPatterns",
     "player": <nickname: string>,
-    "windowPattern": {
-        "difficulty": <int>,
-        "grid": [
-            {
-                "cellColor": <string>,
-                "cellValue": <int>,
-                "die": {
-                    "color": <string>,
-                    "value": <int>
-                }
-            },
-            ...
-        ],
-        "cliString": <string>
+    "windowPatterns": {
+        <nickname: string>: {
+            "difficulty": <int>,
+            "grid": [
+                {
+                    "cellColor": <string>,
+                    "cellValue": <int>,
+                    "die": {
+                        "color": <string>,
+                        "value": <int>
+                    }
+                },
+                ...
+            ],
+            "cliString": <string>
+        },
+        ...
     }
 }
 ```
