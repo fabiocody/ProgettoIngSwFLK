@@ -333,7 +333,6 @@ After this request, the server will send to each client the following informatio
 ```
 {
     "method": "windowPatterns",
-    "player": <nickname: string>,
     "windowPatterns": {
         <nickname: string>: {
             "difficulty": <int>,

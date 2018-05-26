@@ -27,6 +27,7 @@ public class SocketClient extends ClientNetwork {
     private Thread recvThread;
     private Timer probeTimer;
 
+    private String nickname;
     private UUID uuid;
 
     // FLAGS
@@ -158,15 +159,18 @@ public class SocketClient extends ClientNetwork {
                     this.gameSetup(inputJson);
                     break;
                 case GAME_STARTED:
+                    this.gameStarted(inputJson);
+                    break;
                 case GAME_TIMER_TICK:
                 case PLAYERS:
                 case FINAL_SCORES:
                 case PUBLIC_OBJECTIVE_CARDS:
                 case TOOL_CARDS:
                 case FAVOR_TOKENS:
-                case WINDOW_PATTERN:
+                case WINDOW_PATTERNS:
                 case ROUND_TRACK_DICE:
                 case DRAFT_POOL:
+                    System.out.println(inputJson);
                     break;
                 case PROBE:
                     this.probe();
@@ -215,6 +219,7 @@ public class SocketClient extends ClientNetwork {
         if (this.uuid != null)
             payload.addProperty("playerID", this.uuid.toString());
         payload.addProperty("method", method);
+        debug("PAYLOAD " + payload);
         out.println(payload.toString());
     }
 
@@ -222,6 +227,7 @@ public class SocketClient extends ClientNetwork {
      * This method handles log in of a player
      */
     public UUID addPlayer(String nickname) {
+        this.nickname = nickname;
         JsonObject payload = new JsonObject();
         payload.addProperty("nickname", nickname);
         debug("PAYLOAD " + payload.toString());
@@ -259,6 +265,14 @@ public class SocketClient extends ClientNetwork {
         debug("INPUT " + this.pollResponseBuffer());
     }
 
+    void choosePattern(int patternIndex) {
+        JsonObject payload = new JsonObject();
+        JsonObject arg = new JsonObject();
+        arg.addProperty("patternIndex", patternIndex);
+        payload.add("arg", arg);
+        this.sendMessage(payload, "choosePattern");
+    }
+
     /**
      * This method is used to print out an updated list of waiting players
      *
@@ -293,6 +307,11 @@ public class SocketClient extends ClientNetwork {
                 .collect(Collectors.toList());
         setChanged();
         notifyObservers(strings);
+    }
+
+    private void gameStarted(JsonObject input) {
+        this.setChanged();
+        this.notifyObservers(input.get("activePlayer").getAsString().equals(nickname));
     }
 
 }

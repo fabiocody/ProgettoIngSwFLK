@@ -25,7 +25,7 @@ public enum Methods {
     PUBLIC_OBJECTIVE_CARDS("publicObjectiveCards"),
     TOOL_CARDS("toolCards"),
     FAVOR_TOKENS("favorTokens"),
-    WINDOW_PATTERN("windowPattern"),
+    WINDOW_PATTERNS("windowPatterns"),
     ROUND_TRACK_DICE("roundTrackDice"),
     DRAFT_POOL("draftPool"),
     PLACE_DIE("placeDie"),

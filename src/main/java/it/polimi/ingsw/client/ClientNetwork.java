@@ -11,5 +11,6 @@ public abstract class ClientNetwork extends Observable {
     abstract void teardown() throws IOException;
 
     abstract UUID addPlayer(String nickname);
+    abstract void choosePattern(int patternIndex);
 
 }

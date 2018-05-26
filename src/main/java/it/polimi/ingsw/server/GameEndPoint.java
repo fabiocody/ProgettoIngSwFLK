@@ -100,6 +100,11 @@ public class GameEndPoint implements GameAPI {
     }
 
     @Override
+    public boolean arePlayersReady() {
+        return this.game.arePlayersReady();
+    }
+
+    @Override
     public int getCurrentRound() {
         return this.game.getRoundTrack().getCurrentRound();
     }

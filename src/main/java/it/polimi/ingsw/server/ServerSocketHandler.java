@@ -1,9 +1,11 @@
 package it.polimi.ingsw.server;
 
 import com.google.gson.*;
+import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.model.patterncards.Cell;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
+import it.polimi.ingsw.model.toolcards.ToolCard;
 import it.polimi.ingsw.util.CountdownTimer;
 import java.io.*;
 import java.net.*;
@@ -125,7 +127,7 @@ public class ServerSocketHandler implements Runnable, Observer {
                         // TODO
                         break;
                     case CHOOSE_PATTERN:
-                        // TODO
+                        this.choosePattern(input);
                         break;
                     case NEXT_TURN:
                         // TODO
@@ -202,6 +204,93 @@ public class ServerSocketHandler implements Runnable, Observer {
         out.println(payload.toString());
     }
 
+    private void choosePattern(JsonObject input) {
+        int patternIndex = input.get("arg").getAsJsonObject().get("patternIndex").getAsInt();
+        UUID id = UUID.fromString(input.get("playerID").getAsString());
+        this.gameEndPoint.choosePattern(id, patternIndex);
+        log(nickname + " has chosen pattern " + patternIndex);
+    }
+
+    private void updatePlayersList() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("method", "players");
+        JsonArray playersJSON = new JsonArray();
+        for (String nickname : this.gameEndPoint.getCurrentPlayers()) {
+            playersJSON.add(nickname);
+        }
+        payload.add("players", playersJSON);
+        debug("PAYLOAD " + payload.toString());
+        out.println(payload.toString());
+    }
+
+    private void updateToolCards() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("method", "toolCards");
+        JsonArray cards = new JsonArray();
+        for (ToolCard card : this.gameEndPoint.getToolCards()) {
+            JsonObject jsonCard = new JsonObject();
+            jsonCard.addProperty("name", card.getName());
+            jsonCard.addProperty("description", card.getDescription());
+            jsonCard.addProperty("used", card.isUsed());
+            cards.add(jsonCard);
+        }
+        payload.add("cards", cards);
+        debug("PAYLOAD " + payload.toString());
+        out.println(payload.toString());
+    }
+
+    private void sendPublicObjectiveCards() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("method", "publicObjectiveCards");
+        JsonArray cards = new JsonArray();
+        for (ObjectiveCard card : this.gameEndPoint.getPublicObjectiveCards()) {
+            JsonObject jsonCard = new JsonObject();
+            jsonCard.addProperty("name", card.getName());
+            jsonCard.addProperty("description", card.getDescription());
+            jsonCard.addProperty("victoryPoints", card.getVictoryPoints());
+            cards.add(jsonCard);
+        }
+        payload.add("cards", cards);
+        debug("PAYLOAD " + payload.toString());
+        out.println(payload.toString());
+    }
+
+    private void updateWindowPatterns() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("method", "windowPatterns");
+        JsonObject windowPatterns = new JsonObject();
+        for (String player : this.gameEndPoint.getCurrentPlayers()) {
+            windowPatterns.add(player, createWindowPatternJSON(this.gameEndPoint.getWindowPatternOf(player)));
+        }
+        payload.add("windowPatterns", windowPatterns);
+        debug("PAYLOAD " + payload.toString());
+        out.println(payload.toString());
+    }
+
+    private void updateDraftPool() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("method", "draftPool");
+        JsonArray dice = new JsonArray();
+        for (Die d : this.gameEndPoint.getDraftPool()) {
+            JsonObject die = new JsonObject();
+            die.addProperty("color", d.getColor().toString());
+            die.addProperty("value", d.getValue());
+            die.addProperty("cliString", d.toString());
+            dice.add(die);
+        }
+        payload.add("dice", dice);
+        debug("PAYLOAD " + payload.toString());
+        out.println(payload.toString());
+    }
+
+    private void gameStarted() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("method", "gameStarted");
+        payload.addProperty("activePlayer", this.gameEndPoint.getActivePlayer());
+        debug("PAYLOAD " + payload.toString());
+        out.println(payload.toString());
+    }
+
     // UPDATE HANDLER
 
     @Override
@@ -217,6 +306,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         } else if (o instanceof WaitingRoom) {
             if (arg instanceof Game) {
                 this.game = (Game) arg;
+                this.game.addObserver(this);
                 this.gameEndPoint = new GameEndPoint(game);
                 waitingRoomEndPoint.unsubscribeFromWaitingRoom(this);
                 waitingRoomEndPoint.unsubscribeFromWaitingRoomTimer(this);
@@ -224,6 +314,13 @@ public class ServerSocketHandler implements Runnable, Observer {
             } else if (arg instanceof List && uuid != null) {
                 this.updateWaitingPlayersList((List<Player>) arg);
             }
+        } else if (o instanceof Game) {
+            updatePlayersList();
+            updateToolCards();
+            sendPublicObjectiveCards();
+            updateWindowPatterns();
+            updateDraftPool();
+            gameStarted();
         }
     }
 
@@ -255,8 +352,14 @@ public class ServerSocketHandler implements Runnable, Observer {
         for (Cell c : wp.getGrid()) {
             JsonObject cellJSON = new JsonObject();
             cellJSON.addProperty("cellColor", c.getCellColor() != null ? c.getCellColor().toString() : null);
-            cellJSON.addProperty("cellValue", c.getCellValue() != null ? c.getCellValue().toString() : null);
-            cellJSON.add("die", null);
+            cellJSON.addProperty("cellValue", c.getCellValue());
+            JsonObject die = null;
+            if (c.getPlacedDie() != null) {
+                die = new JsonObject();
+                die.addProperty("color", c.getPlacedDie().getColor().toString());
+                die.addProperty("value", c.getPlacedDie().getValue());
+            }
+            cellJSON.add("die", die);
             grid.add(cellJSON);
         }
         wpJSON.add("grid", grid);
@@ -286,12 +389,12 @@ public class ServerSocketHandler implements Runnable, Observer {
         }
         payload.add("windowPatterns", windowPatternsJSON);
 
-        // Active player
-        payload.addProperty("activePlayer", gameEndPoint.getActivePlayer());
 
         out.println(payload.toString());
 
         log("A game has started for " + nickname);
+
+        this.gameEndPoint.getPlayer(uuid).addObserver(this);
     }
 
 }

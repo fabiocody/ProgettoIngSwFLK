@@ -19,7 +19,7 @@ public class ClientCLI extends Client {
     private final Object stdinBufferLock = new Object();
 
     private boolean stopAsyncInput = false;
-    private boolean gameCreated = false;
+    private boolean gameStarted = false;
     private boolean active = false;
 
     private String wrTimeout;
@@ -38,16 +38,20 @@ public class ClientCLI extends Client {
             do {
                 input = asyncInput("waitingRoomMessage");
             } while (!stopAsyncInput && !input.equalsIgnoreCase("exit"));
-            Integer patternNumber = 42;
+            Integer patternIndex = 42;
+            System.out.println();
             do {
                 input = input("Scegli la tua carta Schema [1-4] >>>");
                 try {
-                    patternNumber = Integer.valueOf(input);
+                    patternIndex = Integer.valueOf(input);
                 } catch (NumberFormatException e) {
                     continue;
                 }
-            } while (patternNumber <= 0 || patternNumber > 4);
-        } catch (IOException e) {
+            } while (patternIndex <= 0 || patternIndex > 4);
+            this.getNetwork().choosePattern(patternIndex - 1);
+            log("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.");
+            while (!gameStarted) Thread.sleep(10);
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
             try {
@@ -235,12 +239,15 @@ public class ClientCLI extends Client {
                     input = input.replace("PrivateObjectiveCard$", "");
                     System.out.println(ansi().clear().a(input).a("\n"));
                 }
-            }else if (arg instanceof Iterable) {   // Players
+            } else if (arg instanceof Iterable) {   // Players
                 this.wrPlayers = arg.toString().replace("[", "")
                         .replace("]", "")
                         .replace("\",", ",")
                         .replace("\"", " ");
                 System.out.print(waitingRoomMessage());
+            } else if (arg instanceof Boolean) {
+                active = (boolean) arg;
+                gameStarted = true;
             }
         }
     }

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
  *
  * @author Fabio Codiglioni
  */
-public class Player {
+public class Player extends Observable {
 
     // Attributes
     private String nickname;
@@ -137,10 +137,16 @@ public class Player {
                 synchronized (favorTokensLock) {
                     this.setFavorTokens(this.getWindowPattern().getDifficulty());
                 }
+                setChanged();
+                notifyObservers();
             } else {
                 throw new IllegalStateException("Cannot choose another Window Pattern");
             }
         }
+    }
+
+    public boolean isWindowPatternChosen() {
+        return windowPatternChosen;
     }
 
     /**

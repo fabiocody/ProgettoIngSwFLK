@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import it.polimi.ingsw.model.dice.DiceGenerator;
 import it.polimi.ingsw.model.objectivecards.*;
 import it.polimi.ingsw.model.patterncards.PatternCardsGenerator;
@@ -13,8 +14,9 @@ import java.util.concurrent.*;
  *
  * @author Fabio Codiglioni
  */
-public class Game implements Observer {
-    // Observes RoundTrack
+public class Game extends Observable implements Observer {
+    // Observes RoundTrack and Player(s)
+    // Is observed by ServerSocketHandler
 
     // Game
     private List<Player> players;
@@ -49,6 +51,9 @@ public class Game implements Observer {
      */
     public Game(List<Player> players, boolean doSetup) {
         this.players = new Vector<>(players);
+        for (Player p : players) {
+            p.addObserver(this);
+        }
         Collections.shuffle(this.players);
         if (doSetup) this.setup();
         this.turnManager = new TurnManager(this.players);
@@ -94,6 +99,11 @@ public class Game implements Observer {
         synchronized (playersLock) {
             return this.players.size();
         }
+    }
+
+    public boolean arePlayersReady() {
+        return this.players.stream()
+                .allMatch(Player::isWindowPatternChosen);
     }
 
     /**
@@ -267,6 +277,11 @@ public class Game implements Observer {
                 this.getDiceGenerator().generateDraftPool();
             } else if (arg.equals("Game over"))
                 new Thread(this::endGame).start();
+        } else if (o instanceof Player) {
+            if (this.arePlayersReady()) {
+                setChanged();
+                notifyObservers();
+            }
         }
     }
 
