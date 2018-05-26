@@ -2,7 +2,7 @@ package it.polimi.ingsw.model.dice;
 
 import it.polimi.ingsw.util.Colors;
 import java.util.concurrent.ThreadLocalRandom;
-import static it.polimi.ingsw.util.Ansi.*;
+import static org.fusesource.jansi.Ansi.ansi;
 
 
 public class Die {
@@ -61,6 +61,6 @@ public class Die {
      * @return "[x]" colored as the die, where x is the value
      */
     public synchronized String toString() {
-        return ansi().fg(this.color).a("[" + this.value + "]").reset().toString();
+        return ansi().fg(this.color.getJAnsiColor()).a("[" + this.value + "]").reset().toString();
     }
 }

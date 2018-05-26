@@ -13,7 +13,7 @@ import java.util.*;
 
 
 public class ServerSocketHandler implements Runnable, Observer {
-    // Observes CountdownTimer (from WaitingRoom and TurnManager) and WaitingRoom
+    // Observes CountdownTimer (from WaitingRoom and TurnManager), WaitingRoom and Game
 
     private Socket clientSocket;
     private BufferedReader in;
@@ -68,6 +68,8 @@ public class ServerSocketHandler implements Runnable, Observer {
                 error("Probe error");
                 notifyDisconnectedUser();
                 Thread.currentThread().interrupt();
+                waitingRoomEndPoint.unsubscribeFromWaitingRoom(this);
+                waitingRoomEndPoint.unsubscribeFromWaitingRoomTimer(this);
             }
             JsonObject payload = new JsonObject();
             payload.addProperty(method, "probe");
@@ -155,6 +157,9 @@ public class ServerSocketHandler implements Runnable, Observer {
         if (line == null) {
             this.notifyDisconnectedUser();
             this.probeThread.interrupt();
+            Thread.currentThread().interrupt();
+            waitingRoomEndPoint.unsubscribeFromWaitingRoom(this);
+            waitingRoomEndPoint.unsubscribeFromWaitingRoomTimer(this);
         }
         return line;
     }
@@ -171,7 +176,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         try {
             uuid = this.waitingRoomEndPoint.addPlayer(tempNickname);
             nickname = tempNickname;
-            log(nickname + " logged in");
+            log(nickname + " logged in (" + uuid + ")");
             debug("UUID: " + uuid.toString());
             JsonObject payload = new JsonObject();
             payload.addProperty(method, "addPlayer");

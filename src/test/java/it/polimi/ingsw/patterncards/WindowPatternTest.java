@@ -1,8 +1,6 @@
 package it.polimi.ingsw.patterncards;
 
-import it.polimi.ingsw.model.patterncards.Cell;
-import it.polimi.ingsw.model.patterncards.PatternCardsGenerator;
-import it.polimi.ingsw.model.patterncards.WindowPattern;
+import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.util.Colors;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -69,7 +67,7 @@ class WindowPatternTest {
         for (WindowPattern wp : patterns) {
             for(Cell c: wp.getGrid()){
                 if(c.getCellColor() != null) {
-                    assertTrue(c.getCellColor() instanceof Colors && c.getCellColor() != Colors.RESET);
+                    assertTrue(c.getCellColor() instanceof Colors && c.getCellColor() != Colors.DEFAULT);
                 }
             }
         }

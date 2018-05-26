@@ -89,9 +89,9 @@ public class SocketClient extends ClientNetwork {
      *
      * @param message that we want to print
      */
-    /*private void log(String message) {
+    private void log(String message) {
         System.out.println(message);
-    }*/
+    }
 
     /**
      * This method is used to print messages intended for debugging
@@ -123,7 +123,6 @@ public class SocketClient extends ClientNetwork {
                 inputJson = this.jsonParser.parse(this.readLine()).getAsJsonObject();
                 debug(inputJson.toString());
             } catch (IOException e) {
-                e.printStackTrace();
                 error("Connection aborted");
                 break;
             }
@@ -170,7 +169,7 @@ public class SocketClient extends ClientNetwork {
                 case WINDOW_PATTERNS:
                 case ROUND_TRACK_DICE:
                 case DRAFT_POOL:
-                    System.out.println(inputJson);
+                    log(inputJson.toString());
                     break;
                 case PROBE:
                     this.probe();

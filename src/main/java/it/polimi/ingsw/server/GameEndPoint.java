@@ -62,7 +62,7 @@ public class GameEndPoint implements GameAPI {
                 .filter(p -> p.getId().equals(id))
                 .findFirst();
         if (result.isPresent()) return result.get();
-        else throw new NoSuchElementException("No Player object with specified nickname found");
+        else throw new NoSuchElementException("No Player object for uuid " + id);
     }
 
     @Override

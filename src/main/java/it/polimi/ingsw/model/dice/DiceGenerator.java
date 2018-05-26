@@ -27,7 +27,7 @@ public class DiceGenerator {
         numberOfPlayers = numOfStartingPlayers;
         generatedDice = new ArrayList<>();
         for (Colors c : Colors.values()) {
-            if (c != Colors.RESET) {
+            if (c != Colors.DEFAULT) {
                 for (int i=0; i<18; i++) {
                     Die d = new Die(c);
                     d.roll();

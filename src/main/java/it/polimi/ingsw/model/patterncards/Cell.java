@@ -2,7 +2,7 @@ package it.polimi.ingsw.model.patterncards;
 
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.util.*;
-import static it.polimi.ingsw.util.Ansi.*;
+import static org.fusesource.jansi.Ansi.*;
 
 /**
  * This class describes a pattern cell.
@@ -72,11 +72,11 @@ public class Cell {
     @Override
     public synchronized String toString() {
         if (this.cellColor != null && this.cellValue != null)
-            return ansi().fg(this.cellColor).a(" " + this.cellValue + " ").toString();
+            return ansi().fg(this.cellColor.getJAnsiColor()).a(" " + this.cellValue + " ").toString();
         else if (this.cellColor == null && this.cellValue != null)
             return ansi().a(" " + this.cellValue + " ").toString();
         else if (this.cellColor != null)
-            return ansi().block(this.cellColor).block(this.cellColor).block(this.cellColor).toString();
+            return ansi().bg(this.cellColor.getJAnsiColor()).a("   ").reset().toString();
         else
             return "   ";
     }

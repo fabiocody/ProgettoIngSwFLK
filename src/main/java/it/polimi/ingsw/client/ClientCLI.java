@@ -1,13 +1,11 @@
 package it.polimi.ingsw.client;
 
-import it.polimi.ingsw.util.Ansi;
-
+import org.fusesource.jansi.AnsiConsole;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-
-import static it.polimi.ingsw.util.Ansi.ansi;
+import static org.fusesource.jansi.Ansi.*;
 
 
 public class ClientCLI extends Client {
@@ -30,16 +28,18 @@ public class ClientCLI extends Client {
     }
 
     void start() {
-        System.out.print(ansi().clear());
+        AnsiConsole.systemInstall();
+        System.out.print(ansi().eraseScreen().cursor(0, 0));
         try {
             this.stdin = new BufferedReader(new InputStreamReader(System.in));
             do addPlayer(); while (!this.isLogged());
             String input;
             do {
                 input = asyncInput("waitingRoomMessage");
-            } while (!stopAsyncInput && !input.equalsIgnoreCase("exit"));
+                if (input.equalsIgnoreCase("exit")) throw new InterruptedException();
+            } while (!stopAsyncInput);
             Integer patternIndex = 42;
-            System.out.println();
+            log("");
             do {
                 input = input("Scegli la tua carta Schema [1-4] >>>");
                 try {
@@ -52,10 +52,12 @@ public class ClientCLI extends Client {
             log("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.");
             while (!gameStarted) Thread.sleep(10);
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+            log("Quitting...");
         } finally {
+            log("");
             try {
                 getNetwork().teardown();
+                AnsiConsole.systemUninstall();
             } catch (IOException e) {
                 error("Exception raised while tearing down");
                 e.printStackTrace();
@@ -77,6 +79,7 @@ public class ClientCLI extends Client {
     }
 
     private String asyncInput(String methodName) throws IOException {
+        stopAsyncInput = false;
         String bufferString = "";
         try {
             setTerminalToCBreak();
@@ -91,6 +94,8 @@ public class ClientCLI extends Client {
                             bufferString = stdinBuffer.toString();
                             stdinBuffer = new StringBuilder();
                         }
+                        Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
+                        System.out.print(method.invoke(this));
                         break;
                     } else if (c == 0x7F) {
                         synchronized (stdinBufferLock) {
@@ -199,7 +204,7 @@ public class ClientCLI extends Client {
 
     private String waitingRoomMessage() {
         synchronized (stdinBufferLock) {
-            Ansi message = ansi().clearLine().cursorUp(1).clearLine().cursorUp(1).clearLine()
+            return ansi().eraseLine().cursorUpLine().eraseLine().cursorUpLine().eraseLine()
                     .a("Giocatori in attesa: ")
                     .a(this.wrPlayers)
                     .a("\n")
@@ -207,8 +212,7 @@ public class ClientCLI extends Client {
                     .a(this.wrTimeout != null ? this.wrTimeout : "∞")
                     .a("\n")
                     .a(">>> ")
-                    .a(stdinBuffer.toString());
-            return message.toString();
+                    .a(stdinBuffer.toString()).toString();
         }
     }
 
@@ -216,9 +220,8 @@ public class ClientCLI extends Client {
     public void update(Observable o, Object arg) {
         if (o instanceof ClientNetwork) {
             if (arg instanceof List) {      // Window Patterns
-                stopAsyncInput = true;
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -229,7 +232,7 @@ public class ClientCLI extends Client {
                     newWPString = (i+1) + newWPString;
                     windowPatterns.set(i, newWPString + "\n" + windowPatterns.get(i));
                 }
-                System.out.println(ansi().a(windowPatternsMessage(windowPatterns)));
+                log(windowPatternsMessage(windowPatterns));
                 stopAsyncInput = true;
             } else if (arg instanceof Integer) {    // Timer ticks
                 this.wrTimeout = arg.toString();
@@ -238,7 +241,7 @@ public class ClientCLI extends Client {
                 String input = (String) arg;
                 if (input.startsWith("PrivateObjectiveCard$")) {
                     input = input.replace("PrivateObjectiveCard$", "");
-                    System.out.println(ansi().clear().a(input).a("\n"));
+                    log(ansi().eraseScreen().cursor(0, 0).a(input).a("\n").toString());
                 }
             } else if (arg instanceof Iterable) {   // Players
                 this.wrPlayers = arg.toString().replace("[", "")

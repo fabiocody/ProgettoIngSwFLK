@@ -1,5 +1,7 @@
 package it.polimi.ingsw.util;
 
+import org.fusesource.jansi.Ansi;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -15,16 +17,24 @@ public enum Colors {
     YELLOW("\u001B[33m"),
     BLUE("\u001B[34m"),
     PURPLE("\u001B[35m"),
-    RESET("\u001B[0m");
+    DEFAULT("\u001B[0m");
 
-    private String ansiCode;
+    private String ansiEscape;
 
-    Colors(String ansiCode) {this.ansiCode = ansiCode;}
+    Colors(String ansiCode) {this.ansiEscape = ansiCode;}
 
     /**
      * @return the ANSI escape code of the color.
      */
-    public String escape() {return this.ansiCode;}
+    public String escape() {return this.ansiEscape;}
+
+    public Ansi.Color getJAnsiColor() {
+        try {
+            return Ansi.Color.valueOf(this.toString());
+        } catch (IllegalArgumentException e) {
+            return Ansi.Color.valueOf("MAGENTA");
+        }
+    }
 
     /**
      * @return a random value from this Enum, <code>RESET</code> excluded.
