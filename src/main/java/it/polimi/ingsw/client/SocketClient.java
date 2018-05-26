@@ -232,15 +232,16 @@ public class SocketClient extends ClientNetwork {
             debug("INPUT " + input);
             JsonArray players = input.get("players").getAsJsonArray();
             debug("SIZE: " + players.size());
-            new Timer(true)
-                    .schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            updateWaitingPlayers(input);
-                        }
-                    }, 100);
-            if (players.size() < 4)
+            if (players.size() < 4) {
+                new Timer(true)
+                        .schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                updateWaitingPlayers(input);
+                            }
+                        }, 100);
                 this.subscribeToWRTimer();
+            }
             this.rescheduleProbeTimer();
             return uuid;
         } else {
@@ -280,6 +281,12 @@ public class SocketClient extends ClientNetwork {
 
     private void gameSetup(JsonObject input) {
         // TODO Private Objectve Card
+        String privateObjectiveCardString = "PrivateObjectiveCard$Il tuo obiettivo privato è:\n";
+        privateObjectiveCardString += input.get("privateObjectiveCard").getAsJsonObject().get("name").getAsString();
+        privateObjectiveCardString += " - ";
+        privateObjectiveCardString += input.get("privateObjectiveCard").getAsJsonObject().get("description").getAsString();
+        setChanged();
+        notifyObservers(privateObjectiveCardString);
         JsonArray windowPatterns = input.getAsJsonArray("windowPatterns");
         List strings = StreamSupport.stream(windowPatterns.spliterator(), false)
                 .map(obj -> obj.getAsJsonObject().get("cliString").getAsString())

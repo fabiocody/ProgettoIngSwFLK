@@ -38,7 +38,15 @@ public class ClientCLI extends Client {
             do {
                 input = asyncInput("waitingRoomMessage");
             } while (!stopAsyncInput && !input.equalsIgnoreCase("exit"));
-
+            Integer patternNumber = 42;
+            do {
+                input = input("Scegli la tua carta Schema [1-4] >>>");
+                try {
+                    patternNumber = Integer.valueOf(input);
+                } catch (NumberFormatException e) {
+                    continue;
+                }
+            } while (patternNumber <= 0 || patternNumber > 4);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -176,13 +184,13 @@ public class ClientCLI extends Client {
         return builder.toString();
     }
 
-    private static void printWindowPatterns(List<String> patterns) {
-        String toPrint = concatWindowPatterns(patterns.get(0).split("\n"), patterns.get(1).split("\n"));
+    private static String windowPatternsMessage(List<String> patterns) {
+        String message = concatWindowPatterns(patterns.get(0).split("\n"), patterns.get(1).split("\n"));
         if (patterns.size() == 3)
-            toPrint += "\n\n" + patterns.get(2);
+            message += "\n\n" + patterns.get(2);
         else if (patterns.size() == 4)
-            toPrint += "\n\n" + concatWindowPatterns(patterns.get(2).split("\n"), patterns.get(3).split("\n"));
-        log(ansi().clear().a(toPrint).toString());
+            message += "\n\n" + concatWindowPatterns(patterns.get(2).split("\n"), patterns.get(3).split("\n"));
+        return message;
     }
 
     private String waitingRoomMessage() {
@@ -210,11 +218,24 @@ public class ClientCLI extends Client {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                printWindowPatterns((List) arg);
+                List<String> windowPatterns = (List) arg;
+                for (int i = 0; i < windowPatterns.size(); i++) {
+                    String newWPString = "";
+                    for (int k = 0; k < 20; k++) newWPString += " ";
+                    newWPString = (i+1) + newWPString;
+                    windowPatterns.set(i, newWPString + "\n" + windowPatterns.get(i));
+                }
+                System.out.println(ansi().a(windowPatternsMessage(windowPatterns)));
             } else if (arg instanceof Integer) {    // Timer ticks
                 this.wrTimeout = arg.toString();
                 System.out.print(waitingRoomMessage());
-            } else if (arg instanceof Iterable) {   // Players
+            } else if (arg instanceof String) {
+                String input = (String) arg;
+                if (input.startsWith("PrivateObjectiveCard$")) {
+                    input = input.replace("PrivateObjectiveCard$", "");
+                    System.out.println(ansi().clear().a(input).a("\n"));
+                }
+            }else if (arg instanceof Iterable) {   // Players
                 this.wrPlayers = arg.toString().replace("[", "")
                         .replace("]", "")
                         .replace("\",", ",")
