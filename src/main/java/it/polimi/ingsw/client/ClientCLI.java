@@ -230,6 +230,7 @@ public class ClientCLI extends Client {
                     windowPatterns.set(i, newWPString + "\n" + windowPatterns.get(i));
                 }
                 System.out.println(ansi().a(windowPatternsMessage(windowPatterns)));
+                stopAsyncInput = true;
             } else if (arg instanceof Integer) {    // Timer ticks
                 this.wrTimeout = arg.toString();
                 System.out.print(waitingRoomMessage());
