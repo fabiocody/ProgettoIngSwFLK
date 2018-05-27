@@ -162,9 +162,13 @@ public class SocketClient extends ClientNetwork {
                     break;
                 case GAME_TIMER_TICK:
                 case PLAYERS:
+                    this.inGamePlayers(inputJson);
+                    break;
                 case FINAL_SCORES:
                 case PUBLIC_OBJECTIVE_CARDS:
                 case TOOL_CARDS:
+                    this.updateToolCards(inputJson);
+                    break;
                 case FAVOR_TOKENS:
                 case WINDOW_PATTERNS:
                 case ROUND_TRACK_DICE:
@@ -306,6 +310,26 @@ public class SocketClient extends ClientNetwork {
                 .collect(Collectors.toList());
         setChanged();
         notifyObservers(strings);
+    }
+
+    private void inGamePlayers(JsonObject input){
+        setChanged();
+        notifyObservers(input.get("players").getAsJsonArray());
+    }
+
+    private void updateToolCards(JsonObject input){
+        JsonArray toolCards = input.getAsJsonArray("cards");
+        List toolCardsStrings = new ArrayList();
+        for(JsonElement obj : toolCards){
+            String toolCardString = "ToolCard$";
+            toolCardString += obj.getAsJsonObject().get("name").getAsString();
+            toolCardString += " - ";
+            toolCardString += obj.getAsJsonObject().get("description").getAsString();
+            //TODO toolCardString += obj.getAsJsonObject().get("used").getAsString();
+            toolCardsStrings.add(toolCardString);
+        }
+        setChanged();
+        notifyObservers(toolCardsStrings);
     }
 
     private void gameStarted(JsonObject input) {

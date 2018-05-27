@@ -19,9 +19,12 @@ public class ClientCLI extends Client {
     private boolean stopAsyncInput = false;
     private boolean gameStarted = false;
     private boolean active = false;
+    private boolean patternChosen = false;
 
     private String wrTimeout;
     private String wrPlayers;
+
+    private String gamePlayers;
 
     ClientCLI(ClientNetwork network, boolean debugActive) {
         super(network, debugActive);
@@ -49,8 +52,13 @@ public class ClientCLI extends Client {
                 }
             } while (patternIndex <= 0 || patternIndex > 4);
             this.getNetwork().choosePattern(patternIndex - 1);
-            log("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.");
+            patternChosen = true;
+            log("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
+            //visualizzare
             while (!gameStarted) Thread.sleep(10);
+            //mosse
+            log("La partita è iniziata!");
+
         } catch (IOException | InterruptedException e) {
             log("Quitting...");
         } finally {
@@ -225,15 +233,30 @@ public class ClientCLI extends Client {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                List<String> windowPatterns = (List) arg;
-                for (int i = 0; i < windowPatterns.size(); i++) {
-                    String newWPString = "";
-                    for (int k = 0; k < 20; k++) newWPString += " ";
-                    newWPString = (i+1) + newWPString;
-                    windowPatterns.set(i, newWPString + "\n" + windowPatterns.get(i));
+                List<String> argAsList = (List) arg;
+                //System.out.println("Primo elemento " + windowPatterns.get(0));
+                if(argAsList.get(0).startsWith("---------------------")) { //Window pattern
+                    for (int i = 0; i < argAsList.size(); i++) {
+                        String newWPString = "";
+                        for (int k = 0; k < 20; k++) newWPString += " ";
+                        newWPString = (i + 1) + newWPString;
+                        argAsList.set(i, newWPString + "\n" + argAsList.get(i));
+                    }
+                    log(windowPatternsMessage(argAsList));
+                    stopAsyncInput = true;
+
                 }
-                log(windowPatternsMessage(windowPatterns));
-                stopAsyncInput = true;
+                if(argAsList.get(0).startsWith("ToolCard$")) {   //Tool card
+                    for (String s : argAsList) {
+                        s = s.replace("\n",". ");
+                        s = s.replace("ToolCard$", "Carta Strumento: ");
+                        s = s.replace(" - ", "\nEffetto: ");
+                        s += "\n";
+                        log(ansi().eraseScreen().cursor(0, 0).a(s).a("\n").toString());
+                        stopAsyncInput = true;
+                    }
+                }
+
             } else if (arg instanceof Integer) {    // Timer ticks
                 this.wrTimeout = arg.toString();
                 System.out.print(waitingRoomMessage());
@@ -244,11 +267,21 @@ public class ClientCLI extends Client {
                     log(ansi().eraseScreen().cursor(0, 0).a(input).a("\n").toString());
                 }
             } else if (arg instanceof Iterable) {   // Players
-                this.wrPlayers = arg.toString().replace("[", "")
-                        .replace("]", "")
-                        .replace("\",", ",")
-                        .replace("\"", " ");
-                System.out.print(waitingRoomMessage());
+                if(patternChosen == false) {  //Players in waiting room
+                    this.wrPlayers = arg.toString().replace("[", "")
+                            .replace("]", "")
+                            .replace("\",", ",")
+                            .replace("\"", " ");
+                    System.out.print(waitingRoomMessage());
+                }
+                else{
+                    this.gamePlayers = arg.toString().replace("[", "")
+                            .replace("]", "")
+                            .replace("\",", ",")
+                            .replace("\"", " ");
+                    //log(ansi().eraseScreen().cursor(0, 0).a(gamePlayers).a("\n").toString()); //used in order to print patterns with names
+                    //stopAsyncInput = true;
+                }
             } else if (arg instanceof Boolean) {
                 active = (boolean) arg;
                 gameStarted = true;
