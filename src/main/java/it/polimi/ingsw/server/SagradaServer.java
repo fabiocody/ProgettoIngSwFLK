@@ -88,6 +88,10 @@ public class SagradaServer implements Observer {
                 .anyMatch(n -> n.equals(nickname));
     }
 
+    public synchronized boolean isNicknameNotValid(String nickname){
+        return nickname.contains(" ") || nickname.equals("");
+    }
+
     /**
      * @return true if the debug option is active or false otherwise
      */
