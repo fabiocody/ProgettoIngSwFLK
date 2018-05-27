@@ -247,14 +247,32 @@ public class ClientCLI extends Client {
 
                 }
                 if(argAsList.get(0).startsWith("ToolCard$")) {   //Tool card
+                    String cards = "";
                     for (String s : argAsList) {
                         s = s.replace("\n",". ");
                         s = s.replace("ToolCard$", "Carta Strumento: ");
                         s = s.replace(" - ", "\nEffetto: ");
-                        s += "\n";
-                        log(ansi().eraseScreen().cursor(0, 0).a(s).a("\n").toString());
-                        stopAsyncInput = true;
+                        s += "$NL$";
+                        cards = cards + s;
                     }
+                    cards = cards.replace("$NL$","\n\n");
+                    log(cards);
+                    //log(ansi().eraseScreen().cursor(0, 0).a(cards).a("\n").toString());
+                    stopAsyncInput = true;
+                }
+
+                if(argAsList.get(0).startsWith("PublicObjectiveCards$")) {   //Public Objective Card
+                    String cards2 = "";
+                    for (String s : argAsList) {
+                        s = s.replace("PublicObjectiveCards$", "Obiettivo Pubblico: ");
+                        s = s.replace(" $- ", "\nDescrizione: ");
+                        s = s.replace(" $$- ", "\nPunti Vittoria (PV) per ogni set completo di questo tipo: ");
+                        s += "\n\n";
+                        cards2 = cards2 + s;
+                        }
+                    log(cards2);
+                    //log(ansi().eraseScreen().cursor(0, 0).a(cards2).a("\n").toString());
+                    stopAsyncInput = true;
                 }
 
             } else if (arg instanceof Integer) {    // Timer ticks
@@ -279,8 +297,8 @@ public class ClientCLI extends Client {
                             .replace("]", "")
                             .replace("\",", ",")
                             .replace("\"", " ");
-                    //log(ansi().eraseScreen().cursor(0, 0).a(gamePlayers).a("\n").toString()); //used in order to print patterns with names
-                    //stopAsyncInput = true;
+                    log(ansi().eraseScreen().cursor(0, 0).a(gamePlayers).a("\n").toString()); //used in order to print patterns with names
+                    stopAsyncInput = true;
                 }
             } else if (arg instanceof Boolean) {
                 active = (boolean) arg;

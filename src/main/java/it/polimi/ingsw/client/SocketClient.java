@@ -166,6 +166,8 @@ public class SocketClient extends ClientNetwork {
                     break;
                 case FINAL_SCORES:
                 case PUBLIC_OBJECTIVE_CARDS:
+                    this.publicObjectiveCards(inputJson);
+                    break;
                 case TOOL_CARDS:
                     this.updateToolCards(inputJson);
                     break;
@@ -331,6 +333,23 @@ public class SocketClient extends ClientNetwork {
         setChanged();
         notifyObservers(toolCardsStrings);
     }
+
+    private void publicObjectiveCards(JsonObject input){
+        JsonArray publicObjectiveCards= input.getAsJsonArray("cards");
+        List publicObjectiveCardsStrings = new ArrayList();
+        for(JsonElement obj : publicObjectiveCards){
+            String publicObjectiveCardString = "PublicObjectiveCards$";
+            publicObjectiveCardString += obj.getAsJsonObject().get("name").getAsString();
+            publicObjectiveCardString += " $- ";
+            publicObjectiveCardString += obj.getAsJsonObject().get("description").getAsString();
+            publicObjectiveCardString += " $$- ";
+            publicObjectiveCardString += obj.getAsJsonObject().get("victoryPoints").getAsInt();
+            publicObjectiveCardsStrings.add(publicObjectiveCardString);
+        }
+        setChanged();
+        notifyObservers(publicObjectiveCardsStrings);
+    }
+
 
     private void gameStarted(JsonObject input) {
         this.setChanged();
