@@ -8,6 +8,8 @@ import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.rmi.GameAPI;
 import it.polimi.ingsw.model.toolcards.*;
 
+import javax.activity.InvalidActivityException;
+import javax.management.relation.RoleUnresolved;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -121,13 +123,26 @@ public class GameEndPoint implements GameAPI {
 
 
     @Override
-    public void placeDie(UUID playerID, int draftPoolIndex, int x, int y) throws RemoteException {
+    public void placeDie(UUID playerID, int draftPoolIndex, int x, int y) throws RemoteException, InvalidPlacementException, DieAlreadyPlacedException{
         WindowPattern wp = getPlayer(playerID).getWindowPattern();
         Die d = this.game.getDiceGenerator().getDraftPool().get(draftPoolIndex);
-        if (wp.isGridEmpty())
-            wp.placeDie(d,5*y+x, PlacementConstraint.initialConstraint());
-        else
-            wp.placeDie(d,5*y+x);
+        if(getPlayer(playerID).isDiePlacedInThisTurn() == true)
+            throw new DieAlreadyPlacedException("");
+        if (wp.isGridEmpty()) {
+            try {
+                wp.placeDie(d, 5 * y + x, PlacementConstraint.initialConstraint());
+            } catch (InvalidPlacementException e) {
+                throw e;
+            }
+        }
+        else{
+            try {
+                wp.placeDie(d,5*y+x);
+            } catch (InvalidPlacementException e) {
+                throw e;
+            }
+        }
+        getPlayer(playerID).setDiePlacedInThisTurn(true);
         this.game.getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
     }
 

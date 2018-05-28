@@ -18,6 +18,7 @@ public class TurnManager extends Observable {
     private int index;
     private CountdownTimer timer;
     private int timeout = 30;
+    private boolean roundOver;
 
     /**
      * @param players the list of players taking part in the Game.
@@ -30,6 +31,7 @@ public class TurnManager extends Observable {
         this.playersOrder = Stream.concat(forwardRange, backRange).collect(Collectors.toList());
         this.index = 0;
         this.timer = new CountdownTimer("TurnManager", this.timeout);
+        this.roundOver = false;
         this.setActivePlayer(this.getCurrentPlayer());
         // TODO Set timer for first turn of first round
     }
@@ -65,6 +67,13 @@ public class TurnManager extends Observable {
     public CountdownTimer getTimer() {
         return this.timer;
     }
+
+    /**
+     * @author Luca dell'Oglio
+     * @return if the round is over.
+     */
+
+    public boolean isRoundOver(){return this.roundOver;}
 
     /**
      * This method set the specified Player as active, and all the other players as inactive.
@@ -125,9 +134,11 @@ public class TurnManager extends Observable {
     public void nextTurn() {
         this.timer.cancel();
         this.index++;
+        this.roundOver = false;
         if (this.index == this.playersOrder.size()) {
             this.index = 0;
             Collections.rotate(this.players, -1);   // shift starting player
+            this.roundOver = true;
             this.setChanged();
             this.notifyObservers();
         }

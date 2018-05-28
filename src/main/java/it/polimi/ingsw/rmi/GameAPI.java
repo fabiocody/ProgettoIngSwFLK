@@ -6,7 +6,9 @@ import it.polimi.ingsw.model.objectivecards.*;
 import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.server.*;
 import it.polimi.ingsw.model.toolcards.*;
+import org.omg.CORBA.DynAnyPackage.Invalid;
 
+import javax.activity.InvalidActivityException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.*;
@@ -38,7 +40,7 @@ public interface GameAPI extends Remote {
     List<Die> getDraftPool() throws RemoteException;
 
     // Moves
-    void placeDie(UUID playerID, int draftPoolIndex, int x, int y) throws RemoteException;
+    void placeDie(UUID playerID, int draftPoolIndex, int x, int y) throws RemoteException, InvalidPlacementException, DieAlreadyPlacedException;
     void useToolCard(int toolCardsIndex, JsonObject data) throws RemoteException, InvalidEffectResultException, InvalidEffectArgumentException;
     
 }

@@ -4,11 +4,16 @@ import com.google.gson.*;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.model.patterncards.Cell;
+import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.toolcards.ToolCard;
 import it.polimi.ingsw.util.CountdownTimer;
+import org.omg.CORBA.DynAnyPackage.Invalid;
+
+import javax.activity.InvalidActivityException;
 import java.io.*;
 import java.net.*;
+import java.rmi.RemoteException;
 import java.util.*;
 
 
@@ -132,10 +137,10 @@ public class ServerSocketHandler implements Runnable, Observer {
                         this.choosePattern(input);
                         break;
                     case NEXT_TURN:
-                        // TODO
+                        this.nextTurn();
                         break;
                     case PLACE_DIE:
-                        // TODO
+                        this.placeDie(input);
                         break;
                     case USE_TOOL_CARD:
                         // TODO
@@ -214,6 +219,40 @@ public class ServerSocketHandler implements Runnable, Observer {
         UUID id = UUID.fromString(input.get("playerID").getAsString());
         this.gameEndPoint.choosePattern(id, patternIndex);
         log(nickname + " has chosen pattern " + patternIndex);
+    }
+
+    private void placeDie(JsonObject input){
+        int draftPoolIndex = input.get("arg").getAsJsonObject().get("draftPoolIndex").getAsInt();
+        int x = input.get("arg").getAsJsonObject().get("x").getAsInt();
+        int y = input.get("arg").getAsJsonObject().get("y").getAsInt();
+        UUID id = UUID.fromString(input.get("playerID").getAsString());
+        JsonObject payload = new JsonObject();
+        payload.addProperty(method,"placeDie");
+        try{
+            this.gameEndPoint.placeDie(id,draftPoolIndex,x,y);
+        } catch (RemoteException | InvalidPlacementException | DieAlreadyPlacedException e){
+            payload.addProperty("result", false);
+            log(nickname + " die placement was refused");
+            out.println(payload.toString());
+            return;
+        }
+        updateWindowPatterns();
+        updateDraftPool();
+        payload.addProperty("result", true);
+        log(nickname + " placed a die");
+        out.println(payload.toString());
+    }
+
+    private void nextTurn() {
+        this.gameEndPoint.nextTurn();
+        debug("Turn ended");
+        JsonObject payload = new JsonObject();
+        payload.addProperty(method, "nextTurn");
+        payload.addProperty("currentRound", this.gameEndPoint.getCurrentRound());
+        payload.addProperty("roundOver", this.game.getTurnManager().isRoundOver());
+        payload.addProperty("gameOver",this.game.getRoundTrack().isGameOver());
+        payload.addProperty("activePlayer",this.gameEndPoint.getActivePlayer());
+        out.println(payload.toString());
     }
 
     private void updatePlayersList() {

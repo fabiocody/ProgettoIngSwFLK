@@ -212,7 +212,7 @@ public class SocketClient extends ClientNetwork {
         this.probeTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                error("Connection lost");
+                error("Connection lostPROBE");
                 System.exit(42);
             }
         }, 10 * 1000);
@@ -281,6 +281,24 @@ public class SocketClient extends ClientNetwork {
         this.sendMessage(payload, "choosePattern");
     }
 
+    boolean placeDie(int draftPoolIndex, int x, int y){
+        JsonObject payload = new JsonObject();
+        JsonObject arg = new JsonObject();
+        arg.addProperty("draftPoolIndex",draftPoolIndex);
+        arg.addProperty("x",x);
+        arg.addProperty("y",y);
+        payload.add("arg",arg);
+        this.sendMessage(payload,"placeDie");
+        JsonObject input = this.pollResponseBuffer();
+        debug("INPUT " + this.pollResponseBuffer());
+        return input.get("result").getAsBoolean();
+    }
+
+    void nextTurn() {
+        JsonObject payload = new JsonObject();
+        this.sendMessage(payload, "nextTurn");
+        debug("INPUT " + this.pollResponseBuffer());
+    }
     /**
      * This method is used to print out an updated list of waiting players
      *
