@@ -178,7 +178,7 @@ public class SocketClient extends ClientNetwork {
                     break;
                 case ROUND_TRACK_DICE:
                 case DRAFT_POOL:
-                    log(inputJson.toString());
+                    this.updateDraftPool(inputJson);
                     break;
                 case PROBE:
                     this.probe();
@@ -369,6 +369,17 @@ public class SocketClient extends ClientNetwork {
         notifyObservers(publicObjectiveCardsStrings);
     }
 
+    private void updateDraftPool(JsonObject input){
+        JsonArray draftPoolDice = input.getAsJsonArray("dice");
+        List draftPoolDieStrings = new ArrayList();
+        for(JsonElement obj : draftPoolDice){
+            String dieString = "Die$";
+            dieString += obj.getAsJsonObject().get("cliString").getAsString();
+            draftPoolDieStrings.add(dieString);
+        }
+        setChanged();
+        notifyObservers(draftPoolDieStrings);
+    }
 
     private void gameStarted(JsonObject input) {
         this.setChanged();

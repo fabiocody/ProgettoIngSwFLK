@@ -276,16 +276,25 @@ public class ClientCLI extends Client {
                 }
 
                 if(argAsList.get(0).startsWith("PublicObjectiveCards$")) {   //Public Objective Card
-                    String cards2 = "";
+                    String cards = "";
                     for (String s : argAsList) {
                         s = s.replace("PublicObjectiveCards$", "Obiettivo Pubblico: ");
                         s = s.replace(" $- ", "\nDescrizione: ");
                         s = s.replace(" $$- ", "\nPunti Vittoria (PV) per ogni set completo di questo tipo: ");
                         s += "\n\n";
-                        cards2 = cards2 + s;
+                        cards = cards + s;
                         }
-                    //log(cards2);
-                    log(ansi().eraseScreen().cursor(0, 0).a("\n\n").a(cards2).toString());
+                    log(ansi().eraseScreen().cursor(0, 0).a("\n\n").a(cards).a("\n").toString());
+                    stopAsyncInput = true;
+                }
+
+                if(argAsList.get(0).startsWith("Die$")) {   //DraftPool
+                    String dice = "Riserva: ";
+                    for (String s : argAsList){
+                        s = s.replace("Die$","");
+                        dice += s;
+                    }
+                    log(ansi().eraseScreen().cursor(0, 0).a("\n\n").a(dice).toString());
                     stopAsyncInput = true;
                 }
 
