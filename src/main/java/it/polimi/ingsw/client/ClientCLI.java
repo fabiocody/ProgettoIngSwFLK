@@ -256,8 +256,7 @@ public class ClientCLI extends Client {
                         cards = cards + s;
                     }
                     cards = cards.replace("$NL$","\n\n");
-                    log(cards);
-                    //log(ansi().eraseScreen().cursor(0, 0).a(cards).a("\n").toString());
+                    log(ansi().eraseScreen().cursor(0, 0).a("\n\n").a(cards).toString());
                     stopAsyncInput = true;
                 }
 
@@ -270,8 +269,8 @@ public class ClientCLI extends Client {
                         s += "\n\n";
                         cards2 = cards2 + s;
                         }
-                    log(cards2);
-                    //log(ansi().eraseScreen().cursor(0, 0).a(cards2).a("\n").toString());
+                    //log(cards2);
+                    log(ansi().eraseScreen().cursor(0, 0).a("\n\n").a(cards2).toString());
                     stopAsyncInput = true;
                 }
 
@@ -297,7 +296,7 @@ public class ClientCLI extends Client {
                             .replace("]", "")
                             .replace("\",", ",")
                             .replace("\"", " ");
-                    log(ansi().eraseScreen().cursor(0, 0).a(gamePlayers).a("\n").toString()); //used in order to print patterns with names
+                    //log(ansi().eraseScreen().cursor(0, 0).a(gamePlayers).a("\n").toString()); //used in order to print patterns with names
                     stopAsyncInput = true;
                 }
             } else if (arg instanceof Boolean) {

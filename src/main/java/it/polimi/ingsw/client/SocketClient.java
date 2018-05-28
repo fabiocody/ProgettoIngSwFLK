@@ -343,7 +343,10 @@ public class SocketClient extends ClientNetwork {
             publicObjectiveCardString += " $- ";
             publicObjectiveCardString += obj.getAsJsonObject().get("description").getAsString();
             publicObjectiveCardString += " $$- ";
-            publicObjectiveCardString += obj.getAsJsonObject().get("victoryPoints").getAsInt();
+            if(obj.getAsJsonObject().get("victoryPoints").isJsonNull())
+                publicObjectiveCardString += "#";
+            else
+                publicObjectiveCardString += obj.getAsJsonObject().get("victoryPoints").getAsInt();
             publicObjectiveCardsStrings.add(publicObjectiveCardString);
         }
         setChanged();
