@@ -5,6 +5,7 @@ import it.polimi.ingsw.server.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.*;
 
@@ -173,6 +174,8 @@ public class SocketClient extends ClientNetwork {
                     break;
                 case FAVOR_TOKENS:
                 case WINDOW_PATTERNS:
+                    this.updateWindowPatterns(inputJson);
+                    break;
                 case ROUND_TRACK_DICE:
                 case DRAFT_POOL:
                     log(inputJson.toString());
@@ -334,6 +337,19 @@ public class SocketClient extends ClientNetwork {
         notifyObservers(toolCardsStrings);
     }
 
+    private void updateWindowPatterns(JsonObject input){
+        List windowPatternsList = new ArrayList();
+        windowPatternsList.add("$$$updatedWindowPatterns");
+
+        Set<Entry<String,JsonElement>>  entrySet = input.get("windowPatterns").getAsJsonObject().entrySet();
+        for(Map.Entry<String,JsonElement> entry : entrySet){
+            String keyValue = entry.getKey() + "$" + entry.getValue().getAsJsonObject().get("cliString").getAsString();
+            windowPatternsList.add(keyValue);
+        }
+        setChanged();
+        notifyObservers(windowPatternsList);
+    }
+
     private void publicObjectiveCards(JsonObject input){
         JsonArray publicObjectiveCards= input.getAsJsonArray("cards");
         List publicObjectiveCardsStrings = new ArrayList();
@@ -343,7 +359,10 @@ public class SocketClient extends ClientNetwork {
             publicObjectiveCardString += " $- ";
             publicObjectiveCardString += obj.getAsJsonObject().get("description").getAsString();
             publicObjectiveCardString += " $$- ";
-            publicObjectiveCardString += obj.getAsJsonObject().get("victoryPoints").getAsInt();
+            if(obj.getAsJsonObject().get("victoryPoints").isJsonNull())
+                publicObjectiveCardString += "#";
+            else
+                publicObjectiveCardString += obj.getAsJsonObject().get("victoryPoints").getAsInt();
             publicObjectiveCardsStrings.add(publicObjectiveCardString);
         }
         setChanged();

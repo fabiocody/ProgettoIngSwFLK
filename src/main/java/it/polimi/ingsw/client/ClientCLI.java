@@ -234,7 +234,6 @@ public class ClientCLI extends Client {
                     e.printStackTrace();
                 }
                 List<String> argAsList = (List) arg;
-                //System.out.println("Primo elemento " + windowPatterns.get(0));
                 if(argAsList.get(0).startsWith("---------------------")) { //Window pattern
                     for (int i = 0; i < argAsList.size(); i++) {
                         String newWPString = "";
@@ -244,8 +243,24 @@ public class ClientCLI extends Client {
                     }
                     log(windowPatternsMessage(argAsList));
                     stopAsyncInput = true;
-
                 }
+                if(argAsList.get(0).equals("$$$updatedWindowPatterns")){
+                    argAsList.remove(0);
+                    List<String> patterns = new ArrayList();
+                    for (String s: argAsList){
+                        String spaces = "";
+                        for(int i = 0; i < 21 - s.substring(0,s.indexOf("$")).length(); i++)
+                            spaces += " ";
+                        spaces += "\n";
+                        s = s.replace("$",spaces);
+                        patterns.add(s);
+                    }
+
+                    String prettyWindowPatterns = windowPatternsMessage(patterns);
+                    log(ansi().eraseScreen().cursor(0, 0).a("\n").a(prettyWindowPatterns).a("\n").toString());
+                    stopAsyncInput = true;
+                }
+
                 if(argAsList.get(0).startsWith("ToolCard$")) {   //Tool card
                     String cards = "";
                     for (String s : argAsList) {
