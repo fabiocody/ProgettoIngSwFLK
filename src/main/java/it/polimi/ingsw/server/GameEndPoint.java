@@ -8,8 +8,6 @@ import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.rmi.GameAPI;
 import it.polimi.ingsw.model.toolcards.*;
 
-import javax.activity.InvalidActivityException;
-import javax.management.relation.RoleUnresolved;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.stream.Collectors;

@@ -8,9 +8,6 @@ import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.toolcards.ToolCard;
 import it.polimi.ingsw.util.CountdownTimer;
-import org.omg.CORBA.DynAnyPackage.Invalid;
-
-import javax.activity.InvalidActivityException;
 import java.io.*;
 import java.net.*;
 import java.rmi.RemoteException;
@@ -137,7 +134,8 @@ public class ServerSocketHandler implements Runnable, Observer {
                         this.choosePattern(input);
                         break;
                     case NEXT_TURN:
-                        this.nextTurn();
+                        //TODO
+                        //this.nextTurn();
                         break;
                     case PLACE_DIE:
                         this.placeDie(input);
@@ -243,7 +241,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         out.println(payload.toString());
     }
 
-    private void nextTurn() {
+    /*private void nextTurn() {
         this.gameEndPoint.nextTurn();
         debug("Turn ended");
         JsonObject payload = new JsonObject();
@@ -253,7 +251,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         payload.addProperty("gameOver",this.game.getRoundTrack().isGameOver());
         payload.addProperty("activePlayer",this.gameEndPoint.getActivePlayer());
         out.println(payload.toString());
-    }
+    }*/
 
     private void updatePlayersList() {
         JsonObject payload = new JsonObject();

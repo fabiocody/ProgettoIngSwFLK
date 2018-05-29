@@ -13,6 +13,6 @@ public abstract class ClientNetwork extends Observable {
     abstract UUID addPlayer(String nickname);
     abstract void choosePattern(int patternIndex);
     abstract boolean placeDie(int draftPoolIndex, int x, int y);
-    abstract void nextTurn();
+    //abstract void nextTurn();
 
 }

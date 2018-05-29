@@ -20,7 +20,6 @@ public class ClientCLI extends Client {
     private boolean gameStarted = false;
     private boolean active = false;
     private boolean patternChosen = false;
-    private boolean printing = false;
     private int instructionIndex= 42;
 
     private String wrTimeout;
@@ -28,8 +27,6 @@ public class ClientCLI extends Client {
 
     private String gamePlayers;
     private int draftPoolLength;
-
-    private final Object printLock = new Object();
 
     ClientCLI(ClientNetwork network, boolean debugActive) {
         super(network, debugActive);
@@ -73,7 +70,6 @@ public class ClientCLI extends Client {
                 }
                 log("È il tuo turno!");
                 do {
-                    while(printing) Thread.sleep(10);
                     log("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
                                 "passare il turno");
                     input = input("Scegli cosa fare[1-3] >>>");
@@ -328,7 +324,6 @@ public class ClientCLI extends Client {
                     stopAsyncInput = true;
                 }
                 if(argAsList.get(0).equals("$$$updatedWindowPatterns")){
-                    this.printing = true;
                     argAsList.remove(0);
                     List<String> patterns = new ArrayList();
                     for (String s: argAsList){
@@ -384,8 +379,7 @@ public class ClientCLI extends Client {
                     }
                     log(dice);
                     //log(ansi().eraseScreen().cursor(0, 0).a("\n\n").a(dice).toString());
-                        stopAsyncInput = true;
-                        this.printing = false;
+                    stopAsyncInput = true;
                 }
 
             } else if (arg instanceof Integer) {    // Timer ticks
