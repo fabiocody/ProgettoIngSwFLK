@@ -87,6 +87,11 @@ public abstract class Client implements Observer {
         System.err.println("[ERROR] " + message);
     }
 
+    static boolean isValidIp(String ip){
+        String ipPattern= "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
+        return ip.matches(ipPattern);
+    }
+
     abstract void start();
 
     public static void main(String[] args) {
@@ -105,8 +110,10 @@ public abstract class Client implements Observer {
                 ip = (String) options.valueOf("ip");
             } else {
                 Scanner stdin = new Scanner(System.in);
-                System.out.print("IP >>> ");
-                ip = stdin.nextLine();
+                do{
+                    System.out.print("Inserisci un indirizzo IP valido\nIP >>> ");
+                    ip = stdin.nextLine();
+                } while(!isValidIp(ip));
             }
 
             int port = (int) options.valueOf("port");
