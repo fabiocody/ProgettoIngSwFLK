@@ -7,7 +7,7 @@ import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.server.*;
 import it.polimi.ingsw.model.toolcards.*;
 import it.polimi.ingsw.util.Colors;
-import it.polimi.ingsw.util.Costants;
+import it.polimi.ingsw.util.Constants;
 import org.junit.jupiter.api.*;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -52,7 +52,7 @@ class ToolCardsTest {
             e.printStackTrace();
         }
         data.remove("delta");
-        data.addProperty("delta", Costants.INDEX_COSTANT); //define
+        data.addProperty("delta", Constants.INDEX_CONSTANT); //define
         assertThrows(InvalidEffectArgumentException.class, () -> toolCard.effect(data));
     }
 

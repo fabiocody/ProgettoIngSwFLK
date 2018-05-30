@@ -8,7 +8,7 @@ import it.polimi.ingsw.util.Colors;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import it.polimi.ingsw.util.Costants;
+import it.polimi.ingsw.util.Constants;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -18,7 +18,7 @@ class PlacementConstraintTest {
     @Test
     void PlaceDieEmptyConstraintTest(){
         PlacementConstraint con = new EmptyConstraint();
-        WindowPattern pattern = new WindowPattern(Costants.INDEX_COSTANT);
+        WindowPattern pattern = new WindowPattern(Constants.INDEX_CONSTANT);
         Die d1 = new Die(Colors.getRandomColor(), ThreadLocalRandom.current().nextInt(1,7));
         Die d2 = new Die(Colors.getRandomColor(),ThreadLocalRandom.current().nextInt(1,7));
         int index = ThreadLocalRandom.current().nextInt(0,20);
@@ -33,8 +33,8 @@ class PlacementConstraintTest {
         PlacementConstraint con = new BorderConstraint(new EmptyConstraint());
         Die d = new Die(Colors.getRandomColor(),ThreadLocalRandom.current().nextInt(1,7));
         for(int i = 0; i < 2; i++){
-            WindowPattern pattern = new WindowPattern(Costants.INDEX_COSTANT);
-            WindowPattern pattern2 = new WindowPattern(Costants.INDEX_COSTANT);
+            WindowPattern pattern = new WindowPattern(Constants.INDEX_CONSTANT);
+            WindowPattern pattern2 = new WindowPattern(Constants.INDEX_CONSTANT);
             int index = ThreadLocalRandom.current().nextInt(0,5) + 15*i;
             int index2 = 5*ThreadLocalRandom.current().nextInt(0,4) + 4*i;
             pattern.placeDie(d,index,con);
@@ -79,7 +79,7 @@ class PlacementConstraintTest {
         Die d1 = new Die(Colors.getRandomColor(),ThreadLocalRandom.current().nextInt(1,7));
         Die d2 = new Die(Colors.getRandomColor(),ThreadLocalRandom.current().nextInt(1,7));
         for(int i: list){
-            WindowPattern pattern = new WindowPattern(Costants.INDEX_COSTANT);
+            WindowPattern pattern = new WindowPattern(Constants.INDEX_CONSTANT);
             pattern.placeDie(d1, index,con1);
             pattern.placeDie(d2,i,con2);
             assertTrue(pattern.getCellAt(i).getPlacedDie() == d2);
@@ -97,7 +97,7 @@ class PlacementConstraintTest {
         Die d1 = new Die(color,ThreadLocalRandom.current().nextInt(1,7));
         Die d2 = new Die(color,ThreadLocalRandom.current().nextInt(1,7));
         for(int i: list){
-            WindowPattern pattern = new WindowPattern(Costants.INDEX_COSTANT);
+            WindowPattern pattern = new WindowPattern(Constants.INDEX_CONSTANT);
             pattern.placeDie(d1, index,con1);
             assertThrows(InvalidPlacementException.class,
                     ()-> pattern.placeDie(d2,i,con2));

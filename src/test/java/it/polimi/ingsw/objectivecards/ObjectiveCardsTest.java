@@ -5,7 +5,7 @@ import it.polimi.ingsw.model.objectivecards.*;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.placementconstraints.EmptyConstraint;
 import it.polimi.ingsw.util.Colors;
-import it.polimi.ingsw.util.Costants;
+import it.polimi.ingsw.util.Constants;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,7 +14,7 @@ class ObjectiveCardsTest {
 
     @Test
     void privateObjectiveCard1() {
-        WindowPattern window = new WindowPattern(Costants.INDEX_COSTANT);
+        WindowPattern window = new WindowPattern(Constants.INDEX_CONSTANT);
         window.placeDie(new Die(Colors.RED, 1), 0, new EmptyConstraint());
         window.placeDie(new Die(Colors.RED, 2), 5, new EmptyConstraint());
         window.placeDie(new Die(Colors.RED, 3), 3, new EmptyConstraint());
@@ -31,7 +31,7 @@ class ObjectiveCardsTest {
 
     @Test
     void privateObjectiveCard2() {
-        WindowPattern window = new WindowPattern(Costants.INDEX_COSTANT);
+        WindowPattern window = new WindowPattern(Constants.INDEX_CONSTANT);
         window.placeDie(new Die(Colors.YELLOW, 1), 0, new EmptyConstraint());
         window.placeDie(new Die(Colors.YELLOW, 2), 5, new EmptyConstraint());
         window.placeDie(new Die(Colors.YELLOW, 3), 3, new EmptyConstraint());
@@ -48,7 +48,7 @@ class ObjectiveCardsTest {
 
     @Test
     void privateObjectiveCard3() {
-        WindowPattern window = new WindowPattern(Costants.INDEX_COSTANT);
+        WindowPattern window = new WindowPattern(Constants.INDEX_CONSTANT);
         window.placeDie(new Die(Colors.GREEN, 1), 0, new EmptyConstraint());
         window.placeDie(new Die(Colors.GREEN, 2), 5, new EmptyConstraint());
         window.placeDie(new Die(Colors.GREEN, 3), 3, new EmptyConstraint());
@@ -65,7 +65,7 @@ class ObjectiveCardsTest {
 
     @Test
     void privateObjectiveCard4() {
-        WindowPattern window = new WindowPattern(Costants.INDEX_COSTANT);
+        WindowPattern window = new WindowPattern(Constants.INDEX_CONSTANT);
         window.placeDie(new Die(Colors.BLUE, 1), 0, new EmptyConstraint());
         window.placeDie(new Die(Colors.BLUE, 2), 5, new EmptyConstraint());
         window.placeDie(new Die(Colors.BLUE, 3), 3, new EmptyConstraint());
@@ -82,7 +82,7 @@ class ObjectiveCardsTest {
 
     @Test
     void privateObjectiveCard5() {
-        WindowPattern window = new WindowPattern(Costants.INDEX_COSTANT);
+        WindowPattern window = new WindowPattern(Constants.INDEX_CONSTANT);
         window.placeDie(new Die(Colors.PURPLE, 1), 0, new EmptyConstraint());
         window.placeDie(new Die(Colors.PURPLE, 2), 5, new EmptyConstraint());
         window.placeDie(new Die(Colors.PURPLE, 3), 3, new EmptyConstraint());
@@ -99,7 +99,7 @@ class ObjectiveCardsTest {
 
     @Test
     void publicObjectiveCard1() {
-        WindowPattern window = new WindowPattern(Costants.INDEX_COSTANT);
+        WindowPattern window = new WindowPattern(Constants.INDEX_CONSTANT);
         window.placeDie(new Die(Colors.RED, 1), 0, new EmptyConstraint());
         window.placeDie(new Die(Colors.YELLOW, 2), 1, new EmptyConstraint());
         window.placeDie(new Die(Colors.GREEN, 3), 2, new EmptyConstraint());
@@ -116,7 +116,7 @@ class ObjectiveCardsTest {
 
     @Test
     void publicObjectiveCard2() {
-        WindowPattern window = new WindowPattern(Costants.INDEX_COSTANT);
+        WindowPattern window = new WindowPattern(Constants.INDEX_CONSTANT);
         window.placeDie(new Die(Colors.RED, 1), 0, new EmptyConstraint());
         window.placeDie(new Die(Colors.YELLOW, 2), 5, new EmptyConstraint());
         window.placeDie(new Die(Colors.GREEN, 3), 10, new EmptyConstraint());
@@ -133,7 +133,7 @@ class ObjectiveCardsTest {
 
     @Test
     void publicObjectiveCard3() {
-        WindowPattern window = new WindowPattern(Costants.INDEX_COSTANT);
+        WindowPattern window = new WindowPattern(Constants.INDEX_CONSTANT);
         window.placeDie(new Die(Colors.RED, 1), 0, new EmptyConstraint());
         window.placeDie(new Die(Colors.YELLOW, 2), 1, new EmptyConstraint());
         window.placeDie(new Die(Colors.GREEN, 3), 2, new EmptyConstraint());
@@ -150,7 +150,7 @@ class ObjectiveCardsTest {
 
     @Test
     void publicObjectiveCard4() {
-        WindowPattern window = new WindowPattern(Costants.INDEX_COSTANT);
+        WindowPattern window = new WindowPattern(Constants.INDEX_CONSTANT);
         window.placeDie(new Die(Colors.RED, 1), 0, new EmptyConstraint());
         window.placeDie(new Die(Colors.YELLOW, 2), 5, new EmptyConstraint());
         window.placeDie(new Die(Colors.GREEN, 3), 10, new EmptyConstraint());
@@ -167,7 +167,7 @@ class ObjectiveCardsTest {
 
     @Test
     void publicObjectiveCard5() {
-        WindowPattern window = new WindowPattern(Costants.INDEX_COSTANT);
+        WindowPattern window = new WindowPattern(Constants.INDEX_CONSTANT);
         window.placeDie(new Die(Colors.RED, 1), 0, new EmptyConstraint());
         window.placeDie(new Die(Colors.YELLOW, 2), 5, new EmptyConstraint());
         window.placeDie(new Die(Colors.GREEN, 1), 10, new EmptyConstraint());
@@ -184,7 +184,7 @@ class ObjectiveCardsTest {
 
     @Test
     void publicObjectiveCard6() {
-        WindowPattern window = new WindowPattern(Costants.INDEX_COSTANT);
+        WindowPattern window = new WindowPattern(Constants.INDEX_CONSTANT);
         window.placeDie(new Die(Colors.RED, 1), 0, new EmptyConstraint());
         window.placeDie(new Die(Colors.YELLOW, 2), 5, new EmptyConstraint());
         window.placeDie(new Die(Colors.GREEN, 3), 10, new EmptyConstraint());
@@ -201,7 +201,7 @@ class ObjectiveCardsTest {
 
     @Test
     void publicObjectiveCard7() {
-        WindowPattern window = new WindowPattern(Costants.INDEX_COSTANT);
+        WindowPattern window = new WindowPattern(Constants.INDEX_CONSTANT);
         window.placeDie(new Die(Colors.RED, 5), 0, new EmptyConstraint());
         window.placeDie(new Die(Colors.YELLOW, 2), 5, new EmptyConstraint());
         window.placeDie(new Die(Colors.GREEN, 1), 10, new EmptyConstraint());
@@ -218,7 +218,7 @@ class ObjectiveCardsTest {
 
     @Test
     void publicObjectiveCard8() {
-        WindowPattern window = new WindowPattern(Costants.INDEX_COSTANT);
+        WindowPattern window = new WindowPattern(Constants.INDEX_CONSTANT);
         window.placeDie(new Die(Colors.RED, 1), 0, new EmptyConstraint());
         window.placeDie(new Die(Colors.YELLOW, 2), 5, new EmptyConstraint());
         window.placeDie(new Die(Colors.GREEN, 3), 10, new EmptyConstraint());
@@ -236,7 +236,7 @@ class ObjectiveCardsTest {
     @Test
     void publicObjectiveCard9() {
         // TODO
-        WindowPattern window = new WindowPattern(Costants.INDEX_COSTANT);
+        WindowPattern window = new WindowPattern(Constants.INDEX_CONSTANT);
         window.placeDie(new Die(Colors.RED, 1), 0, new EmptyConstraint());
         window.placeDie(new Die(Colors.RED, 2), 6, new EmptyConstraint());
         window.placeDie(new Die(Colors.RED, 3), 12, new EmptyConstraint());
@@ -250,7 +250,7 @@ class ObjectiveCardsTest {
 
     @Test
     void publicObjectiveCard10() {
-        WindowPattern window = new WindowPattern(Costants.INDEX_COSTANT);
+        WindowPattern window = new WindowPattern(Constants.INDEX_CONSTANT);
         window.placeDie(new Die(Colors.RED, 1), 0, new EmptyConstraint());
         window.placeDie(new Die(Colors.YELLOW, 2), 5, new EmptyConstraint());
         window.placeDie(new Die(Colors.GREEN, 1), 10, new EmptyConstraint());

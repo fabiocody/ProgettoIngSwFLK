@@ -1,5 +1,6 @@
 package it.polimi.ingsw.client;
 
+import it.polimi.ingsw.util.Constants;
 import org.fusesource.jansi.AnsiConsole;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -20,7 +21,7 @@ public class ClientCLI extends Client {
     private boolean gameStarted = false;
     private boolean active = false;
     private boolean patternChosen = false;
-    private int instructionIndex= 42;
+    private int instructionIndex= Constants.INDEX_CONSTANT;
 
     private String wrTimeout;
     private String wrPlayers;
@@ -43,7 +44,7 @@ public class ClientCLI extends Client {
                 input = asyncInput("waitingRoomMessage");
                 if (input.equalsIgnoreCase("exit")) throw new InterruptedException();
             } while (!stopAsyncInput);
-            Integer patternIndex = 42;
+            Integer patternIndex = Constants.INDEX_CONSTANT;
             log("");
             do {
                 input = input("Scegli la tua carta Schema [1-4] >>>");
@@ -61,9 +62,9 @@ public class ClientCLI extends Client {
             for (int turns = 0; turns < 20; turns++) {
                 boolean alreadyPlacedDie = false;
                 boolean alreadyUsedToolCard = false;
-                int draftPoolIndex = 42;
-                int x = 42;
-                int y = 42;
+                int draftPoolIndex = Constants.INDEX_CONSTANT;
+                int x = Constants.INDEX_CONSTANT;
+                int y = Constants.INDEX_CONSTANT;
                 if(!active){
                     log("Aspetta il tuo turno.");
                     while (!active) Thread.sleep(10);
@@ -79,7 +80,7 @@ public class ClientCLI extends Client {
                         if(instructionIndex == 1){
                             if(alreadyPlacedDie){
                                 log("Hai già piazzato un dado questo turno!");
-                                this.instructionIndex = 42;
+                                this.instructionIndex = Constants.INDEX_CONSTANT;
                             }
                             else{
                                 do {
@@ -113,20 +114,20 @@ public class ClientCLI extends Client {
                                 else{
                                  log("Posizionamento invalido");
                                 }
-                                this.instructionIndex = 42;
+                                this.instructionIndex = Constants.INDEX_CONSTANT;
                             }
                         }
                         else if(instructionIndex == 2){
                             if(alreadyUsedToolCard){
                                 //log(ansi().eraseScreen().cursor(0, 0).a("Hai già usato una carta strumento questo turno!").a("\n").toString());
                                 log("Hai già usato una carta strumento questo turno!");
-                                this.instructionIndex = 42;
+                                this.instructionIndex = Constants.INDEX_CONSTANT;
                             }
                             else{
                                 //log(ansi().eraseScreen().cursor(0, 0).a("USE TOOLCARD").a("\n").toString());
                                 log("USE TOOLCARD");
                                 alreadyUsedToolCard = true;
-                                this.instructionIndex = 42;
+                                this.instructionIndex = Constants.INDEX_CONSTANT;
                             }
                         }
 
