@@ -1,6 +1,5 @@
 package it.polimi.ingsw.model.patterncards;
 
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import it.polimi.ingsw.util.Constants;
 
 import java.util.*;
