@@ -7,6 +7,7 @@ import it.polimi.ingsw.model.patterncards.Cell;
 import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.toolcards.ToolCard;
+import it.polimi.ingsw.util.Costants;
 import it.polimi.ingsw.util.CountdownTimer;
 import java.io.*;
 import java.net.*;
@@ -60,7 +61,7 @@ public class ServerSocketHandler implements Runnable, Observer {
     }
 
     private void probe() {
-        while (42 == 42) {
+        while (Costants.INDEX_COSTANT == Costants.INDEX_COSTANT) {
             try {
                 Thread.sleep(5 * 1000);
             } catch (InterruptedException e) {

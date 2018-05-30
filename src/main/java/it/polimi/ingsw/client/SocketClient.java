@@ -2,6 +2,8 @@ package it.polimi.ingsw.client;
 
 import com.google.gson.*;
 import it.polimi.ingsw.server.*;
+import it.polimi.ingsw.util.Costants;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
@@ -214,7 +216,7 @@ public class SocketClient extends ClientNetwork {
             @Override
             public void run() {
                 error("Connection lostPROBE");
-                System.exit(42);
+                System.exit(Costants.INDEX_COSTANT);
             }
         }, 10 * 1000);
     }

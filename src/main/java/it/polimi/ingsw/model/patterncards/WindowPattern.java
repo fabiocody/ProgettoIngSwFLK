@@ -24,14 +24,13 @@ public class WindowPattern {
      */
 
     public WindowPattern(int patternNumber) {
-        String patternID;
+        String patternID = "WP";
 
         if(patternNumber < 0 || patternNumber > 23) {
-            patternID = "WP" + 42;
             this.patternNumber = 0;
         }
         else {
-            patternID = "WP" + patternNumber;
+            patternID = patternID + patternNumber;
             this.patternNumber = patternNumber;
         }
 

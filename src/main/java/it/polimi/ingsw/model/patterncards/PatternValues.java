@@ -107,7 +107,7 @@ public enum PatternValues {
             new Colors[]{   null,Colors.BLUE,Colors.RED,null,null,null,null,null,null,Colors.BLUE,
                             Colors.BLUE,null,null,Colors.RED,null,null,Colors.RED,null,null,null},
             "Fulgor del Cielo"),
-    WP42(0, new Integer[]{  null,null,null,null,null,null,null,null,null,null,
+    WP(0, new Integer[]{  null,null,null,null,null,null,null,null,null,null,
                             null,null,null,null,null,null,null,null,null,null},
             new Colors[]{   null,null,null,null,null,null,null,null,null,null,
                             null,null,null,null,null,null,null,null,null,null},
