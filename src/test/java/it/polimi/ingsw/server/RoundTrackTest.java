@@ -1,6 +1,7 @@
 package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.model.dice.*;
+import it.polimi.ingsw.util.Constants;
 import org.junit.jupiter.api.*;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,18 +19,18 @@ class RoundTrackTest {
     @Test
     void roundTrackTest() {
         assertEquals(1, roundTrack.getCurrentRound());
-        for (int i = 1; i < 10; i++) {
+        for (int i = 1; i < Constants.NUMBER_OF_TURNS; i++) {
             int previousRound = roundTrack.getCurrentRound();
             roundTrack.incrementRound();
             assertEquals(previousRound + 1, roundTrack.getCurrentRound());
         }
         roundTrack.incrementRound();
-        assertEquals(10, roundTrack.getCurrentRound());
+        assertEquals(Constants.NUMBER_OF_TURNS, roundTrack.getCurrentRound());
     }
 
     @Test
     void putDiceTest() {
-        DiceGenerator diceGenerator = new DiceGenerator(4);
+        DiceGenerator diceGenerator = new DiceGenerator(Constants.MAX_PLAYER_NUMBER);
         diceGenerator.generateDraftPool();
         List<Die> draftPool = new ArrayList<>(diceGenerator.getDraftPool());
         roundTrack.putDice(diceGenerator.getDraftPool());
