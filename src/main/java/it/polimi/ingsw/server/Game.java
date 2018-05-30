@@ -223,6 +223,12 @@ public class Game extends Observable implements Observer {
         this.getDiceGenerator().generateDraftPool();
     }
 
+    void removeDieFromDraftPool(int draftPoolIndex){
+        this.diceGenerator.drawDieFromDraftPool(draftPoolIndex);
+        setChanged();
+        notifyObservers();
+    }
+
     /**
      * This method is used to compute Victory Points for each player.
      * <code>getFinalScores</code> must be called to retrieve the scores.

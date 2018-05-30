@@ -229,14 +229,12 @@ public class ServerSocketHandler implements Runnable, Observer {
         payload.addProperty(method,"placeDie");
         try{
             this.gameEndPoint.placeDie(id,draftPoolIndex,x,y);
-        } catch (RemoteException | InvalidPlacementException | DieAlreadyPlacedException e){
+        } catch (InvalidPlacementException | DieAlreadyPlacedException e){
             payload.addProperty("result", false);
             log(nickname + " die placement was refused");
             out.println(payload.toString());
             return;
         }
-        updateWindowPatterns();
-        updateDraftPool();
         payload.addProperty("result", true);
         log(nickname + " placed a die");
         out.println(payload.toString());

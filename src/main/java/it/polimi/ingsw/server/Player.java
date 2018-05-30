@@ -1,7 +1,13 @@
 package it.polimi.ingsw.server;
 
+import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
+import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
+import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
+import it.polimi.ingsw.util.Constants;
+
+import java.rmi.RemoteException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,6 +41,7 @@ public class Player extends Observable {
     private final Object windowPatternLock = new Object();
     private final Object privateObjectiveCardLock = new Object();
     private final Object activeLock = new Object();
+
 
     /**
      * This methods creates a Player object with a given nickname and computes a random UUID of it.
@@ -144,6 +151,22 @@ public class Player extends Observable {
             }
         }
     }
+
+    public void placeDie(Die d, int x, int y) throws InvalidPlacementException, DieAlreadyPlacedException {
+
+        if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException("");
+        if (this.getWindowPattern().isGridEmpty()) {
+            try {
+                this.getWindowPattern().placeDie(d, Constants.NUMBER_OF_PATTERN_COLUMNS * y + x, PlacementConstraint.initialConstraint());
+            } catch (InvalidPlacementException e) {throw e;}
+        } else {
+            try{
+                this.getWindowPattern().placeDie(d,Constants.NUMBER_OF_PATTERN_COLUMNS * y + x);
+            } catch (InvalidPlacementException e){throw e;}
+        setDiePlacedInThisTurn(true);
+        }
+    }
+
 
     public boolean isWindowPatternChosen() {
         return windowPatternChosen;

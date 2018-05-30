@@ -120,29 +120,13 @@ public class GameEndPoint implements GameAPI {
         return this.game.getDiceGenerator().getDraftPool();
     }
 
-
     @Override
-    public void placeDie(UUID playerID, int draftPoolIndex, int x, int y) throws RemoteException, InvalidPlacementException, DieAlreadyPlacedException{
-        WindowPattern wp = getPlayer(playerID).getWindowPattern();
-        Die d = this.game.getDiceGenerator().getDraftPool().get(draftPoolIndex);
-        if(getPlayer(playerID).isDiePlacedInThisTurn() == true)
-            throw new DieAlreadyPlacedException("");
-        if (wp.isGridEmpty()) {
-            try {
-                wp.placeDie(d, Constants.NUMBER_OF_PATTERN_COLUMNS * y + x, PlacementConstraint.initialConstraint());
-            } catch (InvalidPlacementException e) {
-                throw e;
-            }
-        }
-        else{
-            try {
-                wp.placeDie(d,Constants.NUMBER_OF_PATTERN_COLUMNS *y+x);
-            } catch (InvalidPlacementException e) {
-                throw e;
-            }
-        }
-        getPlayer(playerID).setDiePlacedInThisTurn(true);
-        this.game.getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
+    public void placeDie(UUID id, int draftPoolIndex, int x, int y) throws InvalidPlacementException, DieAlreadyPlacedException {
+        Die d = this.getDraftPool().get(draftPoolIndex);
+        try{
+            getPlayer(id).placeDie(d,x,y);
+        } catch (InvalidPlacementException | DieAlreadyPlacedException e){throw e;}
+        this.game.removeDieFromDraftPool(draftPoolIndex);
     }
 
     @Override

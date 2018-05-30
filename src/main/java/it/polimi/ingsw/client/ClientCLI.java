@@ -56,8 +56,12 @@ public class ClientCLI extends Client {
             } while (patternIndex <= 0 || patternIndex > 4);
             this.getNetwork().choosePattern(patternIndex - 1);
             patternChosen = true;
-            log("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
+            /*log("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
             while (!gameStarted) Thread.sleep(10);
+            */
+
+            while (!gameStarted) input("Hai scelto il pattern numero " + patternIndex + ".\n" +
+                    "Per favore attendi che tutti i giocatori facciano la propria scelta.");
 
             for (int turns = 0; turns < 20; turns++) {
                 boolean alreadyPlacedDie = false;
@@ -65,10 +69,14 @@ public class ClientCLI extends Client {
                 int draftPoolIndex = Constants.INDEX_CONSTANT;
                 int x = Constants.INDEX_CONSTANT;
                 int y = Constants.INDEX_CONSTANT;
+
                 if(!active){
                     log("Aspetta il tuo turno.");
                     while (!active) Thread.sleep(10);
                 }
+
+                //while (!active) input("Aspetta il tuo turno.");
+
                 log("È il tuo turno!");
                 do {
                     log("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
@@ -108,22 +116,22 @@ public class ClientCLI extends Client {
                                     }
                                 } while (y < 0 || y > 4);
                                 if(this.getNetwork().placeDie(draftPoolIndex,x,y)){
-                                    log("Dado piazzato");
+                                    log("Dado piazzato\n");
                                     alreadyPlacedDie = true;
                                 }
                                 else{
-                                 log("Posizionamento invalido");
+                                 log("Posizionamento invalido\n");
                                 }
                                 this.instructionIndex = Constants.INDEX_CONSTANT;
                             }
                         }
                         else if(instructionIndex == 2){
                             if(alreadyUsedToolCard){
-                                log("Hai già usato una carta strumento questo turno!");
+                                log("Hai già usato una carta strumento questo turno!\n");
                                 this.instructionIndex = Constants.INDEX_CONSTANT;
                             }
                             else{
-                                log("USE TOOLCARD");
+                                log("USE TOOLCARD\n");
                                 alreadyUsedToolCard = true;
                                 this.instructionIndex = Constants.INDEX_CONSTANT;
                             }
