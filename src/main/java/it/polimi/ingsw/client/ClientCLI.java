@@ -261,11 +261,19 @@ public class ClientCLI extends Client {
      * @throws IOException socket error
      */
     private void addPlayer() throws IOException {
-        this.setNickname(this.input("Nickname >>>"));
+        String nickname = this.input("Nickname >>>");
+        this.setNickname(nickname);
         setUUID(this.getNetwork().addPlayer(this.getNickname()));
         setLogged(this.getUUID() != null);
-        if (isLogged()) log("Login successful");
-        else log("Login failed");
+        if (isLogged()) log("Login riuscito!");
+        else{
+            if(nickname.equals(""))
+                log("Login fallito! I nickname non possono essere vuoti");
+            else if(nickname.contains(" "))
+                log("Login fallito! I nickname non possono contenere spazi");
+            else if(nickname.length() > 20)
+                log("Login fallito! I nickname non possono essere più lunghi di 20 caratteri");
+        }
     }
 
     private static String concatWindowPatterns(String[] pattern1, String[] pattern2) {

@@ -89,7 +89,7 @@ public class SagradaServer implements Observer {
     }
 
     public synchronized boolean isNicknameNotValid(String nickname){
-        return nickname.contains(" ") || nickname.equals("");
+        return nickname.contains(" ") || nickname.equals("") || nickname.length() > 20;
     }
 
     /**
