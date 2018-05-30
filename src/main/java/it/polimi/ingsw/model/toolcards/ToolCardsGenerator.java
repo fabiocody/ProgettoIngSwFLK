@@ -1,6 +1,8 @@
 package it.polimi.ingsw.model.toolcards;
 
 import it.polimi.ingsw.server.Game;
+import it.polimi.ingsw.util.Constants;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -30,7 +32,7 @@ public class ToolCardsGenerator {
      */
     public static List<ToolCard> generate(Game game) {
         List<ToolCard> cards = new Vector<>();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < Constants.TOOL_CARD_NUMBER; i++) {
             ToolCard newCard;
             do {
                 String className = "it.polimi.ingsw.model.toolcards.ToolCard" + ThreadLocalRandom.current().nextInt(1, 13);

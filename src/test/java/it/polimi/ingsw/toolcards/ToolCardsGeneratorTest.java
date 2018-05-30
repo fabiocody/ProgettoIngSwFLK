@@ -2,6 +2,7 @@ package it.polimi.ingsw.toolcards;
 
 import it.polimi.ingsw.model.toolcards.*;
 import it.polimi.ingsw.server.*;
+import it.polimi.ingsw.util.Constants;
 import org.junit.jupiter.api.*;
 import java.util.*;
 import java.util.stream.*;
@@ -24,7 +25,7 @@ class ToolCardsGeneratorTest {
     @Test
     void generatorTest() {
         List<ToolCard> cards = ToolCardsGenerator.generate(game);
-        assertEquals(3, cards.size());
+        assertEquals(Constants.TOOL_CARD_NUMBER, cards.size());
         assertNotEquals(cards.get(0), cards.get(1));
         assertNotEquals(cards.get(0), cards.get(2));
         assertNotEquals(cards.get(1), cards.get(2));
