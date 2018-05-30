@@ -2,6 +2,7 @@ package it.polimi.ingsw.dice;
 
 import static org.junit.jupiter.api.Assertions.*;
 import it.polimi.ingsw.util.Colors;
+import it.polimi.ingsw.util.Constants;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import it.polimi.ingsw.model.dice.*;
@@ -15,7 +16,7 @@ class DiceGeneratorTest {
 
     @BeforeAll
     static void setup() {
-        generator = new DiceGenerator(4);
+        generator = new DiceGenerator(Constants.MAX_NUMBER_OF_PLAYERS);
     }
 
     @Test
@@ -39,8 +40,8 @@ class DiceGeneratorTest {
 
     @Test
     void maxDiceGenerated() {
-        DiceGenerator generator = new DiceGenerator(4);
-        for (int i=0; i<90; i++) {
+        DiceGenerator generator = new DiceGenerator(Constants.MAX_NUMBER_OF_PLAYERS);
+        for (int i = 0; i<5*Constants.MAX_NUMBER_OF_SAME_COLOR_DICE; i++) {
             assertNotNull(generator.draw());
         }
         assertThrows(NoMoreDiceException.class, generator::draw);
@@ -48,7 +49,7 @@ class DiceGeneratorTest {
 
     @Test
     void maxDiceColorGenerator() {
-        DiceGenerator generator = new DiceGenerator(4);
+        DiceGenerator generator = new DiceGenerator(Constants.MAX_NUMBER_OF_PLAYERS);
         Map<Colors, Integer> generatedDice = new HashMap<>();
         generatedDice.put(Colors.RED, 0);
         generatedDice.put(Colors.GREEN, 0);
@@ -56,18 +57,18 @@ class DiceGeneratorTest {
         generatedDice.put(Colors.BLUE, 0);
         generatedDice.put(Colors.PURPLE, 0);
 
-        for (int i=0; i<90; i++) {
+        for (int i = 0; i<5*Constants.MAX_NUMBER_OF_SAME_COLOR_DICE; i++) {
             Die d = generator.draw();
             generatedDice.replace(d.getColor(), generatedDice.get(d.getColor())+1);
         }
 
         for (Integer v : generatedDice.values())
-            assertEquals(18, v.intValue());
+            assertEquals(Constants.MAX_NUMBER_OF_SAME_COLOR_DICE, v.intValue());
     }
 
     @Test
     void putAwayTest() {
-        DiceGenerator generator = new DiceGenerator(4);
+        DiceGenerator generator = new DiceGenerator(Constants.MAX_NUMBER_OF_PLAYERS);
 
         generator.generateDraftPool();
         Die d = generator.getDraftPool().get(1);

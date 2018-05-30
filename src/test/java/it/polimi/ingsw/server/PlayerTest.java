@@ -2,6 +2,7 @@ package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.model.objectivecards.ObjectiveCardsGenerator;
 import it.polimi.ingsw.model.patterncards.*;
+import it.polimi.ingsw.util.Constants;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -19,10 +20,10 @@ class PlayerTest {
         ObjectiveCardsGenerator objectiveCardsGenerator = new ObjectiveCardsGenerator(2);
         assertThrows(IllegalStateException.class, player::getWindowPatternList);
         player.setWindowPatternList(windowPatternList);
-        player.chooseWindowPattern(ThreadLocalRandom.current().nextInt(0, 4));
+        player.chooseWindowPattern(ThreadLocalRandom.current().nextInt(0, 2*Constants.PATTERN_CARDS_FOR_EACH_PLAYER));
         assertNotNull(player.getWindowPattern());
         assertEquals(player.getWindowPattern().getDifficulty(), player.getFavorTokens());
-        assertThrows(IllegalStateException.class, () -> player.chooseWindowPattern(ThreadLocalRandom.current().nextInt(0, 4)));
+        assertThrows(IllegalStateException.class, () -> player.chooseWindowPattern(ThreadLocalRandom.current().nextInt(0, 2*Constants.PATTERN_CARDS_FOR_EACH_PLAYER)));
         assertThrows(IllegalStateException.class, player::getPrivateObjectiveCard);
         player.setPrivateObjectiveCard(objectiveCardsGenerator.dealPrivate());
         assertNotNull(player.getPrivateObjectiveCard());

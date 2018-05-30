@@ -13,10 +13,10 @@ public class BorderConstraint extends Constraint {
 
     @Override
     public boolean checkConstraint(Cell[] grid, int position, Die d) {
-        return (position % Constants.WINDOW_PATTERN_COLUMN_NUMBER == 0 || position % Constants.WINDOW_PATTERN_COLUMN_NUMBER == 4 ||
-                position >= 0 && position < Constants.WINDOW_PATTERN_COLUMN_NUMBER ||
-                position >= Constants.WINDOW_PATTERN_COLUMN_NUMBER *Constants.WINDOW_PATTERN_ROW_NUMBER - Constants.WINDOW_PATTERN_COLUMN_NUMBER
-                && position < Constants.WINDOW_PATTERN_COLUMN_NUMBER *Constants.WINDOW_PATTERN_ROW_NUMBER)
+        return (position % Constants.NUMBER_OF_PATTERN_COLUMNS == 0 || position % Constants.NUMBER_OF_PATTERN_COLUMNS == 4 ||
+                position >= 0 && position < Constants.NUMBER_OF_PATTERN_COLUMNS ||
+                position >= Constants.NUMBER_OF_PATTERN_COLUMNS *Constants.NUMBER_OF_PATTERN_ROWS - Constants.NUMBER_OF_PATTERN_COLUMNS
+                && position < Constants.NUMBER_OF_PATTERN_COLUMNS *Constants.NUMBER_OF_PATTERN_ROWS)
                 && super.checkConstraint(grid, position, d);
     }
 

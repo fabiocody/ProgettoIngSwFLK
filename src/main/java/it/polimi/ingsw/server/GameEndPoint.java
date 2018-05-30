@@ -129,14 +129,14 @@ public class GameEndPoint implements GameAPI {
             throw new DieAlreadyPlacedException("");
         if (wp.isGridEmpty()) {
             try {
-                wp.placeDie(d, Constants.WINDOW_PATTERN_COLUMN_NUMBER * y + x, PlacementConstraint.initialConstraint());
+                wp.placeDie(d, Constants.NUMBER_OF_PATTERN_COLUMNS * y + x, PlacementConstraint.initialConstraint());
             } catch (InvalidPlacementException e) {
                 throw e;
             }
         }
         else{
             try {
-                wp.placeDie(d,Constants.WINDOW_PATTERN_COLUMN_NUMBER*y+x);
+                wp.placeDie(d,Constants.NUMBER_OF_PATTERN_COLUMNS *y+x);
             } catch (InvalidPlacementException e) {
                 throw e;
             }

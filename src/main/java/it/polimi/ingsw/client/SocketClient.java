@@ -249,7 +249,7 @@ public class SocketClient extends ClientNetwork {
             debug("INPUT " + input);
             JsonArray players = input.get("players").getAsJsonArray();
             debug("SIZE: " + players.size());
-            if (players.size() < Constants.MAX_PLAYER_NUMBER) {
+            if (players.size() < Constants.MAX_NUMBER_OF_PLAYERS) {
                 new Timer(true)
                         .schedule(new TimerTask() {
                             @Override

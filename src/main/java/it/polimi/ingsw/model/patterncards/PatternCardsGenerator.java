@@ -23,11 +23,11 @@ public class PatternCardsGenerator {
 
     public PatternCardsGenerator(int numberOfPlayers){
 
-        if(numberOfPlayers < 2 || numberOfPlayers > Constants.MAX_PLAYER_NUMBER)
+        if(numberOfPlayers < 2 || numberOfPlayers > Constants.MAX_NUMBER_OF_PLAYERS)
             throw new InvalidNumberOfPlayersException();
 
         List <Integer> randomNumbers= new ArrayList<>();
-        for(int i = 0; i < 12; i++){
+        for(int i = 0; i < Constants.NUMBER_OF_PATTERNS/2; i++){
             randomNumbers.add(i);
         }
         Collections.shuffle(randomNumbers);

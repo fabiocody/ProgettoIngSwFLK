@@ -2,7 +2,6 @@ package it.polimi.ingsw.model.dice;
 
 import it.polimi.ingsw.util.*;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
@@ -28,7 +27,7 @@ public class DiceGenerator {
         generatedDice = new ArrayList<>();
         for (Colors c : Colors.values()) {
             if (c != Colors.DEFAULT) {
-                for (int i=0; i<Constants.MAX_SAME_COLOR_DIE_NUMBER; i++) {
+                for (int i = 0; i<Constants.MAX_NUMBER_OF_SAME_COLOR_DICE; i++) {
                     Die d = new Die(c);
                     d.roll();
                     generatedDice.add(d);

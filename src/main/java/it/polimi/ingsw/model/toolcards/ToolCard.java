@@ -84,7 +84,7 @@ public abstract class ToolCard {
      * @return the linearized index of the cell
      */
     int linearizeIndex(int x, int y) {
-        return y* Constants.WINDOW_PATTERN_COLUMN_NUMBER + x;
+        return y* Constants.NUMBER_OF_PATTERN_COLUMNS + x;
     }
 
     /**

@@ -21,7 +21,7 @@ class PlacementConstraintTest {
         WindowPattern pattern = new WindowPattern(Constants.INDEX_CONSTANT);
         Die d1 = new Die(Colors.getRandomColor(), ThreadLocalRandom.current().nextInt(1,7));
         Die d2 = new Die(Colors.getRandomColor(),ThreadLocalRandom.current().nextInt(1,7));
-        int index = ThreadLocalRandom.current().nextInt(0,20);
+        int index = ThreadLocalRandom.current().nextInt(0,Constants.NUMBER_OF_PATTERN_COLUMNS *Constants.NUMBER_OF_PATTERN_ROWS);
         pattern.placeDie(d1,index,con);
         assertTrue(pattern.getCellAt(index).getPlacedDie() == d1);
         assertThrows(InvalidPlacementException.class,
@@ -47,10 +47,10 @@ class PlacementConstraintTest {
     @Test
     void ColorConstraintTest(){
         PlacementConstraint con = new ColorConstraint(new EmptyConstraint());
-        WindowPattern pattern = new WindowPattern(ThreadLocalRandom.current().nextInt(0,24));
+        WindowPattern pattern = new WindowPattern(ThreadLocalRandom.current().nextInt(0,Constants.NUMBER_OF_PATTERNS));
         int j;
         do{
-            j = ThreadLocalRandom.current().nextInt(0,20);
+            j = ThreadLocalRandom.current().nextInt(0,Constants.NUMBER_OF_PATTERN_COLUMNS *Constants.NUMBER_OF_PATTERN_ROWS);
         } while (pattern.getCellAt(j).getCellColor() == null);
         Die d = new Die(pattern.getCellAt(j).getCellColor(),ThreadLocalRandom.current().nextInt(1,7));
         pattern.placeDie(d,j,con);
@@ -60,10 +60,10 @@ class PlacementConstraintTest {
     @Test
     void ValueConstraintTest(){
         PlacementConstraint con = new ValueConstraint(new EmptyConstraint());
-        WindowPattern pattern = new WindowPattern(ThreadLocalRandom.current().nextInt(0,24));
+        WindowPattern pattern = new WindowPattern(ThreadLocalRandom.current().nextInt(0,Constants.NUMBER_OF_PATTERNS));
         int j;
         do{
-            j = ThreadLocalRandom.current().nextInt(0,20);
+            j = ThreadLocalRandom.current().nextInt(0,Constants.NUMBER_OF_PATTERN_COLUMNS *Constants.NUMBER_OF_PATTERN_ROWS);
         } while (pattern.getCellAt(j).getCellValue() == null);
         Die d = new Die(Colors.getRandomColor(),pattern.getCellAt(j).getCellValue());
         pattern.placeDie(d,j,con);
@@ -74,7 +74,7 @@ class PlacementConstraintTest {
     void PositionConstraintTest(){
         PlacementConstraint con1 = new EmptyConstraint();
         PlacementConstraint con2 = new PositionConstraint(con1);
-        int index = ThreadLocalRandom.current().nextInt(0,20);
+        int index = ThreadLocalRandom.current().nextInt(0,Constants.NUMBER_OF_PATTERN_COLUMNS *Constants.NUMBER_OF_PATTERN_ROWS);
         List<Integer> list = Constraint.validPositions(index);
         Die d1 = new Die(Colors.getRandomColor(),ThreadLocalRandom.current().nextInt(1,7));
         Die d2 = new Die(Colors.getRandomColor(),ThreadLocalRandom.current().nextInt(1,7));
@@ -90,9 +90,8 @@ class PlacementConstraintTest {
     void OrthogonalConstraintTest(){
         PlacementConstraint con1 = new EmptyConstraint();
         PlacementConstraint con2 = new OrthogonalConstraint(new EmptyConstraint());
-        int index = ThreadLocalRandom.current().nextInt(0,20);
+        int index = ThreadLocalRandom.current().nextInt(0,Constants.NUMBER_OF_PATTERN_COLUMNS *Constants.NUMBER_OF_PATTERN_ROWS);
         Colors color = Colors.getRandomColor();
-        //int dieValue = ThreadLocalRandom.current().nextInt(1,7);
         List<Integer> list = Constraint.validOrthogonalPositions(index);
         Die d1 = new Die(color,ThreadLocalRandom.current().nextInt(1,7));
         Die d2 = new Die(color,ThreadLocalRandom.current().nextInt(1,7));

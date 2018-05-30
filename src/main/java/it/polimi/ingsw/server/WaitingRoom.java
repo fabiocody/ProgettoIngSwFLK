@@ -83,7 +83,7 @@ public class WaitingRoom extends Observable {
         if (this.getWaitingPlayers().size() == 2) {
             this.timer.cancel();
             this.timer.schedule(this::createGame, this.timeout);
-        } else if (this.getWaitingPlayers().size() == Constants.MAX_PLAYER_NUMBER) {
+        } else if (this.getWaitingPlayers().size() == Constants.MAX_NUMBER_OF_PLAYERS) {
             new Thread(this::createGame).start();
         }
         playerAdded = true;

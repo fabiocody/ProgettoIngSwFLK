@@ -36,7 +36,7 @@ public class ObjectiveCardsGenerator {
     public synchronized List<ObjectiveCard> generatePublic() {
         if (publicCardsAlreadyGenerated) throw new NoMoreCardsException();
         List<ObjectiveCard> generatedPublics = new Vector<>();
-        for (int i = 0; i < Constants.PUBLIC_OBJECTIVE_CARD_NUMBER; i++) {
+        for (int i = 0; i < Constants.NUMBER_OF_PUB_OBJ_CARDS; i++) {
             ObjectiveCard newCard;
             do {
                 String className = "it.polimi.ingsw.model.objectivecards.PublicObjectiveCard" + ThreadLocalRandom.current().nextInt(1, 11);
@@ -97,7 +97,7 @@ public class ObjectiveCardsGenerator {
      */
     public String toString() {
         return super.toString() + "\nRemaining public objective cards: " +
-                (publicCardsAlreadyGenerated ? 0 : Constants.PUBLIC_OBJECTIVE_CARD_NUMBER) + "\nRemaining private objective cards: " +
+                (publicCardsAlreadyGenerated ? 0 : Constants.NUMBER_OF_PUB_OBJ_CARDS) + "\nRemaining private objective cards: " +
                 (generatedPrivates == null ? 4 : generatedPrivates.size());
     }
 
