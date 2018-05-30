@@ -1,5 +1,7 @@
 package it.polimi.ingsw.model.objectivecards;
 
+import it.polimi.ingsw.util.Constants;
+
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -34,7 +36,7 @@ public class ObjectiveCardsGenerator {
     public synchronized List<ObjectiveCard> generatePublic() {
         if (publicCardsAlreadyGenerated) throw new NoMoreCardsException();
         List<ObjectiveCard> generatedPublics = new Vector<>();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < Constants.PUBLIC_OBJECTIVE_CARD_NUMBER; i++) {
             ObjectiveCard newCard;
             do {
                 String className = "it.polimi.ingsw.model.objectivecards.PublicObjectiveCard" + ThreadLocalRandom.current().nextInt(1, 11);
@@ -94,7 +96,9 @@ public class ObjectiveCardsGenerator {
      * @return a string describing the state of the generator
      */
     public String toString() {
-        return super.toString() + "\nRemaining public objective cards: " + (publicCardsAlreadyGenerated ? 0 : 3) + "\nRemaining private objective cards: " + (generatedPrivates == null ? 4 : generatedPrivates.size());
+        return super.toString() + "\nRemaining public objective cards: " +
+                (publicCardsAlreadyGenerated ? 0 : Constants.PUBLIC_OBJECTIVE_CARD_NUMBER) + "\nRemaining private objective cards: " +
+                (generatedPrivates == null ? 4 : generatedPrivates.size());
     }
 
 }

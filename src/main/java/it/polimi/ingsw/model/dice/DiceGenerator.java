@@ -28,7 +28,7 @@ public class DiceGenerator {
         generatedDice = new ArrayList<>();
         for (Colors c : Colors.values()) {
             if (c != Colors.DEFAULT) {
-                for (int i=0; i<18; i++) {
+                for (int i=0; i<Constants.MAX_SAME_COLOR_DIE_NUMBER; i++) {
                     Die d = new Die(c);
                     d.roll();
                     generatedDice.add(d);

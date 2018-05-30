@@ -2,6 +2,8 @@ package it.polimi.ingsw.model.patterncards;
 
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
+import it.polimi.ingsw.util.Constants;
+
 import java.util.Arrays;
 
 /**
@@ -37,8 +39,8 @@ public class WindowPattern {
         PatternValues values = PatternValues.valueOf(patternID);
         this.difficulty = values.getDifficulty();
         this.name = values.getPatternName();
-        this.grid = new Cell[20];
-        for (int i = 0; i < 20; i++) {
+        this.grid = new Cell[Constants.WINDOW_PATTERN_COLUMN_NUMBER *Constants.WINDOW_PATTERN_ROW_NUMBER];
+        for (int i = 0; i < Constants.WINDOW_PATTERN_COLUMN_NUMBER *Constants.WINDOW_PATTERN_ROW_NUMBER; i++) {
             grid[i] = new Cell(values.getCellColors()[i],values.getCellValues()[i]);
         }
     }
@@ -77,7 +79,7 @@ public class WindowPattern {
      */
 
     public synchronized Cell getCellAt(int i){
-        if(i < 0 || i > 19)
+        if(!(i >= 0 && i < Constants.WINDOW_PATTERN_COLUMN_NUMBER *Constants.WINDOW_PATTERN_ROW_NUMBER))
             throw new IndexOutOfBoundsException();
         return this.grid[i];
     }
@@ -92,9 +94,9 @@ public class WindowPattern {
      */
 
     public synchronized Cell getCellAt(int i, int j){
-        if(i < 0 || i > 3 || j < 0 || j > 4)
+        if(!(i >= 0 && i < Constants.WINDOW_PATTERN_ROW_NUMBER && j >= 0 && j < Constants.WINDOW_PATTERN_COLUMN_NUMBER))
             throw new IndexOutOfBoundsException();
-        return this.getCellAt(5*i + j);
+        return this.getCellAt(Constants.WINDOW_PATTERN_COLUMN_NUMBER *i + j);
     }
 
     /**
@@ -168,10 +170,10 @@ public class WindowPattern {
     @Override
     public synchronized String toString() {
         StringBuilder builder = new StringBuilder();
-        for (int k = 0; k < 5*3 + 6; k++) builder.append("-");
+        for (int k = 0; k <= Constants.WINDOW_PATTERN_ROW_NUMBER *Constants.WINDOW_PATTERN_COLUMN_NUMBER; k++) builder.append("-");
         builder.append("\n");
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 5; j++) {
+        for (int i = 0; i < Constants.WINDOW_PATTERN_ROW_NUMBER; i++) {
+            for (int j = 0; j < Constants.WINDOW_PATTERN_COLUMN_NUMBER; j++) {
                 if (j == 0) builder.append("|");
                 Cell cell = this.getCellAt(i, j);
                 if (cell.getPlacedDie() != null) {
@@ -182,11 +184,11 @@ public class WindowPattern {
                 builder.append("|");
             }
             builder.append("\n");
-            for (int k = 0; k < 5*3 + 6; k++) builder.append("-");
+            for (int k = 0; k <= Constants.WINDOW_PATTERN_ROW_NUMBER *Constants.WINDOW_PATTERN_COLUMN_NUMBER; k++) builder.append("-");
             builder.append("\n");
         }
         builder.append(getPatternName());
-        for (int k = getPatternName().length(); k < 20; k++)
+        for (int k = getPatternName().length(); k < Constants.WINDOW_PATTERN_ROW_NUMBER *Constants.WINDOW_PATTERN_COLUMN_NUMBER; k++)
             builder.append(" ");
         builder.append(getDifficulty());
         return builder.toString();

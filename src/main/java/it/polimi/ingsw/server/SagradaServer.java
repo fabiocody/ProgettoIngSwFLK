@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server;
 
+import it.polimi.ingsw.util.Constants;
 import joptsimple.*;
 import java.io.IOException;
 import java.net.*;
@@ -89,7 +90,7 @@ public class SagradaServer implements Observer {
     }
 
     public synchronized boolean isNicknameNotValid(String nickname){
-        return nickname.contains(" ") || nickname.equals("") || nickname.length() > 20;
+        return nickname.contains(" ") || nickname.equals("") || nickname.length() > Constants.MAX_NICKNAME_LENGTH;
     }
 
     /**

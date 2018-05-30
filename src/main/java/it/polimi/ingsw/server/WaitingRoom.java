@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server;
 
+import it.polimi.ingsw.util.Constants;
 import it.polimi.ingsw.util.CountdownTimer;
 
 import java.util.*;
@@ -82,7 +83,7 @@ public class WaitingRoom extends Observable {
         if (this.getWaitingPlayers().size() == 2) {
             this.timer.cancel();
             this.timer.schedule(this::createGame, this.timeout);
-        } else if (this.getWaitingPlayers().size() == 4) {
+        } else if (this.getWaitingPlayers().size() == Constants.MAX_PLAYER_NUMBER) {
             new Thread(this::createGame).start();
         }
         playerAdded = true;

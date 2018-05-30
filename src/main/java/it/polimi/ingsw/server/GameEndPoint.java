@@ -7,6 +7,7 @@ import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.rmi.GameAPI;
 import it.polimi.ingsw.model.toolcards.*;
+import it.polimi.ingsw.util.Constants;
 
 import java.rmi.RemoteException;
 import java.util.*;
@@ -128,14 +129,14 @@ public class GameEndPoint implements GameAPI {
             throw new DieAlreadyPlacedException("");
         if (wp.isGridEmpty()) {
             try {
-                wp.placeDie(d, 5 * y + x, PlacementConstraint.initialConstraint());
+                wp.placeDie(d, Constants.WINDOW_PATTERN_COLUMN_NUMBER * y + x, PlacementConstraint.initialConstraint());
             } catch (InvalidPlacementException e) {
                 throw e;
             }
         }
         else{
             try {
-                wp.placeDie(d,5*y+x);
+                wp.placeDie(d,Constants.WINDOW_PATTERN_COLUMN_NUMBER*y+x);
             } catch (InvalidPlacementException e) {
                 throw e;
             }

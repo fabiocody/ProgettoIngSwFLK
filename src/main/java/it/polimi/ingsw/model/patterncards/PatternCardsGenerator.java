@@ -1,5 +1,8 @@
 package it.polimi.ingsw.model.patterncards;
 
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
+import it.polimi.ingsw.util.Constants;
+
 import java.util.*;
 
 /**
@@ -21,7 +24,7 @@ public class PatternCardsGenerator {
 
     public PatternCardsGenerator(int numberOfPlayers){
 
-        if(numberOfPlayers < 2 || numberOfPlayers > 4)
+        if(numberOfPlayers < 2 || numberOfPlayers > Constants.MAX_PLAYER_NUMBER)
             throw new InvalidNumberOfPlayersException();
 
         List <Integer> randomNumbers= new ArrayList<>();
@@ -29,7 +32,7 @@ public class PatternCardsGenerator {
             randomNumbers.add(i);
         }
         Collections.shuffle(randomNumbers);
-        for(int i = 0; i < numberOfPlayers*2; i++){
+        for(int i = 0; i < numberOfPlayers*Constants.PATTERN_CARDS_FOR_EACH_PLAYER; i++){
             generatedCards.add(new WindowPattern(2*(randomNumbers.get(i))));
             generatedCards.add(new WindowPattern((2*randomNumbers.get(i))+1));
         }
@@ -56,7 +59,7 @@ public class PatternCardsGenerator {
             throw new IllegalStateException("No more pattern cards");
 
         List<WindowPattern> card = new Vector<>();
-        for (int i = 0; i < 4; i++) card.add(this.generatedCards.remove(0));
+        for (int i = 0; i < 2*Constants.PATTERN_CARDS_FOR_EACH_PLAYER; i++) card.add(this.generatedCards.remove(0));
         return card;
     }
 }

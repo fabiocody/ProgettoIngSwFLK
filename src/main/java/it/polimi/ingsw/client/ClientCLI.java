@@ -119,18 +119,15 @@ public class ClientCLI extends Client {
                         }
                         else if(instructionIndex == 2){
                             if(alreadyUsedToolCard){
-                                //log(ansi().eraseScreen().cursor(0, 0).a("Hai già usato una carta strumento questo turno!").a("\n").toString());
                                 log("Hai già usato una carta strumento questo turno!");
                                 this.instructionIndex = Constants.INDEX_CONSTANT;
                             }
                             else{
-                                //log(ansi().eraseScreen().cursor(0, 0).a("USE TOOLCARD").a("\n").toString());
                                 log("USE TOOLCARD");
                                 alreadyUsedToolCard = true;
                                 this.instructionIndex = Constants.INDEX_CONSTANT;
                             }
                         }
-
                         else if(instructionIndex == 3){
                             //end turn
                         }
@@ -272,7 +269,7 @@ public class ClientCLI extends Client {
                 log("Login fallito! I nickname non possono essere vuoti");
             else if(nickname.contains(" "))
                 log("Login fallito! I nickname non possono contenere spazi");
-            else if(nickname.length() > 20)
+            else if(nickname.length() > Constants.MAX_NICKNAME_LENGTH)
                 log("Login fallito! I nickname non possono essere più lunghi di 20 caratteri");
         }
     }
@@ -325,7 +322,7 @@ public class ClientCLI extends Client {
                 if(argAsList.get(0).startsWith("---------------------")) { //Window pattern
                     for (int i = 0; i < argAsList.size(); i++) {
                         String newWPString = "";
-                        for (int k = 0; k < 20; k++) newWPString += " ";
+                        for (int k = 0; k < Constants.MAX_NICKNAME_LENGTH; k++) newWPString += " ";
                         newWPString = (i + 1) + newWPString;
                         argAsList.set(i, newWPString + "\n" + argAsList.get(i));
                     }
@@ -337,7 +334,7 @@ public class ClientCLI extends Client {
                     List<String> patterns = new ArrayList();
                     for (String s: argAsList){
                         String spaces = "";
-                        for(int i = 0; i < 21 - s.substring(0,s.indexOf("$")).length(); i++)
+                        for(int i = 0; i <= Constants.MAX_NICKNAME_LENGTH - s.substring(0,s.indexOf("$")).length(); i++)
                             spaces += " ";
                         spaces += "\n";
                         s = s.replace("$",spaces);
@@ -345,7 +342,6 @@ public class ClientCLI extends Client {
                     }
                     String prettyWindowPatterns = windowPatternsMessage(patterns);
                     log(prettyWindowPatterns);
-                    //log(ansi().eraseScreen().cursor(0, 0).a("\n").a(prettyWindowPatterns).a("\n").toString());
                     stopAsyncInput = true;
                 }
 
@@ -360,7 +356,6 @@ public class ClientCLI extends Client {
                     }
                     cards = cards.replace("$NL$","\n\n");
                     log(cards);
-                    //log(ansi().eraseScreen().cursor(0, 0).a("\n\n").a(cards).toString());
                     stopAsyncInput = true;
                 }
 
@@ -374,7 +369,6 @@ public class ClientCLI extends Client {
                         cards = cards + s;
                         }
                     log(cards);
-                        //log(ansi().eraseScreen().cursor(0, 0).a("\n\n").a(cards).a("\n").toString());
                     stopAsyncInput = true;
                 }
 
@@ -387,7 +381,6 @@ public class ClientCLI extends Client {
                         draftPoolLength++;
                     }
                     log(dice);
-                    //log(ansi().eraseScreen().cursor(0, 0).a("\n\n").a(dice).toString());
                     stopAsyncInput = true;
                 }
 
@@ -398,7 +391,6 @@ public class ClientCLI extends Client {
                 String input = (String) arg;
                 if (input.startsWith("PrivateObjectiveCard$")) {
                     input = input.replace("PrivateObjectiveCard$", "");
-                    //log(ansi().eraseScreen().cursor(0, 0).a(input).a("\n").toString());
                     log(input);
                 }
             } else if (arg instanceof Iterable) {   // Players

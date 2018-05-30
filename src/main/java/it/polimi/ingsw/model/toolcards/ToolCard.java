@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.server.*;
+import it.polimi.ingsw.util.Constants;
 
 
 /**
@@ -83,7 +84,7 @@ public abstract class ToolCard {
      * @return the linearized index of the cell
      */
     int linearizeIndex(int x, int y) {
-        return y*5 + x;
+        return y* Constants.WINDOW_PATTERN_COLUMN_NUMBER + x;
     }
 
     /**
