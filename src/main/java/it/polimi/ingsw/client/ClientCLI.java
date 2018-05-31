@@ -21,7 +21,9 @@ public class ClientCLI extends Client {
     private boolean gameStarted = false;
     private boolean active = false;
     private boolean patternChosen = false;
+    private boolean gameOver = false;
     private int instructionIndex= Constants.INDEX_CONSTANT;
+    private int round = 1;
 
     private String wrTimeout;
     private String wrPlayers;
@@ -56,14 +58,9 @@ public class ClientCLI extends Client {
             } while (patternIndex <= 0 || patternIndex > 4);
             this.getNetwork().choosePattern(patternIndex - 1);
             patternChosen = true;
-            /*log("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
+            log("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
             while (!gameStarted) Thread.sleep(10);
-            */
-
-            while (!gameStarted) input("Hai scelto il pattern numero " + patternIndex + ".\n" +
-                    "Per favore attendi che tutti i giocatori facciano la propria scelta.");
-
-            for (int turns = 0; turns < 20; turns++) {
+            while (!gameOver) {
                 boolean alreadyPlacedDie = false;
                 boolean alreadyUsedToolCard = false;
                 int draftPoolIndex = Constants.INDEX_CONSTANT;
@@ -75,9 +72,7 @@ public class ClientCLI extends Client {
                     while (!active) Thread.sleep(10);
                 }
 
-                //while (!active) input("Aspetta il tuo turno.");
-
-                log("È il tuo turno!");
+                log("Round " + round + "\nÈ il tuo turno!");
                 do {
                     log("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
                                 "passare il turno");
@@ -96,6 +91,7 @@ public class ClientCLI extends Client {
                                     try {
                                         draftPoolIndex = Integer.valueOf(input) - 1;
                                     } catch (NumberFormatException e) {
+                                        log("Indice non valido\n");
                                         continue;
                                     }
                                 } while (draftPoolIndex < 0 || patternIndex > draftPoolLength);
@@ -104,6 +100,7 @@ public class ClientCLI extends Client {
                                     try {
                                         x = Integer.valueOf(input) - 1;
                                     } catch (NumberFormatException e) {
+                                        log("Indice non valido\n");
                                         continue;
                                     }
                                 } while (x < 0 || x > 4);
@@ -112,6 +109,7 @@ public class ClientCLI extends Client {
                                     try {
                                         y = Integer.valueOf(input) - 1;
                                     } catch (NumberFormatException e) {
+                                        log("Indice non valido\n");
                                         continue;
                                     }
                                 } while (y < 0 || y > 4);
@@ -137,7 +135,9 @@ public class ClientCLI extends Client {
                             }
                         }
                         else if(instructionIndex == 3){
-                            //end turn
+                            this.round = this.getNetwork().nextTurn();
+                            if(this.round > Constants.NUMBER_OF_TURNS)
+                                this.gameOver = true;
                         }
                     } catch (NumberFormatException e) {
                         continue;
@@ -388,8 +388,12 @@ public class ClientCLI extends Client {
                         dice += s;
                         draftPoolLength++;
                     }
-                    log(dice);
+                    log(dice + "\n");
                     stopAsyncInput = true;
+                }
+
+                if(argAsList.get(0).startsWith(("RoundTrack$"))){   //RoundTrack
+                    //TODO
                 }
 
             } else if (arg instanceof Integer) {    // Timer ticks

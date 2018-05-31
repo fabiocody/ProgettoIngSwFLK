@@ -29,11 +29,6 @@ public class GameEndPoint implements GameAPI {
     }
 
     @Override
-    public void nextTurn() {
-        this.game.getTurnManager().nextTurn();
-    }
-
-    @Override
     public void subscribeToTurnManagerTimer(Observer observer) {
         this.game.getTurnManager().getTimer().addObserver(observer);
     }
@@ -133,4 +128,7 @@ public class GameEndPoint implements GameAPI {
     public void useToolCard(int toolCardsIndex, JsonObject data) throws RemoteException, InvalidEffectResultException, InvalidEffectArgumentException {
         this.game.getToolCards().get(toolCardsIndex).effect(data);
     }
+
+    @Override
+    public void nextTurn() { this.game.nextTurn(); }
 }

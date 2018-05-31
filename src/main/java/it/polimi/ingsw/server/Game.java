@@ -226,7 +226,13 @@ public class Game extends Observable implements Observer {
     void removeDieFromDraftPool(int draftPoolIndex){
         this.diceGenerator.drawDieFromDraftPool(draftPoolIndex);
         setChanged();
-        notifyObservers();
+        notifyObservers("$draftPool$");
+    }
+
+    void nextTurn(){
+        this.turnManager.nextTurn();
+        setChanged();
+        notifyObservers("$nextTurn$");
     }
 
     /**
@@ -280,13 +286,17 @@ public class Game extends Observable implements Observer {
             if (arg.equals("Round incremented")) {
                 this.getRoundTrack().putDice(this.getDiceGenerator().getDraftPool());
                 this.getDiceGenerator().generateDraftPool();
+                setChanged();
+                notifyObservers("$roundTrack$");
+
             } else if (arg.equals("Game over"))
                 new Thread(this::endGame).start();
         } else if (o instanceof Player) {
             if (this.arePlayersReady()) {
                 setChanged();
-                notifyObservers();
+                notifyObservers("$gameStarted$");
             }
+
         }
     }
 

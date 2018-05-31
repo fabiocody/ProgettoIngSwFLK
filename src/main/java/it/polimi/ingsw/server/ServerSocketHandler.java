@@ -135,8 +135,7 @@ public class ServerSocketHandler implements Runnable, Observer {
                         this.choosePattern(input);
                         break;
                     case NEXT_TURN:
-                        //TODO
-                        //this.nextTurn();
+                        this.nextTurn();
                         break;
                     case PLACE_DIE:
                         this.placeDie(input);
@@ -240,7 +239,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         out.println(payload.toString());
     }
 
-    /*private void nextTurn() {
+    private void nextTurn() {
         this.gameEndPoint.nextTurn();
         debug("Turn ended");
         JsonObject payload = new JsonObject();
@@ -250,7 +249,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         payload.addProperty("gameOver",this.game.getRoundTrack().isGameOver());
         payload.addProperty("activePlayer",this.gameEndPoint.getActivePlayer());
         out.println(payload.toString());
-    }*/
+    }
 
     private void updatePlayersList() {
         JsonObject payload = new JsonObject();
@@ -324,6 +323,22 @@ public class ServerSocketHandler implements Runnable, Observer {
         out.println(payload.toString());
     }
 
+    private void updateRoundTrack(){
+        /*JsonObject payload = new JsonObject();
+        payload.addProperty("method", "roundTrackDice");
+        JsonArray dice = new JsonArray();
+        for (Die d :whatever) {
+            JsonObject die = new JsonObject();
+            die.addProperty("color", d.getColor().toString());
+            die.addProperty("value", d.getValue());
+            die.addProperty("cliString", d.toString());
+            dice.add(die);
+        }
+        payload.add("dice", dice);
+        debug("PAYLOAD " + payload.toString());
+        out.println(payload.toString());*/
+    }
+
     private void gameStarted() {
         JsonObject payload = new JsonObject();
         payload.addProperty("method", "gameStarted");
@@ -356,12 +371,28 @@ public class ServerSocketHandler implements Runnable, Observer {
                 this.updateWaitingPlayersList((List<Player>) arg);
             }
         } else if (o instanceof Game) {
-            updatePlayersList();
-            updateToolCards();
-            sendPublicObjectiveCards();
-            updateWindowPatterns();
-            updateDraftPool();
-            gameStarted();
+            String stringArg = String.valueOf(arg);
+            if(stringArg.equals("$gameStarted$")) {
+                updatePlayersList();
+                updateToolCards();
+                sendPublicObjectiveCards();
+                updateWindowPatterns();
+                updateDraftPool();
+                gameStarted();
+            }
+            else if(stringArg.equals("$draftPool$")){
+                updateWindowPatterns();
+                updateDraftPool();
+            }
+            else if(stringArg.equals("$nextTurn$")){
+                updateWindowPatterns();
+                updateDraftPool();
+                gameStarted();
+            }
+            else if(stringArg.equals("$roundTrack$")){
+                updateRoundTrack();
+                //TODO
+            }
         }
     }
 

@@ -175,17 +175,20 @@ public class SocketClient extends ClientNetwork {
                 case WINDOW_PATTERNS:
                     this.updateWindowPatterns(inputJson);
                     break;
-                case FINAL_SCORES:
-                case GAME_TIMER_TICK:
-                case FAVOR_TOKENS:
-                case ROUND_TRACK_DICE:
-                    break;
                 case DRAFT_POOL:
                     this.updateDraftPool(inputJson);
                     break;
                 case PROBE:
                     this.probe();
                     break;
+                case ROUND_TRACK_DICE:
+                    this.updateRoundTrack(inputJson);
+                    break;
+                case FINAL_SCORES:
+                case GAME_TIMER_TICK:
+                case FAVOR_TOKENS:
+                    break;
+
             }
         }
     }
@@ -297,11 +300,15 @@ public class SocketClient extends ClientNetwork {
         return input.get("result").getAsBoolean();
     }
 
-    /*void nextTurn() {
+    int nextTurn() {
         JsonObject payload = new JsonObject();
         this.sendMessage(payload, "nextTurn");
-        debug("INPUT " + this.pollResponseBuffer());
-    }*/
+        JsonObject input = this.pollResponseBuffer();
+        debug("INPUT " + input);
+        if(!input.get("gameOver").getAsBoolean())
+            return input.get("currentRound").getAsInt();
+        else return Constants.NUMBER_OF_TURNS + 1;
+    }
 
     /**
      * This method is used to print out an updated list of waiting players
@@ -401,6 +408,10 @@ public class SocketClient extends ClientNetwork {
         }
         setChanged();
         notifyObservers(draftPoolDieStrings);
+    }
+
+    private void updateRoundTrack(JsonObject input){
+        //TODO
     }
 
     private void gameStarted(JsonObject input) {
