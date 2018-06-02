@@ -145,6 +145,7 @@ public class SocketClient extends ClientNetwork {
                 case NEXT_TURN:
                 case PLACE_DIE:
                 case USE_TOOL_CARD:
+                case REQUIRED_DATA_FOR_TOOL_CARD:
                     synchronized (responseBufferLock) {
                         responseBuffer.add(inputJson);
                         responseBufferLock.notifyAll();
@@ -298,6 +299,27 @@ public class SocketClient extends ClientNetwork {
         JsonObject input = this.pollResponseBuffer();
         debug("INPUT " + input);
         return input.get("result").getAsBoolean();
+    }
+
+    boolean useToolCard(int cardIndex, JsonObject data){
+        JsonObject payload = new JsonObject();
+        JsonObject arg = new JsonObject();
+        arg.addProperty("cardIndex", cardIndex);
+        arg.add("data", data); //different data for each tool card
+        payload.add("arg", arg);
+        this.sendMessage(payload,"useToolCard");
+        JsonObject input = this.pollResponseBuffer();
+        debug("INPUT " + input);
+        return input.get("result").getAsBoolean();
+    }
+
+    JsonObject requiredData(int cardIndex){
+        JsonObject payload = new JsonObject();
+        payload.addProperty("cardIndex", cardIndex);
+        this.sendMessage(payload, "requiredData");
+        JsonObject input = this.pollResponseBuffer();
+        debug("INPUT " + input);
+        return input;
     }
 
     int nextTurn() {

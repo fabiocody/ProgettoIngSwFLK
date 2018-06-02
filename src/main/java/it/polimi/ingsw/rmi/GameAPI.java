@@ -43,5 +43,6 @@ public interface GameAPI extends Remote {
     // Moves
     void placeDie(UUID playerID, int draftPoolIndex, int x, int y) throws RemoteException, InvalidPlacementException, DieAlreadyPlacedException;
     void useToolCard(int toolCardsIndex, JsonObject data) throws RemoteException, InvalidEffectResultException, InvalidEffectArgumentException;
+    JsonObject requiredData(int toolCardsIndex) throws RemoteException;
     
 }

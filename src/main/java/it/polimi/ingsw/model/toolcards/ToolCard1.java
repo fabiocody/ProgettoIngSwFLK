@@ -3,6 +3,7 @@ package it.polimi.ingsw.model.toolcards;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.server.Game;
+import it.polimi.ingsw.util.Constants;
 
 
 /**
@@ -48,6 +49,14 @@ public class ToolCard1 extends ToolCard {
             throw new InvalidEffectResultException("Cannot make a 1 into 6 or a 6 into 1");
         else d.setValue(newValue);
         this.setUsed();
+    }
+
+    public JsonObject requiredData(){
+        JsonObject payload = new JsonObject();
+        payload.addProperty("method", "requiredData");
+        payload.addProperty("draftPoolIndex", Constants.INDEX_CONSTANT);
+        payload.addProperty("delta", Constants.INDEX_CONSTANT);
+        return payload;
     }
 
 }

@@ -24,6 +24,7 @@ public enum Methods {
     FINAL_SCORES("finalScores"),
     PUBLIC_OBJECTIVE_CARDS("publicObjectiveCards"),
     TOOL_CARDS("toolCards"),
+    REQUIRED_DATA_FOR_TOOL_CARD("requiredData"),
     FAVOR_TOKENS("favorTokens"),
     WINDOW_PATTERNS("windowPatterns"),
     ROUND_TRACK_DICE("roundTrackDice"),

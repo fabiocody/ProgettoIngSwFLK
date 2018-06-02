@@ -3,6 +3,7 @@ package it.polimi.ingsw.model.toolcards;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.placementconstraints.*;
 import it.polimi.ingsw.server.*;
+import it.polimi.ingsw.util.Constants;
 
 
 /**
@@ -54,6 +55,18 @@ public class ToolCard2 extends ToolCard {
         PlacementConstraint constraint = new PositionConstraint(new ValueConstraint(new OrthogonalConstraint(new EmptyConstraint())));
         this.moveDie(player, fromIndex, toIndex, constraint);
         this.setUsed();
+    }
+
+    @Override
+    public JsonObject requiredData() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("method", "requiredData");
+        payload.addProperty("player", "$nickname$");
+        payload.addProperty("fromCellX", Constants.INDEX_CONSTANT);
+        payload.addProperty("fromCellY", Constants.INDEX_CONSTANT);
+        payload.addProperty("toCellX", Constants.INDEX_CONSTANT);
+        payload.addProperty("toCellY", Constants.INDEX_CONSTANT);
+        return payload;
     }
 
 }

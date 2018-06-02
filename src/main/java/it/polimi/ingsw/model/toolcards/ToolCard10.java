@@ -3,6 +3,7 @@ package it.polimi.ingsw.model.toolcards;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.server.Game;
+import it.polimi.ingsw.util.Constants;
 
 
 /**
@@ -41,6 +42,14 @@ public class ToolCard10 extends ToolCard {
         int value = die.getValue();
         die.setValue(7 - value);
         this.setUsed();
+    }
+
+    @Override
+    public JsonObject requiredData() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("method", "requiredData");
+        payload.addProperty("draftPoolIndex", Constants.INDEX_CONSTANT);
+        return payload;
     }
 
 }

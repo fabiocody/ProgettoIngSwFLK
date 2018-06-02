@@ -36,4 +36,11 @@ public class ToolCard7 extends ToolCard {
         this.setUsed();
     }
 
+    @Override
+    public JsonObject requiredData() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("method", "requiredData");
+        return payload;
+    }
+
 }

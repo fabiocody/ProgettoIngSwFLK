@@ -5,6 +5,7 @@ import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.server.*;
 import it.polimi.ingsw.util.Colors;
+import it.polimi.ingsw.util.Constants;
 
 
 /**
@@ -55,6 +56,18 @@ public class ToolCard12 extends ToolCard {
             this.firstMoveColor = null;
             this.setUsed();
         }
+    }
+
+    @Override
+    public JsonObject requiredData() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("method", "requiredData");
+        payload.addProperty("player", "$nickname$");
+        payload.addProperty("fromCellX", Constants.INDEX_CONSTANT); //for each movement
+        payload.addProperty("fromCellY", Constants.INDEX_CONSTANT);
+        payload.addProperty("toCellX", Constants.INDEX_CONSTANT);
+        payload.addProperty("toCellY", Constants.INDEX_CONSTANT);
+        return payload;
     }
 
     /**

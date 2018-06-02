@@ -132,5 +132,10 @@ public class GameEndPoint implements GameAPI {
     }
 
     @Override
+    public JsonObject requiredData(int toolCardsIndex){
+        return this.game.getToolCards().get(toolCardsIndex).requiredData();
+    }
+
+    @Override
     public void nextTurn() { this.game.nextTurn(); }
 }

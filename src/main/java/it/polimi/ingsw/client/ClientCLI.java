@@ -1,5 +1,7 @@
 package it.polimi.ingsw.client;
 
+import com.google.gson.JsonObject;
+import it.polimi.ingsw.server.RoundTrack;
 import it.polimi.ingsw.util.Constants;
 import org.fusesource.jansi.AnsiConsole;
 import java.io.*;
@@ -30,6 +32,7 @@ public class ClientCLI extends Client {
 
     private String gamePlayers;
     private int draftPoolLength;
+    private long roundTrackLength = 0;
 
     ClientCLI(ClientNetwork network, boolean debugActive) {
         super(network, debugActive);
@@ -67,6 +70,15 @@ public class ClientCLI extends Client {
                 int x = Constants.INDEX_CONSTANT;
                 int y = Constants.INDEX_CONSTANT;
 
+                int cardIndex = Constants.INDEX_CONSTANT;
+                int roundTrackIndex = Constants.INDEX_CONSTANT;
+                int delta = Constants.INDEX_CONSTANT;
+                int newValue = Constants.INDEX_CONSTANT;
+                int fromCellX = Constants.INDEX_CONSTANT;
+                int fromCellY = Constants.INDEX_CONSTANT;
+                int toCellX = Constants.INDEX_CONSTANT;
+                int toCellY = Constants.INDEX_CONSTANT;
+
                 if(!active){
                     log("Aspetta il tuo turno.");
                     while (!active) Thread.sleep(10);
@@ -94,7 +106,7 @@ public class ClientCLI extends Client {
                                         log("Indice non valido\n");
                                         continue;
                                     }
-                                } while (draftPoolIndex < 0 || patternIndex > draftPoolLength);
+                                } while (draftPoolIndex < 0 || draftPoolIndex > draftPoolLength);
                                 do {
                                     input = input("In quale colonna vuoi piazzarlo[1-5]? >>>");
                                     try {
@@ -123,16 +135,112 @@ public class ClientCLI extends Client {
                                 this.instructionIndex = Constants.INDEX_CONSTANT;
                             }
                         }
-                        else if(instructionIndex == 2){
-                            if(alreadyUsedToolCard){
+                        else if(instructionIndex == 2) {  //Tool card
+                            if (alreadyUsedToolCard) {
                                 log("Hai già usato una carta strumento questo turno!\n");
                                 this.instructionIndex = Constants.INDEX_CONSTANT;
                             }
-                            else{
-                                log("USE TOOLCARD\n");
+                            do {
+                                input = input("Quale carta strumento vuoi usare[1-3]? >>>");
+                                try {
+                                    cardIndex = Integer.valueOf(input) - 1;
+                                } catch (NumberFormatException e) {
+                                    log("Indice non valido\n");
+                                    continue;
+                                }
+                            } while (cardIndex < 0 || cardIndex > 3);
+                            JsonObject requiredData = this.getNetwork().requiredData(cardIndex); //request for the data required by the tool card
+                                if(requiredData.has("draftPoolIndex")) { //if the tool card requires a draftpool die
+                                    do {
+                                        input = input("Quale dado della riserva vuoi utilizzare[1-" + draftPoolLength + "]? >>>");
+                                        try {
+                                            draftPoolIndex = Integer.valueOf(input) - 1;
+                                        } catch (NumberFormatException e) {
+                                            log("Indice non valido\n");
+                                            continue;
+                                        }
+                                    } while (draftPoolIndex < 0 || draftPoolIndex > draftPoolLength);
+                                }
+                                if(requiredData.has("roundTrackIndex")) { //if the tool card requires a round track die
+                                    do {
+                                        input = input("Quale dado del round track vuoi utilizzare[1-" + roundTrackLength + "]? >>>");
+                                        try {
+                                            roundTrackIndex = Integer.valueOf(input) - 1;
+                                        } catch (NumberFormatException e) {
+                                            log("Indice non valido\n");
+                                            continue;
+                                        }
+                                    } while (roundTrackIndex < 0 || roundTrackIndex > roundTrackLength);
+                                }
+                                if(requiredData.has("delta")) { //if the tool card requires a change in the die value
+                                    do {
+                                        input = input("vuoi aunmentare o diminuire il valore del dado? >>>");
+                                        try {
+                                            delta = Integer.valueOf(input);
+                                        } catch (NumberFormatException e) {
+                                            log("Indice non valido\n");
+                                            continue;
+                                        }
+                                    } while (delta != 1 || delta != -1);
+                                }
+                                if(requiredData.has("newValue")) { //if the tool card requires a change in the die value
+                                    do {
+                                        input = input("quale valore vuoi assegnare al dado? >>>");
+                                        try {
+                                            newValue = Integer.valueOf(input);
+                                        } catch (NumberFormatException e) {
+                                            log("Indice non valido\n");
+                                            continue;
+                                        }
+                                    } while (newValue < 1 || newValue > 6);
+                                }
+                                if(requiredData.has("fromCellX")) { //if the tool card requires a change in the die value
+                                    do {
+                                        input = input("da quale colonna vuoi muoverlo[1-5]? >>>");
+                                        try {
+                                            fromCellX = Integer.valueOf(input) - 1;
+                                        } catch (NumberFormatException e) {
+                                            log("Indice non valido\n");
+                                            continue;
+                                        }
+                                    } while (fromCellX < 0 || fromCellX > 4);
+                                }
+                                if(requiredData.has("fromCellY")) { //if the tool card requires a change in the die value
+                                    do {
+                                        input = input("da quale riga vuoi muoverlo[1-4]? >>>");
+                                        try {
+                                            fromCellY = Integer.valueOf(input) - 1;
+                                        } catch (NumberFormatException e) {
+                                            log("Indice non valido\n");
+                                            continue;
+                                        }
+                                    } while (fromCellY < 0 || fromCellY > 3);
+                                }
+                                if(requiredData.has("toCellX")) { //if the tool card requires a change in the die value
+                                    do {
+                                        input = input("in quale colonna vuoi piazzarlo[1-5]? >>>");
+                                        try {
+                                            toCellX= Integer.valueOf(input) - 1;
+                                        } catch (NumberFormatException e) {
+                                            log("Indice non valido\n");
+                                            continue;
+                                        }
+                                    } while (toCellX < 0 || toCellX > 4);
+                                }
+                                if(requiredData.has("toCellY")) { //if the tool card requires a change in the die value
+                                    do {
+                                        input = input("in quale riga vuoi piazzarlo[1-4]? >>>");
+                                        try {
+                                            toCellY = Integer.valueOf(input) - 1;
+                                        } catch (NumberFormatException e) {
+                                            log("Indice non valido\n");
+                                            continue;
+                                        }
+                                    } while (toCellY < 0 || toCellY> 3);
+                                }
+                            log("USE TOOLCARD\n");
                                 alreadyUsedToolCard = true;
                                 this.instructionIndex = Constants.INDEX_CONSTANT;
-                            }
                         }
                         else if(instructionIndex == 3){
                             this.round = this.getNetwork().nextTurn();
@@ -403,8 +511,9 @@ public class ClientCLI extends Client {
                 }
                 if (input.startsWith("$roundTrack$")) {
                     input = input.replace("$roundTrack$","");
-                    input = input.replace("£","");
                     input = input.replace("££","  ");
+                    roundTrackLength = input.chars().filter(ch -> ch == '£').count();
+                    input = input.replace("£","");
                     log("ROUND TRACK: " + input + "\n");
                 }
             } else if (arg instanceof Iterable) {   // Players

@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.server.*;
+import it.polimi.ingsw.util.Constants;
 
 
 /**
@@ -67,6 +68,18 @@ public class ToolCard11 extends ToolCard {
                 this.placeDie(player, draftPoolIndex, cellIndex);
                 break;
         }
+    }
+
+    @Override
+    public JsonObject requiredData() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("method", "requiredData");
+        payload.addProperty("player", "$nickname$");
+        payload.addProperty("draftPoolIndex", Constants.INDEX_CONSTANT);
+        payload.addProperty("newValue", Constants.INDEX_CONSTANT);
+        payload.addProperty("toCellX", Constants.INDEX_CONSTANT);
+        payload.addProperty("toCellY", Constants.INDEX_CONSTANT);
+        return payload;
     }
 
     /**

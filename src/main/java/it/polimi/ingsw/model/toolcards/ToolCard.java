@@ -118,6 +118,8 @@ public abstract class ToolCard {
      */
     public abstract void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException;
 
+    public abstract JsonObject requiredData();
+
     /**
      * @author Fabio Codiglioni
      * @param obj the object to compare.

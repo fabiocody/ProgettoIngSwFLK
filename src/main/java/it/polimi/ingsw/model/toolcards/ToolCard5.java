@@ -3,6 +3,7 @@ package it.polimi.ingsw.model.toolcards;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.server.Game;
+import it.polimi.ingsw.util.Constants;
 
 
 /**
@@ -51,6 +52,15 @@ public class ToolCard5 extends ToolCard {
             throw new InvalidEffectResultException();
         }
         this.setUsed();
+    }
+
+    @Override
+    public JsonObject requiredData() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("method", "requiredData");
+        payload.addProperty("draftPoolIndex", Constants.INDEX_CONSTANT);
+        payload.addProperty("roundTrackIndex", Constants.INDEX_CONSTANT);
+        return payload;
     }
 
 }

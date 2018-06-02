@@ -38,4 +38,12 @@ public class ToolCard8 extends ToolCard {
         this.setUsed();
     }
 
+    @Override
+    public JsonObject requiredData() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("method", "requiredData");
+        payload.addProperty("player", "$nickname$");
+        return payload;
+    }
+
 }

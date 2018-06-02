@@ -143,6 +143,9 @@ public class ServerSocketHandler implements Runnable, Observer {
                     case USE_TOOL_CARD:
                         // TODO
                         break;
+                    case REQUIRED_DATA_FOR_TOOL_CARD:
+                        this.requiredData(input);
+                        break;
                     case PROBE:
                         probed = true;
                         break;
@@ -239,6 +242,14 @@ public class ServerSocketHandler implements Runnable, Observer {
             debug("PAYLOAD " + payload.toString());
             out.println(payload.toString());
         }
+    }
+
+    private void requiredData(JsonObject input){
+        int cardIndex = input.get("cardIndex").getAsInt();
+        JsonObject payload = new JsonObject();
+        payload = this.gameEndPoint.requiredData(cardIndex);
+        debug("PAYLOAD " + payload.toString());
+        out.println(payload.toString());
     }
 
     private void nextTurn() {
