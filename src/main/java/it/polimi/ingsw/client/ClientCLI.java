@@ -380,20 +380,16 @@ public class ClientCLI extends Client {
                     stopAsyncInput = true;
                 }
 
-                if(argAsList.get(0).startsWith("Die$")) {   //DraftPool
-                    String dice = "Riserva: ";
+                if(argAsList.get(0).startsWith("$draftPool$")) {   //DraftPool
+                    String draftPool = "Riserva: ";
                     this.draftPoolLength = 0;
                     for (String s : argAsList){
-                        s = s.replace("Die$","");
-                        dice += s;
+                        s = s.replace("$draftPool$","");
+                        draftPool += s;
                         draftPoolLength++;
                     }
-                    log(dice + "\n");
+                    log(draftPool + "\n");
                     stopAsyncInput = true;
-                }
-
-                if(argAsList.get(0).startsWith(("RoundTrack$"))){   //RoundTrack
-                    //TODO
                 }
 
             } else if (arg instanceof Integer) {    // Timer ticks
@@ -404,6 +400,12 @@ public class ClientCLI extends Client {
                 if (input.startsWith("PrivateObjectiveCard$")) {
                     input = input.replace("PrivateObjectiveCard$", "");
                     log(input);
+                }
+                if (input.startsWith("$roundTrack$")) {
+                    input = input.replace("$roundTrack$","");
+                    input = input.replace("£","");
+                    input = input.replace("££","  ");
+                    log("ROUND TRACK: " + input + "\n");
                 }
             } else if (arg instanceof Iterable) {   // Players
                 if(patternChosen == false) {  //Players in waiting room

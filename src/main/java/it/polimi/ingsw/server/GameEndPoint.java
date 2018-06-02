@@ -4,10 +4,8 @@ import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.model.patterncards.*;
-import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.rmi.GameAPI;
 import it.polimi.ingsw.model.toolcards.*;
-import it.polimi.ingsw.util.Constants;
 
 import java.rmi.RemoteException;
 import java.util.*;
@@ -107,7 +105,11 @@ public class GameEndPoint implements GameAPI {
 
     @Override
     public List<Die> getRoundTrackDice() {
-        return new Vector<>(this.game.getRoundTrack().getDice());
+        return new Vector<>(this.game.getRoundTrack().getAllDice());
+    }
+
+    public Vector<Die>[] getRoundTrack(){
+        return this.game.getRoundTrack().getVectorRoundTrack();
     }
 
     @Override

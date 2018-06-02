@@ -154,15 +154,15 @@ class ToolCardsTest {
         game.getRoundTrack().putDice(game.getDiceGenerator().getDraftPool());
         game.getDiceGenerator().generateDraftPool();
         int draftPoolIndex = ThreadLocalRandom.current().nextInt(0, game.getDiceGenerator().getDraftPool().size());
-        int roundTrackIndex = ThreadLocalRandom.current().nextInt(0, game.getRoundTrack().getDice().size());
+        int roundTrackIndex = ThreadLocalRandom.current().nextInt(0, game.getRoundTrack().getAllDice().size());
         Die fromDraftPool = game.getDiceGenerator().getDraftPool().get(draftPoolIndex);
-        Die fromRoundTrack = game.getRoundTrack().getDice().get(roundTrackIndex);
+        Die fromRoundTrack = game.getRoundTrack().getVectorRoundTrack()[game.getRoundTrack().getCurrentRound() - 1].get(roundTrackIndex);
         JsonObject data = new JsonObject();
         data.addProperty("draftPoolIndex", draftPoolIndex);
         data.addProperty("roundTrackIndex", roundTrackIndex);
         try {
             toolCard.effect(data);
-            assertEquals(fromDraftPool, game.getRoundTrack().getDice().get(roundTrackIndex));
+            assertEquals(fromDraftPool, game.getRoundTrack().getAllDice().get(roundTrackIndex));
             assertEquals(fromRoundTrack, game.getDiceGenerator().getDraftPool().get(draftPoolIndex));
             assertTrue(toolCard.isUsed());
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
@@ -337,7 +337,9 @@ class ToolCardsTest {
     @Test
     void toolCard12DontStop() {
         ToolCard toolCard = new ToolCard12(game);
-        game.getRoundTrack().getDice().add(new Die(Colors.RED, 6));
+        List<Die> test = new ArrayList<>();
+        test.add(new Die(Colors.RED,6));
+        game.getRoundTrack().putDice(test);
         player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
         Die die = new Die(Colors.RED, 2);
         player.getWindowPattern().placeDie(die, 2, PlacementConstraint.initialConstraint());
@@ -377,7 +379,9 @@ class ToolCardsTest {
     @Test
     void toolCard12Stop() {
         ToolCard toolCard = new ToolCard12(game);
-        game.getRoundTrack().getDice().add(new Die(Colors.RED, 6));
+        List<Die> test = new ArrayList<>();
+        test.add(new Die(Colors.RED,6));
+        game.getRoundTrack().putDice(test);
         player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
         Die die = new Die(Colors.RED, 2);
         player.getWindowPattern().placeDie(die, 2, PlacementConstraint.initialConstraint());

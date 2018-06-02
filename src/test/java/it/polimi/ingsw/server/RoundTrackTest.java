@@ -14,6 +14,7 @@ class RoundTrackTest {
     @BeforeAll
     static void setup() {
         roundTrack = new RoundTrack();
+        roundTrack.getAllDice(); //initialization
     }
 
     @Test
@@ -35,7 +36,7 @@ class RoundTrackTest {
         List<Die> draftPool = new ArrayList<>(diceGenerator.getDraftPool());
         roundTrack.putDice(diceGenerator.getDraftPool());
         for (Die die : draftPool) {
-            assertTrue(roundTrack.getDice().contains(die));
+            assertTrue(roundTrack.getAllDice().contains(die));
         }
     }
 

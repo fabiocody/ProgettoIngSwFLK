@@ -240,7 +240,7 @@ public class SocketClient extends ClientNetwork {
     /**
      * This method handles log in of a player
      */
-    public UUID addPlayer(String nickname) {
+    UUID addPlayer(String nickname) {
         this.nickname = nickname;
         JsonObject payload = new JsonObject();
         payload.addProperty("nickname", nickname);
@@ -302,6 +302,7 @@ public class SocketClient extends ClientNetwork {
 
     int nextTurn() {
         JsonObject payload = new JsonObject();
+        log("Client has ended his turn");
         this.sendMessage(payload, "nextTurn");
         JsonObject input = this.pollResponseBuffer();
         debug("INPUT " + input);
@@ -402,7 +403,7 @@ public class SocketClient extends ClientNetwork {
         JsonArray draftPoolDice = input.getAsJsonArray("dice");
         List draftPoolDieStrings = new ArrayList();
         for(JsonElement obj : draftPoolDice){
-            String dieString = "Die$";
+            String dieString = "$draftPool$";
             dieString += obj.getAsJsonObject().get("cliString").getAsString();
             draftPoolDieStrings.add(dieString);
         }
@@ -411,7 +412,15 @@ public class SocketClient extends ClientNetwork {
     }
 
     private void updateRoundTrack(JsonObject input){
-        //TODO
+        /*JsonArray roundTrackDice = input.getAsJsonArray("dice");
+        List roundTrackDieStrings = new ArrayList();
+        for (JsonElement obj: roundTrackDice){
+            String dieString = "$roundTrack$";
+            dieString += obj.getAsJsonObject().get("cliString").getAsString();
+            roundTrackDieStrings.add(dieString);
+        }*/
+        setChanged();
+        notifyObservers(input.get("cliString").getAsString());
     }
 
     private void gameStarted(JsonObject input) {

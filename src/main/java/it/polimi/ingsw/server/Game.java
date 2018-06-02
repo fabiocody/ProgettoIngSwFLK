@@ -56,6 +56,7 @@ public class Game extends Observable implements Observer {
         Collections.shuffle(this.players);
         if (doSetup) this.setup();
         this.turnManager = new TurnManager(this.players);
+        this.getRoundTrack().getAllDice();
         this.turnManager.addObserver(this.getRoundTrack());
     }
 
@@ -289,7 +290,7 @@ public class Game extends Observable implements Observer {
                 setChanged();
                 notifyObservers("$roundTrack$");
 
-            } else if (arg.equals("Game over"))
+            } else if (arg.equals("Game over"))//Round track?
                 new Thread(this::endGame).start();
         } else if (o instanceof Player) {
             if (this.arePlayersReady()) {

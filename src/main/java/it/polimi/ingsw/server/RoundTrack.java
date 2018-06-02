@@ -1,6 +1,7 @@
 package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.model.dice.Die;
+import it.polimi.ingsw.util.Constants;
 
 import java.util.List;
 import java.util.Observable;
@@ -18,7 +19,8 @@ public class RoundTrack extends Observable implements Observer {
     // Is observed by Game
 
     // Attributes
-    private List<Die> dice;     // Dice placed on the round track. The order doesn't matter.
+    //private List<Die> roundTrack;     // Dice placed on the round track. The order doesn't matter.
+    private Vector<Die>[] roundTrack;
     private int currentRound;
     private boolean gameOver;
 
@@ -35,17 +37,29 @@ public class RoundTrack extends Observable implements Observer {
         this.gameOver = false;
     }
 
+    public Vector<Die>[] getVectorRoundTrack(){
+        return roundTrack;
+    }
+
     /**
-     * This method returns the list of dice placed on the Round Track, and also instantiate the underlying data structure.
+     * This method returns the list of roundTrack placed on the Round Track, and also instantiate the underlying data structure.
      *
      * @author Fabio Codiglioni
-     * @return the list of dice placed on the Round Track.
+     * @return the list of roundTrack placed on the Round Track.
      */
-    public List<Die> getDice() {
+    public List<Die> getAllDice() {
         synchronized (diceLock) {
-            if (this.dice == null)
-                this.dice = new Vector<>();
-            return this.dice;
+            if (this.roundTrack == null){
+                this.roundTrack = new Vector[Constants.NUMBER_OF_TURNS];
+                for (int i = 0; i < Constants.NUMBER_OF_TURNS; i++){
+                    roundTrack[i] = new Vector<>();
+                }
+            }
+            List<Die> allDice = new Vector<>();
+            for (int i = 0; i < Constants.NUMBER_OF_TURNS; i++){
+                allDice.addAll(roundTrack[i]);
+            }
+            return allDice;
         }
     }
 
@@ -92,14 +106,14 @@ public class RoundTrack extends Observable implements Observer {
     }
 
     /**
-     * This method transfers all the dice from the Draft Pool to the Round Track. The Draft Pool is left empty when this method returns.
+     * This method transfers all the roundTrack from the Draft Pool to the Round Track. The Draft Pool is left empty when this method returns.
      *
      * @author Fabio Codiglioni
-     * @param fromDraftPool the Draft Pool from which transferring the dice.
+     * @param fromDraftPool the Draft Pool from which transferring the roundTrack.
      */
     public void putDice(List<Die> fromDraftPool) {
         synchronized (diceLock) {
-            this.getDice().addAll(fromDraftPool);
+            this.roundTrack[this.currentRound - 1].addAll(fromDraftPool);
             fromDraftPool.clear();
         }
     }
