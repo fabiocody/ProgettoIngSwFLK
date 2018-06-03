@@ -64,8 +64,8 @@ public class ClientCLI extends Client {
             log("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
             while (!gameStarted) Thread.sleep(10);
             while (!gameOver) {
-                boolean alreadyPlacedDie = false;
-                boolean alreadyUsedToolCard = false;
+                boolean dieAlreadyPlaced = false;
+                boolean toolCardAlreadyUsed = false;
                 int draftPoolIndex = Constants.INDEX_CONSTANT;
                 int x = Constants.INDEX_CONSTANT;
                 int y = Constants.INDEX_CONSTANT;
@@ -89,11 +89,10 @@ public class ClientCLI extends Client {
                     log("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
                                 "passare il turno");
                     input = input("Scegli cosa fare[1-3] >>>");
-                    stopAsyncInput = true;
                     try {
                         this.instructionIndex = Integer.valueOf(input);
                         if(instructionIndex == 1){
-                            if(alreadyPlacedDie){
+                            if(dieAlreadyPlaced){
                                 log("Hai già piazzato un dado questo turno!");
                                 this.instructionIndex = Constants.INDEX_CONSTANT;
                             }
@@ -104,30 +103,27 @@ public class ClientCLI extends Client {
                                         draftPoolIndex = Integer.valueOf(input) - 1;
                                     } catch (NumberFormatException e) {
                                         log("Indice non valido\n");
-                                        continue;
                                     }
-                                } while (draftPoolIndex < 0 || draftPoolIndex > draftPoolLength);
+                                } while (draftPoolIndex < 0 || draftPoolIndex >= draftPoolLength);
                                 do {
                                     input = input("In quale colonna vuoi piazzarlo[1-5]? >>>");
                                     try {
                                         x = Integer.valueOf(input) - 1;
                                     } catch (NumberFormatException e) {
                                         log("Indice non valido\n");
-                                        continue;
                                     }
-                                } while (x < 0 || x > 4);
+                                } while (x < 0 || x >= Constants.NUMBER_OF_PATTERN_COLUMNS);
                                 do {
                                     input = input("In quale riga vuoi piazzarlo[1-4]? >>>");
                                     try {
                                         y = Integer.valueOf(input) - 1;
                                     } catch (NumberFormatException e) {
                                         log("Indice non valido\n");
-                                        continue;
                                     }
-                                } while (y < 0 || y > 4);
+                                } while (y < 0 || y >= Constants.NUMBER_OF_PATTERN_ROWS);
                                 if(this.getNetwork().placeDie(draftPoolIndex,x,y)){
                                     log("Dado piazzato\n");
-                                    alreadyPlacedDie = true;
+                                    dieAlreadyPlaced = true;
                                 }
                                 else{
                                  log("Posizionamento invalido\n");
@@ -136,7 +132,7 @@ public class ClientCLI extends Client {
                             }
                         }
                         else if(instructionIndex == 2) {  //Tool card
-                            if (alreadyUsedToolCard) {
+                            if (toolCardAlreadyUsed) {
                                 log("Hai già usato una carta strumento questo turno!\n");
                                 this.instructionIndex = Constants.INDEX_CONSTANT;
                             }
@@ -148,7 +144,7 @@ public class ClientCLI extends Client {
                                     log("Indice non valido\n");
                                     continue;
                                 }
-                            } while (cardIndex < 0 || cardIndex > 3);
+                            } while (cardIndex < 0 || cardIndex >= 3);
                             JsonObject requiredData = this.getNetwork().requiredData(cardIndex); //request for the data required by the tool card
                                 if(requiredData.has("draftPoolIndex")) { //if the tool card requires a draftpool die
                                     do {
@@ -157,9 +153,8 @@ public class ClientCLI extends Client {
                                             draftPoolIndex = Integer.valueOf(input) - 1;
                                         } catch (NumberFormatException e) {
                                             log("Indice non valido\n");
-                                            continue;
                                         }
-                                    } while (draftPoolIndex < 0 || draftPoolIndex > draftPoolLength);
+                                    } while (draftPoolIndex < 0 || draftPoolIndex >= draftPoolLength);
                                 }
                                 if(requiredData.has("roundTrackIndex")) { //if the tool card requires a round track die
                                     do {
@@ -168,78 +163,71 @@ public class ClientCLI extends Client {
                                             roundTrackIndex = Integer.valueOf(input) - 1;
                                         } catch (NumberFormatException e) {
                                             log("Indice non valido\n");
-                                            continue;
                                         }
-                                    } while (roundTrackIndex < 0 || roundTrackIndex > roundTrackLength);
+                                    } while (roundTrackIndex < 0 || roundTrackIndex >= roundTrackLength);
                                 }
                                 if(requiredData.has("delta")) { //if the tool card requires a change in the die value
                                     do {
-                                        input = input("vuoi aunmentare o diminuire il valore del dado? >>>");
+                                        input = input("Vuoi aunmentare o diminuire il valore del dado? >>>");
                                         try {
                                             delta = Integer.valueOf(input);
                                         } catch (NumberFormatException e) {
                                             log("Indice non valido\n");
-                                            continue;
                                         }
                                     } while (delta != 1 || delta != -1);
                                 }
                                 if(requiredData.has("newValue")) { //if the tool card requires a change in the die value
                                     do {
-                                        input = input("quale valore vuoi assegnare al dado? >>>");
+                                        input = input("Quale valore vuoi assegnare al dado? >>>");
                                         try {
                                             newValue = Integer.valueOf(input);
                                         } catch (NumberFormatException e) {
                                             log("Indice non valido\n");
-                                            continue;
                                         }
                                     } while (newValue < 1 || newValue > 6);
                                 }
                                 if(requiredData.has("fromCellX")) { //if the tool card requires a change in the die value
                                     do {
-                                        input = input("da quale colonna vuoi muoverlo[1-5]? >>>");
+                                        input = input("Da quale colonna vuoi muoverlo[1-5]? >>>");
                                         try {
                                             fromCellX = Integer.valueOf(input) - 1;
                                         } catch (NumberFormatException e) {
                                             log("Indice non valido\n");
-                                            continue;
                                         }
-                                    } while (fromCellX < 0 || fromCellX > 4);
+                                    } while (fromCellX < 0 || fromCellX >= Constants.NUMBER_OF_PATTERN_COLUMNS);
                                 }
                                 if(requiredData.has("fromCellY")) { //if the tool card requires a change in the die value
                                     do {
-                                        input = input("da quale riga vuoi muoverlo[1-4]? >>>");
+                                        input = input("Da quale riga vuoi muoverlo[1-4]? >>>");
                                         try {
                                             fromCellY = Integer.valueOf(input) - 1;
                                         } catch (NumberFormatException e) {
                                             log("Indice non valido\n");
-                                            continue;
                                         }
-                                    } while (fromCellY < 0 || fromCellY > 3);
+                                    } while (fromCellY < 0 || fromCellY >= Constants.NUMBER_OF_PATTERN_ROWS);
                                 }
                                 if(requiredData.has("toCellX")) { //if the tool card requires a change in the die value
                                     do {
-                                        input = input("in quale colonna vuoi piazzarlo[1-5]? >>>");
+                                        input = input("In quale colonna vuoi piazzarlo[1-5]? >>>");
                                         try {
                                             toCellX= Integer.valueOf(input) - 1;
                                         } catch (NumberFormatException e) {
                                             log("Indice non valido\n");
-                                            continue;
                                         }
-                                    } while (toCellX < 0 || toCellX > 4);
+                                    } while (toCellX < 0 || toCellX >= Constants.NUMBER_OF_PATTERN_COLUMNS);
                                 }
                                 if(requiredData.has("toCellY")) { //if the tool card requires a change in the die value
                                     do {
-                                        input = input("in quale riga vuoi piazzarlo[1-4]? >>>");
+                                        input = input("In quale riga vuoi piazzarlo[1-4]? >>>");
                                         try {
                                             toCellY = Integer.valueOf(input) - 1;
                                         } catch (NumberFormatException e) {
                                             log("Indice non valido\n");
-                                            continue;
                                         }
-                                    } while (toCellY < 0 || toCellY> 3);
+                                    } while (toCellY < 0 || toCellY >= Constants.NUMBER_OF_PATTERN_ROWS);
                                 }
                             log("USE TOOLCARD\n");
-                                alreadyUsedToolCard = true;
+                                toolCardAlreadyUsed = true;
                                 this.instructionIndex = Constants.INDEX_CONSTANT;
                         }
                         else if(instructionIndex == 3){

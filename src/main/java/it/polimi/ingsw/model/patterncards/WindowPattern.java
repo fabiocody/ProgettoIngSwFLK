@@ -142,7 +142,10 @@ public class WindowPattern {
      */
 
     public synchronized void placeDie(Die d, int position){
-        this.placeDie(d, position, PlacementConstraint.standardConstraint());
+        if(this.isGridEmpty())
+            this.placeDie(d, position, PlacementConstraint.initialConstraint());
+        else
+            this.placeDie(d, position, PlacementConstraint.standardConstraint());
     }
 
     /**

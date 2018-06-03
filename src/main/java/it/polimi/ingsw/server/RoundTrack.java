@@ -3,10 +3,8 @@ package it.polimi.ingsw.server;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.util.Constants;
 
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -19,8 +17,7 @@ public class RoundTrack extends Observable implements Observer {
     // Is observed by Game
 
     // Attributes
-    //private List<Die> roundTrack;     // Dice placed on the round track. The order doesn't matter.
-    private Vector<Die>[] roundTrack;
+    private List<Die>[] roundTrackDice;
     private int currentRound;
     private boolean gameOver;
 
@@ -37,29 +34,25 @@ public class RoundTrack extends Observable implements Observer {
         this.gameOver = false;
     }
 
-    public Vector<Die>[] getVectorRoundTrack(){
-        return roundTrack;
+    public List<Die>[] getVectorRoundTrack(){
+        return roundTrackDice;
     }
 
     /**
-     * This method returns the list of roundTrack placed on the Round Track, and also instantiate the underlying data structure.
+     * This method returns the list of roundTrackDice placed on the Round Track, and also instantiate the underlying data structure.
      *
      * @author Fabio Codiglioni
-     * @return the list of roundTrack placed on the Round Track.
+     * @return the list of roundTrackDice placed on the Round Track.
      */
     public List<Die> getAllDice() {
         synchronized (diceLock) {
-            if (this.roundTrack == null){
-                this.roundTrack = new Vector[Constants.NUMBER_OF_TURNS];
+            if (this.roundTrackDice == null){
+                this.roundTrackDice = new Vector[Constants.NUMBER_OF_TURNS];
                 for (int i = 0; i < Constants.NUMBER_OF_TURNS; i++){
-                    roundTrack[i] = new Vector<>();
+                    roundTrackDice[i] = new Vector<>();
                 }
             }
-            List<Die> allDice = new Vector<>();
-            for (int i = 0; i < Constants.NUMBER_OF_TURNS; i++){
-                allDice.addAll(roundTrack[i]);
-            }
-            return allDice;
+            return Arrays.stream(this.roundTrackDice).flatMap(Collection::stream).collect(Collectors.toList());
         }
     }
 
@@ -106,16 +99,27 @@ public class RoundTrack extends Observable implements Observer {
     }
 
     /**
-     * This method transfers all the roundTrack from the Draft Pool to the Round Track. The Draft Pool is left empty when this method returns.
+     * This method transfers all the roundTrackDice from the Draft Pool to the Round Track. The Draft Pool is left empty when this method returns.
      *
      * @author Fabio Codiglioni
-     * @param fromDraftPool the Draft Pool from which transferring the roundTrack.
+     * @param fromDraftPool the Draft Pool from which transferring the roundTrackDice.
      */
     public void putDice(List<Die> fromDraftPool) {
         synchronized (diceLock) {
-            this.roundTrack[this.currentRound - 1].addAll(fromDraftPool);
+            this.roundTrackDice[this.currentRound - 1].addAll(fromDraftPool);
             fromDraftPool.clear();
         }
+    }
+
+    public String toString(){
+        StringBuilder roundTrackCli = new StringBuilder("$roundTrack$");
+        for (int i = 0; i < Constants.NUMBER_OF_TURNS;i++){
+            for(Die d: this.getVectorRoundTrack()[i]){
+                roundTrackCli.append(d.toString()).append("£");
+            }
+            roundTrackCli.append("££");
+        }
+        return roundTrackCli.toString();
     }
 
     /**
@@ -127,5 +131,4 @@ public class RoundTrack extends Observable implements Observer {
     public void update(Observable o, Object arg) {
         if (o instanceof TurnManager) this.incrementRound();
     }
-
 }

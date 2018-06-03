@@ -348,14 +348,7 @@ public class ServerSocketHandler implements Runnable, Observer {
             dice.add(die);
         }
         payload.add("dice", dice);
-        String roundTrackCli = "$roundTrack$";
-        for (int i = 0; i < Constants.NUMBER_OF_TURNS;i++){
-            for(Die d: this.gameEndPoint.getRoundTrack()[i]){
-                roundTrackCli += d.toString() + "£";
-            }
-            roundTrackCli += "££";
-        }
-        payload.addProperty("cliString",roundTrackCli);
+        payload.addProperty("cliString",this.gameEndPoint.getRoundTrack().toString());
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
     }

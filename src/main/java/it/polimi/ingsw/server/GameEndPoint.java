@@ -108,9 +108,7 @@ public class GameEndPoint implements GameAPI {
         return new Vector<>(this.game.getRoundTrack().getAllDice());
     }
 
-    public Vector<Die>[] getRoundTrack(){
-        return this.game.getRoundTrack().getVectorRoundTrack();
-    }
+    public RoundTrack getRoundTrack(){ return this.game.getRoundTrack(); }
 
     @Override
     public List<Die> getDraftPool() {
@@ -118,11 +116,9 @@ public class GameEndPoint implements GameAPI {
     }
 
     @Override
-    public void placeDie(UUID id, int draftPoolIndex, int x, int y) throws InvalidPlacementException, DieAlreadyPlacedException {
+    public void placeDie(UUID id, int draftPoolIndex, int x, int y) throws DieAlreadyPlacedException {
         Die d = this.getDraftPool().get(draftPoolIndex);
-        try{
-            getPlayer(id).placeDie(d,x,y);
-        } catch (InvalidPlacementException | DieAlreadyPlacedException e){throw e;}
+        getPlayer(id).placeDie(d,x,y);
         this.game.removeDieFromDraftPool(draftPoolIndex);
     }
 

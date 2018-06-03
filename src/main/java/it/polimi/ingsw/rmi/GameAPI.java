@@ -35,7 +35,7 @@ public interface GameAPI extends Remote {
     // RoundTrack
     int getCurrentRound() throws RemoteException;
     List<Die> getRoundTrackDice() throws RemoteException;
-    public Vector<Die>[] getRoundTrack() throws RemoteException;
+    RoundTrack getRoundTrack() throws RemoteException;
 
     // Dice
     List<Die> getDraftPool() throws RemoteException;

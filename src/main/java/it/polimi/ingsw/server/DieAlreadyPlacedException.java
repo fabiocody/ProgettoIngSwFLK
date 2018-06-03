@@ -6,7 +6,7 @@ package it.polimi.ingsw.server;
  * @author Luca dell'Oglio, Kai de Gast
  */
 
-public class DieAlreadyPlacedException extends Exception{
+public class DieAlreadyPlacedException extends RuntimeException{
     public DieAlreadyPlacedException(String message) {
         super(message);
     }

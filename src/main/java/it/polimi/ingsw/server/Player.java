@@ -152,19 +152,10 @@ public class Player extends Observable {
         }
     }
 
-    public void placeDie(Die d, int x, int y) throws InvalidPlacementException, DieAlreadyPlacedException {
-
+    public void placeDie(Die d, int x, int y) {
         if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException("");
-        if (this.getWindowPattern().isGridEmpty()) {
-            try {
-                this.getWindowPattern().placeDie(d, Constants.NUMBER_OF_PATTERN_COLUMNS * y + x, PlacementConstraint.initialConstraint());
-            } catch (InvalidPlacementException e) {throw e;}
-        } else {
-            try{
-                this.getWindowPattern().placeDie(d,Constants.NUMBER_OF_PATTERN_COLUMNS * y + x);
-            } catch (InvalidPlacementException e){throw e;}
+        this.getWindowPattern().placeDie(d, Constants.NUMBER_OF_PATTERN_COLUMNS * y + x);
         setDiePlacedInThisTurn(true);
-        }
     }
 
 

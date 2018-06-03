@@ -434,13 +434,6 @@ public class SocketClient extends ClientNetwork {
     }
 
     private void updateRoundTrack(JsonObject input){
-        /*JsonArray roundTrackDice = input.getAsJsonArray("dice");
-        List roundTrackDieStrings = new ArrayList();
-        for (JsonElement obj: roundTrackDice){
-            String dieString = "$roundTrack$";
-            dieString += obj.getAsJsonObject().get("cliString").getAsString();
-            roundTrackDieStrings.add(dieString);
-        }*/
         setChanged();
         notifyObservers(input.get("cliString").getAsString());
     }
