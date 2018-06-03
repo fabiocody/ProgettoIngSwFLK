@@ -1,7 +1,6 @@
 package it.polimi.ingsw.client;
 
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.server.RoundTrack;
 import it.polimi.ingsw.util.Constants;
 import org.fusesource.jansi.AnsiConsole;
 import java.io.*;
@@ -233,7 +232,7 @@ public class ClientCLI extends Client {
                         }
                         else if(instructionIndex == 3){
                             this.round = this.getNetwork().nextTurn();
-                            if(this.round > Constants.NUMBER_OF_TURNS)
+                            if(this.round > Constants.NUMBER_OF_ROUNDS)
                                 this.gameOver = true;
                         }
                     } catch (NumberFormatException e) {

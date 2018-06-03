@@ -47,8 +47,8 @@ public class RoundTrack extends Observable implements Observer {
     public List<Die> getAllDice() {
         synchronized (diceLock) {
             if (this.roundTrackDice == null){
-                this.roundTrackDice = new Vector[Constants.NUMBER_OF_TURNS];
-                for (int i = 0; i < Constants.NUMBER_OF_TURNS; i++){
+                this.roundTrackDice = new Vector[Constants.NUMBER_OF_ROUNDS];
+                for (int i = 0; i < Constants.NUMBER_OF_ROUNDS; i++){
                     roundTrackDice[i] = new Vector<>();
                 }
             }
@@ -113,7 +113,7 @@ public class RoundTrack extends Observable implements Observer {
 
     public String toString(){
         StringBuilder roundTrackCli = new StringBuilder("$roundTrack$");
-        for (int i = 0; i < Constants.NUMBER_OF_TURNS;i++){
+        for (int i = 0; i < Constants.NUMBER_OF_ROUNDS; i++){
             for(Die d: this.getVectorRoundTrack()[i]){
                 roundTrackCli.append(d.toString()).append("£");
             }

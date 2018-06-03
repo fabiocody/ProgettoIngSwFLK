@@ -20,13 +20,13 @@ class RoundTrackTest {
     @Test
     void roundTrackTest() {
         assertEquals(1, roundTrack.getCurrentRound());
-        for (int i = 1; i < Constants.NUMBER_OF_TURNS; i++) {
+        for (int i = 1; i < Constants.NUMBER_OF_ROUNDS; i++) {
             int previousRound = roundTrack.getCurrentRound();
             roundTrack.incrementRound();
             assertEquals(previousRound + 1, roundTrack.getCurrentRound());
         }
         roundTrack.incrementRound();
-        assertEquals(Constants.NUMBER_OF_TURNS, roundTrack.getCurrentRound());
+        assertEquals(Constants.NUMBER_OF_ROUNDS, roundTrack.getCurrentRound());
     }
 
     @Test

@@ -11,5 +11,5 @@ public class Constants {
     public static final int NUMBER_OF_PATTERN_ROWS = 4;
     public static final int NUMBER_OF_PATTERNS = 24;
     public static final int TOOL_CARD_NUMBER = 3;
-    public static final int NUMBER_OF_TURNS = 10;
+    public static final int NUMBER_OF_ROUNDS = 10;
 }

@@ -329,7 +329,7 @@ public class SocketClient extends ClientNetwork {
         debug("INPUT " + input);
         if(!input.get("gameOver").getAsBoolean())
             return input.get("currentRound").getAsInt();
-        else return Constants.NUMBER_OF_TURNS + 1;
+        else return Constants.NUMBER_OF_ROUNDS + 1;
     }
 
     /**
