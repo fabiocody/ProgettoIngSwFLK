@@ -324,7 +324,6 @@ public class SocketClient extends ClientNetwork {
 
     int nextTurn() {
         JsonObject payload = new JsonObject();
-        log("Client has ended his turn");
         this.sendMessage(payload, "nextTurn");
         JsonObject input = this.pollResponseBuffer();
         debug("INPUT " + input);

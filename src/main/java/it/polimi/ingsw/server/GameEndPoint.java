@@ -133,5 +133,8 @@ public class GameEndPoint implements GameAPI {
     }
 
     @Override
-    public void nextTurn() { this.game.nextTurn(); }
+    public void nextTurn() {
+        this.game.nextTurn();
+    }
+
 }

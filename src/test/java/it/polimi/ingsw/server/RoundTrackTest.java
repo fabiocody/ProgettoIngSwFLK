@@ -31,7 +31,7 @@ class RoundTrackTest {
 
     @Test
     void putDiceTest() {
-        DiceGenerator diceGenerator = new DiceGenerator(Constants.MAX_PLAYER_NUMBER);
+        DiceGenerator diceGenerator = new DiceGenerator(Constants.MAX_NUMBER_OF_PLAYERS);
         diceGenerator.generateDraftPool();
         List<Die> draftPool = new ArrayList<>(diceGenerator.getDraftPool());
         roundTrack.putDice(diceGenerator.getDraftPool());

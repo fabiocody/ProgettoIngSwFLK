@@ -98,6 +98,7 @@ public class ClientCLI extends Client {
                             }
                             else{
                                 do {
+                                    draftPoolIndex = draftPoolLength;
                                     input = input("Quale dado vuoi piazzare[1-" + draftPoolLength + "]? >>>");
                                     try {
                                         draftPoolIndex = Integer.valueOf(input) - 1;

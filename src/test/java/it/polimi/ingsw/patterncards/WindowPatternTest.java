@@ -1,12 +1,14 @@
 package it.polimi.ingsw.patterncards;
 
+import it.polimi.ingsw.model.dice.*;
 import it.polimi.ingsw.model.patterncards.*;
+import it.polimi.ingsw.model.placementconstraints.EmptyConstraint;
 import it.polimi.ingsw.util.Colors;
 import java.util.List;
-
+import java.util.concurrent.ThreadLocalRandom;
 import it.polimi.ingsw.util.Constants;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class WindowPatternTest {
     @Test
@@ -72,6 +74,19 @@ class WindowPatternTest {
                     assertTrue(c.getCellColor() instanceof Colors && c.getCellColor() != Colors.DEFAULT);
                 }
             }
+        }
+    }
+
+    @Test
+    void isGridEmptyTest(){
+        PatternCardsGenerator gen = new PatternCardsGenerator(Constants.MAX_NUMBER_OF_PLAYERS);
+        DiceGenerator dg = new DiceGenerator(Constants.MAX_NUMBER_OF_PLAYERS);
+        List<WindowPattern> patterns = gen.getCards();
+        for (WindowPattern wp : patterns){
+            assertTrue(wp.isGridEmpty());
+            Die d = dg.draw();
+            wp.placeDie(d, ThreadLocalRandom.current().nextInt(0,Constants.NUMBER_OF_PATTERN_COLUMNS*Constants.NUMBER_OF_PATTERN_ROWS),new EmptyConstraint());
+            assertFalse(wp.isGridEmpty());
         }
     }
 }

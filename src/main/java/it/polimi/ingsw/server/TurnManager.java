@@ -83,6 +83,7 @@ public class TurnManager extends Observable {
      */
     private void setActivePlayer(Player player) {
         for (Player p : this.players) {
+            p.setDiePlacedInThisTurn(false);
             p.setActive(p.equals(player));
             if (p.isActive() && p.isSecondTurnToBeSkipped())
                 this.nextTurn();
