@@ -1,10 +1,11 @@
 package it.polimi.ingsw.server;
 
+import it.polimi.ingsw.model.dice.DiceGenerator;
 import it.polimi.ingsw.model.dice.Die;
-import it.polimi.ingsw.util.Constants;
-
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import static it.polimi.ingsw.util.Constants.*;
 
 
 /**
@@ -32,10 +33,18 @@ public class RoundTrack extends Observable implements Observer {
     public RoundTrack() {
         this.currentRound = 1;
         this.gameOver = false;
+        if (this.roundTrackDice == null){
+            this.roundTrackDice = new Vector[NUMBER_OF_ROUNDS];
+            for (int i = 0; i < NUMBER_OF_ROUNDS; i++){
+                roundTrackDice[i] = new Vector<>();
+            }
+        }
     }
 
-    public List<Die>[] getVectorRoundTrack(){
-        return roundTrackDice;
+    public List<Die>[] getRoundTrackDice(){
+        synchronized (diceLock) {
+            return roundTrackDice;
+        }
     }
 
     /**
@@ -46,12 +55,6 @@ public class RoundTrack extends Observable implements Observer {
      */
     public List<Die> getAllDice() {
         synchronized (diceLock) {
-            if (this.roundTrackDice == null){
-                this.roundTrackDice = new Vector[Constants.NUMBER_OF_ROUNDS];
-                for (int i = 0; i < Constants.NUMBER_OF_ROUNDS; i++){
-                    roundTrackDice[i] = new Vector<>();
-                }
-            }
             return Arrays.stream(this.roundTrackDice).flatMap(Collection::stream).collect(Collectors.toList());
         }
     }
@@ -111,15 +114,25 @@ public class RoundTrack extends Observable implements Observer {
         }
     }
 
-    public String toString(){
-        StringBuilder roundTrackCli = new StringBuilder("$roundTrack$");
-        for (int i = 0; i < Constants.NUMBER_OF_ROUNDS; i++){
-            for(Die d: this.getVectorRoundTrack()[i]){
-                roundTrackCli.append(d.toString()).append("£");
-            }
-            roundTrackCli.append("££");
+    public String toString() {
+        synchronized (diceLock) {
+            StringBuilder roundTrackCli = new StringBuilder("$roundTrack$");
+            Optional<Integer> maxDiceInRound = Arrays.stream(getRoundTrackDice())
+                    .map(List::size)
+                    .max(Comparator.naturalOrder());
+            maxDiceInRound.ifPresent(max -> {
+                for (int i = 0; i < max; i++) {
+                    for (int j = 0; j < NUMBER_OF_ROUNDS; j++) {
+                        if (i < this.roundTrackDice[j].size() && this.roundTrackDice[j].get(i) != null)
+                            roundTrackCli.append(this.roundTrackDice[j].get(i)).append(" ");
+                        else
+                            roundTrackCli.append("    ");
+                    }
+                    roundTrackCli.append("\n");
+                }
+            });
+            return roundTrackCli.toString();
         }
-        return roundTrackCli.toString();
     }
 
     /**
@@ -131,4 +144,5 @@ public class RoundTrack extends Observable implements Observer {
     public void update(Observable o, Object arg) {
         if (o instanceof TurnManager) this.incrementRound();
     }
+
 }

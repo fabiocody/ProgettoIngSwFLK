@@ -156,7 +156,7 @@ class ToolCardsTest {
         int draftPoolIndex = ThreadLocalRandom.current().nextInt(0, game.getDiceGenerator().getDraftPool().size());
         int roundTrackIndex = ThreadLocalRandom.current().nextInt(0, game.getRoundTrack().getAllDice().size());
         Die fromDraftPool = game.getDiceGenerator().getDraftPool().get(draftPoolIndex);
-        Die fromRoundTrack = game.getRoundTrack().getVectorRoundTrack()[game.getRoundTrack().getCurrentRound() - 1].get(roundTrackIndex);
+        Die fromRoundTrack = game.getRoundTrack().getRoundTrackDice()[game.getRoundTrack().getCurrentRound() - 1].get(roundTrackIndex);
         JsonObject data = new JsonObject();
         data.addProperty("draftPoolIndex", draftPoolIndex);
         data.addProperty("roundTrackIndex", roundTrackIndex);

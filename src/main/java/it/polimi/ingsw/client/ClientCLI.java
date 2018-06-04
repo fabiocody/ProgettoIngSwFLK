@@ -87,7 +87,7 @@ public class ClientCLI extends Client {
                 do {
                     log("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
                                 "passare il turno");
-                    input = input("Scegli cosa fare[1-3] >>>");
+                    input = input("Scegli cosa fare [1-3] >>>");
                     try {
                         this.instructionIndex = Integer.valueOf(input);
                         if(instructionIndex == 1){
@@ -98,7 +98,7 @@ public class ClientCLI extends Client {
                             else{
                                 do {
                                     draftPoolIndex = draftPoolLength;
-                                    input = input("Quale dado vuoi piazzare[1-" + draftPoolLength + "]? >>>");
+                                    input = input("Quale dado vuoi piazzare [1-" + draftPoolLength + "]?");
                                     try {
                                         draftPoolIndex = Integer.valueOf(input) - 1;
                                     } catch (NumberFormatException e) {
@@ -106,7 +106,7 @@ public class ClientCLI extends Client {
                                     }
                                 } while (draftPoolIndex < 0 || draftPoolIndex >= draftPoolLength);
                                 do {
-                                    input = input("In quale colonna vuoi piazzarlo[1-5]? >>>");
+                                    input = input("In quale colonna vuoi piazzarlo [1-5]?");
                                     try {
                                         x = Integer.valueOf(input) - 1;
                                     } catch (NumberFormatException e) {
@@ -114,7 +114,7 @@ public class ClientCLI extends Client {
                                     }
                                 } while (x < 0 || x >= Constants.NUMBER_OF_PATTERN_COLUMNS);
                                 do {
-                                    input = input("In quale riga vuoi piazzarlo[1-4]? >>>");
+                                    input = input("In quale riga vuoi piazzarlo [1-4]?");
                                     try {
                                         y = Integer.valueOf(input) - 1;
                                     } catch (NumberFormatException e) {
@@ -137,7 +137,7 @@ public class ClientCLI extends Client {
                                 this.instructionIndex = Constants.INDEX_CONSTANT;
                             }
                             do {
-                                input = input("Quale carta strumento vuoi usare[1-3]? >>>");
+                                input = input("Quale carta strumento vuoi usare [1-3]?");
                                 try {
                                     cardIndex = Integer.valueOf(input) - 1;
                                 } catch (NumberFormatException e) {
@@ -148,7 +148,7 @@ public class ClientCLI extends Client {
                             JsonObject requiredData = this.getNetwork().requiredData(cardIndex); //request for the data required by the tool card
                                 if(requiredData.has("draftPoolIndex")) { //if the tool card requires a draftpool die
                                     do {
-                                        input = input("Quale dado della riserva vuoi utilizzare[1-" + draftPoolLength + "]? >>>");
+                                        input = input("Quale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]?");
                                         try {
                                             draftPoolIndex = Integer.valueOf(input) - 1;
                                         } catch (NumberFormatException e) {
@@ -158,7 +158,7 @@ public class ClientCLI extends Client {
                                 }
                                 if(requiredData.has("roundTrackIndex")) { //if the tool card requires a round track die
                                     do {
-                                        input = input("Quale dado del round track vuoi utilizzare[1-" + roundTrackLength + "]? >>>");
+                                        input = input("Quale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]?");
                                         try {
                                             roundTrackIndex = Integer.valueOf(input) - 1;
                                         } catch (NumberFormatException e) {
@@ -168,7 +168,7 @@ public class ClientCLI extends Client {
                                 }
                                 if(requiredData.has("delta")) { //if the tool card requires a change in the die value
                                     do {
-                                        input = input("Vuoi aunmentare o diminuire il valore del dado? >>>");
+                                        input = input("Vuoi aunmentare o diminuire il valore del dado?");
                                         try {
                                             delta = Integer.valueOf(input);
                                         } catch (NumberFormatException e) {
@@ -178,7 +178,7 @@ public class ClientCLI extends Client {
                                 }
                                 if(requiredData.has("newValue")) { //if the tool card requires a change in the die value
                                     do {
-                                        input = input("Quale valore vuoi assegnare al dado? >>>");
+                                        input = input("Quale valore vuoi assegnare al dado?");
                                         try {
                                             newValue = Integer.valueOf(input);
                                         } catch (NumberFormatException e) {
@@ -188,7 +188,7 @@ public class ClientCLI extends Client {
                                 }
                                 if(requiredData.has("fromCellX")) { //if the tool card requires a change in the die value
                                     do {
-                                        input = input("Da quale colonna vuoi muoverlo[1-5]? >>>");
+                                        input = input("Da quale colonna vuoi muoverlo [1-5]?");
                                         try {
                                             fromCellX = Integer.valueOf(input) - 1;
                                         } catch (NumberFormatException e) {
@@ -198,7 +198,7 @@ public class ClientCLI extends Client {
                                 }
                                 if(requiredData.has("fromCellY")) { //if the tool card requires a change in the die value
                                     do {
-                                        input = input("Da quale riga vuoi muoverlo[1-4]? >>>");
+                                        input = input("Da quale riga vuoi muoverlo [1-4]?");
                                         try {
                                             fromCellY = Integer.valueOf(input) - 1;
                                         } catch (NumberFormatException e) {
@@ -208,7 +208,7 @@ public class ClientCLI extends Client {
                                 }
                                 if(requiredData.has("toCellX")) { //if the tool card requires a change in the die value
                                     do {
-                                        input = input("In quale colonna vuoi piazzarlo[1-5]? >>>");
+                                        input = input("In quale colonna vuoi piazzarlo [1-5]?");
                                         try {
                                             toCellX= Integer.valueOf(input) - 1;
                                         } catch (NumberFormatException e) {
@@ -218,7 +218,7 @@ public class ClientCLI extends Client {
                                 }
                                 if(requiredData.has("toCellY")) { //if the tool card requires a change in the die value
                                     do {
-                                        input = input("In quale riga vuoi piazzarlo[1-4]? >>>");
+                                        input = input("In quale riga vuoi piazzarlo [1-4]?");
                                         try {
                                             toCellY = Integer.valueOf(input) - 1;
                                         } catch (NumberFormatException e) {
@@ -435,7 +435,7 @@ public class ClientCLI extends Client {
                 }
                 if(argAsList.get(0).equals("$$$updatedWindowPatterns")){
                     argAsList.remove(0);
-                    List<String> patterns = new ArrayList();
+                    List<String> patterns = new ArrayList<>();
                     for (String s: argAsList){
                         String spaces = "";
                         for(int i = 0; i <= Constants.MAX_NICKNAME_LENGTH - s.substring(0,s.indexOf("$")).length(); i++)
@@ -499,10 +499,8 @@ public class ClientCLI extends Client {
                 }
                 if (input.startsWith("$roundTrack$")) {
                     input = input.replace("$roundTrack$","");
-                    input = input.replace("££","  ");
-                    roundTrackLength = input.chars().filter(ch -> ch == '£').count();
-                    input = input.replace("£","");
-                    log("ROUND TRACK: " + input + "\n");
+                    roundTrackLength = input.chars().filter(ch -> ch == ']').count();
+                    log("ROUND TRACK\n" + input + "\n");
                 }
             } else if (arg instanceof Iterable) {   // Players
                 if(patternChosen == false) {  //Players in waiting room

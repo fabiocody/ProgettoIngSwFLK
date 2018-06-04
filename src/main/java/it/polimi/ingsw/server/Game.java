@@ -290,14 +290,14 @@ public class Game extends Observable implements Observer {
                 setChanged();
                 notifyObservers("$roundTrack$");
 
-            } else if (arg.equals("Game over"))//Round track?
+            } else if (arg.equals("Game over")) {   //Round track?
                 new Thread(this::endGame).start();
+            }
         } else if (o instanceof Player) {
             if (this.arePlayersReady()) {
                 setChanged();
                 notifyObservers("$gameStarted$");
             }
-
         }
     }
 

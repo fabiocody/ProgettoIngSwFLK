@@ -90,15 +90,19 @@ public class TurnManager extends Observable {
         }
     }
 
+    private void setSuspendedPlayer(String nickname, boolean suspended) {
+        Optional<Player> player = this.players.stream()
+                .filter(p -> p.getNickname().equals(nickname))
+                .findFirst();
+        player.ifPresent(p -> p.setSuspended(suspended));
+    }
+
     /**
      * @author Fabio Codiglioni
      * @param nickname the nickname of the Player that has to be suspended.
      */
     void suspendPlayer(String nickname) {
-        Optional<Player> player = this.players.stream()
-                .filter(p -> p.getNickname().equals(nickname))
-                .findFirst();
-        player.ifPresent(p -> p.setSuspended(true));
+        this.setSuspendedPlayer(nickname, true);
     }
 
     /**
@@ -106,10 +110,7 @@ public class TurnManager extends Observable {
      * @param nickname the nickname of the Player that has to be set as not suspended.
      */
     void unsuspendPlayer(String nickname) {
-        Optional<Player> player = this.players.stream()
-                .filter(p -> p.getNickname().equals(nickname))
-                .findFirst();
-        player.ifPresent(p -> p.setSuspended(false));
+        this.setSuspendedPlayer(nickname, false);
     }
 
     /**
@@ -144,7 +145,7 @@ public class TurnManager extends Observable {
             this.notifyObservers();
         }
         this.setActivePlayer(this.getCurrentPlayer());
-        this.timer.schedule(this::nextTurn, this.timeout);
+        //this.timer.schedule(this::nextTurn, this.timeout);        // TODO
     }
 
 
