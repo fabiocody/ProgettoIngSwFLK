@@ -108,6 +108,10 @@ public abstract class Client implements Observer {
             String ip;
             if (options.has("ip")) {
                 ip = (String) options.valueOf("ip");
+                if (!isValidIp(ip)) {
+                    System.out.println("Invalid IP Address");
+                    System.out.println(USAGE_STRING);
+                }
             } else {
                 Scanner stdin = new Scanner(System.in);
                 do{

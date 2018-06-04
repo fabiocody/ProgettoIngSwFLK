@@ -71,7 +71,7 @@
 {
     "method": "addPlayer",
     "logged": <bool>,
-    "UUID": <string>,
+    "playerID": <string>,
     "players": [
         <nickname: string>,
         ...
@@ -144,8 +144,8 @@
             "difficulty": <int>,
             "grid": [
                 {
-                    "cellColor": <string>,
-                    "cellValue": <int>,
+                    "color": <string>,
+                    "value": <int>,
                     "die": {
                         "color": <string>,
                         "value": <int>
@@ -285,7 +285,7 @@ After this request, the server will send to each client the following informatio
 ```
 {
     "method": "publicObjectiveCards",
-    "cards": [
+    "publicObjectiveCards": [
         {
             "name": <string>,
             "description": <string>,
@@ -303,7 +303,7 @@ After this request, the server will send to each client the following informatio
 ```
 {
     "method": "toolCards",
-    "cards": [
+    "toolCards": [
         {
             "name": <string>,
             "description": <string>,
@@ -338,8 +338,8 @@ After this request, the server will send to each client the following informatio
             "difficulty": <int>,
             "grid": [
                 {
-                    "cellColor": <string>,
-                    "cellValue": <int>,
+                    "color": <string>,
+                    "value": <int>,
                     "die": {
                         "color": <string>,
                         "value": <int>
@@ -402,8 +402,8 @@ After this request, the server will send to each client the following informatio
     "method": "placeDie",
     "arg": {
         "draftPoolIndex": <int>,
-        "x": <int>,
-        "y": <int>
+        "toCellX": <int>,
+        "toCellY": <int>
     }
 }
 ```

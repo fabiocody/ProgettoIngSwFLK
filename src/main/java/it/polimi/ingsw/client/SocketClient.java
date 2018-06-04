@@ -1,13 +1,10 @@
 package it.polimi.ingsw.client;
 
 import com.google.gson.*;
-import it.polimi.ingsw.server.*;
-import it.polimi.ingsw.util.Constants;
-
+import it.polimi.ingsw.util.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.*;
 
@@ -131,7 +128,7 @@ public class SocketClient extends ClientNetwork {
             }
             Methods recvMethod;
             try {
-                recvMethod = Methods.getAsMethods(inputJson.get("method").getAsString());
+                recvMethod = Methods.getAsMethods(inputJson.get(JsonFields.METHOD).getAsString());
             } catch (NoSuchElementException e) {
                 error("METHOD NOT RECOGNIZED");
                 continue;
@@ -219,21 +216,21 @@ public class SocketClient extends ClientNetwork {
         this.probeTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                error("Connection lostPROBE");
+                error("Connection lost PROBE");
                 System.exit(Constants.INDEX_CONSTANT);
             }
         }, 10 * 1000);
     }
 
     private void probe() {
-        this.sendMessage(new JsonObject(), "probe");
+        this.sendMessage(new JsonObject(), Methods.PROBE.getString());
         this.rescheduleProbeTimer();
     }
 
     private void sendMessage(JsonObject payload, String method) {
         if (this.uuid != null)
-            payload.addProperty("playerID", this.uuid.toString());
-        payload.addProperty("method", method);
+            payload.addProperty(JsonFields.PLAYER_ID, this.uuid.toString());
+        payload.addProperty(JsonFields.METHOD, method);
         debug("PAYLOAD " + payload);
         out.println(payload.toString());
     }
@@ -244,14 +241,14 @@ public class SocketClient extends ClientNetwork {
     UUID addPlayer(String nickname) {
         this.nickname = nickname;
         JsonObject payload = new JsonObject();
-        payload.addProperty("nickname", nickname);
+        payload.addProperty(JsonFields.NICKNAME, nickname);
         debug("PAYLOAD " + payload.toString());
-        this.sendMessage(payload, "addPlayer");
+        this.sendMessage(payload, Methods.ADD_PLAYER.getString());
         JsonObject input = this.pollResponseBuffer();
-        if (input.get("logged").getAsBoolean()) {
-            uuid = UUID.fromString(input.get("UUID").getAsString());
+        if (input.get(JsonFields.LOGGED).getAsBoolean()) {
+            uuid = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
             debug("INPUT " + input);
-            JsonArray players = input.get("players").getAsJsonArray();
+            JsonArray players = input.get(JsonFields.PLAYERS).getAsJsonArray();
             debug("SIZE: " + players.size());
             if (players.size() < Constants.MAX_NUMBER_OF_PLAYERS) {
                 new Timer(true)
@@ -276,47 +273,47 @@ public class SocketClient extends ClientNetwork {
      */
     private void subscribeToWRTimer() {
         JsonObject payload = new JsonObject();
-        this.sendMessage(payload, "subscribeToWRTimer");
+        this.sendMessage(payload, Methods.SUBSCRIBE_TO_WR_TIMER.getString());
         debug("INPUT " + this.pollResponseBuffer());
     }
 
     void choosePattern(int patternIndex) {
         JsonObject payload = new JsonObject();
         JsonObject arg = new JsonObject();
-        arg.addProperty("patternIndex", patternIndex);
-        payload.add("arg", arg);
-        this.sendMessage(payload, "choosePattern");
+        arg.addProperty(JsonFields.PATTERN_INDEX, patternIndex);
+        payload.add(JsonFields.ARG, arg);
+        this.sendMessage(payload, Methods.CHOOSE_PATTERN.getString());
     }
 
     boolean placeDie(int draftPoolIndex, int x, int y){
         JsonObject payload = new JsonObject();
         JsonObject arg = new JsonObject();
-        arg.addProperty("draftPoolIndex",draftPoolIndex);
-        arg.addProperty("x",x);
-        arg.addProperty("y",y);
-        payload.add("arg",arg);
-        this.sendMessage(payload,"placeDie");
+        arg.addProperty(JsonFields.DRAFT_POOL_INDEX, draftPoolIndex);
+        arg.addProperty(JsonFields.TO_CELL_X, x);
+        arg.addProperty(JsonFields.TO_CELL_Y, y);
+        payload.add(JsonFields.ARG, arg);
+        this.sendMessage(payload,Methods.PLACE_DIE.getString());
         JsonObject input = this.pollResponseBuffer();
         debug("INPUT " + input);
-        return input.get("result").getAsBoolean();
+        return input.get(JsonFields.RESULT).getAsBoolean();
     }
 
     boolean useToolCard(int cardIndex, JsonObject data){
         JsonObject payload = new JsonObject();
         JsonObject arg = new JsonObject();
-        arg.addProperty("cardIndex", cardIndex);
-        arg.add("data", data); //different data for each tool card
-        payload.add("arg", arg);
-        this.sendMessage(payload,"useToolCard");
+        arg.addProperty(JsonFields.CARD_INDEX, cardIndex);
+        arg.add(JsonFields.DATA, data); //different data for each tool card
+        payload.add(JsonFields.ARG, arg);
+        this.sendMessage(payload,Methods.USE_TOOL_CARD.getString());
         JsonObject input = this.pollResponseBuffer();
         debug("INPUT " + input);
-        return input.get("result").getAsBoolean();
+        return input.get(JsonFields.RESULT).getAsBoolean();
     }
 
     JsonObject requiredData(int cardIndex){
         JsonObject payload = new JsonObject();
-        payload.addProperty("cardIndex", cardIndex);
-        this.sendMessage(payload, "requiredData");
+        payload.addProperty(JsonFields.CARD_INDEX, cardIndex);
+        this.sendMessage(payload, Methods.REQUIRED_DATA_FOR_TOOL_CARD.getString());
         JsonObject input = this.pollResponseBuffer();
         debug("INPUT " + input);
         return input;
@@ -324,11 +321,11 @@ public class SocketClient extends ClientNetwork {
 
     int nextTurn() {
         JsonObject payload = new JsonObject();
-        this.sendMessage(payload, "nextTurn");
+        this.sendMessage(payload, Methods.NEXT_TURN.getString());
         JsonObject input = this.pollResponseBuffer();
         debug("INPUT " + input);
-        if(!input.get("gameOver").getAsBoolean())
-            return input.get("currentRound").getAsInt();
+        if(!input.get(JsonFields.GAME_OVER).getAsBoolean())
+            return input.get(JsonFields.CURRENT_ROUND).getAsInt();
         else return Constants.NUMBER_OF_ROUNDS + 1;
     }
 
@@ -339,7 +336,7 @@ public class SocketClient extends ClientNetwork {
      */
     private void updateWaitingPlayers(JsonObject input) {
         setChanged();
-        notifyObservers(input.get("players").getAsJsonArray());
+        notifyObservers(input.get(JsonFields.PLAYERS).getAsJsonArray());
     }
 
     /**
@@ -349,20 +346,20 @@ public class SocketClient extends ClientNetwork {
      */
     private void wrTimerTick(JsonObject input) {
         setChanged();
-        notifyObservers(input.get("tick").getAsInt());
+        notifyObservers(input.get(JsonFields.TICK).getAsInt());
     }
 
     private void gameSetup(JsonObject input) {
         // TODO Private Objectve Card
         String privateObjectiveCardString = "PrivateObjectiveCard$Il tuo obiettivo privato è:\n";
-        privateObjectiveCardString += input.get("privateObjectiveCard").getAsJsonObject().get("name").getAsString();
+        privateObjectiveCardString += input.get(JsonFields.PRIVATE_OBJECTIVE_CARD).getAsJsonObject().get(JsonFields.NAME).getAsString();
         privateObjectiveCardString += " - ";
-        privateObjectiveCardString += input.get("privateObjectiveCard").getAsJsonObject().get("description").getAsString();
+        privateObjectiveCardString += input.get(JsonFields.PRIVATE_OBJECTIVE_CARD).getAsJsonObject().get(JsonFields.DESCRIPTION).getAsString();
         setChanged();
         notifyObservers(privateObjectiveCardString);
-        JsonArray windowPatterns = input.getAsJsonArray("windowPatterns");
+        JsonArray windowPatterns = input.getAsJsonArray(JsonFields.WINDOW_PATTERNS);
         List strings = StreamSupport.stream(windowPatterns.spliterator(), false)
-                .map(obj -> obj.getAsJsonObject().get("cliString").getAsString())
+                .map(obj -> obj.getAsJsonObject().get(JsonFields.CLI_STRING).getAsString())
                 .collect(Collectors.toList());
         setChanged();
         notifyObservers(strings);
@@ -370,17 +367,17 @@ public class SocketClient extends ClientNetwork {
 
     private void inGamePlayers(JsonObject input){
         setChanged();
-        notifyObservers(input.get("players").getAsJsonArray());
+        notifyObservers(input.get(JsonFields.PLAYERS).getAsJsonArray());
     }
 
     private void updateToolCards(JsonObject input){
-        JsonArray toolCards = input.getAsJsonArray("cards");
+        JsonArray toolCards = input.getAsJsonArray(JsonFields.TOOL_CARDS);
         List toolCardsStrings = new ArrayList();
         for(JsonElement obj : toolCards){
             String toolCardString = "ToolCard$";
-            toolCardString += obj.getAsJsonObject().get("name").getAsString();
+            toolCardString += obj.getAsJsonObject().get(JsonFields.NAME).getAsString();
             toolCardString += " - ";
-            toolCardString += obj.getAsJsonObject().get("description").getAsString();
+            toolCardString += obj.getAsJsonObject().get(JsonFields.DESCRIPTION).getAsString();
             //TODO toolCardString += obj.getAsJsonObject().get("used").getAsString();
             toolCardsStrings.add(toolCardString);
         }
@@ -392,9 +389,9 @@ public class SocketClient extends ClientNetwork {
         List windowPatternsList = new ArrayList();
         windowPatternsList.add("$$$updatedWindowPatterns");
 
-        Set<Entry<String,JsonElement>>  entrySet = input.get("windowPatterns").getAsJsonObject().entrySet();
+        Set<Map.Entry<String,JsonElement>>  entrySet = input.get(JsonFields.WINDOW_PATTERNS).getAsJsonObject().entrySet();
         for(Map.Entry<String,JsonElement> entry : entrySet){
-            String keyValue = entry.getKey() + "$" + entry.getValue().getAsJsonObject().get("cliString").getAsString();
+            String keyValue = entry.getKey() + "$" + entry.getValue().getAsJsonObject().get(JsonFields.CLI_STRING).getAsString();
             windowPatternsList.add(keyValue);
         }
         setChanged();
@@ -402,18 +399,18 @@ public class SocketClient extends ClientNetwork {
     }
 
     private void publicObjectiveCards(JsonObject input){
-        JsonArray publicObjectiveCards= input.getAsJsonArray("cards");
-        List publicObjectiveCardsStrings = new ArrayList();
+        JsonArray publicObjectiveCards= input.getAsJsonArray(JsonFields.PUBLIC_OBJECTIVE_CARDS);
+        List<String> publicObjectiveCardsStrings = new ArrayList<>();
         for(JsonElement obj : publicObjectiveCards){
             String publicObjectiveCardString = "PublicObjectiveCards$";
-            publicObjectiveCardString += obj.getAsJsonObject().get("name").getAsString();
+            publicObjectiveCardString += obj.getAsJsonObject().get(JsonFields.NAME).getAsString();
             publicObjectiveCardString += " $- ";
-            publicObjectiveCardString += obj.getAsJsonObject().get("description").getAsString();
+            publicObjectiveCardString += obj.getAsJsonObject().get(JsonFields.DESCRIPTION).getAsString();
             publicObjectiveCardString += " $$- ";
-            if(obj.getAsJsonObject().get("victoryPoints").isJsonNull())
+            if(obj.getAsJsonObject().get(JsonFields.VICTORY_POINTS).isJsonNull())
                 publicObjectiveCardString += "#";
             else
-                publicObjectiveCardString += obj.getAsJsonObject().get("victoryPoints").getAsInt();
+                publicObjectiveCardString += obj.getAsJsonObject().get(JsonFields.VICTORY_POINTS).getAsInt();
             publicObjectiveCardsStrings.add(publicObjectiveCardString);
         }
         setChanged();
@@ -421,11 +418,11 @@ public class SocketClient extends ClientNetwork {
     }
 
     private void updateDraftPool(JsonObject input){
-        JsonArray draftPoolDice = input.getAsJsonArray("dice");
-        List draftPoolDieStrings = new ArrayList();
+        JsonArray draftPoolDice = input.getAsJsonArray(JsonFields.DICE);
+        List<String> draftPoolDieStrings = new ArrayList<>();
         for(JsonElement obj : draftPoolDice){
             String dieString = "$draftPool$";
-            dieString += obj.getAsJsonObject().get("cliString").getAsString();
+            dieString += obj.getAsJsonObject().get(JsonFields.CLI_STRING).getAsString();
             draftPoolDieStrings.add(dieString);
         }
         setChanged();
@@ -434,12 +431,12 @@ public class SocketClient extends ClientNetwork {
 
     private void updateRoundTrack(JsonObject input){
         setChanged();
-        notifyObservers(input.get("cliString").getAsString());
+        notifyObservers(input.get(JsonFields.CLI_STRING).getAsString());
     }
 
     private void gameStarted(JsonObject input) {
         this.setChanged();
-        this.notifyObservers(input.get("activePlayer").getAsString().equals(nickname));
+        this.notifyObservers(input.get(JsonFields.ACTIVE_PLAYER).getAsString().equals(nickname));
     }
 
 }

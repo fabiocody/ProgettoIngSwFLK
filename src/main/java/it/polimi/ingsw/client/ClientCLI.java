@@ -1,11 +1,10 @@
 package it.polimi.ingsw.client;
 
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.util.*;
 import org.fusesource.jansi.AnsiConsole;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.*;
 import static org.fusesource.jansi.Ansi.*;
 
@@ -146,7 +145,7 @@ public class ClientCLI extends Client {
                                 }
                             } while (cardIndex < 0 || cardIndex >= 3);
                             JsonObject requiredData = this.getNetwork().requiredData(cardIndex); //request for the data required by the tool card
-                                if(requiredData.has("draftPoolIndex")) { //if the tool card requires a draftpool die
+                                if(requiredData.has(JsonFields.DRAFT_POOL_INDEX)) { //if the tool card requires a draftpool die
                                     do {
                                         input = input("Quale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]?");
                                         try {
@@ -156,7 +155,7 @@ public class ClientCLI extends Client {
                                         }
                                     } while (draftPoolIndex < 0 || draftPoolIndex >= draftPoolLength);
                                 }
-                                if(requiredData.has("roundTrackIndex")) { //if the tool card requires a round track die
+                                if(requiredData.has(JsonFields.ROUND_TRACK_INDEX)) { //if the tool card requires a round track die
                                     do {
                                         input = input("Quale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]?");
                                         try {
@@ -166,7 +165,7 @@ public class ClientCLI extends Client {
                                         }
                                     } while (roundTrackIndex < 0 || roundTrackIndex >= roundTrackLength);
                                 }
-                                if(requiredData.has("delta")) { //if the tool card requires a change in the die value
+                                if(requiredData.has(JsonFields.DELTA)) { //if the tool card requires a change in the die value
                                     do {
                                         input = input("Vuoi aunmentare o diminuire il valore del dado?");
                                         try {
@@ -176,7 +175,7 @@ public class ClientCLI extends Client {
                                         }
                                     } while (delta != 1 || delta != -1);
                                 }
-                                if(requiredData.has("newValue")) { //if the tool card requires a change in the die value
+                                if(requiredData.has(JsonFields.NEW_VALUE)) { //if the tool card requires a change in the die value
                                     do {
                                         input = input("Quale valore vuoi assegnare al dado?");
                                         try {
@@ -186,7 +185,7 @@ public class ClientCLI extends Client {
                                         }
                                     } while (newValue < 1 || newValue > 6);
                                 }
-                                if(requiredData.has("fromCellX")) { //if the tool card requires a change in the die value
+                                if(requiredData.has(JsonFields.FROM_CELL_X)) { //if the tool card requires a change in the die value
                                     do {
                                         input = input("Da quale colonna vuoi muoverlo [1-5]?");
                                         try {
@@ -196,7 +195,7 @@ public class ClientCLI extends Client {
                                         }
                                     } while (fromCellX < 0 || fromCellX >= Constants.NUMBER_OF_PATTERN_COLUMNS);
                                 }
-                                if(requiredData.has("fromCellY")) { //if the tool card requires a change in the die value
+                                if(requiredData.has(JsonFields.FROM_CELL_Y)) { //if the tool card requires a change in the die value
                                     do {
                                         input = input("Da quale riga vuoi muoverlo [1-4]?");
                                         try {
@@ -206,7 +205,7 @@ public class ClientCLI extends Client {
                                         }
                                     } while (fromCellY < 0 || fromCellY >= Constants.NUMBER_OF_PATTERN_ROWS);
                                 }
-                                if(requiredData.has("toCellX")) { //if the tool card requires a change in the die value
+                                if(requiredData.has(JsonFields.TO_CELL_X)) { //if the tool card requires a change in the die value
                                     do {
                                         input = input("In quale colonna vuoi piazzarlo [1-5]?");
                                         try {
@@ -216,7 +215,7 @@ public class ClientCLI extends Client {
                                         }
                                     } while (toCellX < 0 || toCellX >= Constants.NUMBER_OF_PATTERN_COLUMNS);
                                 }
-                                if(requiredData.has("toCellY")) { //if the tool card requires a change in the die value
+                                if(requiredData.has(JsonFields.TO_CELL_Y)) { //if the tool card requires a change in the die value
                                     do {
                                         input = input("In quale riga vuoi piazzarlo [1-4]?");
                                         try {
@@ -368,7 +367,7 @@ public class ClientCLI extends Client {
         setUUID(this.getNetwork().addPlayer(this.getNickname()));
         setLogged(this.getUUID() != null);
         if (isLogged()) log("Login riuscito!");
-        else{
+        else {
             if(nickname.equals(""))
                 log("Login fallito! I nickname non possono essere vuoti");
             else if(nickname.contains(" "))

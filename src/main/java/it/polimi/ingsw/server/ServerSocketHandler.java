@@ -3,15 +3,11 @@ package it.polimi.ingsw.server;
 import com.google.gson.*;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
-import it.polimi.ingsw.model.patterncards.Cell;
-import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
-import it.polimi.ingsw.model.patterncards.WindowPattern;
+import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.model.toolcards.ToolCard;
-import it.polimi.ingsw.util.Constants;
-import it.polimi.ingsw.util.CountdownTimer;
+import it.polimi.ingsw.util.*;
 import java.io.*;
 import java.net.*;
-import java.rmi.RemoteException;
 import java.util.*;
 
 
@@ -30,10 +26,6 @@ public class ServerSocketHandler implements Runnable, Observer {
     private boolean run = true;
     private Thread probeThread;
     private boolean probed = true;
-
-    // FIELDS CONSTANTS
-    private static final String method = "method";
-    private static final String playerID = "playerID";
 
     public ServerSocketHandler(Socket socket) {
         this.clientSocket = socket;
@@ -75,7 +67,7 @@ public class ServerSocketHandler implements Runnable, Observer {
                 waitingRoomEndPoint.unsubscribeFromWaitingRoomTimer(this);
             }
             JsonObject payload = new JsonObject();
-            payload.addProperty(method, "probe");
+            payload.addProperty(JsonFields.METHOD, Methods.PROBE.getString());
             out.println(payload.toString());
             probed = false;
         }
@@ -108,14 +100,14 @@ public class ServerSocketHandler implements Runnable, Observer {
                 }
                 debug("Received: " + input.toString());
                 // UUID validation
-                if (!input.get(method).getAsString().equals(Methods.ADD_PLAYER.getString()) &&
-                        !input.get(playerID).getAsString().equals(this.uuid.toString())) {
+                if (!input.get(JsonFields.METHOD).getAsString().equals(Methods.ADD_PLAYER.getString()) &&
+                        !input.get(JsonFields.PLAYER_ID).getAsString().equals(this.uuid.toString())) {
                     error("AUTH ERROR");
                     continue;
                 }
                 Methods calledMethod;
                 try {
-                    calledMethod = Methods.getAsMethods(input.get(method).getAsString());
+                    calledMethod = Methods.getAsMethods(input.get(JsonFields.METHOD).getAsString());
                 } catch (NoSuchElementException e) {
                     error("METHOD NOT RECOGNIZED");
                     continue;
@@ -178,20 +170,20 @@ public class ServerSocketHandler implements Runnable, Observer {
     private void addPlayer(JsonObject input) {
         debug("addPlayer called");
         debug("INPUT " + input.toString());
-        String tempNickname = input.get("nickname").getAsString();
+        String tempNickname = input.get(JsonFields.NICKNAME).getAsString();
         try {
             uuid = this.waitingRoomEndPoint.addPlayer(tempNickname);
             nickname = tempNickname;
             log(nickname + " logged in (" + uuid + ")");
             debug("UUID: " + uuid.toString());
             JsonObject payload = new JsonObject();
-            payload.addProperty(method, "addPlayer");
-            payload.addProperty("logged", true);
-            payload.addProperty("UUID", uuid.toString());
+            payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
+            payload.addProperty(JsonFields.LOGGED, true);
+            payload.addProperty(JsonFields.PLAYER_ID, uuid.toString());
             JsonArray waitingPlayers = new JsonArray();
             for (Player p : this.waitingRoomEndPoint.getWaitingPlayers())
                 waitingPlayers.add(p.getNickname());
-            payload.add("players", waitingPlayers);
+            payload.add(JsonFields.PLAYERS, waitingPlayers);
             debug("PAYLOAD " + payload.toString());
             out.println(payload.toString());
             this.probeThread = new Thread(this::probe);
@@ -199,8 +191,8 @@ public class ServerSocketHandler implements Runnable, Observer {
         } catch (LoginFailedException e) {
             log("Login failed for nickname " + tempNickname);
             JsonObject payload = new JsonObject();
-            payload.addProperty(method, "addPlayer");
-            payload.addProperty("logged", false);
+            payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
+            payload.addProperty(JsonFields.LOGGED, false);
             debug("PAYLOAD " + payload.toString());
             out.println(payload.toString());
         }
@@ -210,34 +202,32 @@ public class ServerSocketHandler implements Runnable, Observer {
         this.waitingRoomEndPoint.subscribeToWaitingRoomTimer(this);
         debug("Timer registered");
         JsonObject payload = new JsonObject();
-        payload.addProperty(method, "subscribeToWRTimer");
-        payload.addProperty("result", true);
+        payload.addProperty(JsonFields.METHOD, Methods.SUBSCRIBE_TO_WR_TIMER.getString());
+        payload.addProperty(JsonFields.RESULT, true);
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
     }
 
     private void choosePattern(JsonObject input) {
-        int patternIndex = input.get("arg").getAsJsonObject().get("patternIndex").getAsInt();
-        UUID id = UUID.fromString(input.get("playerID").getAsString());
-        this.gameEndPoint.choosePattern(id, patternIndex);
+        int patternIndex = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.PATTERN_INDEX).getAsInt();
+        this.gameEndPoint.choosePattern(uuid, patternIndex);
         log(nickname + " has chosen pattern " + patternIndex);
     }
 
     private void placeDie(JsonObject input){
-        int draftPoolIndex = input.get("arg").getAsJsonObject().get("draftPoolIndex").getAsInt();
-        int x = input.get("arg").getAsJsonObject().get("x").getAsInt();
-        int y = input.get("arg").getAsJsonObject().get("y").getAsInt();
-        UUID id = UUID.fromString(input.get("playerID").getAsString());
+        int draftPoolIndex = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DRAFT_POOL_INDEX).getAsInt();
+        int x = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.TO_CELL_X).getAsInt();
+        int y = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.TO_CELL_Y).getAsInt();
         JsonObject payload = new JsonObject();
-        payload.addProperty(method,"placeDie");
+        payload.addProperty(JsonFields.METHOD,Methods.PLACE_DIE.getString());
         try{
-            this.gameEndPoint.placeDie(id,draftPoolIndex,x,y);
-            payload.addProperty("result", true);
+            this.gameEndPoint.placeDie(uuid, draftPoolIndex, x, y);
+            payload.addProperty(JsonFields.RESULT, true);
             log(nickname + " placed a die");
             debug("PAYLOAD " + payload.toString());
             out.println(payload.toString());
         } catch (InvalidPlacementException | DieAlreadyPlacedException e){
-            payload.addProperty("result", false);
+            payload.addProperty(JsonFields.RESULT, false);
             log(nickname + " die placement was refused");
             debug("PAYLOAD " + payload.toString());
             out.println(payload.toString());
@@ -245,9 +235,8 @@ public class ServerSocketHandler implements Runnable, Observer {
     }
 
     private void requiredData(JsonObject input){
-        int cardIndex = input.get("cardIndex").getAsInt();
-        JsonObject payload = new JsonObject();
-        payload = this.gameEndPoint.requiredData(cardIndex);
+        int cardIndex = input.get(JsonFields.CARD_INDEX).getAsInt();
+        JsonObject payload = this.gameEndPoint.requiredData(cardIndex);
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
     }
@@ -256,107 +245,107 @@ public class ServerSocketHandler implements Runnable, Observer {
         this.gameEndPoint.nextTurn();
         log(nickname + " has ended his turn");
         JsonObject payload = new JsonObject();
-        payload.addProperty(method, "nextTurn");
-        payload.addProperty("currentRound", this.gameEndPoint.getCurrentRound());
-        payload.addProperty("roundOver", this.game.getTurnManager().isRoundOver());
-        payload.addProperty("gameOver",this.game.getRoundTrack().isGameOver());
-        payload.addProperty("activePlayer",this.gameEndPoint.getActivePlayer());
+        payload.addProperty(JsonFields.METHOD, Methods.NEXT_TURN.getString());
+        payload.addProperty(JsonFields.CURRENT_ROUND, this.gameEndPoint.getCurrentRound());
+        payload.addProperty(JsonFields.ROUND_OVER, this.game.getTurnManager().isRoundOver());
+        payload.addProperty(JsonFields.GAME_OVER, this.game.getRoundTrack().isGameOver());
+        payload.addProperty(JsonFields.ACTIVE_PLAYER, this.gameEndPoint.getActivePlayer());
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
     }
 
     private void updatePlayersList() {
         JsonObject payload = new JsonObject();
-        payload.addProperty("method", "players");
+        payload.addProperty(JsonFields.METHOD, Methods.PLAYERS.getString());
         JsonArray playersJSON = new JsonArray();
-        for (String nickname : this.gameEndPoint.getCurrentPlayers()) {
-            playersJSON.add(nickname);
+        for (String name : this.gameEndPoint.getCurrentPlayers()) {
+            playersJSON.add(name);
         }
-        payload.add("players", playersJSON);
+        payload.add(JsonFields.PLAYERS, playersJSON);
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
     }
 
     private void updateToolCards() {
         JsonObject payload = new JsonObject();
-        payload.addProperty("method", "toolCards");
+        payload.addProperty(JsonFields.METHOD, Methods.TOOL_CARDS.getString());
         JsonArray cards = new JsonArray();
         for (ToolCard card : this.gameEndPoint.getToolCards()) {
             JsonObject jsonCard = new JsonObject();
-            jsonCard.addProperty("name", card.getName());
-            jsonCard.addProperty("description", card.getDescription());
-            jsonCard.addProperty("used", card.isUsed());
+            jsonCard.addProperty(JsonFields.NAME, card.getName());
+            jsonCard.addProperty(JsonFields.DESCRIPTION, card.getDescription());
+            jsonCard.addProperty(JsonFields.USED, card.isUsed());
             cards.add(jsonCard);
         }
-        payload.add("cards", cards);
+        payload.add(JsonFields.TOOL_CARDS, cards);
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
     }
 
     private void sendPublicObjectiveCards() {
         JsonObject payload = new JsonObject();
-        payload.addProperty("method", "publicObjectiveCards");
+        payload.addProperty(JsonFields.METHOD, Methods.PUBLIC_OBJECTIVE_CARDS.getString());
         JsonArray cards = new JsonArray();
         for (ObjectiveCard card : this.gameEndPoint.getPublicObjectiveCards()) {
             JsonObject jsonCard = new JsonObject();
-            jsonCard.addProperty("name", card.getName());
-            jsonCard.addProperty("description", card.getDescription());
-            jsonCard.addProperty("victoryPoints", card.getVictoryPoints());
+            jsonCard.addProperty(JsonFields.NAME, card.getName());
+            jsonCard.addProperty(JsonFields.DESCRIPTION, card.getDescription());
+            jsonCard.addProperty(JsonFields.VICTORY_POINTS, card.getVictoryPoints());
             cards.add(jsonCard);
         }
-        payload.add("cards", cards);
+        payload.add(JsonFields.PUBLIC_OBJECTIVE_CARDS, cards);
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
     }
 
     private void updateWindowPatterns() {
         JsonObject payload = new JsonObject();
-        payload.addProperty("method", "windowPatterns");
+        payload.addProperty(JsonFields.METHOD, Methods.WINDOW_PATTERNS.getString());
         JsonObject windowPatterns = new JsonObject();
         for (String player : this.gameEndPoint.getCurrentPlayers()) {
             windowPatterns.add(player, createWindowPatternJSON(this.gameEndPoint.getWindowPatternOf(player)));
         }
-        payload.add("windowPatterns", windowPatterns);
+        payload.add(JsonFields.WINDOW_PATTERNS, windowPatterns);
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
     }
 
     private void updateDraftPool() {
         JsonObject payload = new JsonObject();
-        payload.addProperty("method", "draftPool");
+        payload.addProperty(JsonFields.METHOD, Methods.DRAFT_POOL.getString());
         JsonArray dice = new JsonArray();
         for (Die d : this.gameEndPoint.getDraftPool()) {
             JsonObject die = new JsonObject();
-            die.addProperty("color", d.getColor().toString());
-            die.addProperty("value", d.getValue());
-            die.addProperty("cliString", d.toString());
+            die.addProperty(JsonFields.COLOR, d.getColor().toString());
+            die.addProperty(JsonFields.VALUE, d.getValue());
+            die.addProperty(JsonFields.CLI_STRING, d.toString());
             dice.add(die);
         }
-        payload.add("dice", dice);
+        payload.add(JsonFields.DICE, dice);
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
     }
 
     private void updateRoundTrack(){
         JsonObject payload = new JsonObject();
-        payload.addProperty("method", "roundTrackDice");
+        payload.addProperty(JsonFields.METHOD, Methods.ROUND_TRACK_DICE.getString());
         JsonArray dice = new JsonArray();
         for (Die d : this.gameEndPoint.getRoundTrackDice()) {
             JsonObject die = new JsonObject();
-            die.addProperty("color", d.getColor().toString());
-            die.addProperty("value", d.getValue());
+            die.addProperty(JsonFields.COLOR, d.getColor().toString());
+            die.addProperty(JsonFields.VALUE, d.getValue());
             dice.add(die);
         }
-        payload.add("dice", dice);
-        payload.addProperty("cliString",this.gameEndPoint.getRoundTrack().toString());
+        payload.add(JsonFields.DICE, dice);
+        payload.addProperty(JsonFields.CLI_STRING, this.gameEndPoint.getRoundTrack().toString());
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
     }
 
     private void gameStarted() {
         JsonObject payload = new JsonObject();
-        payload.addProperty("method", "gameStarted");
-        payload.addProperty("activePlayer", this.gameEndPoint.getActivePlayer());
+        payload.addProperty(JsonFields.METHOD, Methods.GAME_STARTED.getString());
+        payload.addProperty(JsonFields.ACTIVE_PLAYER, this.gameEndPoint.getActivePlayer());
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
     }
@@ -414,8 +403,8 @@ public class ServerSocketHandler implements Runnable, Observer {
     private void updateTimerTick(int tick) {
         debug("updateTimerTick called");
         JsonObject payload = new JsonObject();
-        payload.addProperty(method,"wrTimerTick");
-        payload.addProperty("tick", tick);
+        payload.addProperty(JsonFields.METHOD,Methods.WR_TIMER_TICK.getString());
+        payload.addProperty(JsonFields.TICK, tick);
         out.println(payload.toString());
         debug("Timer Tick Update sent");
     }
@@ -423,10 +412,10 @@ public class ServerSocketHandler implements Runnable, Observer {
     private void updateWaitingPlayersList(List<Player> players) {
         debug("updateWaitingPlayersList called");
         JsonObject payload = new JsonObject();
-        payload.addProperty(method, "updateWaitingPlayers");
+        payload.addProperty(JsonFields.METHOD, Methods.UPDATE_WAITING_PLAYERS.getString());
         JsonArray array = new JsonArray();
         for (Player p : players) array.add(p.getNickname());
-        payload.add("players", array);
+        payload.add(JsonFields.PLAYERS, array);
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
         debug("Update Waiting Players List sent");
@@ -434,39 +423,39 @@ public class ServerSocketHandler implements Runnable, Observer {
 
     private JsonObject createWindowPatternJSON(WindowPattern wp) {
         JsonObject wpJSON = new JsonObject();
-        wpJSON.addProperty("difficulty", wp.getDifficulty());
+        wpJSON.addProperty(JsonFields.DIFFICULTY, wp.getDifficulty());
         JsonArray grid = new JsonArray();
         for (Cell c : wp.getGrid()) {
             JsonObject cellJSON = new JsonObject();
-            cellJSON.addProperty("cellColor", c.getCellColor() != null ? c.getCellColor().toString() : null);
-            cellJSON.addProperty("cellValue", c.getCellValue());
+            cellJSON.addProperty(JsonFields.COLOR, c.getCellColor() != null ? c.getCellColor().toString() : null);
+            cellJSON.addProperty(JsonFields.VALUE, c.getCellValue());
             JsonObject die = null;
             if (c.getPlacedDie() != null) {
                 die = new JsonObject();
-                die.addProperty("color", c.getPlacedDie().getColor().toString());
-                die.addProperty("value", c.getPlacedDie().getValue());
+                die.addProperty(JsonFields.COLOR, c.getPlacedDie().getColor().toString());
+                die.addProperty(JsonFields.VALUE, c.getPlacedDie().getValue());
             }
-            cellJSON.add("die", die);
+            cellJSON.add(JsonFields.DIE, die);
             grid.add(cellJSON);
         }
-        wpJSON.add("grid", grid);
-        wpJSON.addProperty("cliString", wp.toString());
+        wpJSON.add(JsonFields.GRID, grid);
+        wpJSON.addProperty(JsonFields.CLI_STRING, wp.toString());
         return wpJSON;
     }
 
     private void setupGame() {
         debug("setupGame called");
         JsonObject payload = new JsonObject();
-        payload.addProperty(method, "gameSetup");
+        payload.addProperty(JsonFields.METHOD, Methods.GAME_SETUP.getString());
         Player player = this.gameEndPoint.getPlayer(uuid);
         ObjectiveCard privateObjectiveCard = player.getPrivateObjectiveCard();
 
         // Private objective card
         JsonObject privateObjectiveCardJSON = new JsonObject();
-        privateObjectiveCardJSON.addProperty("name", privateObjectiveCard.getName());
-        privateObjectiveCardJSON.addProperty("description", privateObjectiveCard.getDescription());
-        privateObjectiveCardJSON.addProperty("victoryPoints", privateObjectiveCard.getVictoryPoints());
-        payload.add("privateObjectiveCard", privateObjectiveCardJSON);
+        privateObjectiveCardJSON.addProperty(JsonFields.NAME, privateObjectiveCard.getName());
+        privateObjectiveCardJSON.addProperty(JsonFields.DESCRIPTION, privateObjectiveCard.getDescription());
+        privateObjectiveCardJSON.addProperty(JsonFields.VICTORY_POINTS, privateObjectiveCard.getVictoryPoints());
+        payload.add(JsonFields.PRIVATE_OBJECTIVE_CARD, privateObjectiveCardJSON);
 
         // Window Patterns
         List<WindowPattern> windowPatterns = player.getWindowPatternList();
@@ -474,7 +463,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         for (WindowPattern wp : windowPatterns) {
             windowPatternsJSON.add(createWindowPatternJSON(wp));
         }
-        payload.add("windowPatterns", windowPatternsJSON);
+        payload.add(JsonFields.WINDOW_PATTERNS, windowPatternsJSON);
 
 
         out.println(payload.toString());
