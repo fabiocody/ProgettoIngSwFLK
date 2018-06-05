@@ -233,7 +233,7 @@ public class Game extends Observable implements Observer {
     void nextTurn(){
         this.turnManager.nextTurn();
         setChanged();
-        notifyObservers("$nextTurn$");
+        notifyObservers("$turnManagement$");
     }
 
     /**
@@ -296,7 +296,7 @@ public class Game extends Observable implements Observer {
         } else if (o instanceof Player) {
             if (this.arePlayersReady()) {
                 setChanged();
-                notifyObservers("$gameStarted$");
+                notifyObservers("$turnManagement$");
             }
         }
     }

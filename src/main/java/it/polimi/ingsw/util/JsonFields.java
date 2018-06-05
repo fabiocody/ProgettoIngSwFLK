@@ -25,7 +25,6 @@ public class JsonFields {
     public static final String PATTERN_INDEX = "patternIndex";
     public static final String ACTIVE_PLAYER = "activePlayer";
     public static final String CURRENT_ROUND = "currentRound";
-    public static final String ROUND_OVER = "roundOver";
     public static final String GAME_OVER = "gameOver";
     public static final String FINAL_SCORES = "finalScores";
     public static final String PUBLIC_OBJECTIVE_CARDS = "publicObjectiveCards";

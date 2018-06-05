@@ -15,7 +15,7 @@ public abstract class ClientNetwork extends Observable {
     abstract UUID addPlayer(String nickname);
     abstract void choosePattern(int patternIndex);
     abstract boolean placeDie(int draftPoolIndex, int x, int y);
-    abstract int nextTurn();
+    abstract void nextTurn();
 
     abstract JsonObject requiredData(int cardIndex);
     abstract boolean useToolCard(int cardIndex, JsonObject requiredData);

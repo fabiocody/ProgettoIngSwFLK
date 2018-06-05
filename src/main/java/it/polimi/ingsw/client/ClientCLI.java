@@ -18,17 +18,12 @@ public class ClientCLI extends Client {
     private final Object stdinBufferLock = new Object();
 
     private boolean stopAsyncInput = false;
-    private boolean gameStarted = false;
-    private boolean active = false;
-    private boolean patternChosen = false;
-    private boolean gameOver = false;
     private int instructionIndex= Constants.INDEX_CONSTANT;
-    private int round = 1;
 
     private String wrTimeout;
     private String wrPlayers;
+    //private String gamePlayers;
 
-    private String gamePlayers;
     private int draftPoolLength;
     private long roundTrackLength = 0;
 
@@ -58,10 +53,10 @@ public class ClientCLI extends Client {
                 }
             } while (patternIndex <= 0 || patternIndex > 4);
             this.getNetwork().choosePattern(patternIndex - 1);
-            patternChosen = true;
+            this.setPatternChosen(true);
             log("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
-            while (!gameStarted) Thread.sleep(10);
-            while (!gameOver) {
+            while (!this.isGameStarted()) Thread.sleep(10);
+            while (!this.isGameOver()) {
                 boolean dieAlreadyPlaced = false;
                 boolean toolCardAlreadyUsed = false;
                 int draftPoolIndex = Constants.INDEX_CONSTANT;
@@ -77,12 +72,12 @@ public class ClientCLI extends Client {
                 int toCellX = Constants.INDEX_CONSTANT;
                 int toCellY = Constants.INDEX_CONSTANT;
 
-                if(!active){
+                if(!this.isActive()){
                     log("Aspetta il tuo turno.");
-                    while (!active) Thread.sleep(10);
+                    while (!this.isActive()) Thread.sleep(10);
                 }
 
-                log("Round " + round + "\nÈ il tuo turno!");
+                log("Round " + this.getRound() + "\nÈ il tuo turno!");
                 do {
                     log("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
                                 "passare il turno");
@@ -248,9 +243,8 @@ public class ClientCLI extends Client {
                             this.instructionIndex = Constants.INDEX_CONSTANT;
                         }
                         else if(instructionIndex == 3){
-                            this.round = this.getNetwork().nextTurn();
-                            if(this.round > Constants.NUMBER_OF_ROUNDS)
-                                this.gameOver = true;
+                            this.setActive(false);
+                            this.getNetwork().nextTurn();
                         }
                     } catch (NumberFormatException e) {
                         continue;
@@ -463,7 +457,6 @@ public class ClientCLI extends Client {
                     }
                     String prettyWindowPatterns = windowPatternsMessage(patterns);
                     log(prettyWindowPatterns);
-                    stopAsyncInput = true;
                 }
 
                 if(argAsList.get(0).startsWith("ToolCard$")) {   //Tool card
@@ -477,7 +470,6 @@ public class ClientCLI extends Client {
                     }
                     cards = cards.replace("$NL$","\n\n");
                     log(cards);
-                    stopAsyncInput = true;
                 }
 
                 if(argAsList.get(0).startsWith("PublicObjectiveCards$")) {   //Public Objective Card
@@ -490,7 +482,6 @@ public class ClientCLI extends Client {
                         cards = cards + s;
                         }
                     log(cards);
-                    stopAsyncInput = true;
                 }
 
                 if(argAsList.get(0).startsWith("$draftPool$")) {   //DraftPool
@@ -502,7 +493,14 @@ public class ClientCLI extends Client {
                         draftPoolLength++;
                     }
                     log(draftPool + "\n");
-                    stopAsyncInput = true;
+                }
+
+                if(argAsList.get(0).equals("$turnManagement$")) {
+                    argAsList.remove(0);
+                    if(!this.isGameStarted()) this.setGameStarted(true);
+                    this.setRound(Integer.valueOf(argAsList.get(0)));
+                    this.setGameOver(Boolean.valueOf(argAsList.get(1)));
+                    this.setActive(argAsList.get(2));
                 }
 
             } else if (arg instanceof Integer) {    // Timer ticks
@@ -520,23 +518,19 @@ public class ClientCLI extends Client {
                     log("ROUND TRACK\n" + input + "\n");
                 }
             } else if (arg instanceof Iterable) {   // Players
-                if(patternChosen == false) {  //Players in waiting room
+                if(this.isPatternChosen() == false) {  //Players in waiting room
                     this.wrPlayers = arg.toString().replace("[", "")
                             .replace("]", "")
                             .replace("\",", ",")
                             .replace("\"", " ");
                     System.out.print(waitingRoomMessage());
                 }
-                else{
+                /*else{
                     this.gamePlayers = arg.toString().replace("[", "")
                             .replace("]", "")
                             .replace("\",", ",")
                             .replace("\"", " ");
-                   stopAsyncInput = true;
-                }
-            } else if (arg instanceof Boolean) {
-                active = (boolean) arg;
-                gameStarted = true;
+                }*/
             }
         }
     }
