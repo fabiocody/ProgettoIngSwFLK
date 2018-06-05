@@ -250,6 +250,7 @@ public class ServerSocketHandler implements Runnable, Observer {
             debug("PAYLOAD " + payload.toString());
             out.println(payload.toString());
         } catch (RemoteException | InvalidEffectArgumentException | InvalidEffectResultException e) {
+            e.printStackTrace();        // TODO Remove
             payload.addProperty(JsonFields.RESULT, false);
             log(nickname + " usage of tool card was refused");
             debug("PAYLOAD " + payload.toString());
@@ -395,15 +396,14 @@ public class ServerSocketHandler implements Runnable, Observer {
                 this.updateWaitingPlayersList((List<Player>) arg);
             }
         } else if (o instanceof Game) {
-            if(stringArg.equals("$turnManagement$")) {
+            if (stringArg.equals("$turnManagement$")) {
                 updatePlayersList();
                 updateToolCards();
                 sendPublicObjectiveCards();
                 updateWindowPatterns();
                 updateDraftPool();
                 turnManagement();
-            }
-            else if(stringArg.equals("$placeDie$")){
+            } else if (stringArg.equals("$placeDie$")) {
                 updateWindowPatterns();
                 updateDraftPool();
             }
@@ -411,16 +411,16 @@ public class ServerSocketHandler implements Runnable, Observer {
                 updateWindowPatterns();
                 updateDraftPool();
             }*/
-            else if(stringArg.equals("$roundTrack$")){
+            else if (stringArg.equals("$roundTrack$")) {
                 //TODO
                 updateRoundTrack();
                 updateDraftPool();
-            }
-        } else if (stringArg.equals("$useToolCard$")) {
+            } else if (stringArg.equals("$useToolCard$")) {
                 updateToolCards();
                 updateRoundTrack();
                 updateWindowPatterns();
                 updateDraftPool();
+            }
         }
     }
 

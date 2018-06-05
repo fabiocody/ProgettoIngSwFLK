@@ -48,11 +48,11 @@ public class ToolCard6 extends ToolCard {
         int draftPoolIndex = data.get("draftPoolIndex").getAsInt();
         if (draftPoolIndex < 0 || draftPoolIndex >= this.getGame().getDiceGenerator().getDraftPool().size())
             throw new InvalidEffectArgumentException("Invalid draftPoolIndex: " + draftPoolIndex);
-        if (!dieRolled) {
-            rollDie(draftPoolIndex);
-        } else {
-            placeDie(data, draftPoolIndex);
-        }
+        //if (!dieRolled) {
+        rollDie(draftPoolIndex);
+        /*} else {
+        placeDie(data, draftPoolIndex);
+        }*/
         setChanged();
         notifyObservers("$useToolCard$");
     }
@@ -63,9 +63,9 @@ public class ToolCard6 extends ToolCard {
         payload.addProperty(JsonFields.METHOD, "requiredData");
         JsonObject data = new JsonObject();
         data.addProperty(JsonFields.DRAFT_POOL_INDEX, Constants.INDEX_CONSTANT);
-        data.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
+        /*data.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
         data.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
-        data.addProperty(JsonFields.PUT_AWAY, Constants.INDEX_CONSTANT);
+        data.addProperty(JsonFields.PUT_AWAY, Constants.INDEX_CONSTANT);*/
         payload.add(JsonFields.DATA, data);
         return payload;
     }
@@ -89,7 +89,7 @@ public class ToolCard6 extends ToolCard {
      * @throws InvalidEffectResultException thrown when the placement if invalid.
      * @throws InvalidEffectArgumentException thrown when a field of data has an invalid value.
      */
-    private void placeDie(JsonObject data, int draftPoolIndex) throws InvalidEffectResultException, InvalidEffectArgumentException {
+    /*private void placeDie(JsonObject data, int draftPoolIndex) throws InvalidEffectResultException, InvalidEffectArgumentException {
         if (!data.get("putAway").getAsBoolean()) {
             String nickname = data.get("player").getAsString();
             Player player = this.getGame().getPlayerForNickname(nickname);
@@ -111,6 +111,6 @@ public class ToolCard6 extends ToolCard {
         } else {
             this.setUsed();
         }
-    }
+    }*/
 
 }

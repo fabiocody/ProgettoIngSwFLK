@@ -235,6 +235,8 @@ public class ClientCLI extends Client {
                                 if (this.getNetwork().useToolCard(cardIndex, requiredData.get("data").getAsJsonObject())) {
                                     log("carta strumento usata con successo\n");
                                     toolCardAlreadyUsed = true;
+                                } else {
+                                    log("Carta strumento non usata");
                                 }
                             }
                             this.instructionIndex = Constants.INDEX_CONSTANT;
