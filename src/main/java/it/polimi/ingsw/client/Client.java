@@ -14,6 +14,11 @@ public abstract class Client implements Observer {
     private ClientNetwork network;
     private boolean debugActive;
     private boolean logged = false;
+    private boolean gameStarted = false;
+    private boolean active = false;
+    private boolean patternChosen = false;
+    private boolean gameOver = false;
+    private int round = 1;
 
     Client(ClientNetwork network, boolean debugActive) {
         this.debugActive = debugActive;
@@ -58,6 +63,51 @@ public abstract class Client implements Observer {
     void setLogged(boolean logged) {
         this.logged = logged;
     }
+
+    boolean isGameStarted() {
+        return gameStarted;
+    }
+
+    void setGameStarted(boolean gameStarted) {
+        this.gameStarted = gameStarted;
+    }
+
+    boolean isActive() {
+        return active;
+    }
+
+    void setActive (Boolean active){
+        this.active = active;
+    }
+
+    void setActive (String activeNickname){
+       this.active = activeNickname.equals(nickname);
+    }
+
+    boolean isPatternChosen() {
+        return patternChosen;
+    }
+
+    void setPatternChosen(boolean patternChosen) {
+        this.patternChosen = patternChosen;
+    }
+
+    boolean isGameOver() {
+        return gameOver;
+    }
+
+    void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
+
+    int getRound() {
+        return round;
+    }
+
+    void setRound(int round) {
+        this.round = round;
+    }
+
 
     /**
      * this method is used to print standard messages

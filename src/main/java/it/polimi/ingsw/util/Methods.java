@@ -18,7 +18,7 @@ public enum Methods {
     SUBSCRIBE_TO_GAME_TIMER("subscribeToGameTimer"),
     GAME_TIMER_TICK("gameTimerTick"),
     CHOOSE_PATTERN("choosePattern"),
-    GAME_STARTED("gameStarted"),
+    TURN_MANAGEMENT("turnManagement"),
     PLAYERS("players"),
     NEXT_TURN("nextTurn"),
     FINAL_SCORES("finalScores"),

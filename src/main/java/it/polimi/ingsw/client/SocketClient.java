@@ -158,8 +158,8 @@ public class SocketClient extends ClientNetwork {
                 case GAME_SETUP:
                     this.gameSetup(inputJson);
                     break;
-                case GAME_STARTED:
-                    this.gameStarted(inputJson);
+                case TURN_MANAGEMENT:
+                    this.turnManagement(inputJson);
                     break;
                 case PLAYERS:
                     this.inGamePlayers(inputJson);
@@ -319,14 +319,9 @@ public class SocketClient extends ClientNetwork {
         return input;
     }
 
-    int nextTurn() {
+    void nextTurn() {
         JsonObject payload = new JsonObject();
         this.sendMessage(payload, Methods.NEXT_TURN.getString());
-        JsonObject input = this.pollResponseBuffer();
-        debug("INPUT " + input);
-        if(!input.get(JsonFields.GAME_OVER).getAsBoolean())
-            return input.get(JsonFields.CURRENT_ROUND).getAsInt();
-        else return Constants.NUMBER_OF_ROUNDS + 1;
     }
 
     /**
@@ -335,8 +330,8 @@ public class SocketClient extends ClientNetwork {
      * @param input data from the server
      */
     private void updateWaitingPlayers(JsonObject input) {
-        setChanged();
-        notifyObservers(input.get(JsonFields.PLAYERS).getAsJsonArray());
+        this.setChanged();
+        this.notifyObservers(input.get(JsonFields.PLAYERS).getAsJsonArray());
     }
 
     /**
@@ -345,8 +340,8 @@ public class SocketClient extends ClientNetwork {
      * @param input data from the server
      */
     private void wrTimerTick(JsonObject input) {
-        setChanged();
-        notifyObservers(input.get(JsonFields.TICK).getAsInt());
+        this.setChanged();
+        this.notifyObservers(input.get(JsonFields.TICK).getAsInt());
     }
 
     private void gameSetup(JsonObject input) {
@@ -355,19 +350,19 @@ public class SocketClient extends ClientNetwork {
         privateObjectiveCardString += input.get(JsonFields.PRIVATE_OBJECTIVE_CARD).getAsJsonObject().get(JsonFields.NAME).getAsString();
         privateObjectiveCardString += " - ";
         privateObjectiveCardString += input.get(JsonFields.PRIVATE_OBJECTIVE_CARD).getAsJsonObject().get(JsonFields.DESCRIPTION).getAsString();
-        setChanged();
-        notifyObservers(privateObjectiveCardString);
+        this.setChanged();
+        this.notifyObservers(privateObjectiveCardString);
         JsonArray windowPatterns = input.getAsJsonArray(JsonFields.WINDOW_PATTERNS);
         List strings = StreamSupport.stream(windowPatterns.spliterator(), false)
                 .map(obj -> obj.getAsJsonObject().get(JsonFields.CLI_STRING).getAsString())
                 .collect(Collectors.toList());
-        setChanged();
-        notifyObservers(strings);
+        this.setChanged();
+        this.notifyObservers(strings);
     }
 
     private void inGamePlayers(JsonObject input){
-        setChanged();
-        notifyObservers(input.get(JsonFields.PLAYERS).getAsJsonArray());
+        this.setChanged();
+        this.notifyObservers(input.get(JsonFields.PLAYERS).getAsJsonArray());
     }
 
     private void updateToolCards(JsonObject input){
@@ -381,8 +376,8 @@ public class SocketClient extends ClientNetwork {
             //TODO toolCardString += obj.getAsJsonObject().get("used").getAsString();
             toolCardsStrings.add(toolCardString);
         }
-        setChanged();
-        notifyObservers(toolCardsStrings);
+        this.setChanged();
+        this.notifyObservers(toolCardsStrings);
     }
 
     private void updateWindowPatterns(JsonObject input){
@@ -394,8 +389,8 @@ public class SocketClient extends ClientNetwork {
             String keyValue = entry.getKey() + "$" + entry.getValue().getAsJsonObject().get(JsonFields.CLI_STRING).getAsString();
             windowPatternsList.add(keyValue);
         }
-        setChanged();
-        notifyObservers(windowPatternsList);
+        this.setChanged();
+        this.notifyObservers(windowPatternsList);
     }
 
     private void publicObjectiveCards(JsonObject input){
@@ -413,8 +408,8 @@ public class SocketClient extends ClientNetwork {
                 publicObjectiveCardString += obj.getAsJsonObject().get(JsonFields.VICTORY_POINTS).getAsInt();
             publicObjectiveCardsStrings.add(publicObjectiveCardString);
         }
-        setChanged();
-        notifyObservers(publicObjectiveCardsStrings);
+        this.setChanged();
+        this.notifyObservers(publicObjectiveCardsStrings);
     }
 
     private void updateDraftPool(JsonObject input){
@@ -425,18 +420,23 @@ public class SocketClient extends ClientNetwork {
             dieString += obj.getAsJsonObject().get(JsonFields.CLI_STRING).getAsString();
             draftPoolDieStrings.add(dieString);
         }
-        setChanged();
-        notifyObservers(draftPoolDieStrings);
+        this.setChanged();
+        this.notifyObservers(draftPoolDieStrings);
     }
 
     private void updateRoundTrack(JsonObject input){
-        setChanged();
-        notifyObservers(input.get(JsonFields.CLI_STRING).getAsString());
+        this.setChanged();
+        this.notifyObservers(input.get(JsonFields.CLI_STRING).getAsString());
     }
 
-    private void gameStarted(JsonObject input) {
+    private void turnManagement(JsonObject input) {
+        List<String> turnManagamentStrings = new ArrayList<>();
+        turnManagamentStrings.add("$turnManagement$");
+        turnManagamentStrings.add(input.get("currentRound").getAsString());
+        turnManagamentStrings.add(input.get("gameOver").getAsString());
+        turnManagamentStrings.add(input.get("activePlayer").getAsString());
         this.setChanged();
-        this.notifyObservers(input.get(JsonFields.ACTIVE_PLAYER).getAsString().equals(nickname));
+        this.notifyObservers(turnManagamentStrings);
     }
 
 }

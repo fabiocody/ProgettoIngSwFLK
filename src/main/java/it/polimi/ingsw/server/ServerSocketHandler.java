@@ -244,14 +244,6 @@ public class ServerSocketHandler implements Runnable, Observer {
     private void nextTurn() {
         this.gameEndPoint.nextTurn();
         log(nickname + " has ended his turn");
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.NEXT_TURN.getString());
-        payload.addProperty(JsonFields.CURRENT_ROUND, this.gameEndPoint.getCurrentRound());
-        payload.addProperty(JsonFields.ROUND_OVER, this.game.getTurnManager().isRoundOver());
-        payload.addProperty(JsonFields.GAME_OVER, this.game.getRoundTrack().isGameOver());
-        payload.addProperty(JsonFields.ACTIVE_PLAYER, this.gameEndPoint.getActivePlayer());
-        debug("PAYLOAD " + payload.toString());
-        out.println(payload.toString());
     }
 
     private void updatePlayersList() {
@@ -334,6 +326,7 @@ public class ServerSocketHandler implements Runnable, Observer {
             JsonObject die = new JsonObject();
             die.addProperty(JsonFields.COLOR, d.getColor().toString());
             die.addProperty(JsonFields.VALUE, d.getValue());
+            die.addProperty(JsonFields.CLI_STRING,d.toString());
             dice.add(die);
         }
         payload.add(JsonFields.DICE, dice);
@@ -342,9 +335,11 @@ public class ServerSocketHandler implements Runnable, Observer {
         out.println(payload.toString());
     }
 
-    private void gameStarted() {
+    private void turnManagement() {
         JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.GAME_STARTED.getString());
+        payload.addProperty(JsonFields.METHOD, Methods.TURN_MANAGEMENT.getString());
+        payload.addProperty(JsonFields.CURRENT_ROUND, this.gameEndPoint.getCurrentRound());
+        payload.addProperty(JsonFields.GAME_OVER, this.game.getRoundTrack().isGameOver());
         payload.addProperty(JsonFields.ACTIVE_PLAYER, this.gameEndPoint.getActivePlayer());
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
@@ -375,13 +370,13 @@ public class ServerSocketHandler implements Runnable, Observer {
             }
         } else if (o instanceof Game) {
             String stringArg = String.valueOf(arg);
-            if(stringArg.equals("$gameStarted$")) {
+            if(stringArg.equals("$turnManagement$")) {
                 updatePlayersList();
                 updateToolCards();
                 sendPublicObjectiveCards();
                 updateWindowPatterns();
                 updateDraftPool();
-                gameStarted();
+                turnManagement();
             }
             else if(stringArg.equals("$draftPool$")){
                 updateWindowPatterns();
@@ -390,7 +385,6 @@ public class ServerSocketHandler implements Runnable, Observer {
             else if(stringArg.equals("$nextTurn$")){
                 updateWindowPatterns();
                 updateDraftPool();
-                gameStarted();
             }
             else if(stringArg.equals("$roundTrack$")){
                 //TODO
@@ -464,7 +458,6 @@ public class ServerSocketHandler implements Runnable, Observer {
             windowPatternsJSON.add(createWindowPatternJSON(wp));
         }
         payload.add(JsonFields.WINDOW_PATTERNS, windowPatternsJSON);
-
 
         out.println(payload.toString());
 
