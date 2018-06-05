@@ -403,14 +403,14 @@ public class ServerSocketHandler implements Runnable, Observer {
                 updateDraftPool();
                 turnManagement();
             }
-            else if(stringArg.equals("$draftPool$")){
+            else if(stringArg.equals("$placeDie$")){
                 updateWindowPatterns();
                 updateDraftPool();
             }
-            else if(stringArg.equals("$nextTurn$")){
+            /*else if(stringArg.equals("$nextTurn$")){
                 updateWindowPatterns();
                 updateDraftPool();
-            }
+            }*/
             else if(stringArg.equals("$roundTrack$")){
                 //TODO
                 updateRoundTrack();

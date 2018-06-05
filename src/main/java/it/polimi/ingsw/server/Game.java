@@ -298,6 +298,10 @@ public class Game extends Observable implements Observer {
                 setChanged();
                 notifyObservers("$turnManagement$");
             }
+            else if (arg != null && arg.equals("$placeDie$")) {
+                setChanged();
+                notifyObservers(arg);
+            }
         }
     }
 
