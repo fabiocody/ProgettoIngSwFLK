@@ -12,4 +12,5 @@ public class Constants {
     public static final int NUMBER_OF_PATTERNS = 24;
     public static final int TOOL_CARD_NUMBER = 3;
     public static final int NUMBER_OF_ROUNDS = 10;
+    public static final String EXIT_MESSAGE = "Premi 0 per annullare.";
 }

@@ -6,6 +6,7 @@ import org.fusesource.jansi.AnsiConsole;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
+import static it.polimi.ingsw.util.Constants.*;
 import static org.fusesource.jansi.Ansi.*;
 
 
@@ -19,12 +20,11 @@ public class ClientCLI extends Client {
 
     private boolean stopAsyncInput = false;
     private boolean showPrompt = true;
-    private int instructionIndex= Constants.INDEX_CONSTANT;
+    private int instructionIndex= INDEX_CONSTANT;
 
     private String wrTimeout;
     private String wrPlayers;
-    //private String gamePlayers;
-    int cardIndex = Constants.INDEX_CONSTANT;
+    int cardIndex = INDEX_CONSTANT;
 
     private int draftPoolLength;
     private long roundTrackLength = 0;
@@ -44,7 +44,7 @@ public class ClientCLI extends Client {
                 input = asyncInput("waitingRoomMessage");
                 if (input.equalsIgnoreCase("exit")) throw new InterruptedException();
             } while (!stopAsyncInput);
-            Integer patternIndex = Constants.INDEX_CONSTANT;
+            Integer patternIndex = INDEX_CONSTANT;
             log("");
             do {
                 input = input("Scegli la tua carta Schema [1-4] >>>");
@@ -61,209 +61,211 @@ public class ClientCLI extends Client {
             while (!this.isGameOver()) {
                 boolean dieAlreadyPlaced = false;
                 boolean toolCardAlreadyUsed = false;
-                int draftPoolIndex = Constants.INDEX_CONSTANT;
-                int x = Constants.INDEX_CONSTANT;
-                int y = Constants.INDEX_CONSTANT;
-
-                int roundTrackIndex = Constants.INDEX_CONSTANT;
-                int delta = Constants.INDEX_CONSTANT;
-                int newValue = Constants.INDEX_CONSTANT;
-                int fromCellX = Constants.INDEX_CONSTANT;
-                int fromCellY = Constants.INDEX_CONSTANT;
-                int toCellX = Constants.INDEX_CONSTANT;
-                int toCellY = Constants.INDEX_CONSTANT;
+                int draftPoolIndex = INDEX_CONSTANT;
+                int x = INDEX_CONSTANT;
+                int y = INDEX_CONSTANT;
+                int roundTrackIndex = INDEX_CONSTANT;
+                int delta = INDEX_CONSTANT;
+                int newValue = INDEX_CONSTANT;
+                int fromCellX = INDEX_CONSTANT;
+                int fromCellY = INDEX_CONSTANT;
+                int toCellX = INDEX_CONSTANT;
+                int toCellY = INDEX_CONSTANT;
 
                 while (!this.isActive()) Thread.sleep(10);
 
                 log("Round " + this.getRound() + "\nÈ il tuo turno!");
                 do {
-                    if (showPrompt) {
-                        cardIndex = Constants.INDEX_CONSTANT;
-                        log("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
-                                "passare il turno");
-                        input = input("Scegli cosa fare [1-3] >>>");
-                    }
                     try {
-                        if (showPrompt) this.instructionIndex = Integer.valueOf(input);
-                        if(instructionIndex == 1){
-                            if(dieAlreadyPlaced){
-                                log("Hai già piazzato un dado questo turno!");
-                                this.instructionIndex = Constants.INDEX_CONSTANT;
-                            }
-                            else{
-                                do {
-                                    draftPoolIndex = draftPoolLength;
-                                    input = input("Quale dado vuoi piazzare [1-" + draftPoolLength + "]?");
-                                    try {
-                                        draftPoolIndex = Integer.valueOf(input) - 1;
-                                    } catch (NumberFormatException e) {
-                                        log("Indice non valido\n");
-                                    }
-                                } while (draftPoolIndex < 0 || draftPoolIndex >= draftPoolLength);
-                                do {
-                                    input = input("In quale colonna vuoi piazzarlo [1-5]?");
-                                    try {
-                                        x = Integer.valueOf(input) - 1;
-                                    } catch (NumberFormatException e) {
-                                        log("Indice non valido\n");
-                                    }
-                                } while (x < 0 || x >= Constants.NUMBER_OF_PATTERN_COLUMNS);
-                                do {
-                                    input = input("In quale riga vuoi piazzarlo [1-4]?");
-                                    try {
-                                        y = Integer.valueOf(input) - 1;
-                                    } catch (NumberFormatException e) {
-                                        log("Indice non valido\n");
-                                    }
-                                } while (y < 0 || y >= Constants.NUMBER_OF_PATTERN_ROWS);
-                                if(this.getNetwork().placeDie(draftPoolIndex,x,y)){
-                                    log("Dado piazzato\n");
-                                    dieAlreadyPlaced = true;
-                                }
-                                else{
-                                 log("Posizionamento invalido\n");
-                                }
-                                this.instructionIndex = Constants.INDEX_CONSTANT;
-                            }
+                        if (showPrompt) {
+                            cardIndex = INDEX_CONSTANT;
+                            log("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
+                                    "passare il turno.");
+                            input = input("Scegli cosa fare [1-3] >>>");
                         }
-                        else if(instructionIndex == 2) {  //Tool card
-                            if (toolCardAlreadyUsed) {
-                                log("Hai già usato una carta strumento questo turno!\n");
-                                this.instructionIndex = Constants.INDEX_CONSTANT;
-                            }
-                            if (showPrompt) {
-                                do {
-                                    input = input("Quale carta strumento vuoi usare [1-3]?");
-                                    try {
-                                        cardIndex = Integer.valueOf(input) - 1;
-                                    } catch (NumberFormatException e) {
-                                        log("Indice non valido\n");
-                                        continue;
-                                    }
-                                } while (cardIndex < 0 || cardIndex >= 3);
-                            }
-                            JsonObject requiredData = this.getNetwork().requiredData(cardIndex); //request for the data required by the tool card
-                            requiredData.remove("method");
-                            if(requiredData.get("data").getAsJsonObject().has("impossibleToUseToolCard")){
-                                    log("Non puoi utilizzare questa carta strumento: " + requiredData.get("impossibleToUseToolCard").getAsString());
-                            } else {
-                                if(requiredData.get("data").getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) { //if the tool card requires a draftpool die
+                        try {
+                            if (showPrompt) this.instructionIndex = Integer.valueOf(input);
+                            if (instructionIndex == 1) {
+                                if (dieAlreadyPlaced) {
+                                    log("Hai già piazzato un dado questo turno!");
+                                    this.instructionIndex = INDEX_CONSTANT;
+                                } else {
                                     do {
-                                        input = input("Quale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]?");
+                                        draftPoolIndex = draftPoolLength;
+                                        input = input("Quale dado vuoi piazzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE);
                                         try {
                                             draftPoolIndex = Integer.valueOf(input) - 1;
-                                            requiredData.get("data").getAsJsonObject().addProperty("draftPoolIndex", draftPoolIndex);
+                                            if (draftPoolIndex == -1) throw new CancelException();
                                         } catch (NumberFormatException e) {
                                             log("Indice non valido\n");
                                         }
                                     } while (draftPoolIndex < 0 || draftPoolIndex >= draftPoolLength);
-                                }
-                                if(requiredData.get("data").getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX)) { //if the tool card requires a round track die
-
                                     do {
-                                        input = input("Quale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]?");
+                                        input = input("In quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE);
                                         try {
-                                            roundTrackIndex = Integer.valueOf(input) - 1;
-                                            requiredData.get("data").getAsJsonObject().addProperty("roundTrackIndex", roundTrackIndex);
+                                            x = Integer.valueOf(input) - 1;
+                                            if (x == -1) throw new CancelException();
                                         } catch (NumberFormatException e) {
                                             log("Indice non valido\n");
                                         }
-                                    } while (roundTrackIndex < 0 || roundTrackIndex >= roundTrackLength);
-                                }
-                                if(requiredData.get("data").getAsJsonObject().has(JsonFields.DELTA)) { //if the tool card requires a change in the die value
+                                    } while (x < 0 || x >= NUMBER_OF_PATTERN_COLUMNS);
                                     do {
-                                        input = input("Vuoi aunmentare[1] o diminuire[0] il valore del dado? >>>");
+                                        input = input("In quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE);
                                         try {
-                                            delta = Integer.valueOf(input);
-                                            if (delta == 0) delta = -1;
-                                            requiredData.get("data").getAsJsonObject().addProperty("delta", delta);
+                                            y = Integer.valueOf(input) - 1;
+                                            if (y == -1) throw new CancelException();
                                         } catch (NumberFormatException e) {
                                             log("Indice non valido\n");
                                         }
-                                    } while (!(delta == 1 || delta == -1));
-                                }
-                                if(requiredData.get("data").getAsJsonObject().has(JsonFields.NEW_VALUE)) { //if the tool card requires a change in the die value
-                                    do {
-                                        input = input("Quale valore vuoi assegnare al dado[1-6]? >>>");
-                                        try {
-                                            newValue = Integer.valueOf(input);
-                                            requiredData.get("data").getAsJsonObject().addProperty("newValue", newValue);
-                                        } catch (NumberFormatException e) {
-                                            log("Indice non valido\n");
-                                        }
-                                    } while (newValue < 1 || newValue > 6);
-                                }
-                                if(requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_X)) { //if the tool card requires a change in the die value
-                                    do {
-                                        input = input("Da quale colonna vuoi muoverlo [1-5]?");
-                                        try {
-                                            fromCellX = Integer.valueOf(input) - 1;
-                                            requiredData.get("data").getAsJsonObject().addProperty("fromCellX", fromCellX);
-                                        } catch (NumberFormatException e) {
-                                            log("Indice non valido\n");
-                                        }
-                                    } while (fromCellX < 0 || fromCellX >= Constants.NUMBER_OF_PATTERN_COLUMNS);
-                                }
-                                if(requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_Y)) { //if the tool card requires a change in the die value
-                                    do {
-                                        input = input("Da quale riga vuoi muoverlo [1-4]?");
-                                        try {
-                                            fromCellY = Integer.valueOf(input) - 1;
-                                            requiredData.get("data").getAsJsonObject().addProperty("fromCellY", fromCellY);
-                                        } catch (NumberFormatException e) {
-                                            log("Indice non valido\n");
-                                        }
-                                    } while (fromCellY < 0 || fromCellY >= Constants.NUMBER_OF_PATTERN_ROWS);
-                                }
-                                if(requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_X)) { //if the tool card requires a change in the die value
-                                    do {
-                                        input = input("In quale colonna vuoi piazzarlo [1-5]?");
-                                        try {
-                                            toCellX = Integer.valueOf(input) - 1;
-                                            requiredData.get("data").getAsJsonObject().addProperty("toCellX", toCellX);
-                                        } catch (NumberFormatException e) {
-                                            log("Indice non valido\n");
-                                        }
-                                    } while (toCellX < 0 || toCellX >= Constants.NUMBER_OF_PATTERN_COLUMNS);
-                                }
-                                if(requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_Y)) { //if the tool card requires a change in the die value
-                                    do {
-                                        input = input("In quale riga vuoi piazzarlo [1-4]?");
-                                        try {
-                                            toCellY = Integer.valueOf(input) - 1;
-                                            requiredData.get("data").getAsJsonObject().addProperty("toCellY", toCellY);
-                                        } catch (NumberFormatException e) {
-                                            log("Indice non valido\n");
-                                        }
-                                    } while (toCellY < 0 || toCellY >= Constants.NUMBER_OF_PATTERN_ROWS);
-                                }
-
-                                if (this.getNetwork().useToolCard(cardIndex, requiredData.get("data").getAsJsonObject())) {
-                                    if (requiredData.get("data").getAsJsonObject().has(JsonFields.CONTINUE)) {
-                                        toolCardAlreadyUsed = false;
-                                        showPrompt = false;
+                                    } while (y < 0 || y >= NUMBER_OF_PATTERN_ROWS);
+                                    if (this.getNetwork().placeDie(draftPoolIndex, x, y)) {
+                                        log("Dado piazzato\n");
+                                        dieAlreadyPlaced = true;
                                     } else {
-                                        log("Carta strumento usata con successo\n");
-                                        toolCardAlreadyUsed = true;
-                                        showPrompt = true;
+                                        log("Posizionamento invalido\n");
                                     }
-                                } else {
-                                    log("Carta strumento non usata");
+                                    this.instructionIndex = INDEX_CONSTANT;
                                 }
+                            } else if (instructionIndex == 2) {  //Tool card
+                                if (toolCardAlreadyUsed) {
+                                    log("Hai già usato una carta strumento questo turno!\n");
+                                    this.instructionIndex = INDEX_CONSTANT;
+                                }
+                                if (showPrompt) {
+                                    do {
+                                        input = input("Quale carta strumento vuoi usare [1-3]?");
+                                        try {
+                                            cardIndex = Integer.valueOf(input) - 1;
+                                        } catch (NumberFormatException e) {
+                                            log("Indice non valido\n");
+                                            continue;
+                                        }
+                                    } while (cardIndex < 0 || cardIndex >= 3);
+                                }
+                                JsonObject requiredData = this.getNetwork().requiredData(cardIndex); //request for the data required by the tool card
+                                requiredData.remove("method");
+                                if (requiredData.get("data").getAsJsonObject().has("impossibleToUseToolCard")) {
+                                    log("Non puoi utilizzare questa carta strumento: " + requiredData.get("impossibleToUseToolCard").getAsString());
+                                } else {
+                                    if (requiredData.get("data").getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) { //if the tool card requires a draftpool die
+                                        do {
+                                            input = input("Quale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]?");
+                                            try {
+                                                draftPoolIndex = Integer.valueOf(input) - 1;
+                                                requiredData.get("data").getAsJsonObject().addProperty("draftPoolIndex", draftPoolIndex);
+                                            } catch (NumberFormatException e) {
+                                                log("Indice non valido\n");
+                                            }
+                                        } while (draftPoolIndex < 0 || draftPoolIndex >= draftPoolLength);
+                                    }
+                                    if (requiredData.get("data").getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX)) { //if the tool card requires a round track die
+
+                                        do {
+                                            input = input("Quale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]?");
+                                            try {
+                                                roundTrackIndex = Integer.valueOf(input) - 1;
+                                                requiredData.get("data").getAsJsonObject().addProperty("roundTrackIndex", roundTrackIndex);
+                                            } catch (NumberFormatException e) {
+                                                log("Indice non valido\n");
+                                            }
+                                        } while (roundTrackIndex < 0 || roundTrackIndex >= roundTrackLength);
+                                    }
+                                    if (requiredData.get("data").getAsJsonObject().has(JsonFields.DELTA)) { //if the tool card requires a change in the die value
+                                        do {
+                                            input = input("Vuoi aunmentare[1] o diminuire[0] il valore del dado? >>>");
+                                            try {
+                                                delta = Integer.valueOf(input);
+                                                if (delta == 0) delta = -1;
+                                                requiredData.get("data").getAsJsonObject().addProperty("delta", delta);
+                                            } catch (NumberFormatException e) {
+                                                log("Indice non valido\n");
+                                            }
+                                        } while (!(delta == 1 || delta == -1));
+                                    }
+                                    if (requiredData.get("data").getAsJsonObject().has(JsonFields.NEW_VALUE)) { //if the tool card requires a change in the die value
+                                        do {
+                                            input = input("Quale valore vuoi assegnare al dado[1-6]? >>>");
+                                            try {
+                                                newValue = Integer.valueOf(input);
+                                                requiredData.get("data").getAsJsonObject().addProperty("newValue", newValue);
+                                            } catch (NumberFormatException e) {
+                                                log("Indice non valido\n");
+                                            }
+                                        } while (newValue < 1 || newValue > 6);
+                                    }
+                                    if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_X)) { //if the tool card requires a change in the die value
+                                        do {
+                                            input = input("Da quale colonna vuoi muoverlo [1-5]?");
+                                            try {
+                                                fromCellX = Integer.valueOf(input) - 1;
+                                                requiredData.get("data").getAsJsonObject().addProperty("fromCellX", fromCellX);
+                                            } catch (NumberFormatException e) {
+                                                log("Indice non valido\n");
+                                            }
+                                        } while (fromCellX < 0 || fromCellX >= NUMBER_OF_PATTERN_COLUMNS);
+                                    }
+                                    if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_Y)) { //if the tool card requires a change in the die value
+                                        do {
+                                            input = input("Da quale riga vuoi muoverlo [1-4]?");
+                                            try {
+                                                fromCellY = Integer.valueOf(input) - 1;
+                                                requiredData.get("data").getAsJsonObject().addProperty("fromCellY", fromCellY);
+                                            } catch (NumberFormatException e) {
+                                                log("Indice non valido\n");
+                                            }
+                                        } while (fromCellY < 0 || fromCellY >= NUMBER_OF_PATTERN_ROWS);
+                                    }
+                                    if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_X)) { //if the tool card requires a change in the die value
+                                        do {
+                                            input = input("In quale colonna vuoi piazzarlo [1-5]?");
+                                            try {
+                                                toCellX = Integer.valueOf(input) - 1;
+                                                requiredData.get("data").getAsJsonObject().addProperty("toCellX", toCellX);
+                                            } catch (NumberFormatException e) {
+                                                log("Indice non valido\n");
+                                            }
+                                        } while (toCellX < 0 || toCellX >= NUMBER_OF_PATTERN_COLUMNS);
+                                    }
+                                    if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_Y)) { //if the tool card requires a change in the die value
+                                        do {
+                                            input = input("In quale riga vuoi piazzarlo [1-4]?");
+                                            try {
+                                                toCellY = Integer.valueOf(input) - 1;
+                                                requiredData.get("data").getAsJsonObject().addProperty("toCellY", toCellY);
+                                            } catch (NumberFormatException e) {
+                                                log("Indice non valido\n");
+                                            }
+                                        } while (toCellY < 0 || toCellY >= NUMBER_OF_PATTERN_ROWS);
+                                    }
+
+                                    if (this.getNetwork().useToolCard(cardIndex, requiredData.get("data").getAsJsonObject())) {
+                                        if (requiredData.get("data").getAsJsonObject().has(JsonFields.CONTINUE)) {
+                                            toolCardAlreadyUsed = false;
+                                            showPrompt = false;
+                                        } else {
+                                            log("Carta strumento usata con successo\n");
+                                            toolCardAlreadyUsed = true;
+                                            showPrompt = true;
+                                        }
+                                    } else {
+                                        log("Carta strumento non usata");
+                                    }
+                                }
+                                if (requiredData.get("data").getAsJsonObject().has(JsonFields.CONTINUE)) {
+                                    this.instructionIndex = 2;
+                                } else {
+                                    this.instructionIndex = INDEX_CONSTANT;
+                                }
+                            } else if (instructionIndex == 3) {
+                                this.setActive(false);
+                                this.getNetwork().nextTurn();
                             }
-                            if (requiredData.get("data").getAsJsonObject().has(JsonFields.CONTINUE)) {
-                                this.instructionIndex = 2;
-                            } else {
-                                this.instructionIndex = Constants.INDEX_CONSTANT;
-                            }
+                        } catch (NumberFormatException e) {
+                            e.printStackTrace();
+                            continue;
                         }
-                        else if(instructionIndex == 3){
-                            this.setActive(false);
-                            log("-------> NEXT TURN CALLED");
-                            this.getNetwork().nextTurn();
-                        }
-                    } catch (NumberFormatException e) {
-                        e.printStackTrace();
+                    } catch (CancelException e){
+                        log("Mossa annullata.");
                         continue;
                     }
                 } while (this.instructionIndex < 1 || this.instructionIndex > 3);
@@ -401,7 +403,7 @@ public class ClientCLI extends Client {
                 log("Login fallito! I nickname non possono essere vuoti");
             else if(nickname.contains(" "))
                 log("Login fallito! I nickname non possono contenere spazi");
-            else if(nickname.length() > Constants.MAX_NICKNAME_LENGTH)
+            else if(nickname.length() > MAX_NICKNAME_LENGTH)
                 log("Login fallito! I nickname non possono essere più lunghi di 20 caratteri");
         }
     }
@@ -454,7 +456,7 @@ public class ClientCLI extends Client {
                 if(argAsList.get(0).startsWith("---------------------")) { //Window pattern
                     for (int i = 0; i < argAsList.size(); i++) {
                         String newWPString = "";
-                        for (int k = 0; k < Constants.MAX_NICKNAME_LENGTH; k++) newWPString += " ";
+                        for (int k = 0; k < MAX_NICKNAME_LENGTH; k++) newWPString += " ";
                         newWPString = (i + 1) + newWPString;
                         argAsList.set(i, newWPString + "\n" + argAsList.get(i));
                     }
@@ -466,7 +468,7 @@ public class ClientCLI extends Client {
                     List<String> patterns = new ArrayList<>();
                     for (String s: argAsList){
                         String spaces = "";
-                        for(int i = 0; i <= Constants.MAX_NICKNAME_LENGTH - s.substring(0,s.indexOf("$")).length(); i++)
+                        for(int i = 0; i <= MAX_NICKNAME_LENGTH - s.substring(0,s.indexOf("$")).length(); i++)
                             spaces += " ";
                         spaces += "\n";
                         s = s.replace("$",spaces);
