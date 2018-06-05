@@ -171,7 +171,7 @@ class ToolCardsTest {
         }
     }
 
-    @Test
+    /*@Test
     void toolCard6DontPutAway() {
         ToolCard toolCard = new ToolCard6(game);
         player.setWindowPatternList(Arrays.asList(new WindowPattern(2)));
@@ -223,7 +223,7 @@ class ToolCardsTest {
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     @Test
     void toolCard7() {

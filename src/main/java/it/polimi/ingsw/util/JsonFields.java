@@ -46,6 +46,7 @@ public class JsonFields {
     public static final String TO_CELL_Y = "toCellY";
     public static final String PLAYER = "player";
     public static final String PUT_AWAY = "putAway";
+    public static final String CONTINUE = "continue";
 
     private JsonFields(String string) throws IllegalAccessException {
         throw new IllegalAccessException("Cannot instantiate");

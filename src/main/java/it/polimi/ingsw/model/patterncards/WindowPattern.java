@@ -160,8 +160,13 @@ public class WindowPattern {
 
     public void moveDie(int position, int destination, PlacementConstraint withConstraint){
         Die d = this.grid[position].getPlacedDie();
-        this.placeDie(d,destination,withConstraint);
         this.grid[position].setPlacedDie(null);
+        try {
+            this.placeDie(d, destination, withConstraint);
+        } catch (InvalidPlacementException e) {
+            this.grid[position].setPlacedDie(d);
+            throw e;
+        }
     }
 
     /**

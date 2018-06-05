@@ -18,11 +18,13 @@ public class ClientCLI extends Client {
     private final Object stdinBufferLock = new Object();
 
     private boolean stopAsyncInput = false;
+    private boolean showPrompt = true;
     private int instructionIndex= Constants.INDEX_CONSTANT;
 
     private String wrTimeout;
     private String wrPlayers;
     //private String gamePlayers;
+    int cardIndex = Constants.INDEX_CONSTANT;
 
     private int draftPoolLength;
     private long roundTrackLength = 0;
@@ -63,7 +65,6 @@ public class ClientCLI extends Client {
                 int x = Constants.INDEX_CONSTANT;
                 int y = Constants.INDEX_CONSTANT;
 
-                int cardIndex = Constants.INDEX_CONSTANT;
                 int roundTrackIndex = Constants.INDEX_CONSTANT;
                 int delta = Constants.INDEX_CONSTANT;
                 int newValue = Constants.INDEX_CONSTANT;
@@ -76,11 +77,14 @@ public class ClientCLI extends Client {
 
                 log("Round " + this.getRound() + "\nÈ il tuo turno!");
                 do {
-                    log("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
+                    if (showPrompt) {
+                        cardIndex = Constants.INDEX_CONSTANT;
+                        log("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
                                 "passare il turno");
-                    input = input("Scegli cosa fare [1-3] >>>");
+                        input = input("Scegli cosa fare [1-3] >>>");
+                    }
                     try {
-                        this.instructionIndex = Integer.valueOf(input);
+                        if (showPrompt) this.instructionIndex = Integer.valueOf(input);
                         if(instructionIndex == 1){
                             if(dieAlreadyPlaced){
                                 log("Hai già piazzato un dado questo turno!");
@@ -127,15 +131,17 @@ public class ClientCLI extends Client {
                                 log("Hai già usato una carta strumento questo turno!\n");
                                 this.instructionIndex = Constants.INDEX_CONSTANT;
                             }
-                            do {
-                                input = input("Quale carta strumento vuoi usare [1-3]?");
-                                try {
-                                    cardIndex = Integer.valueOf(input) - 1;
-                                } catch (NumberFormatException e) {
-                                    log("Indice non valido\n");
-                                    continue;
-                                }
-                            } while (cardIndex < 0 || cardIndex >= 3);
+                            if (showPrompt) {
+                                do {
+                                    input = input("Quale carta strumento vuoi usare [1-3]?");
+                                    try {
+                                        cardIndex = Integer.valueOf(input) - 1;
+                                    } catch (NumberFormatException e) {
+                                        log("Indice non valido\n");
+                                        continue;
+                                    }
+                                } while (cardIndex < 0 || cardIndex >= 3);
+                            }
                             JsonObject requiredData = this.getNetwork().requiredData(cardIndex); //request for the data required by the tool card
                             requiredData.remove("method");
                             if(requiredData.get("data").getAsJsonObject().has("impossibleToUseToolCard")){
@@ -233,19 +239,31 @@ public class ClientCLI extends Client {
                                 }
 
                                 if (this.getNetwork().useToolCard(cardIndex, requiredData.get("data").getAsJsonObject())) {
-                                    log("carta strumento usata con successo\n");
-                                    toolCardAlreadyUsed = true;
+                                    if (requiredData.get("data").getAsJsonObject().has(JsonFields.CONTINUE)) {
+                                        toolCardAlreadyUsed = false;
+                                        showPrompt = false;
+                                    } else {
+                                        log("Carta strumento usata con successo\n");
+                                        toolCardAlreadyUsed = true;
+                                        showPrompt = true;
+                                    }
                                 } else {
                                     log("Carta strumento non usata");
                                 }
                             }
-                            this.instructionIndex = Constants.INDEX_CONSTANT;
+                            if (requiredData.get("data").getAsJsonObject().has(JsonFields.CONTINUE)) {
+                                this.instructionIndex = 2;
+                            } else {
+                                this.instructionIndex = Constants.INDEX_CONSTANT;
+                            }
                         }
                         else if(instructionIndex == 3){
                             this.setActive(false);
+                            log("-------> NEXT TURN CALLED");
                             this.getNetwork().nextTurn();
                         }
                     } catch (NumberFormatException e) {
+                        e.printStackTrace();
                         continue;
                     }
                 } while (this.instructionIndex < 1 || this.instructionIndex > 3);
