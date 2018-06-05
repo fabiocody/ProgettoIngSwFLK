@@ -14,7 +14,7 @@
 	- [Subscribe to timer's updates](#subscribe-to-timers-updates)
 	- [Timer tick](#timer-tick)
 	- [Pattern selection](#pattern-selection)
-	- [Game started message](#game-started-message)
+	- [Turn management](#turn-management)
 	- [Players list](#players-list)
 	- [End turn](#end-turn)
 	- [Final scores](#final-scores)
@@ -27,6 +27,7 @@
 - [Player's moves](#players-moves)
 	- [Die placement](#die-placement)
 	- [Tool card usage](#tool-card-usage)
+	- [Data required for Tool Card usage](#data-required-for-tool-card-usage)
 
 <!-- /TOC -->
 
@@ -215,13 +216,15 @@ After this request, the server will send to each client the following informatio
 - [Draft Pool](#draft-pool)
 - [Game started message](#game-started-message)
 
-### Game started message
+### Turn management
 
 #### Server -> Client
 
 ```
 {
-    "method": "gameStarted",
+    "method": "turnManagement",
+    "currentRound": <int>,
+    "gameOver": <bool>,
     "activePlayer": <nickname: string>
 }
 ```
@@ -254,13 +257,10 @@ After this request, the server will send to each client the following informatio
 
 #### Server -> Client
 
-```
+```$$$
 {
     "method": "nextTurn",
-    "currentRound": <int>,
-    "roundOver": <bool>,
-    "gameOver": <bool>,
-    "activePlayer": <nickname: string>
+
 }
 ```
 
@@ -368,7 +368,8 @@ After this request, the server will send to each client the following informatio
             "cliString": <string>
         },
         ...
-    ]
+    ],
+    "cliString": <string>
 }
 ```
 
@@ -438,5 +439,31 @@ After this request, the server will send to each client the following informatio
 {
     "method": "useToolCard",
     "result": <bool>
+}
+```
+
+### Data required for Tool Card usage
+
+#### Client -> Server
+
+```
+{
+    "playerID": <uuid: string>,
+    "method": "requiredData",
+    "arg": {
+        "cardIndex": <int>
+    }
+}
+```
+
+#### Server -> Client
+
+```
+{
+    "method": "requiredData",
+    "data": {
+        <dataName: string>: <dummyValue>,
+        ...
+    }
 }
 ```
