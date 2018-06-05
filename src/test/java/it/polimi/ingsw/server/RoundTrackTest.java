@@ -34,6 +34,7 @@ class RoundTrackTest {
         DiceGenerator diceGenerator = new DiceGenerator(Constants.MAX_NUMBER_OF_PLAYERS);
         diceGenerator.generateDraftPool();
         List<Die> draftPool = new ArrayList<>(diceGenerator.getDraftPool());
+        roundTrack.incrementRound();
         roundTrack.putDice(diceGenerator.getDraftPool());
         for (Die die : draftPool) {
             assertTrue(roundTrack.getAllDice().contains(die));

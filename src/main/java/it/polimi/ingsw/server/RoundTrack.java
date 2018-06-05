@@ -69,6 +69,12 @@ public class RoundTrack extends Observable implements Observer {
         }
     }
 
+    public synchronized int getCurrentRoundDiceIndex() {
+        synchronized (currentRoundLock) {
+            return currentRound - 2;
+        }
+    }
+
     /**
      * This method increments the round number, and notify the Game about it.
      *
@@ -109,7 +115,7 @@ public class RoundTrack extends Observable implements Observer {
      */
     public void putDice(List<Die> fromDraftPool) {
         synchronized (diceLock) {
-            this.roundTrackDice[this.currentRound - 1].addAll(fromDraftPool);
+            this.roundTrackDice[this.getCurrentRoundDiceIndex()].addAll(fromDraftPool);
             fromDraftPool.clear();
         }
     }

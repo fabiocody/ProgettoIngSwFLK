@@ -151,12 +151,13 @@ class ToolCardsTest {
     @Test
     void toolCard5() {
         ToolCard toolCard = new ToolCard5(game);
+        game.getRoundTrack().incrementRound();
         game.getRoundTrack().putDice(game.getDiceGenerator().getDraftPool());
         game.getDiceGenerator().generateDraftPool();
         int draftPoolIndex = ThreadLocalRandom.current().nextInt(0, game.getDiceGenerator().getDraftPool().size());
         int roundTrackIndex = ThreadLocalRandom.current().nextInt(0, game.getRoundTrack().getAllDice().size());
         Die fromDraftPool = game.getDiceGenerator().getDraftPool().get(draftPoolIndex);
-        Die fromRoundTrack = game.getRoundTrack().getRoundTrackDice()[game.getRoundTrack().getCurrentRound() - 1].get(roundTrackIndex);
+        Die fromRoundTrack = game.getRoundTrack().getRoundTrackDice()[game.getRoundTrack().getCurrentRoundDiceIndex()].get(roundTrackIndex);
         JsonObject data = new JsonObject();
         data.addProperty("draftPoolIndex", draftPoolIndex);
         data.addProperty("roundTrackIndex", roundTrackIndex);
@@ -339,6 +340,7 @@ class ToolCardsTest {
         ToolCard toolCard = new ToolCard12(game);
         List<Die> test = new ArrayList<>();
         test.add(new Die(Colors.RED,6));
+        game.getRoundTrack().incrementRound();
         game.getRoundTrack().putDice(test);
         player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
         Die die = new Die(Colors.RED, 2);
@@ -381,6 +383,7 @@ class ToolCardsTest {
         ToolCard toolCard = new ToolCard12(game);
         List<Die> test = new ArrayList<>();
         test.add(new Die(Colors.RED,6));
+        game.getRoundTrack().incrementRound();
         game.getRoundTrack().putDice(test);
         player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
         Die die = new Die(Colors.RED, 2);
