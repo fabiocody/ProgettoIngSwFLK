@@ -29,7 +29,7 @@ public class JsonFields {
     public static final String FINAL_SCORES = "finalScores";
     public static final String PUBLIC_OBJECTIVE_CARDS = "publicObjectiveCards";
     public static final String TOOL_CARDS = "toolCards";
-    public static final String USE_TOOL_CARDS = "useToolCards";
+    public static final String USE_TOOL_CARD = "useToolCard";
     public static final String USED = "used";
     public static final String FAVOR_TOKENS = "favorTokens";
     public static final String DICE = "dice";

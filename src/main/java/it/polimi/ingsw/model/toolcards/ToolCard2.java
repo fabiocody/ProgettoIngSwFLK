@@ -65,7 +65,6 @@ public class ToolCard2 extends ToolCard {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, "requiredData");
         JsonObject data = new JsonObject();
-        data.addProperty(JsonFields.PLAYER, "$nickname$");
         data.addProperty(JsonFields.FROM_CELL_X, Constants.INDEX_CONSTANT);
         data.addProperty(JsonFields.FROM_CELL_Y, Constants.INDEX_CONSTANT);
         data.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);

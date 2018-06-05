@@ -242,7 +242,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         UUID id = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
         data.addProperty(JsonFields.PLAYER_ID, id.toString()); //serve nickname, non UUID
         JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD,JsonFields.USE_TOOL_CARDS);
+        payload.addProperty(JsonFields.METHOD,JsonFields.USE_TOOL_CARD);
         try {
             this.gameEndPoint.useToolCard(id, cardIndex, data);
             payload.addProperty(JsonFields.RESULT, true);
