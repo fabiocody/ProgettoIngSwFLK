@@ -72,10 +72,7 @@ public class ClientCLI extends Client {
                 int toCellX = Constants.INDEX_CONSTANT;
                 int toCellY = Constants.INDEX_CONSTANT;
 
-                if(!this.isActive()){
-                    log("Aspetta il tuo turno.");
-                    while (!this.isActive()) Thread.sleep(10);
-                }
+                while (!this.isActive()) Thread.sleep(10);
 
                 log("Round " + this.getRound() + "\nÈ il tuo turno!");
                 do {
