@@ -4,10 +4,11 @@ import com.google.gson.*;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.model.patterncards.*;
-import it.polimi.ingsw.model.toolcards.ToolCard;
+import it.polimi.ingsw.model.toolcards.*;
 import it.polimi.ingsw.util.*;
 import java.io.*;
 import java.net.*;
+import java.rmi.RemoteException;
 import java.util.*;
 
 
@@ -133,7 +134,7 @@ public class ServerSocketHandler implements Runnable, Observer {
                         this.placeDie(input);
                         break;
                     case USE_TOOL_CARD:
-                        // TODO
+                        this.useToolCard(input);
                         break;
                     case REQUIRED_DATA_FOR_TOOL_CARD:
                         this.requiredData(input);
@@ -147,6 +148,7 @@ public class ServerSocketHandler implements Runnable, Observer {
             }
         } catch (Exception e) {
             error("run");
+            e.printStackTrace();
         }
     }
 
@@ -234,9 +236,33 @@ public class ServerSocketHandler implements Runnable, Observer {
         }
     }
 
+    private void useToolCard(JsonObject input) {
+        int cardIndex = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.CARD_INDEX).getAsInt();
+        JsonObject data = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DATA).getAsJsonObject();
+        UUID id = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
+        data.addProperty(JsonFields.PLAYER_ID, id.toString()); //serve nickname, non UUID
+        JsonObject payload = new JsonObject();
+        payload.addProperty(JsonFields.METHOD,JsonFields.USE_TOOL_CARDS);
+        try {
+            this.gameEndPoint.useToolCard(id, cardIndex, data);
+            payload.addProperty(JsonFields.RESULT, true);
+            log(nickname + " used a tool card");
+            debug("PAYLOAD " + payload.toString());
+            out.println(payload.toString());
+        } catch (RemoteException | InvalidEffectArgumentException | InvalidEffectResultException e) {
+            payload.addProperty(JsonFields.RESULT, false);
+            log(nickname + " usage of tool card was refused");
+            debug("PAYLOAD " + payload.toString());
+            out.println(payload.toString());
+        }
+    }
+
     private void requiredData(JsonObject input){
         int cardIndex = input.get(JsonFields.CARD_INDEX).getAsInt();
         JsonObject payload = this.gameEndPoint.requiredData(cardIndex);
+        if (payload.get("data").getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX) && this.game.getRoundTrack().getAllDice().isEmpty()){
+            payload.get("data").getAsJsonObject().addProperty("impossibleToUseToolCard", JsonFields.ROUND_TRACK);
+        }
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
     }
@@ -349,8 +375,8 @@ public class ServerSocketHandler implements Runnable, Observer {
 
     @Override
     public void update(Observable o, Object arg) {
+        String stringArg = String.valueOf(arg);
         if (o instanceof CountdownTimer) {
-            String stringArg = String.valueOf(arg);
             if (stringArg.startsWith("WaitingRoom")) {
                 int tick = Integer.parseInt(stringArg.split(" ")[1]);
                 debug("Timer tick (from update): " + tick);
@@ -369,7 +395,6 @@ public class ServerSocketHandler implements Runnable, Observer {
                 this.updateWaitingPlayersList((List<Player>) arg);
             }
         } else if (o instanceof Game) {
-            String stringArg = String.valueOf(arg);
             if(stringArg.equals("$turnManagement$")) {
                 updatePlayersList();
                 updateToolCards();
@@ -391,6 +416,11 @@ public class ServerSocketHandler implements Runnable, Observer {
                 updateRoundTrack();
                 updateDraftPool();
             }
+        } else if (stringArg.equals("$useToolCard$")) {
+                updateToolCards();
+                updateRoundTrack();
+                updateWindowPatterns();
+                updateDraftPool();
         }
     }
 

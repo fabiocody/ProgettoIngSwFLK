@@ -60,6 +60,8 @@ public class ToolCard9 extends ToolCard {
         } catch (InvalidPlacementException e) {
             throw new InvalidEffectResultException();
         }
+        setChanged();
+        notifyObservers("$useToolCard$");
     }
 
     @Override

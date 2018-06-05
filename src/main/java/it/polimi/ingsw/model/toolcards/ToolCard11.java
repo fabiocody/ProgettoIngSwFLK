@@ -68,6 +68,8 @@ public class ToolCard11 extends ToolCard {
                 this.placeDie(player, draftPoolIndex, cellIndex);
                 break;
         }
+        setChanged();
+        notifyObservers("$useToolCard$");
     }
 
     @Override

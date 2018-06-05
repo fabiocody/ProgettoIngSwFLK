@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.placementconstraints.*;
 import it.polimi.ingsw.server.*;
 import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.util.JsonFields;
 
 
 /**
@@ -55,17 +56,21 @@ public class ToolCard2 extends ToolCard {
         PlacementConstraint constraint = new PositionConstraint(new ValueConstraint(new OrthogonalConstraint(new EmptyConstraint())));
         this.moveDie(player, fromIndex, toIndex, constraint);
         this.setUsed();
+        setChanged();
+        notifyObservers("$useToolCard$");
     }
 
     @Override
     public JsonObject requiredData() {
         JsonObject payload = new JsonObject();
-        payload.addProperty("method", "requiredData");
-        payload.addProperty("player", "$nickname$");
-        payload.addProperty("fromCellX", Constants.INDEX_CONSTANT);
-        payload.addProperty("fromCellY", Constants.INDEX_CONSTANT);
-        payload.addProperty("toCellX", Constants.INDEX_CONSTANT);
-        payload.addProperty("toCellY", Constants.INDEX_CONSTANT);
+        payload.addProperty(JsonFields.METHOD, "requiredData");
+        JsonObject data = new JsonObject();
+        data.addProperty(JsonFields.PLAYER, "$nickname$");
+        data.addProperty(JsonFields.FROM_CELL_X, Constants.INDEX_CONSTANT);
+        data.addProperty(JsonFields.FROM_CELL_Y, Constants.INDEX_CONSTANT);
+        data.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
+        data.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
+        payload.add(JsonFields.DATA, data);
         return payload;
     }
 

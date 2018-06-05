@@ -56,10 +56,12 @@ public class ToolCard12 extends ToolCard {
             this.firstMoveColor = null;
             this.setUsed();
         }
+        setChanged();
+        notifyObservers("$useToolCard$");
     }
 
     @Override
-    public JsonObject requiredData() {
+    public JsonObject requiredData() {   //TODO decidere colore tracciato round
         JsonObject payload = new JsonObject();
         payload.addProperty("method", "requiredData");
         payload.addProperty("player", "$nickname$");

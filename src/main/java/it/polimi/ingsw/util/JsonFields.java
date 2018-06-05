@@ -29,6 +29,7 @@ public class JsonFields {
     public static final String FINAL_SCORES = "finalScores";
     public static final String PUBLIC_OBJECTIVE_CARDS = "publicObjectiveCards";
     public static final String TOOL_CARDS = "toolCards";
+    public static final String USE_TOOL_CARDS = "useToolCards";
     public static final String USED = "used";
     public static final String FAVOR_TOKENS = "favorTokens";
     public static final String DICE = "dice";
@@ -36,12 +37,15 @@ public class JsonFields {
     public static final String CARD_INDEX = "cardIndex";
     public static final String DATA = "data";
     public static final String ROUND_TRACK_INDEX = "roundTrackIndex";
+    public static final String ROUND_TRACK = "roundTrack";
     public static final String DELTA = "delta";
     public static final String NEW_VALUE = "newValue";
     public static final String FROM_CELL_X = "fromCellX";
     public static final String FROM_CELL_Y = "fromCellY";
     public static final String TO_CELL_X = "toCellX";
     public static final String TO_CELL_Y = "toCellY";
+    public static final String PLAYER = "player";
+    public static final String PUT_AWAY = "putAway";
 
     private JsonFields(String string) throws IllegalAccessException {
         throw new IllegalAccessException("Cannot instantiate");

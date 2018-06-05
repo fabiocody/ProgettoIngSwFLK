@@ -18,4 +18,5 @@ public abstract class ClientNetwork extends Observable {
     abstract void nextTurn();
 
     abstract JsonObject requiredData(int cardIndex);
+    abstract boolean useToolCard(int cardIndex, JsonObject requiredData);
 }

@@ -36,6 +36,8 @@ public class ToolCard8 extends ToolCard {
         Player player = this.getGame().getPlayerForNickname(data.get("player").getAsString());
         player.setSecondTurnToBeSkipped(true);
         this.setUsed();
+        setChanged();
+        notifyObservers("$useToolCard$");
     }
 
     @Override
