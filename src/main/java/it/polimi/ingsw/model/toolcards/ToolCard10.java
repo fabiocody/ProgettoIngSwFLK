@@ -42,6 +42,8 @@ public class ToolCard10 extends ToolCard {
         int value = die.getValue();
         die.setValue(7 - value);
         this.setUsed();
+        setChanged();
+        notifyObservers("$useToolCard$");
     }
 
     @Override

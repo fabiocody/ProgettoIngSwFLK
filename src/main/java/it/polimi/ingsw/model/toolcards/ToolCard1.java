@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.server.Game;
 import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.util.JsonFields;
 
 
 /**
@@ -49,13 +50,17 @@ public class ToolCard1 extends ToolCard {
             throw new InvalidEffectResultException("Cannot make a 1 into 6 or a 6 into 1");
         else d.setValue(newValue);
         this.setUsed();
+        setChanged();
+        notifyObservers("$useToolCard$");
     }
 
     public JsonObject requiredData(){
         JsonObject payload = new JsonObject();
-        payload.addProperty("method", "requiredData");
-        payload.addProperty("draftPoolIndex", Constants.INDEX_CONSTANT);
-        payload.addProperty("delta", Constants.INDEX_CONSTANT);
+        payload.addProperty(JsonFields.METHOD, "requiredData");
+        JsonObject data = new JsonObject();
+        data.addProperty(JsonFields.DRAFT_POOL_INDEX, Constants.INDEX_CONSTANT);
+        data.addProperty(JsonFields.DELTA, Constants.INDEX_CONSTANT);
+        payload.add(JsonFields.DATA, data);
         return payload;
     }
 

@@ -6,13 +6,15 @@ import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.server.*;
 import it.polimi.ingsw.util.Constants;
 
+import java.util.Observable;
+
 
 /**
  * This class is the base class to all the Tool Cards.
  *
  * @author Fabio Codiglioni
  */
-public abstract class ToolCard {
+public abstract class ToolCard extends Observable {
 
     private String name;
     private String description;

@@ -34,6 +34,8 @@ public class ToolCard7 extends ToolCard {
             throw new InvalidEffectResultException();
         this.getGame().getDiceGenerator().getDraftPool().forEach(Die::roll);
         this.setUsed();
+        setChanged();
+        notifyObservers("$UseToolCard$");
     }
 
     @Override

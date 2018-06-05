@@ -6,6 +6,7 @@ import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.rmi.GameAPI;
 import it.polimi.ingsw.model.toolcards.*;
+import it.polimi.ingsw.util.JsonFields;
 
 import java.rmi.RemoteException;
 import java.util.*;
@@ -123,7 +124,8 @@ public class GameEndPoint implements GameAPI {
     }
 
     @Override
-    public void useToolCard(int toolCardsIndex, JsonObject data) throws RemoteException, InvalidEffectResultException, InvalidEffectArgumentException {
+    public void useToolCard(UUID id, int toolCardsIndex, JsonObject data) throws RemoteException, InvalidEffectResultException, InvalidEffectArgumentException {
+        data.addProperty(JsonFields.PLAYER, getPlayer(id).getNickname());
         this.game.getToolCards().get(toolCardsIndex).effect(data);
     }
 

@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.server.Game;
 import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.util.JsonFields;
 
 
 /**
@@ -52,14 +53,18 @@ public class ToolCard5 extends ToolCard {
             throw new InvalidEffectResultException();
         }
         this.setUsed();
+        setChanged();
+        notifyObservers("$useToolCard$");
     }
 
     @Override
     public JsonObject requiredData() {
         JsonObject payload = new JsonObject();
-        payload.addProperty("method", "requiredData");
-        payload.addProperty("draftPoolIndex", Constants.INDEX_CONSTANT);
-        payload.addProperty("roundTrackIndex", Constants.INDEX_CONSTANT);
+        payload.addProperty(JsonFields.METHOD, "requiredData");
+        JsonObject data = new JsonObject();
+        data.addProperty(JsonFields.DRAFT_POOL_INDEX, Constants.INDEX_CONSTANT);
+        data.addProperty(JsonFields.ROUND_TRACK_INDEX, Constants.INDEX_CONSTANT);
+        payload.add(JsonFields.DATA, data);
         return payload;
     }
 

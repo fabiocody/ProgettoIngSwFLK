@@ -5,6 +5,7 @@ import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.server.*;
 import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.util.JsonFields;
 
 
 /**
@@ -52,16 +53,20 @@ public class ToolCard6 extends ToolCard {
         } else {
             placeDie(data, draftPoolIndex);
         }
+        setChanged();
+        notifyObservers("$useToolCard$");
     }
 
     @Override
     public JsonObject requiredData() {
         JsonObject payload = new JsonObject();
-        payload.addProperty("method", "requiredData");
-        payload.addProperty("draftPoolIndex", Constants.INDEX_CONSTANT);
-        payload.addProperty("toCellX", Constants.INDEX_CONSTANT);
-        payload.addProperty("toCellY", Constants.INDEX_CONSTANT);
-        payload.addProperty("putAway", Constants.INDEX_CONSTANT);
+        payload.addProperty(JsonFields.METHOD, "requiredData");
+        JsonObject data = new JsonObject();
+        data.addProperty(JsonFields.DRAFT_POOL_INDEX, Constants.INDEX_CONSTANT);
+        data.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
+        data.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
+        data.addProperty(JsonFields.PUT_AWAY, Constants.INDEX_CONSTANT);
+        payload.add(JsonFields.DATA, data);
         return payload;
     }
 
