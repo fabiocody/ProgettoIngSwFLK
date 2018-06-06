@@ -19,6 +19,7 @@ public class ClientCLI extends Client {
 
     private boolean stopAsyncInput = false;
     private boolean showPrompt = true;
+    private boolean activeSet = false;
     private int instructionIndex= Constants.INDEX_CONSTANT;
 
     private String wrTimeout;
@@ -28,6 +29,7 @@ public class ClientCLI extends Client {
 
     private int draftPoolLength;
     private long roundTrackLength = 0;
+    private String privateObjectiveCard;
 
     ClientCLI(ClientNetwork network, boolean debugActive) {
         super(network, debugActive);
@@ -75,7 +77,7 @@ public class ClientCLI extends Client {
 
                 while (!this.isActive()) Thread.sleep(10);
 
-                log("Round " + this.getRound() + "\nÈ il tuo turno!");
+                log("È il tuo turno!");
                 do {
                     if (showPrompt) {
                         cardIndex = Constants.INDEX_CONSTANT;
@@ -259,11 +261,11 @@ public class ClientCLI extends Client {
                         }
                         else if(instructionIndex == 3){
                             this.setActive(false);
-                            log("-------> NEXT TURN CALLED");
                             this.getNetwork().nextTurn();
+                            //while (!activeSet) wait();
+                            activeSet = false;
                         }
                     } catch (NumberFormatException e) {
-                        e.printStackTrace();
                         continue;
                     }
                 } while (this.instructionIndex < 1 || this.instructionIndex > 3);
@@ -451,22 +453,23 @@ public class ClientCLI extends Client {
                     e.printStackTrace();
                 }
                 List<String> argAsList = (List) arg;
-                if(argAsList.get(0).startsWith("---------------------")) { //Window pattern
+                if(argAsList.get(0).startsWith(NotificationsMessages.SELECTABLE_WINDOW_PATTERNS)) {
+                    argAsList.remove(0);
                     for (int i = 0; i < argAsList.size(); i++) {
-                        String newWPString = "";
-                        for (int k = 0; k < Constants.MAX_NICKNAME_LENGTH; k++) newWPString += " ";
-                        newWPString = (i + 1) + newWPString;
-                        argAsList.set(i, newWPString + "\n" + argAsList.get(i));
+                        StringBuilder newWPString = new StringBuilder();
+                        newWPString.append(i+1);
+                        for (int k = 1; k < Constants.MAX_NICKNAME_LENGTH; k++) newWPString.append(" ");
+                        argAsList.set(i, newWPString.toString() + "\n" + argAsList.get(i));
                     }
+                    System.out.println();
                     log(windowPatternsMessage(argAsList));
                     stopAsyncInput = true;
-                }
-                if(argAsList.get(0).equals("$$$updatedWindowPatterns")){
+                } else if(argAsList.get(0).equals(NotificationsMessages.UPDATE_WINDOW_PATTERNS)){
                     argAsList.remove(0);
                     List<String> patterns = new ArrayList<>();
                     for (String s: argAsList){
                         String spaces = "";
-                        for(int i = 0; i <= Constants.MAX_NICKNAME_LENGTH - s.substring(0,s.indexOf("$")).length(); i++)
+                        for(int i = 0; i <= Constants.MAX_NICKNAME_LENGTH - s.substring(0,s.indexOf('$')).length(); i++)
                             spaces += " ";
                         spaces += "\n";
                         s = s.replace("$",spaces);
@@ -474,73 +477,70 @@ public class ClientCLI extends Client {
                     }
                     String prettyWindowPatterns = windowPatternsMessage(patterns);
                     log(prettyWindowPatterns);
-                }
-
-                if(argAsList.get(0).startsWith("ToolCard$")) {   //Tool card
+                } else if(argAsList.get(0).startsWith(NotificationsMessages.TOOL_CARDS)) {   //Tool card
                     String cards = "";
                     for (String s : argAsList) {
+                        int index = argAsList.indexOf(s) + 1;
                         s = s.replace("\n",". ");
-                        s = s.replace("ToolCard$", "Carta Strumento: ");
+                        s = s.replace(NotificationsMessages.TOOL_CARDS, "Carta Strumento " + index + ": ");
                         s = s.replace(" - ", "\nEffetto: ");
                         s += "$NL$";
-                        cards = cards + s;
+                        cards += s;
                     }
                     cards = cards.replace("$NL$","\n\n");
                     log(cards);
-                }
-
-                if(argAsList.get(0).startsWith("PublicObjectiveCards$")) {   //Public Objective Card
-                    String cards = "";
+                } else if(argAsList.get(0).startsWith(NotificationsMessages.PUBLIC_OBJECTIVE_CARDS)) {   //Public Objective Card
+                    StringBuilder cards = new StringBuilder();
                     for (String s : argAsList) {
-                        s = s.replace("PublicObjectiveCards$", "Obiettivo Pubblico: ");
+                        s = s.replace(NotificationsMessages.PUBLIC_OBJECTIVE_CARDS, "Obiettivo Pubblico: ");
                         s = s.replace(" $- ", "\nDescrizione: ");
                         s = s.replace(" $$- ", "\nPunti Vittoria (PV) per ogni set completo di questo tipo: ");
                         s += "\n\n";
-                        cards = cards + s;
-                        }
-                    log(cards);
-                }
-
-                if(argAsList.get(0).startsWith("$draftPool$")) {   //DraftPool
+                        cards.append(s);
+                    }
+                    cards.append(privateObjectiveCard).append("\n\n");
+                    log(cards.toString());
+                } else if(argAsList.get(0).startsWith(NotificationsMessages.DRAFT_POOL)) {   //DraftPool
                     String draftPool = "Riserva: ";
                     this.draftPoolLength = 0;
                     for (String s : argAsList){
-                        s = s.replace("$draftPool$","");
+                        s = s.replace(NotificationsMessages.DRAFT_POOL,"");
                         draftPool += s;
                         draftPoolLength++;
                     }
-                    log(draftPool + "\n");
-                }
-
-                if(argAsList.get(0).equals("$turnManagement$")) {
+                    log("\n" + draftPool + "\n");
+                } else if (argAsList.get(0).equals(NotificationsMessages.TURN_MANAGEMENT)) {
                     argAsList.remove(0);
                     if(!this.isGameStarted()) this.setGameStarted(true);
                     this.setRound(Integer.valueOf(argAsList.get(0)));
                     this.setGameOver(Boolean.valueOf(argAsList.get(1)));
                     this.setActive(argAsList.get(2));
                 }
-
             } else if (arg instanceof Integer) {    // Timer ticks
                 this.wrTimeout = arg.toString();
                 System.out.print(waitingRoomMessage());
             } else if (arg instanceof String) {
                 String input = (String) arg;
-                if (input.startsWith("PrivateObjectiveCard$")) {
-                    input = input.replace("PrivateObjectiveCard$", "");
-                    log(input);
+                if (input.startsWith(NotificationsMessages.PRIVATE_OBJECTIVE_CARD)) {
+                    System.out.print(ansi().eraseScreen().cursor(0, 0).toString());
+                    input = input.replace(NotificationsMessages.PRIVATE_OBJECTIVE_CARD, "");
+                    privateObjectiveCard = input;
+                    log(privateObjectiveCard);
                 }
-                if (input.startsWith("$roundTrack$")) {
-                    input = input.replace("$roundTrack$","");
+                if (input.startsWith(NotificationsMessages.ROUND_TRACK)) {
+                    input = input.replace(NotificationsMessages.ROUND_TRACK,"");
                     roundTrackLength = input.chars().filter(ch -> ch == ']').count();
                     log("ROUND TRACK\n" + input + "\n");
                 }
             } else if (arg instanceof Iterable) {   // Players
-                if(this.isPatternChosen() == false) {  //Players in waiting room
+                if (!this.isPatternChosen()) {  //Players in waiting room
                     this.wrPlayers = arg.toString().replace("[", "")
                             .replace("]", "")
                             .replace("\",", ",")
                             .replace("\"", " ");
                     System.out.print(waitingRoomMessage());
+                } else {
+                    System.out.print(ansi().eraseScreen().cursor(0, 0));
                 }
                 /*else{
                     this.gamePlayers = arg.toString().replace("[", "")

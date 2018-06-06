@@ -8,6 +8,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.*;
 
+import static org.fusesource.jansi.Ansi.ansi;
+
 
 /**
  * This is the main client class
@@ -142,7 +144,7 @@ public class SocketClient extends ClientNetwork {
                 case NEXT_TURN:
                 case PLACE_DIE:
                 case USE_TOOL_CARD:
-                case REQUIRED_DATA_FOR_TOOL_CARD:
+                case REQUIRED_DATA:
                     synchronized (responseBufferLock) {
                         responseBuffer.add(inputJson);
                         responseBufferLock.notifyAll();
@@ -313,7 +315,7 @@ public class SocketClient extends ClientNetwork {
     JsonObject requiredData(int cardIndex){
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.CARD_INDEX, cardIndex);
-        this.sendMessage(payload, Methods.REQUIRED_DATA_FOR_TOOL_CARD.getString());
+        this.sendMessage(payload, Methods.REQUIRED_DATA.getString());
         JsonObject input = this.pollResponseBuffer();
         debug("INPUT " + input);
         return input;
@@ -345,19 +347,19 @@ public class SocketClient extends ClientNetwork {
     }
 
     private void gameSetup(JsonObject input) {
-        // TODO Private Objectve Card
-        String privateObjectiveCardString = "PrivateObjectiveCard$Il tuo obiettivo privato è:\n";
+        String privateObjectiveCardString = NotificationsMessages.PRIVATE_OBJECTIVE_CARD + "Il tuo obiettivo privato è:\n";
         privateObjectiveCardString += input.get(JsonFields.PRIVATE_OBJECTIVE_CARD).getAsJsonObject().get(JsonFields.NAME).getAsString();
         privateObjectiveCardString += " - ";
         privateObjectiveCardString += input.get(JsonFields.PRIVATE_OBJECTIVE_CARD).getAsJsonObject().get(JsonFields.DESCRIPTION).getAsString();
         this.setChanged();
         this.notifyObservers(privateObjectiveCardString);
         JsonArray windowPatterns = input.getAsJsonArray(JsonFields.WINDOW_PATTERNS);
-        List strings = StreamSupport.stream(windowPatterns.spliterator(), false)
+        List<String> selectableWPStrings = StreamSupport.stream(windowPatterns.spliterator(), false)
                 .map(obj -> obj.getAsJsonObject().get(JsonFields.CLI_STRING).getAsString())
                 .collect(Collectors.toList());
+        selectableWPStrings.add(0, NotificationsMessages.SELECTABLE_WINDOW_PATTERNS);
         this.setChanged();
-        this.notifyObservers(strings);
+        this.notifyObservers(selectableWPStrings);
     }
 
     private void inGamePlayers(JsonObject input){
@@ -369,7 +371,7 @@ public class SocketClient extends ClientNetwork {
         JsonArray toolCards = input.getAsJsonArray(JsonFields.TOOL_CARDS);
         List toolCardsStrings = new ArrayList();
         for(JsonElement obj : toolCards){
-            String toolCardString = "ToolCard$";
+            String toolCardString = NotificationsMessages.TOOL_CARDS;
             toolCardString += obj.getAsJsonObject().get(JsonFields.NAME).getAsString();
             toolCardString += " - ";
             toolCardString += obj.getAsJsonObject().get(JsonFields.DESCRIPTION).getAsString();
@@ -381,11 +383,10 @@ public class SocketClient extends ClientNetwork {
     }
 
     private void updateWindowPatterns(JsonObject input){
-        List windowPatternsList = new ArrayList();
-        windowPatternsList.add("$$$updatedWindowPatterns");
-
-        Set<Map.Entry<String,JsonElement>>  entrySet = input.get(JsonFields.WINDOW_PATTERNS).getAsJsonObject().entrySet();
-        for(Map.Entry<String,JsonElement> entry : entrySet){
+        List<String> windowPatternsList = new ArrayList<>();
+        windowPatternsList.add(NotificationsMessages.UPDATE_WINDOW_PATTERNS);
+        Set<Map.Entry<String, JsonElement>> entrySet = input.get(JsonFields.WINDOW_PATTERNS).getAsJsonObject().entrySet();
+        for (Map.Entry<String, JsonElement> entry : entrySet) {
             String keyValue = entry.getKey() + "$" + entry.getValue().getAsJsonObject().get(JsonFields.CLI_STRING).getAsString();
             windowPatternsList.add(keyValue);
         }
@@ -397,7 +398,7 @@ public class SocketClient extends ClientNetwork {
         JsonArray publicObjectiveCards= input.getAsJsonArray(JsonFields.PUBLIC_OBJECTIVE_CARDS);
         List<String> publicObjectiveCardsStrings = new ArrayList<>();
         for(JsonElement obj : publicObjectiveCards){
-            String publicObjectiveCardString = "PublicObjectiveCards$";
+            String publicObjectiveCardString = NotificationsMessages.PUBLIC_OBJECTIVE_CARDS;
             publicObjectiveCardString += obj.getAsJsonObject().get(JsonFields.NAME).getAsString();
             publicObjectiveCardString += " $- ";
             publicObjectiveCardString += obj.getAsJsonObject().get(JsonFields.DESCRIPTION).getAsString();
@@ -416,7 +417,7 @@ public class SocketClient extends ClientNetwork {
         JsonArray draftPoolDice = input.getAsJsonArray(JsonFields.DICE);
         List<String> draftPoolDieStrings = new ArrayList<>();
         for(JsonElement obj : draftPoolDice){
-            String dieString = "$draftPool$";
+            String dieString = NotificationsMessages.DRAFT_POOL;
             dieString += obj.getAsJsonObject().get(JsonFields.CLI_STRING).getAsString();
             draftPoolDieStrings.add(dieString);
         }
@@ -431,10 +432,10 @@ public class SocketClient extends ClientNetwork {
 
     private void turnManagement(JsonObject input) {
         List<String> turnManagamentStrings = new ArrayList<>();
-        turnManagamentStrings.add("$turnManagement$");
-        turnManagamentStrings.add(input.get("currentRound").getAsString());
-        turnManagamentStrings.add(input.get("gameOver").getAsString());
-        turnManagamentStrings.add(input.get("activePlayer").getAsString());
+        turnManagamentStrings.add(NotificationsMessages.TURN_MANAGEMENT);
+        turnManagamentStrings.add(input.get(JsonFields.CURRENT_ROUND).getAsString());
+        turnManagamentStrings.add(input.get(JsonFields.GAME_OVER).getAsString());
+        turnManagamentStrings.add(input.get(JsonFields.ACTIVE_PLAYER).getAsString());
         this.setChanged();
         this.notifyObservers(turnManagamentStrings);
     }

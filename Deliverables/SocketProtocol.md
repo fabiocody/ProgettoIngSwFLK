@@ -255,15 +255,6 @@ After this request, the server will send to each client the following informatio
 }
 ```
 
-#### Server -> Client
-
-```$$$
-{
-    "method": "nextTurn",
-
-}
-```
-
 ### Final scores
 
 #### Server -> Client

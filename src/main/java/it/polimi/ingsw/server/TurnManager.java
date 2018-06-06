@@ -1,6 +1,8 @@
 package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.util.CountdownTimer;
+import it.polimi.ingsw.util.NotificationsMessages;
+
 import java.util.*;
 import java.util.stream.*;
 
@@ -30,7 +32,7 @@ public class TurnManager extends Observable {
         Stream<Integer> backRange = IntStream.range(0, this.getNumberOfPlayers()).boxed().sorted(Collections.reverseOrder());
         this.playersOrder = Stream.concat(forwardRange, backRange).collect(Collectors.toList());
         this.index = 0;
-        this.timer = new CountdownTimer("TurnManager", this.timeout);
+        this.timer = new CountdownTimer(NotificationsMessages.TURN_MANAGER, this.timeout);
         this.roundOver = false;
         this.setActivePlayer(this.getCurrentPlayer());
         // TODO Set timer for first turn of first round

@@ -3,6 +3,9 @@ package it.polimi.ingsw.model.toolcards;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.server.Game;
+import it.polimi.ingsw.util.JsonFields;
+import it.polimi.ingsw.util.Methods;
+import it.polimi.ingsw.util.NotificationsMessages;
 
 
 /**
@@ -35,13 +38,13 @@ public class ToolCard7 extends ToolCard {
         this.getGame().getDiceGenerator().getDraftPool().forEach(Die::roll);
         this.setUsed();
         setChanged();
-        notifyObservers("$UseToolCard$");
+        notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
 
     @Override
     public JsonObject requiredData() {
         JsonObject payload = new JsonObject();
-        payload.addProperty("method", "requiredData");
+        payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
         return payload;
     }
 

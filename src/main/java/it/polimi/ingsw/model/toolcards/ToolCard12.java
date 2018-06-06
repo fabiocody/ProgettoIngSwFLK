@@ -6,6 +6,8 @@ import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.server.*;
 import it.polimi.ingsw.util.Colors;
 import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.util.JsonFields;
+import it.polimi.ingsw.util.Methods;
 
 
 /**
@@ -48,10 +50,10 @@ public class ToolCard12 extends ToolCard {
     public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         if (this.firstMoveColor == null && this.firstMoveIndex == null) {
             this.firstMove(data);
-        } else if (this.firstMoveColor != null && this.firstMoveIndex != null && !data.get("stop").getAsBoolean()) {
+        } else if (this.firstMoveColor != null && this.firstMoveIndex != null && !data.get(JsonFields.STOP).getAsBoolean()) {
             this.secondMove(data);
             this.setUsed();
-        } else if (data.get("stop").getAsBoolean()) {
+        } else if (data.get(JsonFields.STOP).getAsBoolean()) {
             this.firstMoveIndex = null;
             this.firstMoveColor = null;
             this.setUsed();
@@ -63,12 +65,11 @@ public class ToolCard12 extends ToolCard {
     @Override
     public JsonObject requiredData() {   //TODO decidere colore tracciato round
         JsonObject payload = new JsonObject();
-        payload.addProperty("method", "requiredData");
-        payload.addProperty("player", "$nickname$");
-        payload.addProperty("fromCellX", Constants.INDEX_CONSTANT); //for each movement
-        payload.addProperty("fromCellY", Constants.INDEX_CONSTANT);
-        payload.addProperty("toCellX", Constants.INDEX_CONSTANT);
-        payload.addProperty("toCellY", Constants.INDEX_CONSTANT);
+        payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
+        payload.addProperty(JsonFields.FROM_CELL_X, Constants.INDEX_CONSTANT); //for each movement
+        payload.addProperty(JsonFields.FROM_CELL_Y, Constants.INDEX_CONSTANT);
+        payload.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
+        payload.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
         return payload;
     }
 
@@ -80,15 +81,15 @@ public class ToolCard12 extends ToolCard {
      * @throws InvalidEffectArgumentException thrown when <code>data</code> contains a field with an invalid value.
      */
     private void firstMove(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
-        String nickname = data.get("player").getAsString();
+        String nickname = data.get(JsonFields.PLAYER).getAsString();
         Player player = this.getGame().getPlayerForNickname(nickname);
-        int fromCellX = data.get("fromCellX").getAsInt();
-        int fromCellY = data.get("fromCellY").getAsInt();
+        int fromCellX = data.get(JsonFields.FROM_CELL_X).getAsInt();
+        int fromCellY = data.get(JsonFields.FROM_CELL_Y).getAsInt();
         int fromIndex = this.linearizeIndex(fromCellX, fromCellY);
         if (fromIndex < 0 || fromIndex >= player.getWindowPattern().getGrid().length)
             throw new InvalidEffectArgumentException("Invalid fromIndex: " + fromIndex + " (" + fromCellX + ", " + fromCellY + ")");
-        int toCellX = data.get("toCellX").getAsInt();
-        int toCellY = data.get("toCellY").getAsInt();
+        int toCellX = data.get(JsonFields.TO_CELL_X).getAsInt();
+        int toCellY = data.get(JsonFields.TO_CELL_Y).getAsInt();
         int toIndex = this.linearizeIndex(toCellX, toCellY);
         if (toIndex < 0 || toIndex >= player.getWindowPattern().getGrid().length)
             throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
@@ -112,15 +113,15 @@ public class ToolCard12 extends ToolCard {
      * @throws InvalidEffectArgumentException thrown when <code>data</code> contains a field with an invalid value.
      */
     private void secondMove(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
-        String nickname = data.get("player").getAsString();
+        String nickname = data.get(JsonFields.PLAYER).getAsString();
         Player player = this.getGame().getPlayerForNickname(nickname);
-        int fromCellX = data.get("fromCellX").getAsInt();
-        int fromCellY = data.get("fromCellY").getAsInt();
+        int fromCellX = data.get(JsonFields.FROM_CELL_X).getAsInt();
+        int fromCellY = data.get(JsonFields.FROM_CELL_Y).getAsInt();
         int fromIndex = this.linearizeIndex(fromCellX, fromCellY);
         if (fromIndex < 0 || fromIndex >= player.getWindowPattern().getGrid().length)
             throw new InvalidEffectArgumentException("Invalid fromIndex: " + fromIndex + " (" + fromCellX + ", " + fromCellY + ")");
-        int toCellX = data.get("toCellX").getAsInt();
-        int toCellY = data.get("toCellY").getAsInt();
+        int toCellX = data.get(JsonFields.TO_CELL_X).getAsInt();
+        int toCellY = data.get(JsonFields.TO_CELL_Y).getAsInt();
         int toIndex = this.linearizeIndex(toCellX, toCellY);
         if (toIndex < 0 || toIndex >= player.getWindowPattern().getGrid().length)
             throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");

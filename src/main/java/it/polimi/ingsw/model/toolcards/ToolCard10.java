@@ -4,6 +4,9 @@ import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.server.Game;
 import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.util.JsonFields;
+import it.polimi.ingsw.util.Methods;
+import it.polimi.ingsw.util.NotificationsMessages;
 
 
 /**
@@ -35,7 +38,7 @@ public class ToolCard10 extends ToolCard {
      * @throws InvalidEffectArgumentException thrown if <code>data</code> contains any invalid values.
      */
     public void effect(JsonObject data) throws InvalidEffectArgumentException {
-        int draftPoolIndex = data.get("draftPoolIndex").getAsInt();
+        int draftPoolIndex = data.get(JsonFields.DRAFT_POOL_INDEX).getAsInt();
         if (draftPoolIndex < 0 || draftPoolIndex >= this.getGame().getDiceGenerator().getDraftPool().size())
             throw new InvalidEffectArgumentException("Invalid draftPoolIndex: " + draftPoolIndex);
         Die die = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
@@ -43,14 +46,14 @@ public class ToolCard10 extends ToolCard {
         die.setValue(7 - value);
         this.setUsed();
         setChanged();
-        notifyObservers("$useToolCard$");
+        notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
 
     @Override
     public JsonObject requiredData() {
         JsonObject payload = new JsonObject();
-        payload.addProperty("method", "requiredData");
-        payload.addProperty("draftPoolIndex", Constants.INDEX_CONSTANT);
+        payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
+        payload.addProperty(JsonFields.DRAFT_POOL_INDEX, Constants.INDEX_CONSTANT);
         return payload;
     }
 

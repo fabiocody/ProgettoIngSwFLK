@@ -2,6 +2,9 @@ package it.polimi.ingsw.model.toolcards;
 
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.server.*;
+import it.polimi.ingsw.util.JsonFields;
+import it.polimi.ingsw.util.Methods;
+import it.polimi.ingsw.util.NotificationsMessages;
 
 
 /**
@@ -37,14 +40,13 @@ public class ToolCard8 extends ToolCard {
         player.setSecondTurnToBeSkipped(true);
         this.setUsed();
         setChanged();
-        notifyObservers("$useToolCard$");
+        notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
 
     @Override
     public JsonObject requiredData() {
         JsonObject payload = new JsonObject();
-        payload.addProperty("method", "requiredData");
-        payload.addProperty("player", "$nickname$");
+        payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
         return payload;
     }
 

@@ -11,6 +11,8 @@ import java.net.*;
 import java.rmi.RemoteException;
 import java.util.*;
 
+import static org.fusesource.jansi.Ansi.ansi;
+
 
 public class ServerSocketHandler implements Runnable, Observer {
     // Observes CountdownTimer (from WaitingRoom and TurnManager), WaitingRoom and Game
@@ -136,7 +138,7 @@ public class ServerSocketHandler implements Runnable, Observer {
                     case USE_TOOL_CARD:
                         this.useToolCard(input);
                         break;
-                    case REQUIRED_DATA_FOR_TOOL_CARD:
+                    case REQUIRED_DATA:
                         this.requiredData(input);
                         break;
                     case PROBE:
@@ -261,8 +263,8 @@ public class ServerSocketHandler implements Runnable, Observer {
     private void requiredData(JsonObject input){
         int cardIndex = input.get(JsonFields.CARD_INDEX).getAsInt();
         JsonObject payload = this.gameEndPoint.requiredData(cardIndex);
-        if (payload.get("data").getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX) && this.game.getRoundTrack().getAllDice().isEmpty()){
-            payload.get("data").getAsJsonObject().addProperty("impossibleToUseToolCard", JsonFields.ROUND_TRACK);
+        if (payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX) && this.game.getRoundTrack().getAllDice().isEmpty()){
+            payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.ROUND_TRACK);
         }
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
@@ -378,7 +380,7 @@ public class ServerSocketHandler implements Runnable, Observer {
     public void update(Observable o, Object arg) {
         String stringArg = String.valueOf(arg);
         if (o instanceof CountdownTimer) {
-            if (stringArg.startsWith("WaitingRoom")) {
+            if (stringArg.startsWith(NotificationsMessages.WAITING_ROOM)) {
                 int tick = Integer.parseInt(stringArg.split(" ")[1]);
                 debug("Timer tick (from update): " + tick);
                 this.updateTimerTick(tick);
@@ -396,30 +398,21 @@ public class ServerSocketHandler implements Runnable, Observer {
                 this.updateWaitingPlayersList((List<Player>) arg);
             }
         } else if (o instanceof Game) {
-            if (stringArg.equals("$turnManagement$")) {
-                updatePlayersList();
-                updateToolCards();
-                sendPublicObjectiveCards();
-                updateWindowPatterns();
-                updateDraftPool();
-                turnManagement();
-            } else if (stringArg.equals("$placeDie$")) {
-                updateWindowPatterns();
-                updateDraftPool();
-            }
-            /*else if(stringArg.equals("$nextTurn$")){
-                updateWindowPatterns();
-                updateDraftPool();
-            }*/
-            else if (stringArg.equals("$roundTrack$")) {
-                //TODO
-                updateRoundTrack();
-                updateDraftPool();
-            } else if (stringArg.equals("$useToolCard$")) {
-                updateToolCards();
-                updateRoundTrack();
-                updateWindowPatterns();
-                updateDraftPool();
+            switch (stringArg) {
+                case NotificationsMessages.TURN_MANAGEMENT:
+                case NotificationsMessages.PLACE_DIE:
+                case NotificationsMessages.USE_TOOL_CARD:
+                    //System.out.println(ansi().fgGreen().a(stringArg).reset());
+                    fullUpdate();
+                    break;
+                case NotificationsMessages.ROUND_TRACK:
+                    updatePlayersList();
+                    updateToolCards();
+                    sendPublicObjectiveCards();
+                    updateWindowPatterns();
+                    updateDraftPool();
+                    updateRoundTrack();
+                    break;
             }
         }
     }
@@ -494,6 +487,16 @@ public class ServerSocketHandler implements Runnable, Observer {
         log("A game has started for " + nickname);
 
         this.gameEndPoint.getPlayer(uuid).addObserver(this);
+    }
+
+    private void fullUpdate() {
+        updatePlayersList();
+        updateToolCards();
+        sendPublicObjectiveCards();
+        updateWindowPatterns();
+        updateDraftPool();
+        updateRoundTrack();
+        turnManagement();
     }
 
 }

@@ -4,6 +4,8 @@ import it.polimi.ingsw.model.dice.DiceGenerator;
 import it.polimi.ingsw.model.objectivecards.*;
 import it.polimi.ingsw.model.patterncards.PatternCardsGenerator;
 import it.polimi.ingsw.model.toolcards.*;
+import it.polimi.ingsw.util.NotificationsMessages;
+
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -228,13 +230,13 @@ public class Game extends Observable implements Observer {
     void removeDieFromDraftPool(int draftPoolIndex){
         this.diceGenerator.drawDieFromDraftPool(draftPoolIndex);
         setChanged();
-        notifyObservers("$draftPool$");
+        notifyObservers(NotificationsMessages.DRAFT_POOL);
     }
 
     void nextTurn(){
         this.turnManager.nextTurn();
         setChanged();
-        notifyObservers("$turnManagement$");
+        notifyObservers(NotificationsMessages.TURN_MANAGEMENT);
     }
 
     /**
@@ -285,26 +287,26 @@ public class Game extends Observable implements Observer {
      */
     public void update(Observable o, Object arg) {
         if (o instanceof RoundTrack) {
-            if (arg.equals("Round incremented")) {
+            if (arg.equals(NotificationsMessages.ROUND_INCREMENTED)) {
                 this.getRoundTrack().putDice(this.getDiceGenerator().getDraftPool());
                 this.getDiceGenerator().generateDraftPool();
                 setChanged();
-                notifyObservers("$roundTrack$");
+                notifyObservers(NotificationsMessages.ROUND_TRACK);
 
-            } else if (arg.equals("Game over")) {   //Round track?
+            } else if (arg.equals(NotificationsMessages.GAME_OVER)) {   //Round track?
                 new Thread(this::endGame).start();
             }
         } else if (o instanceof Player) {
-            if (this.arePlayersReady()) {
-                setChanged();
-                notifyObservers("$turnManagement$");
-            }
-            else if (arg != null && arg.equals("$placeDie$")) {
+            if (arg != null && arg.equals(NotificationsMessages.PLACE_DIE)) {
                 setChanged();
                 notifyObservers(arg);
             }
+            else if (this.arePlayersReady()) {
+                setChanged();
+                notifyObservers(NotificationsMessages.TURN_MANAGEMENT);
+            }
         } else if (o instanceof ToolCard) {
-            if (arg.equals("$useToolCard$")) {
+            if (arg.equals(NotificationsMessages.USE_TOOL_CARD)) {
                 setChanged();
                 notifyObservers(arg);
             }

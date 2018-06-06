@@ -5,6 +5,8 @@ import it.polimi.ingsw.model.placementconstraints.*;
 import it.polimi.ingsw.server.*;
 import it.polimi.ingsw.util.Constants;
 import it.polimi.ingsw.util.JsonFields;
+import it.polimi.ingsw.util.Methods;
+import it.polimi.ingsw.util.NotificationsMessages;
 
 
 /**
@@ -41,15 +43,15 @@ public class ToolCard2 extends ToolCard {
      * @throws InvalidEffectArgumentException thrown if <code>data</code> contains any invalid values.
      */
     public void effect(JsonObject data) throws InvalidEffectArgumentException, InvalidEffectResultException {
-        String nickname = data.get("player").getAsString();
+        String nickname = data.get(JsonFields.PLAYER).getAsString();
         Player player = this.getGame().getPlayerForNickname(nickname);
-        int fromCellX = data.get("fromCellX").getAsInt();
-        int fromCellY = data.get("fromCellY").getAsInt();
+        int fromCellX = data.get(JsonFields.FROM_CELL_X).getAsInt();
+        int fromCellY = data.get(JsonFields.FROM_CELL_Y).getAsInt();
         int fromIndex = this.linearizeIndex(fromCellX, fromCellY);
         if (fromIndex < 0 || fromIndex >= player.getWindowPattern().getGrid().length)
             throw new InvalidEffectArgumentException("Invalid fromIndex: " + fromIndex + " (" + fromCellX + ", " + fromCellY + ")");
-        int toCellX = data.get("toCellX").getAsInt();
-        int toCellY = data.get("toCellY").getAsInt();
+        int toCellX = data.get(JsonFields.TO_CELL_X).getAsInt();
+        int toCellY = data.get(JsonFields.TO_CELL_Y).getAsInt();
         int toIndex = this.linearizeIndex(toCellX, toCellY);
         if (toIndex < 0 || toIndex >= player.getWindowPattern().getGrid().length)
             throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
@@ -57,13 +59,13 @@ public class ToolCard2 extends ToolCard {
         this.moveDie(player, fromIndex, toIndex, constraint);
         this.setUsed();
         setChanged();
-        notifyObservers("$useToolCard$");
+        notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
 
     @Override
     public JsonObject requiredData() {
         JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, "requiredData");
+        payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
         JsonObject data = new JsonObject();
         data.addProperty(JsonFields.FROM_CELL_X, Constants.INDEX_CONSTANT);
         data.addProperty(JsonFields.FROM_CELL_Y, Constants.INDEX_CONSTANT);

@@ -5,6 +5,9 @@ import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.server.*;
 import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.util.JsonFields;
+import it.polimi.ingsw.util.Methods;
+import it.polimi.ingsw.util.NotificationsMessages;
 
 
 /**
@@ -32,8 +35,8 @@ public class ToolCard11 extends ToolCard {
      *         &ensp;"player": &lt;nickname: string&gt;,<br>
      *         &ensp;"draftPoolIndex": &lt;int&gt;,<br>
      *         &ensp;"newValue": &lt;int&gt;,<br>
-     *         &ensp;"cellX": &lt;int&gt;,<br>
-     *         &ensp;"cellY": &lt;int&gt;<br>
+     *         &ensp;"toCellX": &lt;int&gt;,<br>
+     *         &ensp;"toCellY": &lt;int&gt;<br>
      *     }
      * </code>
      *
@@ -44,7 +47,7 @@ public class ToolCard11 extends ToolCard {
      */
     public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         // TODO togliere switch
-        int draftPoolIndex = data.get("draftPoolIndex").getAsInt();
+        int draftPoolIndex = data.get(JsonFields.DRAFT_POOL_INDEX).getAsInt();
         if (draftPoolIndex < 0 || draftPoolIndex >= this.getGame().getDiceGenerator().getDraftPool().size())
             throw new InvalidEffectArgumentException("Invalid draftPoolIndex: " + draftPoolIndex);
         switch (state) {
@@ -52,16 +55,16 @@ public class ToolCard11 extends ToolCard {
                 this.exchangeDie(draftPoolIndex);
                 break;
             case 1:
-                int newValue = data.get("newValue").getAsInt();
+                int newValue = data.get(JsonFields.NEW_VALUE).getAsInt();
                 if (newValue < 1 || newValue > 6)
                     throw new InvalidEffectArgumentException("Invalid newValue: " + newValue);
                 this.chooseValue(draftPoolIndex, newValue);
                 break;
             case 2:
-                String nickname = data.get("player").getAsString();
+                String nickname = data.get(JsonFields.PLAYER).getAsString();
                 Player player = this.getGame().getPlayerForNickname(nickname);
-                int cellX = data.get("cellX").getAsInt();
-                int cellY = data.get("cellY").getAsInt();
+                int cellX = data.get(JsonFields.TO_CELL_X).getAsInt();
+                int cellY = data.get(JsonFields.TO_CELL_Y).getAsInt();
                 int cellIndex = this.linearizeIndex(cellX, cellY);
                 if (cellIndex < 0 || cellIndex >= player.getWindowPattern().getGrid().length)
                     throw new InvalidEffectArgumentException("Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")");
@@ -69,18 +72,17 @@ public class ToolCard11 extends ToolCard {
                 break;
         }
         setChanged();
-        notifyObservers("$useToolCard$");
+        notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
 
     @Override
     public JsonObject requiredData() {
         JsonObject payload = new JsonObject();
-        payload.addProperty("method", "requiredData");
-        payload.addProperty("player", "$nickname$");
-        payload.addProperty("draftPoolIndex", Constants.INDEX_CONSTANT);
-        payload.addProperty("newValue", Constants.INDEX_CONSTANT);
-        payload.addProperty("toCellX", Constants.INDEX_CONSTANT);
-        payload.addProperty("toCellY", Constants.INDEX_CONSTANT);
+        payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
+        payload.addProperty(JsonFields.DRAFT_POOL_INDEX, Constants.INDEX_CONSTANT);
+        payload.addProperty(JsonFields.NEW_VALUE, Constants.INDEX_CONSTANT);
+        payload.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
+        payload.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
         return payload;
     }
 

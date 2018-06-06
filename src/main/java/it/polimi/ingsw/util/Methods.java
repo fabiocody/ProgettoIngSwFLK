@@ -24,7 +24,7 @@ public enum Methods {
     FINAL_SCORES("finalScores"),
     PUBLIC_OBJECTIVE_CARDS("publicObjectiveCards"),
     TOOL_CARDS("toolCards"),
-    REQUIRED_DATA_FOR_TOOL_CARD("requiredData"),
+    REQUIRED_DATA("requiredData"),
     FAVOR_TOKENS("favorTokens"),
     WINDOW_PATTERNS("windowPatterns"),
     ROUND_TRACK_DICE("roundTrackDice"),
@@ -32,6 +32,7 @@ public enum Methods {
     PLACE_DIE("placeDie"),
     USE_TOOL_CARD("useToolCard"),
     PROBE("probe");
+
 
 
     private String string;

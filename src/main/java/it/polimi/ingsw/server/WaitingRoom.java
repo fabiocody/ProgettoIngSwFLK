@@ -2,6 +2,7 @@ package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.util.Constants;
 import it.polimi.ingsw.util.CountdownTimer;
+import it.polimi.ingsw.util.NotificationsMessages;
 
 import java.util.*;
 
@@ -26,7 +27,7 @@ public class WaitingRoom extends Observable {
      * @author Fabio Codiglioni
      */
     private WaitingRoom() {
-        this.timer = new CountdownTimer("WaitingRoom", this.timeout);
+        this.timer = new CountdownTimer(NotificationsMessages.WAITING_ROOM, this.timeout);
     }
 
     /**

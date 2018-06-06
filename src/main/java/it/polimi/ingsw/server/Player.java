@@ -6,6 +6,7 @@ import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.util.NotificationsMessages;
 
 import java.rmi.RemoteException;
 import java.util.*;
@@ -157,7 +158,7 @@ public class Player extends Observable {
         this.getWindowPattern().placeDie(d, Constants.NUMBER_OF_PATTERN_COLUMNS * y + x);
         setDiePlacedInThisTurn(true);
         this.setChanged();
-        this.notifyObservers("$placeDie$");
+        this.notifyObservers(NotificationsMessages.PLACE_DIE);
     }
 
 

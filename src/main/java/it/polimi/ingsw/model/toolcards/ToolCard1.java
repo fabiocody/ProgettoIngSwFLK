@@ -5,6 +5,8 @@ import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.server.Game;
 import it.polimi.ingsw.util.Constants;
 import it.polimi.ingsw.util.JsonFields;
+import it.polimi.ingsw.util.Methods;
+import it.polimi.ingsw.util.NotificationsMessages;
 
 
 /**
@@ -38,10 +40,10 @@ public class ToolCard1 extends ToolCard {
      * @throws InvalidEffectArgumentException thrown if <code>data</code> contains any invalid values.
      */
     public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
-        int draftPoolIndex = data.get("draftPoolIndex").getAsInt();
+        int draftPoolIndex = data.get(JsonFields.DRAFT_POOL_INDEX).getAsInt();
         if (draftPoolIndex < 0 || draftPoolIndex >= this.getGame().getDiceGenerator().getDraftPool().size())
             throw new InvalidEffectArgumentException("Invalid draftPoolIndex: " + draftPoolIndex);
-        int delta = data.get("delta").getAsInt();
+        int delta = data.get(JsonFields.DELTA).getAsInt();
         if (delta != 1 && delta != -1)
             throw new InvalidEffectArgumentException("Invalid delta: " + delta);
         Die d = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
@@ -51,12 +53,12 @@ public class ToolCard1 extends ToolCard {
         else d.setValue(newValue);
         this.setUsed();
         setChanged();
-        notifyObservers("$useToolCard$");
+        notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
 
     public JsonObject requiredData(){
         JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, "requiredData");
+        payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
         JsonObject data = new JsonObject();
         data.addProperty(JsonFields.DRAFT_POOL_INDEX, Constants.INDEX_CONSTANT);
         data.addProperty(JsonFields.DELTA, Constants.INDEX_CONSTANT);

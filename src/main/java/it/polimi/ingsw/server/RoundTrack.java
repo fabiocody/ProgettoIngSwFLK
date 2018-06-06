@@ -2,10 +2,13 @@ package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.model.dice.DiceGenerator;
 import it.polimi.ingsw.model.dice.Die;
+import it.polimi.ingsw.util.NotificationsMessages;
+
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import static it.polimi.ingsw.util.Constants.*;
+import static org.fusesource.jansi.Ansi.ansi;
 
 
 /**
@@ -86,12 +89,12 @@ public class RoundTrack extends Observable implements Observer {
                 if (this.currentRound == 10 && !gameOver) {
                     this.gameOver = true;
                     this.setChanged();
-                    this.notifyObservers("Game over");
+                    this.notifyObservers(NotificationsMessages.GAME_OVER);
                 }
                 if (!gameOver) {
                     this.currentRound++;
                     this.setChanged();
-                    this.notifyObservers("Round incremented");
+                    this.notifyObservers(NotificationsMessages.ROUND_INCREMENTED);
                 }
             }
         }
@@ -122,11 +125,16 @@ public class RoundTrack extends Observable implements Observer {
 
     public String toString() {
         synchronized (diceLock) {
-            StringBuilder roundTrackCli = new StringBuilder("$roundTrack$");
+            StringBuilder roundTrackCli = new StringBuilder(NotificationsMessages.ROUND_TRACK);
             Optional<Integer> maxDiceInRound = Arrays.stream(getRoundTrackDice())
                     .map(List::size)
                     .max(Comparator.naturalOrder());
             maxDiceInRound.ifPresent(max -> {
+                for (int i = 1; i <= NUMBER_OF_ROUNDS; i++)
+                    roundTrackCli.append(' ')
+                            .append(i == currentRound ? ansi().fgBrightGreen().a(i).reset() : i)
+                            .append("  ");
+                roundTrackCli.append('\n');
                 for (int i = 0; i < max; i++) {
                     for (int j = 0; j < NUMBER_OF_ROUNDS; j++) {
                         if (i < this.roundTrackDice[j].size() && this.roundTrackDice[j].get(i) != null)
