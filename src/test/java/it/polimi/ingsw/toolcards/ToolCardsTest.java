@@ -6,14 +6,13 @@ import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.server.*;
 import it.polimi.ingsw.model.toolcards.*;
-import it.polimi.ingsw.util.Colors;
-import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.util.*;
 import org.junit.jupiter.api.*;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+import static it.polimi.ingsw.util.JsonFields.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -37,12 +36,12 @@ class ToolCardsTest {
         ToolCard toolCard = new ToolCard1(game);
         int oldValue = game.getDiceGenerator().getDraftPool().get(0).getValue();
         JsonObject data = new JsonObject();
-        data.addProperty("player", "Fabio");
-        data.addProperty("draftPoolIndex", 0);
+        data.addProperty(PLAYER, "Fabio");
+        data.addProperty(DRAFT_POOL_INDEX, 0);
         if (oldValue <= 3)
-            data.addProperty("delta", 1);
+            data.addProperty(DELTA, 1);
         else
-            data.addProperty("delta", -1);
+            data.addProperty(DELTA, -1);
         try {
             toolCard.effect(data);
             if (oldValue <= 3) assertEquals(oldValue + 1, game.getDiceGenerator().getDraftPool().get(0).getValue());
@@ -51,8 +50,8 @@ class ToolCardsTest {
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
-        data.remove("delta");
-        data.addProperty("delta", Constants.INDEX_CONSTANT); //define
+        data.remove(DELTA);
+        data.addProperty(DELTA, Constants.INDEX_CONSTANT); //define
         assertThrows(InvalidEffectArgumentException.class, () -> toolCard.effect(data));
     }
 
@@ -67,11 +66,11 @@ class ToolCardsTest {
         player.getWindowPattern().placeDie(die, 8);
         assertNotNull(player.getWindowPattern().getCellAt(8).getPlacedDie());
         JsonObject data = new JsonObject();
-        data.addProperty("player", player.getNickname());
-        data.addProperty("fromCellX", 2);
-        data.addProperty("fromCellY", 0);
-        data.addProperty("toCellX", 4);
-        data.addProperty("toCellY", 2);
+        data.addProperty(PLAYER, player.getNickname());
+        data.addProperty(FROM_CELL_X, 2);
+        data.addProperty(FROM_CELL_Y, 0);
+        data.addProperty(TO_CELL_X, 4);
+        data.addProperty(TO_CELL_Y, 2);
         try {
             toolCard.effect(data);
             assertNull(player.getWindowPattern().getCellAt(2).getPlacedDie());
@@ -93,11 +92,11 @@ class ToolCardsTest {
         player.getWindowPattern().placeDie(die, 11);
         assertNotNull(player.getWindowPattern().getCellAt(11).getPlacedDie());
         JsonObject data = new JsonObject();
-        data.addProperty("player", player.getNickname());
-        data.addProperty("fromCellX", 2);
-        data.addProperty("fromCellY", 3);
-        data.addProperty("toCellX", 2);
-        data.addProperty("toCellY", 1);
+        data.addProperty(PLAYER, player.getNickname());
+        data.addProperty(FROM_CELL_X, 2);
+        data.addProperty(FROM_CELL_Y, 3);
+        data.addProperty(TO_CELL_X, 2);
+        data.addProperty(TO_CELL_Y, 1);
         try {
             toolCard.effect(data);
             assertNull(player.getWindowPattern().getCellAt(3, 2).getPlacedDie());
@@ -119,11 +118,11 @@ class ToolCardsTest {
         player.getWindowPattern().placeDie(die, 11);
         assertNotNull(player.getWindowPattern().getCellAt(11).getPlacedDie());
         JsonObject data = new JsonObject();
-        data.addProperty("player", player.getNickname());
-        data.addProperty("fromCellX", 2);
-        data.addProperty("fromCellY", 3);
-        data.addProperty("toCellX", 2);
-        data.addProperty("toCellY", 1);
+        data.addProperty(PLAYER, player.getNickname());
+        data.addProperty(FROM_CELL_X, 2);
+        data.addProperty(FROM_CELL_Y, 3);
+        data.addProperty(TO_CELL_X, 2);
+        data.addProperty(TO_CELL_Y, 1);
         try {
             toolCard.effect(data);
             assertNull(player.getWindowPattern().getCellAt(3, 2).getPlacedDie());
@@ -133,11 +132,11 @@ class ToolCardsTest {
             e.printStackTrace();
         }
         data = new JsonObject();
-        data.addProperty("player", player.getNickname());
-        data.addProperty("fromCellX", 1);
-        data.addProperty("fromCellY", 2);
-        data.addProperty("toCellX", 3);
-        data.addProperty("toCellY", 2);
+        data.addProperty(PLAYER, player.getNickname());
+        data.addProperty(FROM_CELL_X, 1);
+        data.addProperty(FROM_CELL_Y, 2);
+        data.addProperty(TO_CELL_X, 3);
+        data.addProperty(TO_CELL_Y, 2);
         try {
             toolCard.effect(data);
             assertNull(player.getWindowPattern().getCellAt(2, 1).getPlacedDie());
@@ -159,8 +158,8 @@ class ToolCardsTest {
         Die fromDraftPool = game.getDiceGenerator().getDraftPool().get(draftPoolIndex);
         Die fromRoundTrack = game.getRoundTrack().getRoundTrackDice()[game.getRoundTrack().getCurrentRoundDiceIndex()].get(roundTrackIndex);
         JsonObject data = new JsonObject();
-        data.addProperty("draftPoolIndex", draftPoolIndex);
-        data.addProperty("roundTrackIndex", roundTrackIndex);
+        data.addProperty(DRAFT_POOL_INDEX, draftPoolIndex);
+        data.addProperty(ROUND_TRACK_INDEX, roundTrackIndex);
         try {
             toolCard.effect(data);
             assertEquals(fromDraftPool, game.getRoundTrack().getAllDice().get(roundTrackIndex));
@@ -171,6 +170,7 @@ class ToolCardsTest {
         }
     }
 
+    // This test is no longer possible
     /*@Test
     void toolCard6DontPutAway() {
         ToolCard toolCard = new ToolCard6(game);
@@ -197,9 +197,10 @@ class ToolCardsTest {
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
-    @Test
+    // This test is no longer possible
+    /*@Test
     void toolCard6PutAway() {
         ToolCard toolCard = new ToolCard6(game);
         player.setWindowPatternList(Arrays.asList(new WindowPattern(2)));
@@ -225,6 +226,7 @@ class ToolCardsTest {
         }
     }*/
 
+    // TODO Enable these tests once all the Tool Cards are fixed
     @Test
     void toolCard7() {
         // Check that at least one die has changed value
@@ -253,7 +255,7 @@ class ToolCardsTest {
         // TODO vedi ToolCard8
         ToolCard toolCard = new ToolCard8(game);
         JsonObject data = new JsonObject();
-        data.addProperty("player", player.getNickname());
+        data.addProperty(PLAYER, player.getNickname());
         try {
             toolCard.effect(data);
             assertTrue(player.isSecondTurnToBeSkipped());
@@ -271,10 +273,10 @@ class ToolCardsTest {
         player.getWindowPattern().placeDie(die, 17, PlacementConstraint.initialConstraint());
         assertNotNull(player.getWindowPattern().getCellAt(17).getPlacedDie());
         JsonObject data = new JsonObject();
-        data.addProperty("player", player.getNickname());
-        data.addProperty("draftPoolIndex", 0);
-        data.addProperty("cellX", 2);
-        data.addProperty("cellY", 0);
+        data.addProperty(PLAYER, player.getNickname());
+        data.addProperty(DRAFT_POOL_INDEX, 0);
+        data.addProperty(TO_CELL_X, 2);
+        data.addProperty(TO_CELL_Y, 0);
         try {
             toolCard.effect(data);
             assertNotNull(player.getWindowPattern().getCellAt(0, 2).getPlacedDie());
@@ -289,7 +291,7 @@ class ToolCardsTest {
         ToolCard toolCard = new ToolCard10(game);
         int oldValue = game.getDiceGenerator().getDraftPool().get(0).getValue();
         JsonObject data = new JsonObject();
-        data.addProperty("draftPoolIndex", 0);
+        data.addProperty(DRAFT_POOL_INDEX, 0);
         try {
             toolCard.effect(data);
             assertEquals(7 - oldValue, game.getDiceGenerator().getDraftPool().get(0).getValue());
@@ -306,8 +308,8 @@ class ToolCardsTest {
         Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
         player.getWindowPattern().placeDie(die, 17, PlacementConstraint.initialConstraint());
         JsonObject data = new JsonObject();
-        data.addProperty("player", player.getNickname());
-        data.addProperty("draftPoolIndex", 0);
+        data.addProperty(PLAYER, player.getNickname());
+        data.addProperty(DRAFT_POOL_INDEX, 0);
         Die oldDie = game.getDiceGenerator().getDraftPool().get(0);
         try {
             toolCard.effect(data);
@@ -316,7 +318,7 @@ class ToolCardsTest {
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }
-        data.addProperty("newValue", 4);
+        data.addProperty(NEW_VALUE, 4);
         try {
             toolCard.effect(data);
             assertFalse(toolCard.isUsed());
@@ -324,8 +326,8 @@ class ToolCardsTest {
             e.printStackTrace();
         }
         die = game.getDiceGenerator().getDraftPool().get(0);
-        data.addProperty("cellX", 1);
-        data.addProperty("cellY", 2);
+        data.addProperty(TO_CELL_X, 1);
+        data.addProperty(TO_CELL_Y, 2);
         try {
             toolCard.effect(data);
             assertEquals(die, player.getWindowPattern().getCellAt(2, 1).getPlacedDie());
@@ -348,11 +350,11 @@ class ToolCardsTest {
         die = new Die(Colors.RED, 4);
         player.getWindowPattern().placeDie(die, 8);
         JsonObject data = new JsonObject();
-        data.addProperty("player", player.getNickname());
-        data.addProperty("fromCellX", 2);
-        data.addProperty("fromCellY", 0);
-        data.addProperty("toCellX", 2);
-        data.addProperty("toCellY", 2);
+        data.addProperty(PLAYER, player.getNickname());
+        data.addProperty(FROM_CELL_X, 2);
+        data.addProperty(FROM_CELL_Y, 0);
+        data.addProperty(TO_CELL_X, 2);
+        data.addProperty(TO_CELL_Y, 2);
         try {
             toolCard.effect(data);
             assertNull(player.getWindowPattern().getCellAt(0, 2 ).getPlacedDie());
@@ -362,12 +364,12 @@ class ToolCardsTest {
             e.printStackTrace();
         }
         data = new JsonObject();
-        data.addProperty("player", player.getNickname());
-        data.addProperty("fromCellX", 3);
-        data.addProperty("fromCellY", 1);
-        data.addProperty("toCellX", 1);
-        data.addProperty("toCellY", 3);
-        data.addProperty("stop", false);
+        data.addProperty(PLAYER, player.getNickname());
+        data.addProperty(FROM_CELL_X, 3);
+        data.addProperty(FROM_CELL_Y, 1);
+        data.addProperty(TO_CELL_X, 1);
+        data.addProperty(TO_CELL_Y, 3);
+        data.addProperty(STOP, false);
         try {
             toolCard.effect(data);
             assertNull(player.getWindowPattern().getCellAt(1, 3 ).getPlacedDie());
@@ -391,11 +393,11 @@ class ToolCardsTest {
         die = new Die(Colors.RED, 4);
         player.getWindowPattern().placeDie(die, 8);
         JsonObject data = new JsonObject();
-        data.addProperty("player", player.getNickname());
-        data.addProperty("fromCellX", 2);
-        data.addProperty("fromCellY", 0);
-        data.addProperty("toCellX", 2);
-        data.addProperty("toCellY", 2);
+        data.addProperty(PLAYER, player.getNickname());
+        data.addProperty(FROM_CELL_X, 2);
+        data.addProperty(FROM_CELL_Y, 0);
+        data.addProperty(TO_CELL_X, 2);
+        data.addProperty(TO_CELL_Y, 2);
         try {
             toolCard.effect(data);
             assertNull(player.getWindowPattern().getCellAt(0, 2 ).getPlacedDie());
@@ -405,8 +407,8 @@ class ToolCardsTest {
             e.printStackTrace();
         }
         data = new JsonObject();
-        data.addProperty("player", player.getNickname());
-        data.addProperty("stop", true);
+        data.addProperty(PLAYER, player.getNickname());
+        data.addProperty(STOP, true);
         try {
             toolCard.effect(data);
             assertTrue(toolCard.isUsed());
