@@ -24,6 +24,8 @@ public class ClientCLI extends Client {
 
     private String wrTimeout;
     private String wrPlayers;
+    private String gameTimeout = "00";
+    private String lastPrintedLine = "";
     int cardIndex = INDEX_CONSTANT;
 
     private int draftPoolLength;
@@ -82,7 +84,8 @@ public class ClientCLI extends Client {
                             cardIndex = INDEX_CONSTANT;
                             log("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
                                     "passare il turno.");
-                            input = input("Scegli cosa fare [1-3] >>>");
+                            System.out.print("Scegli cosa fare [1-3] " + timerPrompt());
+                            input = asyncInput("timerPrompt");
                         }
                         try {
                             if (showPrompt) this.instructionIndex = Integer.valueOf(input);
@@ -314,6 +317,7 @@ public class ClientCLI extends Client {
                         }
                         Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
                         System.out.print(method.invoke(this));
+                        // TODO System.out.print(ansi().eraseLine(Erase.ALL));
                         break;
                     } else if (c == 0x7F) {
                         synchronized (stdinBufferLock) {
@@ -327,6 +331,7 @@ public class ClientCLI extends Client {
                     Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
                     System.out.print(method.invoke(this));
                 }
+                Thread.sleep(10);
             }
         } catch (InterruptedException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
@@ -442,6 +447,22 @@ public class ClientCLI extends Client {
         }
     }
 
+    private String timerPrompt() {
+        synchronized (stdinBufferLock) {
+            String prompt = String.format("[%s] >>> %s", gameTimeout, stdinBuffer.toString());
+            return updateLine(prompt);
+        }
+    }
+
+    private String updateLine(String line) {
+        String newLine = ansi().cursorLeft(lastPrintedLine.length())
+                .eraseLine(Erase.FORWARD)
+                .a(line)
+                .toString();
+        lastPrintedLine = line;
+        return newLine;
+    }
+
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof ClientNetwork) {
@@ -452,7 +473,16 @@ public class ClientCLI extends Client {
                     e.printStackTrace();
                 }
                 List<String> argAsList = (List) arg;
-                if(argAsList.get(0).startsWith(NotificationsMessages.SELECTABLE_WINDOW_PATTERNS)) {
+                if (argAsList.get(0).equals(NotificationsMessages.WR_TIMER_TICK)) {
+                    this.wrTimeout = argAsList.get(1);
+                    System.out.print(waitingRoomMessage());
+                } else if (argAsList.get(0).equals(NotificationsMessages.GAME_TIMER_TICK)) {
+                    this.gameTimeout = argAsList.get(1);
+                    if (isActive())
+                        System.out.print(timerPrompt());
+                    else
+                        System.out.print(updateLine("[" + gameTimeout + "]"));
+                } else if (argAsList.get(0).startsWith(NotificationsMessages.SELECTABLE_WINDOW_PATTERNS)) {
                     argAsList.remove(0);
                     for (int i = 0; i < argAsList.size(); i++) {
                         StringBuilder newWPString = new StringBuilder();
@@ -463,7 +493,7 @@ public class ClientCLI extends Client {
                     System.out.println();
                     log(windowPatternsMessage(argAsList));
                     stopAsyncInput = true;
-                } else if(argAsList.get(0).equals(NotificationsMessages.UPDATE_WINDOW_PATTERNS)){
+                } else if (argAsList.get(0).equals(NotificationsMessages.UPDATE_WINDOW_PATTERNS)){
                     argAsList.remove(0);
                     List<String> patterns = new ArrayList<>();
                     for (String s: argAsList){
@@ -476,7 +506,7 @@ public class ClientCLI extends Client {
                     }
                     String prettyWindowPatterns = windowPatternsMessage(patterns);
                     log(prettyWindowPatterns);
-                } else if(argAsList.get(0).startsWith(NotificationsMessages.TOOL_CARDS)) {   //Tool card
+                } else if (argAsList.get(0).startsWith(NotificationsMessages.TOOL_CARDS)) {   //Tool card
                     String cards = "";
                     for (String s : argAsList) {
                         int index = argAsList.indexOf(s) + 1;
@@ -488,7 +518,7 @@ public class ClientCLI extends Client {
                     }
                     cards = cards.replace("$NL$","\n\n");
                     log(cards);
-                } else if(argAsList.get(0).startsWith(NotificationsMessages.PUBLIC_OBJECTIVE_CARDS)) {   //Public Objective Card
+                } else if (argAsList.get(0).startsWith(NotificationsMessages.PUBLIC_OBJECTIVE_CARDS)) {   //Public Objective Card
                     StringBuilder cards = new StringBuilder();
                     for (String s : argAsList) {
                         s = s.replace(NotificationsMessages.PUBLIC_OBJECTIVE_CARDS, "Obiettivo Pubblico: ");
@@ -499,7 +529,7 @@ public class ClientCLI extends Client {
                     }
                     cards.append(privateObjectiveCard).append("\n\n");
                     log(cards.toString());
-                } else if(argAsList.get(0).startsWith(NotificationsMessages.DRAFT_POOL)) {   //DraftPool
+                } else if (argAsList.get(0).startsWith(NotificationsMessages.DRAFT_POOL)) {   //DraftPool
                     String draftPool = "Riserva: ";
                     this.draftPoolLength = 0;
                     for (String s : argAsList){
@@ -515,9 +545,6 @@ public class ClientCLI extends Client {
                     this.setGameOver(Boolean.valueOf(argAsList.get(1)));
                     this.setActive(argAsList.get(2));
                 }
-            } else if (arg instanceof Integer) {    // Timer ticks
-                this.wrTimeout = arg.toString();
-                System.out.print(waitingRoomMessage());
             } else if (arg instanceof String) {
                 String input = (String) arg;
                 if (input.startsWith(NotificationsMessages.PRIVATE_OBJECTIVE_CARD)) {
