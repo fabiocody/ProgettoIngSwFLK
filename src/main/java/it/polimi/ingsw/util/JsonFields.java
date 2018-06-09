@@ -50,6 +50,7 @@ public class JsonFields {
     public static final String IMPOSSIBLE_TO_USE_TOOL_CARD = "impossibleToUseToolCard";
     public static final String STOP = "stop";
 
+
     private JsonFields() throws IllegalAccessException {
         throw new IllegalAccessException("Cannot instantiate");
     }
