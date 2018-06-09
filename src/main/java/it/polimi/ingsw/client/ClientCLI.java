@@ -1,5 +1,7 @@
 package it.polimi.ingsw.client;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.util.*;
 import org.fusesource.jansi.AnsiConsole;
@@ -8,6 +10,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import static it.polimi.ingsw.util.Constants.*;
 import static org.fusesource.jansi.Ansi.*;
+import it.polimi.ingsw.util.JsonFields;
 
 
 public class ClientCLI extends Client {
@@ -445,6 +448,19 @@ public class ClientCLI extends Client {
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof ClientNetwork) {
+            if(arg instanceof JsonObject){
+                JsonObject jsonArg = (JsonObject) arg;
+                if(jsonArg.get(JsonFields.METHOD).getAsString().equals(JsonFields.FAVOR_TOKENS)){
+                    String favorTokenString = "\nSegnalini Favore";
+                    Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FAVOR_TOKENS).getAsJsonObject().entrySet();
+                    for (Map.Entry<String, JsonElement> entry : entrySet) {
+                        if(entry.getKey().equals(this.getNickname()))
+                            this.setFavorTokens(entry.getValue().getAsInt());
+                        favorTokenString += "\n" + entry.getKey() + ": " + entry.getValue().getAsInt();
+                    }
+                    log(favorTokenString);
+                }
+            }
             if (arg instanceof List) {      // Window Patterns
                 try {
                     Thread.sleep(100);

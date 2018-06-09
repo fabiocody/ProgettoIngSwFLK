@@ -184,9 +184,11 @@ public class SocketClient extends ClientNetwork {
                 case ROUND_TRACK_DICE:
                     this.updateRoundTrack(inputJson);
                     break;
+                case FAVOR_TOKENS:
+                    this.updateFavorTokens(inputJson);
+                    break;
                 case FINAL_SCORES:
                 case GAME_TIMER_TICK:
-                case FAVOR_TOKENS:
                     break;
 
             }
@@ -438,6 +440,11 @@ public class SocketClient extends ClientNetwork {
         turnManagamentStrings.add(input.get(JsonFields.ACTIVE_PLAYER).getAsString());
         this.setChanged();
         this.notifyObservers(turnManagamentStrings);
+    }
+
+    private void updateFavorTokens(JsonObject input){
+        this.setChanged();
+        this.notifyObservers(input);
     }
 
 }

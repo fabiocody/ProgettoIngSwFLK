@@ -331,6 +331,18 @@ public class ServerSocketHandler implements Runnable, Observer {
         out.println(payload.toString());
     }
 
+    private void updateFavorTokens() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty(JsonFields.METHOD,Methods.FAVOR_TOKENS.getString());
+        JsonObject favorTokens = new JsonObject();
+        for (String player : this.gameEndPoint.getCurrentPlayers()){
+            favorTokens.addProperty(player,this.gameEndPoint.getFavorTokensOf(player));
+        }
+        payload.add(JsonFields.FAVOR_TOKENS, favorTokens);
+        debug("PAYLOAD " + payload.toString());
+        out.println(payload.toString());
+    }
+
     private void updateDraftPool() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.DRAFT_POOL.getString());
@@ -410,6 +422,7 @@ public class ServerSocketHandler implements Runnable, Observer {
                     updateToolCards();
                     sendPublicObjectiveCards();
                     updateWindowPatterns();
+                    updateFavorTokens();
                     updateDraftPool();
                     updateRoundTrack();
                     break;
@@ -494,6 +507,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         updateToolCards();
         sendPublicObjectiveCards();
         updateWindowPatterns();
+        updateFavorTokens();
         updateDraftPool();
         updateRoundTrack();
         turnManagement();
