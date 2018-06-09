@@ -272,6 +272,7 @@ public class ClientCLI extends Client {
                     }
                 } while (this.instructionIndex < 1 || this.instructionIndex > 3);
             }
+            log("GAME ENDED");
         } catch (IOException | InterruptedException e) {
             log("Quitting...");
         } finally {
