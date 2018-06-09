@@ -1,6 +1,6 @@
 package it.polimi.ingsw.server;
 
-import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.util.*;
 import joptsimple.*;
 import java.io.IOException;
 import java.net.*;
@@ -120,21 +120,21 @@ public class SagradaServer implements Observer {
 
     public static void main(String[] args) {
         OptionParser parser = new OptionParser();
-        parser.accepts("debug");
-        parser.accepts("wr-timeout").withRequiredArg().required().ofType(Integer.class);
-        parser.accepts("game-timeout").withRequiredArg().required().ofType(Integer.class);
-        parser.accepts("port").withRequiredArg().ofType(Integer.class);
+        parser.accepts(CLIArguments.DEBUG);
+        parser.accepts(CLIArguments.WR_TIMEOUT).withRequiredArg().required().ofType(Integer.class);
+        parser.accepts(CLIArguments.GAME_TIMEOUT).withRequiredArg().required().ofType(Integer.class);
+        parser.accepts(CLIArguments.PORT).withRequiredArg().ofType(Integer.class);
         try {
             OptionSet options = parser.parse(args);
-            int wrTimerout = (Integer) options.valueOf("wr-timeout");
-            int gameTimeout = (Integer) options.valueOf("game-timeout");
+            int wrTimerout = (Integer) options.valueOf(CLIArguments.WR_TIMEOUT);
+            int gameTimeout = (Integer) options.valueOf(CLIArguments.GAME_TIMEOUT);
             int port;
-            if (options.has("port")) {
-                port = (int) options.valueOf("port");
+            if (options.has(CLIArguments.PORT)) {
+                port = (int) options.valueOf(CLIArguments.PORT);
             } else {
-                port = 42000;
+                port = Constants.DEFAULT_PORT;
             }
-            SagradaServer.getInstance().startSocketServer(port, wrTimerout, gameTimeout, options.has("debug"));
+            SagradaServer.getInstance().startSocketServer(port, wrTimerout, gameTimeout, options.has(CLIArguments.DEBUG));
         } catch (OptionException e) {
             System.out.println("usage: sagradaserver [--debug] [--port PORT] --wr-timer Y --game-timeout Z");
         }
