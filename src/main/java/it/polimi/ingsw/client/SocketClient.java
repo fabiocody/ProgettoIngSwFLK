@@ -8,8 +8,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.*;
 
-import static org.fusesource.jansi.Ansi.ansi;
-
 
 /**
  * This is the main client class
@@ -184,8 +182,10 @@ public class SocketClient extends ClientNetwork {
                 case ROUND_TRACK_DICE:
                     this.updateRoundTrack(inputJson);
                     break;
-                case FINAL_SCORES:
                 case GAME_TIMER_TICK:
+                    this.gameTimerTick(inputJson);
+                    break;
+                case FINAL_SCORES:
                 case FAVOR_TOKENS:
                     break;
 
@@ -276,7 +276,13 @@ public class SocketClient extends ClientNetwork {
     private void subscribeToWRTimer() {
         JsonObject payload = new JsonObject();
         this.sendMessage(payload, Methods.SUBSCRIBE_TO_WR_TIMER.getString());
-        debug("INPUT " + this.pollResponseBuffer());
+        //debug("INPUT " + this.pollResponseBuffer());
+    }
+
+    private void subscribeToGameTimer() {
+        JsonObject payload = new JsonObject();
+        this.sendMessage(payload, Methods.SUBSCRIBE_TO_GAME_TIMER.getString());
+        //debug("INPUT " + this.pollResponseBuffer());
     }
 
     void choosePattern(int patternIndex) {
@@ -342,8 +348,15 @@ public class SocketClient extends ClientNetwork {
      * @param input data from the server
      */
     private void wrTimerTick(JsonObject input) {
+        String tick = String.valueOf(input.get(JsonFields.TICK).getAsInt());
         this.setChanged();
-        this.notifyObservers(input.get(JsonFields.TICK).getAsInt());
+        this.notifyObservers(Arrays.asList(NotificationsMessages.WR_TIMER_TICK, tick));
+    }
+
+    private void gameTimerTick(JsonObject input) {
+        String tick = String.valueOf(input.get(JsonFields.TICK).getAsInt());
+        this.setChanged();
+        this.notifyObservers(Arrays.asList(NotificationsMessages.GAME_TIMER_TICK, tick));
     }
 
     private void gameSetup(JsonObject input) {
@@ -362,7 +375,8 @@ public class SocketClient extends ClientNetwork {
         this.notifyObservers(selectableWPStrings);
     }
 
-    private void inGamePlayers(JsonObject input){
+    private void inGamePlayers(JsonObject input) {
+        this.subscribeToGameTimer();
         this.setChanged();
         this.notifyObservers(input.get(JsonFields.PLAYERS).getAsJsonArray());
     }
