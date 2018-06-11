@@ -80,6 +80,11 @@ public class Game extends Observable implements Observer {
         return new Vector<>(this.players);
     }
 
+    public boolean isNicknameUsedInThisGame(String nickname) {
+        return this.players.stream()
+                .anyMatch(p -> p.getNickname().equals(nickname));
+    }
+
     /**
      * @author Fabio Codiglioni
      * @param nickname the nickname to look for.

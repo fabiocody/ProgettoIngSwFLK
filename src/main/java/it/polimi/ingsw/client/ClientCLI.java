@@ -3,6 +3,8 @@ package it.polimi.ingsw.client;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.util.*;
 import org.fusesource.jansi.AnsiConsole;
+import org.omg.SendingContext.RunTime;
+
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
@@ -20,6 +22,7 @@ public class ClientCLI extends Client {
 
     private boolean stopAsyncInput = false;
     private boolean showPrompt = true;
+    private boolean bypassWaitingRoom = false;
     private int instructionIndex = INDEX_CONSTANT;
 
     private String wrTimeout;
@@ -42,25 +45,29 @@ public class ClientCLI extends Client {
         try {
             this.stdin = new BufferedReader(new InputStreamReader(System.in));
             do addPlayer(); while (!this.isLogged());
-            String input;
-            do {
-                input = asyncInput("waitingRoomMessage");
-                if (input.equalsIgnoreCase("exit")) throw new InterruptedException();
-            } while (!stopAsyncInput);
-            Integer patternIndex = INDEX_CONSTANT;
-            log("");
-            do {
-                input = input("Scegli la tua carta Schema [1-4] >>>");
-                try {
-                    patternIndex = Integer.valueOf(input);
-                } catch (NumberFormatException e) {
-                    continue;
-                }
-            } while (patternIndex <= 0 || patternIndex > 4);
-            this.getNetwork().choosePattern(patternIndex - 1);
-            this.setPatternChosen(true);
-            log("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
-            while (!this.isGameStarted()) Thread.sleep(10);
+            String input = "";
+            if (!bypassWaitingRoom) {
+                do {
+                    input = asyncInput("waitingRoomMessage");
+                    if (input.equalsIgnoreCase("exit")) throw new InterruptedException();
+                } while (!stopAsyncInput && !bypassWaitingRoom);
+            }
+            if (!this.isPatternChosen()) {
+                Integer patternIndex = INDEX_CONSTANT;
+                log("");
+                do {
+                    input = input("Scegli la tua carta Schema [1-4] >>>");
+                    try {
+                        patternIndex = Integer.valueOf(input);
+                    } catch (NumberFormatException e) {
+                        continue;
+                    }
+                } while (patternIndex <= 0 || patternIndex > 4);
+                this.getNetwork().choosePattern(patternIndex - 1);
+                this.setPatternChosen(true);
+                log("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
+                while (!this.isGameStarted()) Thread.sleep(10);
+            }
             while (!this.isGameOver()) {
                 boolean dieAlreadyPlaced = false;
                 boolean toolCardAlreadyUsed = false;
@@ -376,6 +383,13 @@ public class ClientCLI extends Client {
      */
     private void setTerminalToCBreak() throws IOException, InterruptedException {
         ttyConfig = stty("-g");
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                stty(ttyConfig.trim());
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }));
         stty("-icanon min 1");      // set the console to be character-buffered instead of line-buffered
         stty("-echo");              // disable character echoing
     }
@@ -583,12 +597,14 @@ public class ClientCLI extends Client {
                 } else {
                     System.out.print(ansi().eraseScreen().cursor(0, 0));
                 }
-                /*else{
-                    this.gamePlayers = arg.toString().replace("[", "")
-                            .replace("]", "")
-                            .replace("\",", ",")
-                            .replace("\"", " ");
-                }*/
+            } else if (arg instanceof JsonObject) {
+                JsonObject jsonArg = (JsonObject) arg;
+                Methods method = Methods.getAsMethods(jsonArg.get(JsonFields.METHOD).getAsString());
+                if (method == Methods.ADD_PLAYER && jsonArg.get(JsonFields.RECONNECTED).getAsBoolean()) {
+                    System.out.println(ansi().fgRed().a("UPDATE CALLED").reset());
+                    bypassWaitingRoom = true;
+                    this.setPatternChosen(true);
+                }
             }
         }
     }

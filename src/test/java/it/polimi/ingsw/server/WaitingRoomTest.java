@@ -19,7 +19,7 @@ class WaitingRoomTest {
             assertEquals(3, WaitingRoom.getInstance().getWaitingPlayers().size());
             assertThrows(LoginFailedException.class, () -> WaitingRoom.getInstance().addPlayer("Peter"));
             assertNotNull(WaitingRoom.getInstance().addPlayer("John"));
-        } catch (LoginFailedException e) {
+        } catch (LoginFailedException | NicknameAlreadyUsedInGameException e) {
             fail("Login failed");
         }
     }
@@ -31,7 +31,7 @@ class WaitingRoomTest {
             assertTrue(SagradaServer.getInstance().isNicknameUsed("Fabio"));
             WaitingRoom.getInstance().removePlayer("Fabio");
             assertFalse(SagradaServer.getInstance().isNicknameUsed("Fabio"));
-        } catch (LoginFailedException e) {
+        } catch (LoginFailedException | NicknameAlreadyUsedInGameException e) {
             fail("Login failed");
         }
     }

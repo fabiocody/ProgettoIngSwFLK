@@ -184,6 +184,7 @@ public class ServerSocketHandler implements Runnable, Observer {
             JsonObject payload = new JsonObject();
             payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
             payload.addProperty(JsonFields.LOGGED, true);
+            payload.addProperty(JsonFields.RECONNECTED, false);
             payload.addProperty(JsonFields.PLAYER_ID, uuid.toString());
             JsonArray waitingPlayers = new JsonArray();
             for (Player p : this.waitingRoomEndPoint.getWaitingPlayers())
@@ -200,6 +201,31 @@ public class ServerSocketHandler implements Runnable, Observer {
             payload.addProperty(JsonFields.LOGGED, false);
             debug("PAYLOAD " + payload.toString());
             out.println(payload.toString());
+        } catch (NicknameAlreadyUsedInGameException e) {
+            game = e.getGame();
+            nickname = tempNickname;
+            Player player = game.getPlayerForNickname(nickname);
+            uuid = player.getId();
+            log(nickname + " logged back in (" + uuid + ")");
+            this.game.addObserver(this);
+            this.gameEndPoint = new GameEndPoint(game);
+            waitingRoomEndPoint.unsubscribeFromWaitingRoom(this);
+            waitingRoomEndPoint.unsubscribeFromWaitingRoomTimer(this);
+            JsonObject payload = new JsonObject();
+            payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
+            payload.addProperty(JsonFields.LOGGED, true);
+            payload.addProperty(JsonFields.RECONNECTED, true);
+            payload.addProperty(JsonFields.PLAYER_ID, uuid.toString());
+            debug("PAYLOAD " + payload.toString());
+            out.println(payload.toString());
+            this.probeThread = new Thread(this::probe);
+            this.probeThread.start();
+            new Timer(true).schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    fullUpdate();
+                }
+            }, 500);
         }
     }
 

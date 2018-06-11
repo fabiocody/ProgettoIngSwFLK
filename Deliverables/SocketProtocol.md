@@ -73,6 +73,7 @@
     "method": "addPlayer",
     "logged": <bool>,
     "playerID": <string>,
+    "reconnected": <bool>,
     "players": [
         <nickname: string>,
         ...

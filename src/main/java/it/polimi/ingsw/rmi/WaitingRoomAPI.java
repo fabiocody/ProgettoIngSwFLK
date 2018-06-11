@@ -21,7 +21,7 @@ public interface WaitingRoomAPI extends Remote {
      * @throws LoginFailedException thrown when the player inserts a nickname that is already present on the sever
      * side
      */
-    UUID addPlayer(String nickname) throws RemoteException, LoginFailedException;
+    UUID addPlayer(String nickname) throws RemoteException, LoginFailedException, NicknameAlreadyUsedInGameException;
 
     /**
      * This method is used to remove a player from the waiting room

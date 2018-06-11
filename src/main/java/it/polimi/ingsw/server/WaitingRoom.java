@@ -74,22 +74,27 @@ public class WaitingRoom extends Observable {
      * @return a random UUID the players has to use to authenticate with the server.
      * @throws LoginFailedException thrown if the nickname is already present server-wide.
      */
-    public synchronized UUID addPlayer(String nickname) throws LoginFailedException {
-        if (SagradaServer.getInstance().isNicknameUsed(nickname) || SagradaServer.getInstance().isNicknameNotValid(nickname))
+    public synchronized UUID addPlayer(String nickname) throws LoginFailedException, NicknameAlreadyUsedInGameException {
+        if (SagradaServer.getInstance().isNicknameNotValid(nickname) || SagradaServer.getInstance().isNicknameUsedWR(nickname))
             throw new LoginFailedException(nickname);
-        Player player = new Player(nickname);
-        this.getWaitingPlayers().add(player);
-        this.setChanged();
-        this.notifyObservers(this.getWaitingPlayers());
-        if (this.getWaitingPlayers().size() == 2) {
-            this.timer.cancel();
-            this.timer.schedule(this::createGame, this.timeout);
-        } else if (this.getWaitingPlayers().size() == Constants.MAX_NUMBER_OF_PLAYERS) {
-            new Thread(this::createGame).start();
+        Game belongingGame = SagradaServer.getInstance().isNicknameUsedGame(nickname);
+        if (belongingGame != null) {
+            throw new NicknameAlreadyUsedInGameException(nickname, belongingGame);
+        } else {
+            Player player = new Player(nickname);
+            this.getWaitingPlayers().add(player);
+            this.setChanged();
+            this.notifyObservers(this.getWaitingPlayers());
+            if (this.getWaitingPlayers().size() == 2) {
+                this.timer.cancel();
+                this.timer.schedule(this::createGame, this.timeout);
+            } else if (this.getWaitingPlayers().size() == Constants.MAX_NUMBER_OF_PLAYERS) {
+                new Thread(this::createGame).start();
+            }
+            playerAdded = true;
+            notifyAll();
+            return player.getId();
         }
-        playerAdded = true;
-        notifyAll();
-        return player.getId();
     }
 
     /**
