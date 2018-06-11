@@ -84,7 +84,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         }
         if (gameEndPoint != null) {
             gameEndPoint.unsubscribeToTurnManagerTimer(this);
-            // TODO game.getTurnManager().suspendPlayer(nickname);
+            gameEndPoint.suspendPlayer(uuid);
         }
         run = false;
         Thread.currentThread().interrupt();
@@ -225,6 +225,7 @@ public class ServerSocketHandler implements Runnable, Observer {
             out.println(payload.toString());
             this.probeThread = new Thread(this::probe);
             this.probeThread.start();
+            gameEndPoint.unsuspendPlayer(uuid);
             new Timer(true).schedule(new TimerTask() {
                 @Override
                 public void run() {

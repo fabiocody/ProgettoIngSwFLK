@@ -80,7 +80,7 @@ public class SagradaServer implements Observer {
      * @return a boolean true if the nickname is already in use or false otherwise
      */
     public synchronized boolean isNicknameUsed(String nickname) {
-        return isNicknameUsedWR(nickname) || isNicknameUsedGame(nickname) != null;
+        return isNicknameUsedWR(nickname) || (isNicknameUsedGame(nickname) != null && !isNicknameSuspended(nickname));
         /*Stream<String> gameStream = this.getGames().stream()
                 .flatMap(g -> g.getPlayers().stream())
                 .map(Player::getNickname);
@@ -101,6 +101,13 @@ public class SagradaServer implements Observer {
                 .filter(g -> g.isNicknameUsedInThisGame(nickname))
                 .findFirst();
         return game.orElse(null);
+    }
+
+    public synchronized boolean isNicknameSuspended(String nickname) {
+        return this.getGames().stream()
+                .flatMap(g -> g.getPlayers().stream())
+                .filter(player -> player.getNickname().equals(nickname))
+                .anyMatch(Player::isSuspended);
     }
 
     public synchronized boolean isNicknameNotValid(String nickname){

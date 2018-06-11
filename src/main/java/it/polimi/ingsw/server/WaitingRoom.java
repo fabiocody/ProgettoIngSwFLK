@@ -75,7 +75,7 @@ public class WaitingRoom extends Observable {
      * @throws LoginFailedException thrown if the nickname is already present server-wide.
      */
     public synchronized UUID addPlayer(String nickname) throws LoginFailedException, NicknameAlreadyUsedInGameException {
-        if (SagradaServer.getInstance().isNicknameNotValid(nickname) || SagradaServer.getInstance().isNicknameUsedWR(nickname))
+        if (SagradaServer.getInstance().isNicknameNotValid(nickname) || SagradaServer.getInstance().isNicknameUsed(nickname))
             throw new LoginFailedException(nickname);
         Game belongingGame = SagradaServer.getInstance().isNicknameUsedGame(nickname);
         if (belongingGame != null) {

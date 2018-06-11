@@ -75,6 +75,16 @@ public class GameEndPoint implements GameAPI {
     }
 
     @Override
+    public void suspendPlayer(UUID id) {
+        this.getPlayer(id).setSuspended(true);
+    }
+
+    @Override
+    public void unsuspendPlayer(UUID id) {
+        this.getPlayer(id).setSuspended(false);
+    }
+
+    @Override
     public int getFavorTokensOf(String nickname) {
         Optional<Integer> result = this.game.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(nickname))

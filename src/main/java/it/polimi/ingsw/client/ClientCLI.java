@@ -601,7 +601,6 @@ public class ClientCLI extends Client {
                 JsonObject jsonArg = (JsonObject) arg;
                 Methods method = Methods.getAsMethods(jsonArg.get(JsonFields.METHOD).getAsString());
                 if (method == Methods.ADD_PLAYER && jsonArg.get(JsonFields.RECONNECTED).getAsBoolean()) {
-                    System.out.println(ansi().fgRed().a("UPDATE CALLED").reset());
                     bypassWaitingRoom = true;
                     this.setPatternChosen(true);
                 }
