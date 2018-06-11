@@ -66,8 +66,6 @@ public class ServerSocketHandler implements Runnable, Observer {
                 error("Probe error");
                 notifyDisconnectedUser();
                 Thread.currentThread().interrupt();
-                waitingRoomEndPoint.unsubscribeFromWaitingRoom(this);
-                waitingRoomEndPoint.unsubscribeFromWaitingRoomTimer(this);
             }
             JsonObject payload = new JsonObject();
             payload.addProperty(JsonFields.METHOD, Methods.PROBE.getString());
@@ -79,8 +77,15 @@ public class ServerSocketHandler implements Runnable, Observer {
     private void notifyDisconnectedUser() {
         String address = clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort();
         log("Disconnected " + address + " (nickname: " + nickname + ")");
-        waitingRoomEndPoint.removePlayer(nickname);
-        //game.getTurnManager().suspendPlayer(nickname);
+        if (waitingRoomEndPoint != null) {
+            waitingRoomEndPoint.removePlayer(nickname);
+            waitingRoomEndPoint.unsubscribeFromWaitingRoom(this);
+            waitingRoomEndPoint.unsubscribeFromWaitingRoomTimer(this);
+        }
+        if (gameEndPoint != null) {
+            gameEndPoint.unsubscribeToTurnManagerTimer(this);
+            // TODO game.getTurnManager().suspendPlayer(nickname);
+        }
         run = false;
         Thread.currentThread().interrupt();
     }

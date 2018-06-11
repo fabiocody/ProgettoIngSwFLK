@@ -33,6 +33,11 @@ public class GameEndPoint implements GameAPI {
     }
 
     @Override
+    public void unsubscribeToTurnManagerTimer(Observer observer) {
+        this.game.getTurnManager().getTimer().deleteObserver(observer);
+    }
+
+    @Override
     public Map<String, Integer> getFinalScores() {
         return this.game.getFinalScores().entrySet().stream()
                 .collect(Collectors.toMap(
