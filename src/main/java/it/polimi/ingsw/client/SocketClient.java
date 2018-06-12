@@ -461,6 +461,7 @@ public class SocketClient extends ClientNetwork {
         turnManagamentStrings.add(input.get(JsonFields.CURRENT_ROUND).getAsString());
         turnManagamentStrings.add(input.get(JsonFields.GAME_OVER).getAsString());
         turnManagamentStrings.add(input.get(JsonFields.ACTIVE_PLAYER).getAsString());
+        turnManagamentStrings.add(input.get(JsonFields.SUSPENDED).getAsString());
         this.setChanged();
         this.notifyObservers(turnManagamentStrings);
     }

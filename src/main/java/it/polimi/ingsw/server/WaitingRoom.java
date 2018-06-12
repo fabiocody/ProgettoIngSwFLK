@@ -27,7 +27,7 @@ public class WaitingRoom extends Observable {
      * @author Fabio Codiglioni
      */
     private WaitingRoom() {
-        this.timer = new CountdownTimer(NotificationsMessages.WAITING_ROOM, this.timeout);
+        this.timer = new CountdownTimer(NotificationsMessages.WAITING_ROOM);
     }
 
     /**

@@ -119,6 +119,10 @@ public class Game extends Observable implements Observer {
      */
     public TurnManager getTurnManager() {
         synchronized (turnManagerLock) {
+            if (this.turnManager == null) {
+                this.turnManager = new TurnManager(this.players);
+                this.turnManager.addObserver(this.getRoundTrack());
+            }
             return this.turnManager;
         }
     }
@@ -239,7 +243,7 @@ public class Game extends Observable implements Observer {
     }
 
     void nextTurn(){
-        this.turnManager.nextTurn();
+        this.getTurnManager().nextTurn();
         setChanged();
         notifyObservers(NotificationsMessages.TURN_MANAGEMENT);
     }
@@ -302,11 +306,10 @@ public class Game extends Observable implements Observer {
                 new Thread(this::endGame).start();
             }
         } else if (o instanceof Player) {
-            if (arg != null && arg.equals(NotificationsMessages.PLACE_DIE)) {
+            if (arg != null && (arg.equals(NotificationsMessages.PLACE_DIE) || arg.equals(NotificationsMessages.SUSPENDED))) {
                 setChanged();
                 notifyObservers(arg);
-            }
-            else if (this.arePlayersReady()) {
+            } else if (this.arePlayersReady()) {
                 setChanged();
                 notifyObservers(NotificationsMessages.TURN_MANAGEMENT);
             }

@@ -19,11 +19,9 @@ public class CountdownTimer extends Observable implements Runnable {
     /**
      * @author Fabio Codiglioni
      * @param id the id used in the observers notifications.
-     * @param timeout the amount of time after which a method is called.
      */
-    public CountdownTimer(String id, int timeout) {
+    public CountdownTimer(String id) {
         this.id = id;
-        this.remainingTime = timeout;
     }
 
     /**

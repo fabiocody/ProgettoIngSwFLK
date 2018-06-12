@@ -83,7 +83,7 @@ public class ServerSocketHandler implements Runnable, Observer {
             waitingRoomEndPoint.unsubscribeFromWaitingRoomTimer(this);
         }
         if (gameEndPoint != null) {
-            gameEndPoint.unsubscribeToTurnManagerTimer(this);
+            gameEndPoint.unsubscribeFromTurnManagerTimer(this);
             gameEndPoint.suspendPlayer(uuid);
         }
         run = false;
@@ -414,6 +414,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         payload.addProperty(JsonFields.CURRENT_ROUND, this.gameEndPoint.getCurrentRound());
         payload.addProperty(JsonFields.GAME_OVER, this.gameEndPoint.getRoundTrack().isGameOver());
         payload.addProperty(JsonFields.ACTIVE_PLAYER, this.gameEndPoint.getActivePlayer());
+        payload.addProperty(JsonFields.SUSPENDED, this.gameEndPoint.getPlayer(uuid).isSuspended());
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
     }
@@ -447,6 +448,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         } else if (o instanceof Game) {
             switch (stringArg) {
                 case NotificationsMessages.TURN_MANAGEMENT:
+                case NotificationsMessages.SUSPENDED:
                 case NotificationsMessages.PLACE_DIE:
                 case NotificationsMessages.USE_TOOL_CARD:
                     //System.out.println(ansi().fgGreen().a(stringArg).reset());

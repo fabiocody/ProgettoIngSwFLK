@@ -28,7 +28,7 @@ public class ClientCLI extends Client {
     private String wrTimeout;
     private String wrPlayers;
     private String gameTimeout = "00";
-    private String lastPrintedLine = "";
+    //private String lastPrintedLine = "";
     int cardIndex = INDEX_CONSTANT;
 
     private int draftPoolLength;
@@ -82,6 +82,15 @@ public class ClientCLI extends Client {
                 int toCellX = INDEX_CONSTANT;
                 int toCellY = INDEX_CONSTANT;
 
+                input = "";
+                while (isSuspended() && !input.equals(getNickname())) {
+                    input = asyncInput("reconnectionPrompt");
+                    System.out.println(input);
+                    if (input.equals(getNickname())) {
+                        this.getNetwork().addPlayer(getNickname());
+                    }
+                }
+
                 while (!this.isActive()) Thread.sleep(10);
 
                 log("È il tuo turno!");
@@ -91,7 +100,7 @@ public class ClientCLI extends Client {
                             cardIndex = INDEX_CONSTANT;
                             log("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
                                     "passare il turno.");
-                            System.out.println("Scegli cosa fare [1-3]");
+                            log("Scegli cosa fare [1-3]");
                             input = asyncInput("timerPrompt");
                         }
                         try {
@@ -283,7 +292,8 @@ public class ClientCLI extends Client {
                                 this.getNetwork().nextTurn();
                             }
                         } catch (NumberFormatException e) {
-                            e.printStackTrace();
+                            if (isSuspended())
+                                break;
                         }
                     } catch (CancelException e){
                         log("Mossa annullata.");
@@ -335,7 +345,7 @@ public class ClientCLI extends Client {
                             bufferString = stdinBuffer.toString();
                             stdinBuffer = new StringBuilder();
                         }
-                        lastPrintedLine = "";
+                        //lastPrintedLine = "";
                         /*Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
                         System.out.print(method.invoke(this));*/
                         System.out.println();
@@ -483,12 +493,19 @@ public class ClientCLI extends Client {
     }
 
     private String updateLine(String line) {
-        String newLine = ansi().cursorLeft(lastPrintedLine.length())
+        String newLine = ansi().cursorToColumn(0)
                 .eraseLine(Erase.FORWARD)
                 .a(line)
                 .toString();
-        lastPrintedLine = line;
+        //lastPrintedLine = line;
         return newLine;
+    }
+
+    private String reconnectionPrompt() {
+        synchronized (stdinBufferLock) {
+            String prompt = "Per riconnetterti, inserisci il tuo nickname >>> " + stdinBuffer.toString();
+            return updateLine(prompt);
+        }
     }
 
     @Override
@@ -508,15 +525,28 @@ public class ClientCLI extends Client {
                     this.gameTimeout = argAsList.get(1);
                     if (isActive())
                         System.out.print(timerPrompt());
-                    else
-                        System.out.print(updateLine("[" + gameTimeout + "]"));
+                    else {
+                        String timerString = "È il turno di " + this.getActiveNickname() + " [" + gameTimeout + "]";
+                        if (isSuspended()) {
+                            System.out.print(ansi()
+                                    .eraseLine(Erase.ALL)
+                                    .cursorUpLine()
+                                    .eraseLine(Erase.ALL)
+                                    .a(timerString)
+                                    .a('\n')
+                                    .a(reconnectionPrompt())
+                            );
+                        } else {
+                            System.out.print(updateLine(timerString));
+                        }
+                    }
                 } else if (argAsList.get(0).startsWith(NotificationsMessages.SELECTABLE_WINDOW_PATTERNS)) {
                     stopAsyncInput = true;
                     argAsList.remove(0);
                     for (int i = 0; i < argAsList.size(); i++) {
                         StringBuilder newWPString = new StringBuilder();
                         newWPString.append(i+1);
-                        for (int k = 1; k < Constants.MAX_NICKNAME_LENGTH; k++) newWPString.append(" ");
+                        for (int k = 0; k < Constants.MAX_NICKNAME_LENGTH; k++) newWPString.append(" ");
                         argAsList.set(i, newWPString.toString() + "\n" + argAsList.get(i));
                     }
                     System.out.println();
@@ -569,15 +599,15 @@ public class ClientCLI extends Client {
                 } else if (argAsList.get(0).equals(NotificationsMessages.TURN_MANAGEMENT)) {
                     argAsList.remove(0);
                     if(!this.isGameStarted()) this.setGameStarted(true);
-                    this.setRound(Integer.valueOf(argAsList.get(0)));
                     this.setGameOver(Boolean.valueOf(argAsList.get(1)));
+                    this.setSuspended(Boolean.parseBoolean(argAsList.get(3)));
                     this.setActive(argAsList.get(2));
                     stopAsyncInput = true;
                 }
             } else if (arg instanceof String) {
                 String input = (String) arg;
                 if (input.startsWith(NotificationsMessages.PRIVATE_OBJECTIVE_CARD)) {
-                    System.out.print(ansi().eraseScreen().cursor(0, 0).toString());
+                    System.out.print(ansi().eraseScreen().cursor(0, 0));
                     input = input.replace(NotificationsMessages.PRIVATE_OBJECTIVE_CARD, "");
                     privateObjectiveCard = input;
                     log(privateObjectiveCard);
@@ -602,7 +632,9 @@ public class ClientCLI extends Client {
                 Methods method = Methods.getAsMethods(jsonArg.get(JsonFields.METHOD).getAsString());
                 if (method == Methods.ADD_PLAYER && jsonArg.get(JsonFields.RECONNECTED).getAsBoolean()) {
                     bypassWaitingRoom = true;
+                    stopAsyncInput = true;
                     this.setPatternChosen(true);
+                    this.setSuspended(false);
                 }
             }
         }

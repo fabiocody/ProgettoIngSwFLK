@@ -18,6 +18,7 @@ public class NotificationsMessages {
     public static final String SELECTABLE_WINDOW_PATTERNS = "$selectableWindowPatterns$";
     public static final String WR_TIMER_TICK = "$wrTimerTick$";
     public static final String GAME_TIMER_TICK = "$gameTimerTick$";
+    public static final String SUSPENDED = "$suspended$";
 
     private NotificationsMessages() throws IllegalAccessException {
         throw new IllegalAccessException("Cannot instantiate");

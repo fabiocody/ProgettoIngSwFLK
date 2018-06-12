@@ -2,13 +2,9 @@ package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
-import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
-import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.util.Constants;
 import it.polimi.ingsw.util.NotificationsMessages;
-
-import java.rmi.RemoteException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -278,6 +274,10 @@ public class Player extends Observable {
      */
     public void setSuspended(boolean suspended) {
         this.suspended = suspended;
+        if (suspended) {
+            setChanged();
+            notifyObservers(NotificationsMessages.SUSPENDED);
+        }
     }
 
     /**

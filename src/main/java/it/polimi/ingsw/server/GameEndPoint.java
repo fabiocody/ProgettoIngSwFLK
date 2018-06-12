@@ -29,12 +29,12 @@ public class GameEndPoint implements GameAPI {
 
     @Override
     public void subscribeToTurnManagerTimer(Observer observer) {
-        this.game.getTurnManager().getTimer().addObserver(observer);
+        this.game.getTurnManager().subscribeToTimer(observer);
     }
 
     @Override
-    public void unsubscribeToTurnManagerTimer(Observer observer) {
-        this.game.getTurnManager().getTimer().deleteObserver(observer);
+    public void unsubscribeFromTurnManagerTimer(Observer observer) {
+        this.game.getTurnManager().unsubscribeFromTimer(observer);
     }
 
     @Override

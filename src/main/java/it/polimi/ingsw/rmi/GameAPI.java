@@ -20,7 +20,7 @@ public interface GameAPI extends Remote {
     List<String> getCurrentPlayers() throws RemoteException;
     void nextTurn() throws RemoteException;
     void subscribeToTurnManagerTimer(Observer observer) throws RemoteException;
-    void unsubscribeToTurnManagerTimer(Observer observer) throws RemoteException;
+    void unsubscribeFromTurnManagerTimer(Observer observer) throws RemoteException;
     Map<String, Integer> getFinalScores() throws RemoteException;
     List<ObjectiveCard> getPublicObjectiveCards() throws RemoteException;
     List<ToolCard> getToolCards() throws RemoteException;
