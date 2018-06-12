@@ -54,13 +54,17 @@ public class ToolCard9 extends ToolCard {
         int cellIndex = this.linearizeIndex(cellX, cellY);
         if (cellIndex < 0 || cellIndex >= player.getWindowPattern().getGrid().length)
             throw new InvalidEffectArgumentException("Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")");
-        PlacementConstraint constraint = new ColorConstraint(new ValueConstraint(new OrthogonalConstraint(new EmptyConstraint())));
+        PlacementConstraint constraint;
+        if (player.getWindowPattern().isGridEmpty()) {
+            constraint = new BorderConstraint(new ColorConstraint(new ValueConstraint(new OrthogonalConstraint(new EmptyConstraint()))));
+        } else {
+            constraint = new ColorConstraint(new ValueConstraint(new OrthogonalConstraint(new EmptyConstraint())));
+        }
         Die d = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
         try {
-            player.getWindowPattern().placeDie(d, cellIndex, constraint);
-            this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
-            this.setUsed();
-        } catch (InvalidPlacementException e) {
+                player.placeDie(d, cellIndex, constraint);
+                this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
+        } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
             throw new InvalidEffectResultException();
         }
         setChanged();
@@ -71,9 +75,11 @@ public class ToolCard9 extends ToolCard {
     public JsonObject requiredData() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
-        payload.addProperty(JsonFields.DRAFT_POOL_INDEX, Constants.INDEX_CONSTANT);
-        payload.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
-        payload.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
+        JsonObject data = new JsonObject();
+        data.addProperty(JsonFields.DRAFT_POOL_INDEX, Constants.INDEX_CONSTANT);
+        data.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
+        data.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
+        payload.add(JsonFields.DATA, data);
         return payload;
     }
 

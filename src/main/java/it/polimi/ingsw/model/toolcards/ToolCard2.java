@@ -57,7 +57,6 @@ public class ToolCard2 extends ToolCard {
             throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
         PlacementConstraint constraint = new PositionConstraint(new ValueConstraint(new OrthogonalConstraint(new EmptyConstraint())));
         this.moveDie(player, fromIndex, toIndex, constraint);
-        this.setUsed();
         setChanged();
         notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }

@@ -58,7 +58,6 @@ public class ToolCard6 extends ToolCard {
         setChanged();
         notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
-
     @Override
     public JsonObject requiredData() {
         JsonObject payload = new JsonObject();

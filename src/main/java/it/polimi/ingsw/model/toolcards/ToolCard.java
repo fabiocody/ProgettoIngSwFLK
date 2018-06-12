@@ -64,7 +64,7 @@ public abstract class ToolCard extends Observable {
      *
      * @author Fabio Codiglioni
      */
-    void setUsed() {
+    public void setUsed() {
         this.used = true;
     }
 

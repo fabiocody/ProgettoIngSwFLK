@@ -51,7 +51,6 @@ public class ToolCard1 extends ToolCard {
         if (d.getValue() == 1 && newValue == 6 || d.getValue() == 6 && newValue == 1)
             throw new InvalidEffectResultException("Cannot make a 1 into 6 or a 6 into 1");
         else d.setValue(newValue);
-        this.setUsed();
         setChanged();
         notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }

@@ -65,7 +65,6 @@ public class ToolCard4 extends ToolCard {
         } else {
             secondMove(player, fromIndex, toIndex);
             this.firstMoveDone = false;
-            this.setUsed();
             setChanged();
             notifyObservers(NotificationsMessages.USE_TOOL_CARD);
         }
@@ -80,7 +79,9 @@ public class ToolCard4 extends ToolCard {
         data.addProperty(JsonFields.FROM_CELL_Y, Constants.INDEX_CONSTANT);
         data.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
         data.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
-        if (!firstMoveDone) data.addProperty(JsonFields.CONTINUE, true);
+        if (!firstMoveDone){
+            data.addProperty(JsonFields.CONTINUE, true);
+        }
         payload.add(JsonFields.DATA, data);
         return payload;
     }

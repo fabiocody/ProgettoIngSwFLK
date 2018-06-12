@@ -44,7 +44,6 @@ public class ToolCard10 extends ToolCard {
         Die die = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
         int value = die.getValue();
         die.setValue(7 - value);
-        this.setUsed();
         setChanged();
         notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
@@ -53,7 +52,9 @@ public class ToolCard10 extends ToolCard {
     public JsonObject requiredData() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
-        payload.addProperty(JsonFields.DRAFT_POOL_INDEX, Constants.INDEX_CONSTANT);
+        JsonObject data = new JsonObject();
+        data.addProperty(JsonFields.DRAFT_POOL_INDEX, Constants.INDEX_CONSTANT);
+        payload.add(JsonFields.DATA, data);
         return payload;
     }
 

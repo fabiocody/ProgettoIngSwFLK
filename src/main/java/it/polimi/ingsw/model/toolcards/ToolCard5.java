@@ -54,7 +54,6 @@ public class ToolCard5 extends ToolCard {
         } catch (Exception e) {
             throw new InvalidEffectResultException();
         }
-        this.setUsed();
         setChanged();
         notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }

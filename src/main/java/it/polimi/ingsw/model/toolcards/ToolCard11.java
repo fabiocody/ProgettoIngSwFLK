@@ -16,6 +16,7 @@ import it.polimi.ingsw.util.NotificationsMessages;
 public class ToolCard11 extends ToolCard {
 
     private int state = 0;
+    private int draftPoolIndex = Constants.INDEX_CONSTANT;
 
     /**
      * This constructor initializes the card with its name and description.
@@ -47,11 +48,11 @@ public class ToolCard11 extends ToolCard {
      */
     public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         // TODO togliere switch
-        int draftPoolIndex = data.get(JsonFields.DRAFT_POOL_INDEX).getAsInt();
-        if (draftPoolIndex < 0 || draftPoolIndex >= this.getGame().getDiceGenerator().getDraftPool().size())
-            throw new InvalidEffectArgumentException("Invalid draftPoolIndex: " + draftPoolIndex);
         switch (state) {
             case 0:
+                draftPoolIndex = data.get(JsonFields.DRAFT_POOL_INDEX).getAsInt();
+                if (draftPoolIndex < 0 || draftPoolIndex >= this.getGame().getDiceGenerator().getDraftPool().size())
+                    throw new InvalidEffectArgumentException("Invalid draftPoolIndex: " + draftPoolIndex);
                 this.exchangeDie(draftPoolIndex);
                 break;
             case 1:
@@ -59,8 +60,6 @@ public class ToolCard11 extends ToolCard {
                 if (newValue < 1 || newValue > 6)
                     throw new InvalidEffectArgumentException("Invalid newValue: " + newValue);
                 this.chooseValue(draftPoolIndex, newValue);
-                break;
-            case 2:
                 String nickname = data.get(JsonFields.PLAYER).getAsString();
                 Player player = this.getGame().getPlayerForNickname(nickname);
                 int cellX = data.get(JsonFields.TO_CELL_X).getAsInt();
@@ -68,7 +67,7 @@ public class ToolCard11 extends ToolCard {
                 int cellIndex = this.linearizeIndex(cellX, cellY);
                 if (cellIndex < 0 || cellIndex >= player.getWindowPattern().getGrid().length)
                     throw new InvalidEffectArgumentException("Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")");
-                this.placeDie(player, draftPoolIndex, cellIndex);
+                this.placeDie(player, draftPoolIndex, cellX, cellY, cellIndex);
                 break;
         }
         setChanged();
@@ -79,10 +78,17 @@ public class ToolCard11 extends ToolCard {
     public JsonObject requiredData() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
-        payload.addProperty(JsonFields.DRAFT_POOL_INDEX, Constants.INDEX_CONSTANT);
-        payload.addProperty(JsonFields.NEW_VALUE, Constants.INDEX_CONSTANT);
-        payload.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
-        payload.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
+        JsonObject data = new JsonObject();
+        if(state==0){
+            data.addProperty(JsonFields.DRAFT_POOL_INDEX, Constants.INDEX_CONSTANT);
+            data.addProperty(JsonFields.CONTINUE, Constants.INDEX_CONSTANT);
+        }
+        else{
+            data.addProperty(JsonFields.NEW_VALUE, Constants.INDEX_CONSTANT);
+            data.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
+            data.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
+        }
+        payload.add(JsonFields.DATA, data);
         return payload;
     }
 
@@ -106,7 +112,6 @@ public class ToolCard11 extends ToolCard {
      */
     private void chooseValue(int draftPoolIndex, int newValue) {
         this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex).setValue(newValue);
-        state = 2;
     }
 
     /**
@@ -117,13 +122,13 @@ public class ToolCard11 extends ToolCard {
      * @param cellIndex the index of the cell you want to move the die to.
      * @throws InvalidEffectResultException thrown when the placement is invalid.
      */
-    private void placeDie(Player player, int draftPoolIndex, int cellIndex) throws InvalidEffectResultException {
+    private void placeDie(Player player, int draftPoolIndex, int cellX, int CellY, int cellIndex) throws InvalidEffectResultException {
         Die die = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
         try {
-            player.getWindowPattern().placeDie(die, cellIndex);
+            player.placeDie(die, cellX, CellY);
+            this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex); //TODO placeDie method removes die from draftpool in gameEndPoint
             this.state = 0;
-            this.setUsed();
-        } catch (InvalidPlacementException e) {
+        } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
             Cell cell = player.getWindowPattern().getCellAt(cellIndex);
             throw new InvalidEffectResultException("Invalid placement on cell at index " + cellIndex + " (" + cell + ") of die " + die);
         }
