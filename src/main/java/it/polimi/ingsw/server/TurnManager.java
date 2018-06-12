@@ -23,6 +23,7 @@ public class TurnManager extends Observable {
     private CountdownTimer timer;
     private int timeout = 30;
     private boolean roundOver;
+    private Player previousPlayer;
 
     /**
      * @param players the list of players taking part in the Game.
@@ -65,7 +66,7 @@ public class TurnManager extends Observable {
     }
 
     public Player getPreviousPlayer() {
-        return this.players.get(this.getCurrentPlayerIndex() - 1);
+        return this.previousPlayer;
     }
 
     public void subscribeToTimer(Observer observer) {
@@ -148,6 +149,7 @@ public class TurnManager extends Observable {
      */
     public void nextTurn() {
         this.timer.cancel();
+        this.previousPlayer = this.players.get(this.getCurrentPlayerIndex());
         do this.index++;
         while (this.index < this.playersOrder.size() && this.getCurrentPlayer().isSuspended());
         this.roundOver = false;

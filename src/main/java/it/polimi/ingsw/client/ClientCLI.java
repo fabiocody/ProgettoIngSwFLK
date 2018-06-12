@@ -8,6 +8,10 @@ import org.omg.SendingContext.RunTime;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import static it.polimi.ingsw.util.Constants.*;
 import static org.fusesource.jansi.Ansi.*;
 
@@ -82,10 +86,13 @@ public class ClientCLI extends Client {
                 int toCellX = INDEX_CONSTANT;
                 int toCellY = INDEX_CONSTANT;
 
+                this.getSuspendedPlayers().stream()
+                        .reduce((s, r) -> s + ", " + r)
+                        .ifPresent(sp -> log("Giocatori sospesi: " + sp + "\n"));
+
                 input = "";
                 while (isSuspended() && !input.equals(getNickname())) {
                     input = asyncInput("reconnectionPrompt");
-                    System.out.println(input);
                     if (input.equals(getNickname())) {
                         this.getNetwork().addPlayer(getNickname());
                     }
@@ -554,7 +561,7 @@ public class ClientCLI extends Client {
                 } else if (argAsList.get(0).equals(NotificationsMessages.UPDATE_WINDOW_PATTERNS)){
                     argAsList.remove(0);
                     List<String> patterns = new ArrayList<>();
-                    for (String s: argAsList){
+                    for (String s: argAsList) {
                         String spaces = "";
                         for(int i = 0; i <= MAX_NICKNAME_LENGTH - s.substring(0,s.indexOf("$")).length(); i++)
                             spaces += " ";
@@ -600,8 +607,12 @@ public class ClientCLI extends Client {
                     argAsList.remove(0);
                     if(!this.isGameStarted()) this.setGameStarted(true);
                     this.setGameOver(Boolean.valueOf(argAsList.get(1)));
-                    this.setSuspended(Boolean.parseBoolean(argAsList.get(3)));
+                    List<String> suspendedPlayers = Arrays.asList(argAsList.get(3).split("$"));
+                    if (suspendedPlayers.size() == 1 && suspendedPlayers.get(0).equals(""))
+                        suspendedPlayers = new ArrayList<>();
+                    this.setSuspended(suspendedPlayers);
                     this.setActive(argAsList.get(2));
+                    //log("Suspended: " + argAsList.get(3));
                     stopAsyncInput = true;
                 }
             } else if (arg instanceof String) {
@@ -634,7 +645,9 @@ public class ClientCLI extends Client {
                     bypassWaitingRoom = true;
                     stopAsyncInput = true;
                     this.setPatternChosen(true);
-                    this.setSuspended(false);
+                    this.setSuspended(this.getSuspendedPlayers().stream()
+                            .filter(s -> !s.equals(this.getNickname()))
+                            .collect(Collectors.toList()));
                 }
             }
         }

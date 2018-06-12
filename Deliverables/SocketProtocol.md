@@ -227,7 +227,9 @@ After this request, the server will send to each client the following informatio
     "currentRound": <int>,
     "gameOver": <bool>,
     "activePlayer": <nickname: string>,
-    "suspended": <bool>
+    "suspended": [
+        <nickname: string>
+    ]
 }
 ```
 

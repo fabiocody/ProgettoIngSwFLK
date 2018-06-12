@@ -414,7 +414,9 @@ public class ServerSocketHandler implements Runnable, Observer {
         payload.addProperty(JsonFields.CURRENT_ROUND, this.gameEndPoint.getCurrentRound());
         payload.addProperty(JsonFields.GAME_OVER, this.gameEndPoint.getRoundTrack().isGameOver());
         payload.addProperty(JsonFields.ACTIVE_PLAYER, this.gameEndPoint.getActivePlayer());
-        payload.addProperty(JsonFields.SUSPENDED, this.gameEndPoint.getPlayer(uuid).isSuspended());
+        JsonArray suspendedPlayers = new JsonArray();
+        this.gameEndPoint.getSuspendedPlayers().forEach(suspendedPlayers::add);
+        payload.add(JsonFields.SUSPENDED_PLAYERS, suspendedPlayers);
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
     }

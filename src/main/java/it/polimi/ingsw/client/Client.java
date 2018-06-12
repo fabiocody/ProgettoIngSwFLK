@@ -5,6 +5,8 @@ import joptsimple.*;
 import java.io.IOException;
 import java.util.*;
 
+import static org.fusesource.jansi.Ansi.ansi;
+
 
 public abstract class Client implements Observer {
 
@@ -21,6 +23,7 @@ public abstract class Client implements Observer {
     private boolean suspended = false;
     private boolean gameOver = false;
     private String activeNickname = null;
+    private List<String> suspendedPlayers = new ArrayList<>();
 
     Client(ClientNetwork network, boolean debugActive) {
         this.debugActive = debugActive;
@@ -100,8 +103,9 @@ public abstract class Client implements Observer {
         return suspended;
     }
 
-    void setSuspended(boolean suspended) {
-        this.suspended = suspended;
+    void setSuspended(List<String> suspendedPlayers) {
+        this.suspended = suspendedPlayers.contains(this.getNickname());
+        this.suspendedPlayers = suspendedPlayers;
     }
 
     boolean isGameOver() {
@@ -114,6 +118,10 @@ public abstract class Client implements Observer {
 
     public String getActiveNickname() {
         return activeNickname;
+    }
+
+    public List<String> getSuspendedPlayers() {
+        return suspendedPlayers;
     }
 
     /**

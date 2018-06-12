@@ -394,7 +394,7 @@ public class SocketClient extends ClientNetwork {
 
     private void updateToolCards(JsonObject input){
         JsonArray toolCards = input.getAsJsonArray(JsonFields.TOOL_CARDS);
-        List toolCardsStrings = new ArrayList();
+        List<String> toolCardsStrings = new ArrayList<>();
         for(JsonElement obj : toolCards){
             String toolCardString = NotificationsMessages.TOOL_CARDS;
             toolCardString += obj.getAsJsonObject().get(JsonFields.NAME).getAsString();
@@ -461,7 +461,12 @@ public class SocketClient extends ClientNetwork {
         turnManagamentStrings.add(input.get(JsonFields.CURRENT_ROUND).getAsString());
         turnManagamentStrings.add(input.get(JsonFields.GAME_OVER).getAsString());
         turnManagamentStrings.add(input.get(JsonFields.ACTIVE_PLAYER).getAsString());
-        turnManagamentStrings.add(input.get(JsonFields.SUSPENDED).getAsString());
+        String suspendedPlayers = input.get(JsonFields.SUSPENDED_PLAYERS).getAsJsonArray().toString();
+        suspendedPlayers = suspendedPlayers
+                .substring(1, suspendedPlayers.length() - 1)
+                .replace("\",", "$")
+                .replace("\"", "");
+        turnManagamentStrings.add(suspendedPlayers);
         this.setChanged();
         this.notifyObservers(turnManagamentStrings);
     }

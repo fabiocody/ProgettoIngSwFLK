@@ -8,6 +8,7 @@ import it.polimi.ingsw.util.NotificationsMessages;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -111,6 +112,13 @@ public class Game extends Observable implements Observer {
     public boolean arePlayersReady() {
         return this.players.stream()
                 .allMatch(Player::isWindowPatternChosen);
+    }
+
+    public List<String> getSuspendedPlayers() {
+        return this.players.stream()
+                .filter(Player::isSuspended)
+                .map(Player::getNickname)
+                .collect(Collectors.toList());
     }
 
     /**
