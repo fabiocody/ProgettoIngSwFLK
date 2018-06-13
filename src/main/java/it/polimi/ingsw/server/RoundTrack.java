@@ -2,6 +2,7 @@ package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.model.dice.DiceGenerator;
 import it.polimi.ingsw.model.dice.Die;
+import it.polimi.ingsw.util.Constants;
 import it.polimi.ingsw.util.NotificationsMessages;
 
 import java.util.*;
@@ -86,7 +87,7 @@ public class RoundTrack extends Observable implements Observer {
     public void incrementRound() {
         synchronized (currentRoundLock) {
             synchronized (gameOverLock) {
-                if (this.currentRound == 10 && !gameOver) {
+                if (this.currentRound == Constants.NUMBER_OF_ROUNDS && !gameOver) {
                     this.gameOver = true;
                     this.setChanged();
                     this.notifyObservers(NotificationsMessages.GAME_OVER);

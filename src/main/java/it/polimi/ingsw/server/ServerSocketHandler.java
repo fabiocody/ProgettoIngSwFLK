@@ -218,19 +218,19 @@ public class ServerSocketHandler implements Runnable, Observer {
         log(nickname + " has chosen pattern " + patternIndex);
     }
 
-    private void placeDie(JsonObject input){
+    private void placeDie(JsonObject input) {
         int draftPoolIndex = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DRAFT_POOL_INDEX).getAsInt();
         int x = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.TO_CELL_X).getAsInt();
         int y = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.TO_CELL_Y).getAsInt();
         JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD,Methods.PLACE_DIE.getString());
-        try{
+        payload.addProperty(JsonFields.METHOD, Methods.PLACE_DIE.getString());
+        try {
             this.gameEndPoint.placeDie(uuid, draftPoolIndex, x, y);
             payload.addProperty(JsonFields.RESULT, true);
             log(nickname + " placed a die");
             debug("PAYLOAD " + payload.toString());
             out.println(payload.toString());
-        } catch (InvalidPlacementException | DieAlreadyPlacedException e){
+        } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
             payload.addProperty(JsonFields.RESULT, false);
             log(nickname + " die placement was refused");
             debug("PAYLOAD " + payload.toString());
@@ -244,7 +244,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         UUID id = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
         data.addProperty(JsonFields.PLAYER_ID, id.toString()); //serve nickname, non UUID
         JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD,JsonFields.USE_TOOL_CARD);
+        payload.addProperty(JsonFields.METHOD, JsonFields.USE_TOOL_CARD);
         try {
             this.gameEndPoint.useToolCard(id, cardIndex, data);
             payload.addProperty(JsonFields.RESULT, true);
@@ -260,10 +260,10 @@ public class ServerSocketHandler implements Runnable, Observer {
         }
     }
 
-    private void requiredData(JsonObject input){
+    private void requiredData(JsonObject input) {
         int cardIndex = input.get(JsonFields.CARD_INDEX).getAsInt();
         JsonObject payload = this.gameEndPoint.requiredData(cardIndex);
-        if (payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX) && this.game.getRoundTrack().getAllDice().isEmpty()){
+        if (payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX) && this.game.getRoundTrack().getAllDice().isEmpty()) {
             payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.ROUND_TRACK);
         }
         debug("PAYLOAD " + payload.toString());
@@ -333,10 +333,10 @@ public class ServerSocketHandler implements Runnable, Observer {
 
     private void updateFavorTokens() {
         JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD,Methods.FAVOR_TOKENS.getString());
+        payload.addProperty(JsonFields.METHOD, Methods.FAVOR_TOKENS.getString());
         JsonObject favorTokens = new JsonObject();
-        for (String player : this.gameEndPoint.getCurrentPlayers()){
-            favorTokens.addProperty(player,this.gameEndPoint.getFavorTokensOf(player));
+        for (String player : this.gameEndPoint.getCurrentPlayers()) {
+            favorTokens.addProperty(player, this.gameEndPoint.getFavorTokensOf(player));
         }
         payload.add(JsonFields.FAVOR_TOKENS, favorTokens);
         debug("PAYLOAD " + payload.toString());
@@ -359,7 +359,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         out.println(payload.toString());
     }
 
-    private void updateRoundTrack(){
+    private void updateRoundTrack() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.ROUND_TRACK_DICE.getString());
         JsonArray dice = new JsonArray();
@@ -367,7 +367,7 @@ public class ServerSocketHandler implements Runnable, Observer {
             JsonObject die = new JsonObject();
             die.addProperty(JsonFields.COLOR, d.getColor().toString());
             die.addProperty(JsonFields.VALUE, d.getValue());
-            die.addProperty(JsonFields.CLI_STRING,d.toString());
+            die.addProperty(JsonFields.CLI_STRING, d.toString());
             dice.add(die);
         }
         payload.add(JsonFields.DICE, dice);
@@ -382,6 +382,18 @@ public class ServerSocketHandler implements Runnable, Observer {
         payload.addProperty(JsonFields.CURRENT_ROUND, this.gameEndPoint.getCurrentRound());
         payload.addProperty(JsonFields.GAME_OVER, this.game.getRoundTrack().isGameOver());
         payload.addProperty(JsonFields.ACTIVE_PLAYER, this.gameEndPoint.getActivePlayer());
+        debug("PAYLOAD " + payload.toString());
+        out.println(payload.toString());
+    }
+
+    private void updateFinalScores() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty(JsonFields.METHOD, Methods.FINAL_SCORES.getString());
+        JsonObject finalScores = new JsonObject();
+        for (String player : this.gameEndPoint.getFinalScores().keySet()) {
+            finalScores.addProperty(player, this.gameEndPoint.getFinalScores().get(player));
+        }
+        payload.add(JsonFields.FINAL_SCORES, finalScores);
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
     }
@@ -417,14 +429,9 @@ public class ServerSocketHandler implements Runnable, Observer {
                     //System.out.println(ansi().fgGreen().a(stringArg).reset());
                     fullUpdate();
                     break;
-                case NotificationsMessages.ROUND_TRACK:
-                    updatePlayersList();
-                    updateToolCards();
-                    sendPublicObjectiveCards();
-                    updateWindowPatterns();
-                    updateFavorTokens();
-                    updateDraftPool();
-                    updateRoundTrack();
+                case NotificationsMessages.GAME_OVER:
+                    updateFinalScores();
+                    turnManagement();
                     break;
             }
         }
@@ -433,7 +440,7 @@ public class ServerSocketHandler implements Runnable, Observer {
     private void updateTimerTick(int tick) {
         debug("updateTimerTick called");
         JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD,Methods.WR_TIMER_TICK.getString());
+        payload.addProperty(JsonFields.METHOD, Methods.WR_TIMER_TICK.getString());
         payload.addProperty(JsonFields.TICK, tick);
         out.println(payload.toString());
         debug("Timer Tick Update sent");
@@ -503,14 +510,18 @@ public class ServerSocketHandler implements Runnable, Observer {
     }
 
     private void fullUpdate() {
-        updatePlayersList();
-        updateToolCards();
-        sendPublicObjectiveCards();
-        updateWindowPatterns();
-        updateFavorTokens();
-        updateDraftPool();
-        updateRoundTrack();
-        turnManagement();
+        if (!this.gameEndPoint.getRoundTrack().isGameOver()) {
+            updatePlayersList();
+            updateToolCards();
+            sendPublicObjectiveCards();
+            updateWindowPatterns();
+            updateFavorTokens();
+            updateDraftPool();
+            updateRoundTrack();
+            turnManagement();
+        }
     }
-
 }
+
+
+

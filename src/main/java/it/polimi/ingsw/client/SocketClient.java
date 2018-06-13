@@ -31,6 +31,7 @@ public class SocketClient extends ClientNetwork {
 
     private String nickname;
     private UUID uuid;
+    private boolean toBeKilled = false;
 
     // FLAGS
     private boolean debugActive;
@@ -59,6 +60,7 @@ public class SocketClient extends ClientNetwork {
     }
 
     public void teardown() throws IOException {
+        this.toBeKilled = true;
         recvThread.interrupt();
         if (this.in != null) this.in.close();
         if (this.out != null) this.out.close();
@@ -111,7 +113,7 @@ public class SocketClient extends ClientNetwork {
      * @param message that we want to print out
      */
     private void error(String message) {
-        System.err.println("[ERROR] " + message);
+        if(!toBeKilled) System.err.println("[ERROR] " + message);
     }
 
     /**
@@ -189,6 +191,7 @@ public class SocketClient extends ClientNetwork {
                     break;
                 case FINAL_SCORES:
                 case GAME_TIMER_TICK:
+                    this.updateFinalScores(inputJson);
                     break;
 
             }
@@ -443,6 +446,11 @@ public class SocketClient extends ClientNetwork {
     }
 
     private void updateFavorTokens(JsonObject input){
+        this.setChanged();
+        this.notifyObservers(input);
+    }
+
+    private void updateFinalScores(JsonObject input){
         this.setChanged();
         this.notifyObservers(input);
     }
