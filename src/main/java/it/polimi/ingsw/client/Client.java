@@ -5,8 +5,6 @@ import joptsimple.*;
 import java.io.IOException;
 import java.util.*;
 
-import static org.fusesource.jansi.Ansi.ansi;
-
 
 public abstract class Client implements Observer {
 
@@ -34,6 +32,7 @@ public abstract class Client implements Observer {
             log("Connection established");
         } catch (IOException e) {
             error("Connection failed");
+            System.exit(1);
         }
     }
 
