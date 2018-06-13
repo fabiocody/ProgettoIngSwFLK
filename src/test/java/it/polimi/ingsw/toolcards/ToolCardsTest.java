@@ -58,7 +58,7 @@ class ToolCardsTest {
     @Test
     void toolCard2() {
         ToolCard toolCard = new ToolCard2(game);
-        player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(Constants.INDEX_CONSTANT)));
         Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
         player.getWindowPattern().placeDie(die, 2, PlacementConstraint.initialConstraint());
         assertNotNull(player.getWindowPattern().getCellAt(2).getPlacedDie());
@@ -84,7 +84,7 @@ class ToolCardsTest {
     @Test
     void toolCard3() {
         ToolCard toolCard = new ToolCard3(game);
-        player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(Constants.INDEX_CONSTANT)));
         Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
         player.getWindowPattern().placeDie(die, 17, PlacementConstraint.initialConstraint());
         assertNotNull(player.getWindowPattern().getCellAt(17).getPlacedDie());
@@ -256,7 +256,7 @@ class ToolCardsTest {
         ToolCard toolCard = new ToolCard8(game);
         JsonObject data = new JsonObject();
         data.addProperty(PLAYER, player.getNickname());
-        player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(Constants.INDEX_CONSTANT)));
         data.addProperty(DRAFT_POOL_INDEX, 0);
         data.addProperty(TO_CELL_X, 0);
         data.addProperty(TO_CELL_Y, 1);
@@ -272,7 +272,7 @@ class ToolCardsTest {
     @Test
     void toolCard9() {
         ToolCard toolCard = new ToolCard9(game);
-        player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(Constants.INDEX_CONSTANT)));
         Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
         player.getWindowPattern().placeDie(die, 17, PlacementConstraint.initialConstraint());
         assertNotNull(player.getWindowPattern().getCellAt(17).getPlacedDie());
@@ -308,7 +308,7 @@ class ToolCardsTest {
     @Test
     void toolCard11() {
         ToolCard toolCard = new ToolCard11(game);
-        player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(Constants.INDEX_CONSTANT)));
         //Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
         //player.getWindowPattern().placeDie(die, 17, PlacementConstraint.initialConstraint());
         JsonObject data = new JsonObject();
@@ -348,7 +348,7 @@ class ToolCardsTest {
         test.add(new Die(Colors.RED,6));
         game.getRoundTrack().incrementRound();
         game.getRoundTrack().putDice(test);
-        player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(Constants.INDEX_CONSTANT)));
         Die die = new Die(Colors.RED, 2);
         player.getWindowPattern().placeDie(die, 2, PlacementConstraint.initialConstraint());
         die = new Die(Colors.RED, 4);
@@ -391,7 +391,7 @@ class ToolCardsTest {
         test.add(new Die(Colors.RED,6));
         game.getRoundTrack().incrementRound();
         game.getRoundTrack().putDice(test);
-        player.setWindowPatternList(Arrays.asList(new WindowPattern(0)));
+        player.setWindowPatternList(Arrays.asList(new WindowPattern(Constants.INDEX_CONSTANT)));
         Die die = new Die(Colors.RED, 2);
         player.getWindowPattern().placeDie(die, 2, PlacementConstraint.initialConstraint());
         die = new Die(Colors.RED, 4);
