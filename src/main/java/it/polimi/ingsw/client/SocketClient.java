@@ -29,6 +29,7 @@ public class SocketClient extends ClientNetwork {
 
     private String nickname;
     private UUID uuid;
+    private boolean toBeKilled = false;
 
     // FLAGS
     private boolean debugActive;
@@ -57,6 +58,7 @@ public class SocketClient extends ClientNetwork {
     }
 
     public void teardown() throws IOException {
+        this.toBeKilled = true;
         recvThread.interrupt();
         if (this.in != null) this.in.close();
         if (this.out != null) this.out.close();
@@ -109,7 +111,7 @@ public class SocketClient extends ClientNetwork {
      * @param message that we want to print out
      */
     private void error(String message) {
-        System.err.println("[ERROR] " + message);
+        if(!toBeKilled) System.err.println("[ERROR] " + message);
     }
 
     /**
@@ -182,13 +184,15 @@ public class SocketClient extends ClientNetwork {
                 case ROUND_TRACK_DICE:
                     this.updateRoundTrack(inputJson);
                     break;
+                case FAVOR_TOKENS:
+                    this.updateFavorTokens(inputJson);
+                    break;
+                case FINAL_SCORES:
+                    this.updateFinalScores(inputJson);
+                    break;
                 case GAME_TIMER_TICK:
                     this.gameTimerTick(inputJson);
                     break;
-                case FINAL_SCORES:
-                case FAVOR_TOKENS:
-                    break;
-
             }
         }
     }
@@ -452,6 +456,16 @@ public class SocketClient extends ClientNetwork {
         turnManagamentStrings.add(input.get(JsonFields.ACTIVE_PLAYER).getAsString());
         this.setChanged();
         this.notifyObservers(turnManagamentStrings);
+    }
+
+    private void updateFavorTokens(JsonObject input){
+        this.setChanged();
+        this.notifyObservers(input);
+    }
+
+    private void updateFinalScores(JsonObject input){
+        this.setChanged();
+        this.notifyObservers(input);
     }
 
 }

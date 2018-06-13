@@ -233,10 +233,12 @@ public class Game extends Observable implements Observer {
         notifyObservers(NotificationsMessages.DRAFT_POOL);
     }
 
-    void nextTurn(){
+    void nextTurn() {
         this.turnManager.nextTurn();
-        setChanged();
-        notifyObservers(NotificationsMessages.TURN_MANAGEMENT);
+        if(!this.roundTrack.isGameOver()) {
+            setChanged();
+            notifyObservers(NotificationsMessages.TURN_MANAGEMENT);
+        }
     }
 
     /**
@@ -246,19 +248,7 @@ public class Game extends Observable implements Observer {
      * @author Fabio Codiglioni
      */
     private void endGame() {
-        ExecutorService pool = Executors.newFixedThreadPool(this.getNumberOfPlayers());
-        for (Player p : this.players) {
-            pool.execute(() ->
-                this.calcScoreForPlayer(p)
-            );
-        }
-        pool.shutdown();
-        try {
-            pool.awaitTermination(2, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            Thread.currentThread().interrupt();
-        }
+        this.players.forEach(this::calcScoreForPlayer);
         assert this.getFinalScores().keySet().containsAll(this.players);
     }
 
@@ -292,9 +282,10 @@ public class Game extends Observable implements Observer {
                 this.getDiceGenerator().generateDraftPool();
                 setChanged();
                 notifyObservers(NotificationsMessages.ROUND_TRACK);
-
-            } else if (arg.equals(NotificationsMessages.GAME_OVER)) {   //Round track?
-                new Thread(this::endGame).start();
+            } else if (arg.equals(NotificationsMessages.GAME_OVER)) {
+                this.endGame();
+                setChanged();
+                notifyObservers(NotificationsMessages.GAME_OVER);
             }
         } else if (o instanceof Player) {
             if (arg != null && arg.equals(NotificationsMessages.PLACE_DIE)) {

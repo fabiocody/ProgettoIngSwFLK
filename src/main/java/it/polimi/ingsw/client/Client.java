@@ -19,6 +19,7 @@ public abstract class Client implements Observer {
     private boolean active = false;
     private boolean patternChosen = false;
     private boolean gameOver = false;
+    private int favorTokens = 0;
     private int round = 1;
 
     Client(ClientNetwork network, boolean debugActive) {
@@ -102,6 +103,14 @@ public abstract class Client implements Observer {
         this.gameOver = gameOver;
     }
 
+    public int getFavorTokens() {
+        return favorTokens;
+    }
+
+    public void setFavorTokens(int favorTokens) {
+        this.favorTokens = favorTokens;
+    }
+
     int getRound() {
         return round;
     }
@@ -109,6 +118,7 @@ public abstract class Client implements Observer {
     void setRound(int round) {
         this.round = round;
     }
+
 
 
     /**
