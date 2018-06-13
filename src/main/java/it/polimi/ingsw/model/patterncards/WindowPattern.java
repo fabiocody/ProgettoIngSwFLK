@@ -1,10 +1,16 @@
 package it.polimi.ingsw.model.patterncards;
 
+import com.google.gson.*;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
-import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.util.Colors;
+import it.polimi.ingsw.util.JsonFields;
+import static it.polimi.ingsw.util.Constants.*;
 
 import java.util.Arrays;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 
 /**
  * This class describes the structure and implements the method of a window pattern.
@@ -13,36 +19,44 @@ import java.util.Arrays;
 
 public class WindowPattern {
 
-    private final int difficulty;
+    private String name;
+    private int difficulty;
+    private int patternNumber;
     private Cell[] grid;
-    private final int patternNumber;
-    private final String name;
 
     /**
      * @param   patternNumber the number that identifies the pattern, if it's negative or bigger than 23 then the
      *          default pattern (used for testing purposes) is created
-     * @see PatternValues
      * @author  Luca dell'Oglio
      */
 
     public WindowPattern(int patternNumber) {
-        String patternID = "WP";
 
-        if(patternNumber < 0 || patternNumber >= Constants.NUMBER_OF_PATTERNS) {
-            this.patternNumber = 0;
+        String patternID = "windowPattern";
+
+        if(patternNumber < 0 || patternNumber >= NUMBER_OF_PATTERNS) {
+            this.patternNumber = NUMBER_OF_PATTERNS;
         }
         else {
-            patternID = patternID + patternNumber;
             this.patternNumber = patternNumber;
         }
+        patternID = patternID + this.patternNumber;
 
-        PatternValues values = PatternValues.valueOf(patternID);
-        this.difficulty = values.getDifficulty();
-        this.name = values.getPatternName();
-        this.grid = new Cell[Constants.NUMBER_OF_PATTERN_COLUMNS *Constants.NUMBER_OF_PATTERN_ROWS];
-        for (int i = 0; i < Constants.NUMBER_OF_PATTERN_COLUMNS *Constants.NUMBER_OF_PATTERN_ROWS; i++) {
-            grid[i] = new Cell(values.getCellColors()[i],values.getCellValues()[i]);
-        }
+        try(Reader reader = new InputStreamReader(getClass().getResourceAsStream("/WindowPatterns.json"),
+                "UTF-8")){
+            JsonParser parser = new JsonParser();
+            JsonObject pattern = parser.parse(reader).getAsJsonObject().get(patternID).getAsJsonObject();
+            this.name = pattern.get(JsonFields.NAME).getAsString();
+            this.difficulty = pattern.get(JsonFields.DIFFICULTY).getAsInt();
+            JsonArray jsonGrid = pattern.get(JsonFields.GRID).getAsJsonArray();
+            this.grid = new Cell[NUMBER_OF_PATTERN_COLUMNS * NUMBER_OF_PATTERN_ROWS];
+            for (int i = 0; i < NUMBER_OF_PATTERN_COLUMNS *NUMBER_OF_PATTERN_ROWS; i++) {
+                JsonObject cell = jsonGrid.get(i).getAsJsonObject();
+                Colors cellColor = cell.get(JsonFields.COLOR) != JsonNull.INSTANCE ? Colors.valueOf(cell.get(JsonFields.COLOR).getAsString()) : null;
+                Integer cellValue = cell.get(JsonFields.VALUE) != JsonNull.INSTANCE ? cell.get(JsonFields.VALUE).getAsInt() : null;
+                this.grid[i] = new Cell(cellColor,cellValue);
+            }
+        } catch (IOException e) {}
     }
 
     /**
@@ -79,7 +93,7 @@ public class WindowPattern {
      */
 
     public synchronized Cell getCellAt(int i){
-        if(!(i >= 0 && i < Constants.NUMBER_OF_PATTERN_COLUMNS *Constants.NUMBER_OF_PATTERN_ROWS))
+        if(!(i >= 0 && i < NUMBER_OF_PATTERN_COLUMNS *NUMBER_OF_PATTERN_ROWS))
             throw new IndexOutOfBoundsException();
         return this.grid[i];
     }
@@ -94,9 +108,9 @@ public class WindowPattern {
      */
 
     public synchronized Cell getCellAt(int i, int j){
-        if(!(i >= 0 && i < Constants.NUMBER_OF_PATTERN_ROWS && j >= 0 && j < Constants.NUMBER_OF_PATTERN_COLUMNS))
+        if(!(i >= 0 && i < NUMBER_OF_PATTERN_ROWS && j >= 0 && j < NUMBER_OF_PATTERN_COLUMNS))
             throw new IndexOutOfBoundsException();
-        return this.getCellAt(Constants.NUMBER_OF_PATTERN_COLUMNS *i + j);
+        return this.getCellAt(NUMBER_OF_PATTERN_COLUMNS *i + j);
     }
 
     /**
@@ -178,10 +192,10 @@ public class WindowPattern {
     @Override
     public synchronized String toString() {
         StringBuilder builder = new StringBuilder();
-        for (int k = 0; k <= Constants.NUMBER_OF_PATTERN_ROWS *Constants.NUMBER_OF_PATTERN_COLUMNS; k++) builder.append("-");
+        for (int k = 0; k <= NUMBER_OF_PATTERN_ROWS *NUMBER_OF_PATTERN_COLUMNS; k++) builder.append("-");
         builder.append("\n");
-        for (int i = 0; i < Constants.NUMBER_OF_PATTERN_ROWS; i++) {
-            for (int j = 0; j < Constants.NUMBER_OF_PATTERN_COLUMNS; j++) {
+        for (int i = 0; i < NUMBER_OF_PATTERN_ROWS; i++) {
+            for (int j = 0; j < NUMBER_OF_PATTERN_COLUMNS; j++) {
                 if (j == 0) builder.append("|");
                 Cell cell = this.getCellAt(i, j);
                 if (cell.getPlacedDie() != null) {
@@ -192,11 +206,11 @@ public class WindowPattern {
                 builder.append("|");
             }
             builder.append("\n");
-            for (int k = 0; k <= Constants.NUMBER_OF_PATTERN_ROWS *Constants.NUMBER_OF_PATTERN_COLUMNS; k++) builder.append("-");
+            for (int k = 0; k <= NUMBER_OF_PATTERN_ROWS *NUMBER_OF_PATTERN_COLUMNS; k++) builder.append("-");
             builder.append("\n");
         }
         builder.append(getPatternName());
-        for (int k = getPatternName().length(); k < Constants.NUMBER_OF_PATTERN_ROWS *Constants.NUMBER_OF_PATTERN_COLUMNS; k++)
+        for (int k = getPatternName().length(); k < NUMBER_OF_PATTERN_ROWS *NUMBER_OF_PATTERN_COLUMNS; k++)
             builder.append(" ");
         builder.append(getDifficulty());
         return builder.toString();

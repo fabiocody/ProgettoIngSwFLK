@@ -36,6 +36,7 @@ public class TurnManager extends Observable {
         this.roundOver = false;
         this.setActivePlayer(this.getCurrentPlayer());
         // TODO Set timer for first turn of first round
+        this.timer.schedule(this::nextTurn, this.timeout);
     }
 
     /**
@@ -149,7 +150,7 @@ public class TurnManager extends Observable {
             this.notifyObservers();
         }
         this.setActivePlayer(this.getCurrentPlayer());
-        //this.timer.schedule(this::nextTurn, this.timeout);        // TODO
+        this.timer.schedule(this::nextTurn, this.timeout);        // TODO
     }
 
 

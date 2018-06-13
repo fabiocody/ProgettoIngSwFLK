@@ -1,5 +1,6 @@
 package it.polimi.ingsw.client;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.util.*;
 import org.fusesource.jansi.AnsiConsole;
@@ -8,6 +9,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import static it.polimi.ingsw.util.Constants.*;
 import static org.fusesource.jansi.Ansi.*;
+import it.polimi.ingsw.util.JsonFields;
 
 
 public class ClientCLI extends Client {
@@ -24,6 +26,8 @@ public class ClientCLI extends Client {
 
     private String wrTimeout;
     private String wrPlayers;
+    private String gameTimeout = "00";
+    private String lastPrintedLine = "";
     int cardIndex = INDEX_CONSTANT;
 
     private int draftPoolLength;
@@ -59,7 +63,7 @@ public class ClientCLI extends Client {
             this.setPatternChosen(true);
             log("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
             while (!this.isGameStarted()) Thread.sleep(10);
-            while (!this.isGameOver()) {
+            while(!isGameOver()) {
                 boolean dieAlreadyPlaced = false;
                 boolean toolCardAlreadyUsed = false;
                 int draftPoolIndex = INDEX_CONSTANT;
@@ -75,60 +79,62 @@ public class ClientCLI extends Client {
                 int continueIndex = INDEX_CONSTANT;
                 boolean stop = false;
 
-                while (!this.isActive()) Thread.sleep(10);
+                while (!this.isActive() && !this.isGameOver()) Thread.sleep(10);
 
-                log("È il tuo turno!");
-                do {
-                    try {
-                        if (showPrompt) {
-                            cardIndex = INDEX_CONSTANT;
-                            log("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
-                                    "passare il turno.");
-                            input = input("Scegli cosa fare [1-3] >>>");
-                        }
+                if (!isGameOver()) {
+                    log("È il tuo turno!");
+                    do {
                         try {
-                            if (showPrompt) this.instructionIndex = Integer.valueOf(input);
-                            if (instructionIndex == 1) {
-                                if (dieAlreadyPlaced) {
-                                    log("Hai già piazzato un dado questo turno!");
-                                    this.instructionIndex = INDEX_CONSTANT;
-                                } else {
-                                    do {
-                                        draftPoolIndex = draftPoolLength;
-                                        input = input("Quale dado vuoi piazzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE);
-                                        try {
-                                            draftPoolIndex = Integer.valueOf(input) - 1;
-                                            if (draftPoolIndex == -1) throw new CancelException();
-                                        } catch (NumberFormatException e) {
-                                            log("Indice non valido\n");
-                                        }
-                                    } while (draftPoolIndex < 0 || draftPoolIndex >= draftPoolLength);
-                                    do {
-                                        input = input("In quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE);
-                                        try {
-                                            x = Integer.valueOf(input) - 1;
-                                            if (x == -1) throw new CancelException();
-                                        } catch (NumberFormatException e) {
-                                            log("Indice non valido\n");
-                                        }
-                                    } while (x < 0 || x >= NUMBER_OF_PATTERN_COLUMNS);
-                                    do {
-                                        input = input("In quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE);
-                                        try {
-                                            y = Integer.valueOf(input) - 1;
-                                            if (y == -1) throw new CancelException();
-                                        } catch (NumberFormatException e) {
-                                            log("Indice non valido\n");
-                                        }
-                                    } while (y < 0 || y >= NUMBER_OF_PATTERN_ROWS);
-                                    if (this.getNetwork().placeDie(draftPoolIndex, x, y)) {
-                                        log("Dado piazzato\n");
-                                        dieAlreadyPlaced = true;
+                            if (showPrompt) {
+                                cardIndex = INDEX_CONSTANT;
+                                log("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
+                                        "passare il turno.");
+                                input = input("Scegli cosa fare [1-3] >>>");
+                            }
+                            try {
+                                if (showPrompt) this.instructionIndex = Integer.valueOf(input);
+                                if (instructionIndex == 1) {
+                                    if (dieAlreadyPlaced) {
+                                        log("Hai già piazzato un dado questo turno!");
+                                        this.instructionIndex = INDEX_CONSTANT;
                                     } else {
-                                        log("Posizionamento invalido\n");
+                                        do {
+                                            draftPoolIndex = draftPoolLength;
+                                            input = input("Quale dado vuoi piazzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE);
+                                            try {
+                                                draftPoolIndex = Integer.valueOf(input) - 1;
+                                                if (draftPoolIndex == -1) throw new CancelException();
+                                            } catch (NumberFormatException e) {
+                                                log("Indice non valido\n");
+                                            }
+                                        } while (draftPoolIndex < 0 || draftPoolIndex >= draftPoolLength);
+                                        do {
+                                            input = input("In quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE);
+                                            try {
+                                                x = Integer.valueOf(input) - 1;
+                                                if (x == -1) throw new CancelException();
+                                            } catch (NumberFormatException e) {
+                                                log("Indice non valido\n");
+                                            }
+                                        } while (x < 0 || x >= NUMBER_OF_PATTERN_COLUMNS);
+                                        do {
+                                            input = input("In quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE);
+                                            try {
+                                                y = Integer.valueOf(input) - 1;
+                                                if (y == -1) throw new CancelException();
+                                            } catch (NumberFormatException e) {
+                                                log("Indice non valido\n");
+                                            }
+                                        } while (y < 0 || y >= NUMBER_OF_PATTERN_ROWS);
+                                        if (this.getNetwork().placeDie(draftPoolIndex, x, y)) {
+                                            log("Dado piazzato\n");
+                                            dieAlreadyPlaced = true;
+                                        } else {
+                                            log("Posizionamento invalido\n");
+                                        }
+                                        this.instructionIndex = INDEX_CONSTANT;
                                     }
-                                    this.instructionIndex = INDEX_CONSTANT;
-                                }
+                                } 
                             } else if (instructionIndex == 2) {  //Tool card
                                 if (toolCardAlreadyUsed) {
                                     log("Hai già usato una carta strumento questo turno!\n");
@@ -294,25 +300,31 @@ public class ClientCLI extends Client {
                                             showPrompt = true;
                                             instructionIndex = INDEX_CONSTANT;
                                         }
+                                      }
                                     }
+                                    continueIndex = INDEX_CONSTANT;
+                                } else if (instructionIndex == 3) {
+                                    this.setActive(false);
+                                    this.getNetwork().nextTurn();
                                 }
-                                continueIndex = INDEX_CONSTANT;
-                            } else if (instructionIndex == 3) {
-                                this.setActive(false);
-                                this.getNetwork().nextTurn();
+                            } catch (NumberFormatException e) {
+                                e.printStackTrace();
                             }
-                        } catch (NumberFormatException e) {
-                            e.printStackTrace();
+                        } catch (CancelException e) {
+                            log("Mossa annullata.");
                         }
                     } catch (CancelException e){
                         log("Mossa annullata.");
                         showPrompt = true;
                         instructionIndex = INDEX_CONSTANT;
                     }
-                } while (this.instructionIndex < 1 || this.instructionIndex > 3);
+                  } while (this.instructionIndex < 1 || this.instructionIndex > 3);
+                } else {
+                    log("\nLa partita è finita!");
+                }
             }
         } catch (IOException | InterruptedException e) {
-            log("Quitting...");
+            error("Errore non specificato");
         } finally {
             log("");
             try {
@@ -346,6 +358,8 @@ public class ClientCLI extends Client {
             synchronized (stdinBufferLock) {
                 if (stdinBuffer == null) stdinBuffer = new StringBuilder();
             }
+            Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
+            System.out.print(method.invoke(this));
             while (!stopAsyncInput) {
                 if (System.in.available() != 0) {
                     int c = System.in.read();
@@ -354,8 +368,10 @@ public class ClientCLI extends Client {
                             bufferString = stdinBuffer.toString();
                             stdinBuffer = new StringBuilder();
                         }
-                        Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
-                        System.out.print(method.invoke(this));
+                        lastPrintedLine = "";
+                        /*Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
+                        System.out.print(method.invoke(this));*/
+                        System.out.println();
                         break;
                     } else if (c == 0x7F) {
                         synchronized (stdinBufferLock) {
@@ -366,9 +382,10 @@ public class ClientCLI extends Client {
                             stdinBuffer.append((char) c);
                         }
                     }
-                    Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
+                    method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
                     System.out.print(method.invoke(this));
                 }
+                Thread.sleep(10);
             }
         } catch (InterruptedException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
@@ -380,7 +397,7 @@ public class ClientCLI extends Client {
                 error("Exception restoring tty config");
             }
         }
-        if (!stopAsyncInput) {
+        if (!stopAsyncInput && !methodName.equals("timerPrompt")) {
             try {
                 Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
                 System.out.print(method.invoke(this));
@@ -484,9 +501,46 @@ public class ClientCLI extends Client {
         }
     }
 
+    private String timerPrompt() {
+        synchronized (stdinBufferLock) {
+            String prompt = String.format("[%s] >>> %s", gameTimeout, stdinBuffer.toString());
+            return updateLine(prompt);
+        }
+    }
+
+    private String updateLine(String line) {
+        String newLine = ansi().cursorLeft(lastPrintedLine.length())
+                .eraseLine(Erase.FORWARD)
+                .a(line)
+                .toString();
+        lastPrintedLine = line;
+        return newLine;
+    }
+
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof ClientNetwork) {
+            if(arg instanceof JsonObject){
+                JsonObject jsonArg = (JsonObject) arg;
+                if(jsonArg.get(JsonFields.METHOD).getAsString().equals(JsonFields.FAVOR_TOKENS)){
+                    String favorTokenString = "\nSegnalini Favore";
+                    Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FAVOR_TOKENS).getAsJsonObject().entrySet();
+                    for (Map.Entry<String, JsonElement> entry : entrySet) {
+                        if(entry.getKey().equals(this.getNickname()))
+                            this.setFavorTokens(entry.getValue().getAsInt());
+                        favorTokenString += "\n" + entry.getKey() + ": " + entry.getValue().getAsInt();
+                    }
+                    log(favorTokenString);
+                }
+                if(jsonArg.get(JsonFields.METHOD).getAsString().equals(JsonFields.FINAL_SCORES)){
+                    String finalScoresString = "\nRisultati finali";
+                    Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FINAL_SCORES).getAsJsonObject().entrySet();
+                    for (Map.Entry<String, JsonElement> entry : entrySet) {
+                        finalScoresString += "\n" + entry.getKey() + ": " + entry.getValue().getAsInt();
+                    }
+                    log(finalScoresString);
+                }
+            }
             if (arg instanceof List) {      // Window Patterns
                 try {
                     Thread.sleep(100);
@@ -494,7 +548,17 @@ public class ClientCLI extends Client {
                     e.printStackTrace();
                 }
                 List<String> argAsList = (List) arg;
-                if(argAsList.get(0).startsWith(NotificationsMessages.SELECTABLE_WINDOW_PATTERNS)) {
+                if (argAsList.get(0).equals(NotificationsMessages.WR_TIMER_TICK)) {
+                    this.wrTimeout = argAsList.get(1);
+                    System.out.print(waitingRoomMessage());
+                } else if (argAsList.get(0).equals(NotificationsMessages.GAME_TIMER_TICK)) {
+                    this.gameTimeout = argAsList.get(1);
+                    if (isActive())
+                        System.out.print(timerPrompt());
+                    else
+                        System.out.print(updateLine("[" + gameTimeout + "]"));
+                } else if (argAsList.get(0).startsWith(NotificationsMessages.SELECTABLE_WINDOW_PATTERNS)) {
+                    stopAsyncInput = true;
                     argAsList.remove(0);
                     for (int i = 0; i < argAsList.size(); i++) {
                         StringBuilder newWPString = new StringBuilder();
@@ -504,8 +568,7 @@ public class ClientCLI extends Client {
                     }
                     System.out.println();
                     log(windowPatternsMessage(argAsList));
-                    stopAsyncInput = true;
-                } else if(argAsList.get(0).equals(NotificationsMessages.UPDATE_WINDOW_PATTERNS)){
+                } else if (argAsList.get(0).equals(NotificationsMessages.UPDATE_WINDOW_PATTERNS)){
                     argAsList.remove(0);
                     List<String> patterns = new ArrayList<>();
                     for (String s: argAsList){
@@ -518,7 +581,7 @@ public class ClientCLI extends Client {
                     }
                     String prettyWindowPatterns = windowPatternsMessage(patterns);
                     log(prettyWindowPatterns);
-                } else if(argAsList.get(0).startsWith(NotificationsMessages.TOOL_CARDS)) {   //Tool card
+                } else if (argAsList.get(0).startsWith(NotificationsMessages.TOOL_CARDS)) {   //Tool card
                     String cards = "";
                     for (String s : argAsList) {
                         int index = argAsList.indexOf(s) + 1;
@@ -530,7 +593,7 @@ public class ClientCLI extends Client {
                     }
                     cards = cards.replace("$NL$","\n\n");
                     log(cards);
-                } else if(argAsList.get(0).startsWith(NotificationsMessages.PUBLIC_OBJECTIVE_CARDS)) {   //Public Objective Card
+                } else if (argAsList.get(0).startsWith(NotificationsMessages.PUBLIC_OBJECTIVE_CARDS)) {   //Public Objective Card
                     StringBuilder cards = new StringBuilder();
                     for (String s : argAsList) {
                         s = s.replace(NotificationsMessages.PUBLIC_OBJECTIVE_CARDS, "Obiettivo Pubblico: ");
@@ -541,7 +604,7 @@ public class ClientCLI extends Client {
                     }
                     cards.append(privateObjectiveCard).append("\n\n");
                     log(cards.toString());
-                } else if(argAsList.get(0).startsWith(NotificationsMessages.DRAFT_POOL)) {   //DraftPool
+                } else if (argAsList.get(0).startsWith(NotificationsMessages.DRAFT_POOL)) {   //DraftPool
                     String draftPool = "Riserva: ";
                     this.draftPoolLength = 0;
                     for (String s : argAsList){
@@ -556,10 +619,8 @@ public class ClientCLI extends Client {
                     this.setRound(Integer.valueOf(argAsList.get(0)));
                     this.setGameOver(Boolean.valueOf(argAsList.get(1)));
                     this.setActive(argAsList.get(2));
+                    stopAsyncInput = true;
                 }
-            } else if (arg instanceof Integer) {    // Timer ticks
-                this.wrTimeout = arg.toString();
-                System.out.print(waitingRoomMessage());
             } else if (arg instanceof String) {
                 String input = (String) arg;
                 if (input.startsWith(NotificationsMessages.PRIVATE_OBJECTIVE_CARD)) {
@@ -571,7 +632,7 @@ public class ClientCLI extends Client {
                 if (input.startsWith(NotificationsMessages.ROUND_TRACK)) {
                     input = input.replace(NotificationsMessages.ROUND_TRACK,"");
                     roundTrackLength = input.chars().filter(ch -> ch == ']').count();
-                    log("ROUND TRACK\n" + input + "\n");
+                    log("Tracciato del Round\n" + input + "\n");
                 }
             } else if (arg instanceof Iterable) {   // Players
                 if (!this.isPatternChosen()) {  //Players in waiting room

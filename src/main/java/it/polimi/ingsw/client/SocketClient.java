@@ -8,8 +8,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.*;
 
-import static org.fusesource.jansi.Ansi.ansi;
-
 
 /**
  * This is the main client class
@@ -31,6 +29,7 @@ public class SocketClient extends ClientNetwork {
 
     private String nickname;
     private UUID uuid;
+    private boolean toBeKilled = false;
 
     // FLAGS
     private boolean debugActive;
@@ -59,6 +58,7 @@ public class SocketClient extends ClientNetwork {
     }
 
     public void teardown() throws IOException {
+        this.toBeKilled = true;
         recvThread.interrupt();
         if (this.in != null) this.in.close();
         if (this.out != null) this.out.close();
@@ -111,7 +111,7 @@ public class SocketClient extends ClientNetwork {
      * @param message that we want to print out
      */
     private void error(String message) {
-        System.err.println("[ERROR] " + message);
+        if(!toBeKilled) System.err.println("[ERROR] " + message);
     }
 
     /**
@@ -184,11 +184,15 @@ public class SocketClient extends ClientNetwork {
                 case ROUND_TRACK_DICE:
                     this.updateRoundTrack(inputJson);
                     break;
-                case FINAL_SCORES:
-                case GAME_TIMER_TICK:
                 case FAVOR_TOKENS:
+                    this.updateFavorTokens(inputJson);
                     break;
-
+                case FINAL_SCORES:
+                    this.updateFinalScores(inputJson);
+                    break;
+                case GAME_TIMER_TICK:
+                    this.gameTimerTick(inputJson);
+                    break;
             }
         }
     }
@@ -276,7 +280,13 @@ public class SocketClient extends ClientNetwork {
     private void subscribeToWRTimer() {
         JsonObject payload = new JsonObject();
         this.sendMessage(payload, Methods.SUBSCRIBE_TO_WR_TIMER.getString());
-        debug("INPUT " + this.pollResponseBuffer());
+        //debug("INPUT " + this.pollResponseBuffer());
+    }
+
+    private void subscribeToGameTimer() {
+        JsonObject payload = new JsonObject();
+        this.sendMessage(payload, Methods.SUBSCRIBE_TO_GAME_TIMER.getString());
+        //debug("INPUT " + this.pollResponseBuffer());
     }
 
     /**
@@ -371,8 +381,15 @@ public class SocketClient extends ClientNetwork {
      * @param input data from the server
      */
     private void wrTimerTick(JsonObject input) {
+        String tick = String.valueOf(input.get(JsonFields.TICK).getAsInt());
         this.setChanged();
-        this.notifyObservers(input.get(JsonFields.TICK).getAsInt());
+        this.notifyObservers(Arrays.asList(NotificationsMessages.WR_TIMER_TICK, tick));
+    }
+
+    private void gameTimerTick(JsonObject input) {
+        String tick = String.valueOf(input.get(JsonFields.TICK).getAsInt());
+        this.setChanged();
+        this.notifyObservers(Arrays.asList(NotificationsMessages.GAME_TIMER_TICK, tick));
     }
 
     /**
@@ -397,7 +414,8 @@ public class SocketClient extends ClientNetwork {
         this.notifyObservers(selectableWPStrings);
     }
 
-    private void inGamePlayers(JsonObject input){
+    private void inGamePlayers(JsonObject input) {
+        this.subscribeToGameTimer();
         this.setChanged();
         this.notifyObservers(input.get(JsonFields.PLAYERS).getAsJsonArray());
     }
@@ -493,6 +511,16 @@ public class SocketClient extends ClientNetwork {
         turnManagamentStrings.add(input.get(JsonFields.ACTIVE_PLAYER).getAsString());
         this.setChanged();
         this.notifyObservers(turnManagamentStrings);
+    }
+
+    private void updateFavorTokens(JsonObject input){
+        this.setChanged();
+        this.notifyObservers(input);
+    }
+
+    private void updateFinalScores(JsonObject input){
+        this.setChanged();
+        this.notifyObservers(input);
     }
 
 }
