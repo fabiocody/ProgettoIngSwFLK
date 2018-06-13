@@ -35,8 +35,7 @@ public class ToolCardsGenerator {
         for (int i = 0; i < Constants.TOOL_CARD_NUMBER; i++) {
             ToolCard newCard;
             do {
-                //String className = "it.polimi.ingsw.model.toolcards.ToolCard" + ThreadLocalRandom.current().nextInt(1, 13);
-                String className = "it.polimi.ingsw.model.toolcards.ToolCard" + ThreadLocalRandom.current().nextInt(6, 9);
+                String className = "it.polimi.ingsw.model.toolcards.ToolCard" + ThreadLocalRandom.current().nextInt(1, 13);
                 try {
                     newCard = (ToolCard) Class.forName(className).getConstructor(Game.class).newInstance(game);
                 } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
