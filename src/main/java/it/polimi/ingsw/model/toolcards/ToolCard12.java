@@ -52,24 +52,33 @@ public class ToolCard12 extends ToolCard {
             this.firstMove(data);
         } else if (this.firstMoveColor != null && this.firstMoveIndex != null && !data.get(JsonFields.STOP).getAsBoolean()) {
             this.secondMove(data);
-            this.setUsed();
         } else if (data.get(JsonFields.STOP).getAsBoolean()) {
             this.firstMoveIndex = null;
             this.firstMoveColor = null;
-            this.setUsed();
         }
         setChanged();
         notifyObservers("$useToolCard$");
     }
 
+    /**
+     * this method is used to send a JsonObject containing the fields that the user will have to fill to use this tool card
+     *
+     * @author Kai de Gast
+     * @return JsonObject containing the required fields filled with momentary constants
+     */
     @Override
     public JsonObject requiredData() {   //TODO decidere colore tracciato round
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
-        payload.addProperty(JsonFields.FROM_CELL_X, Constants.INDEX_CONSTANT); //for each movement
-        payload.addProperty(JsonFields.FROM_CELL_Y, Constants.INDEX_CONSTANT);
-        payload.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
-        payload.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
+        JsonObject data = new JsonObject();
+        data.addProperty(JsonFields.FROM_CELL_X, Constants.INDEX_CONSTANT); //for each movement
+        data.addProperty(JsonFields.FROM_CELL_Y, Constants.INDEX_CONSTANT);
+        data.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
+        data.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
+        if (this.firstMoveColor == null && this.firstMoveIndex == null) {
+            data.addProperty(JsonFields.CONTINUE, Constants.INDEX_CONSTANT);
+        } else data.addProperty(JsonFields.STOP, Constants.INDEX_CONSTANT);
+        payload.add(JsonFields.DATA, data);
         return payload;
     }
 

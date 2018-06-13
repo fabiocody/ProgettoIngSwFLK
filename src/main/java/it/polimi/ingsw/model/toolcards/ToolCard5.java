@@ -54,11 +54,16 @@ public class ToolCard5 extends ToolCard {
         } catch (Exception e) {
             throw new InvalidEffectResultException();
         }
-        this.setUsed();
         setChanged();
         notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
 
+    /**
+     * This method is used to send a JsonObject containing the fields that the user will have to fill to use this tool card
+     *
+     * @author Kai de Gast
+     * @return JsonObject containing the required fields filled with momentary constants
+     */
     @Override
     public JsonObject requiredData() {
         JsonObject payload = new JsonObject();

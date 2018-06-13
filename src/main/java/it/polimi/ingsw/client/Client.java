@@ -22,6 +22,7 @@ public abstract class Client implements Observer {
     private boolean gameOver = false;
     private String activeNickname = null;
     private List<String> suspendedPlayers = new ArrayList<>();
+    private int favorTokens = 0;
 
     Client(ClientNetwork network, boolean debugActive) {
         this.debugActive = debugActive;
@@ -117,6 +118,14 @@ public abstract class Client implements Observer {
 
     public String getActiveNickname() {
         return activeNickname;
+    }
+      
+    public int getFavorTokens() {
+        return favorTokens;
+    }
+
+    public void setFavorTokens(int favorTokens) {
+        this.favorTokens = favorTokens;
     }
 
     public List<String> getSuspendedPlayers() {
