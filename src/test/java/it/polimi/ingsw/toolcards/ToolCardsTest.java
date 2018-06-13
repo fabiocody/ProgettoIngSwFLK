@@ -314,11 +314,8 @@ class ToolCardsTest {
         JsonObject data = new JsonObject();
         data.addProperty(PLAYER, player.getNickname());
         data.addProperty(DRAFT_POOL_INDEX, 0);
-        Die oldDie = game.getDiceGenerator().getDraftPool().get(0);
         try {
             toolCard.effect(data);
-            assertNotEquals(oldDie, game.getDiceGenerator().getDraftPool().get(0));
-            //assertFalse(toolCard.isUsed());
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
         }

@@ -128,10 +128,10 @@ public class ToolCard11 extends ToolCard {
      * @param cellIndex the index of the cell you want to move the die to.
      * @throws InvalidEffectResultException thrown when the placement is invalid.
      */
-    private void placeDie(Player player, int draftPoolIndex, int cellX, int CellY, int cellIndex) throws InvalidEffectResultException {
+    private void placeDie(Player player, int draftPoolIndex, int cellX, int cellY, int cellIndex) throws InvalidEffectResultException {
         Die die = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
         try {
-            player.placeDie(die, cellX, CellY);
+            player.placeDie(die, cellX, cellY);
             this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex); //TODO placeDie method removes die from draftpool in gameEndPoint
             this.state = 0;
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
