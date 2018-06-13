@@ -244,14 +244,14 @@ public class ServerSocketHandler implements Runnable, Observer {
         UUID id = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
         boolean tax;
         tax = !(input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE));
-        data.addProperty(JsonFields.PLAYER_ID, id.toString()); //serve nickname, non UUID
+        data.addProperty(JsonFields.PLAYER_ID, id.toString());
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD,JsonFields.USE_TOOL_CARD);
         try {
             this.gameEndPoint.useToolCard(id, cardIndex, data);
             payload.addProperty(JsonFields.RESULT, true);
             log(nickname + " used a tool card");
-            if (tax) {
+            if (tax) {      //TODO spostare nel gameEndPoint
                 if (!gameEndPoint.getToolCards().get(cardIndex).isUsed()) {
                     this.gameEndPoint.getPlayer(id).setFavorTokens(this.gameEndPoint.getPlayer(id).getFavorTokens() - 1);
                     debug("removed 1 favor token");
