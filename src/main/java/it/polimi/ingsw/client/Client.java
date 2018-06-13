@@ -1,5 +1,6 @@
 package it.polimi.ingsw.client;
 
+import it.polimi.ingsw.util.*;
 import joptsimple.*;
 import java.io.IOException;
 import java.util.*;
@@ -148,55 +149,57 @@ public abstract class Client implements Observer {
         System.err.println("[ERROR] " + message);
     }
 
-    static boolean isValidIp(String ip){
-        String ipPattern= "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
-        return ip.matches(ipPattern);
+    static boolean isValidHost(String host){
+        String ipRegex= "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
+        String urlRegex = "^[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+        return host.matches(ipRegex) || host.matches(urlRegex);
     }
 
     abstract void start();
 
     public static void main(String[] args) {
         OptionParser parser = new OptionParser();
-        parser.accepts("debug");
-        parser.accepts("ip").withRequiredArg();
-        parser.accepts("port").withRequiredArg().ofType(Integer.class).defaultsTo(42000);
-        parser.accepts("connection").withRequiredArg().ofType(String.class).defaultsTo("socket");
-        parser.accepts("interface").withRequiredArg().ofType(String.class).defaultsTo("cli");
+        parser.accepts(CLIArguments.DEBUG);
+        parser.accepts(CLIArguments.HOST).withRequiredArg();
+        parser.accepts(CLIArguments.PORT).withRequiredArg().ofType(Integer.class).defaultsTo(Constants.DEFAULT_PORT);
+        parser.accepts(CLIArguments.CONNECTION).withRequiredArg().ofType(String.class).defaultsTo(CLIArguments.SOCKET);
+        parser.accepts(CLIArguments.INTERFACE).withRequiredArg().ofType(String.class).defaultsTo(CLIArguments.CLI);
 
         try {
             OptionSet options = parser.parse(args);
 
-            String ip;
-            if (options.has("ip")) {
-                ip = (String) options.valueOf("ip");
-                if (!isValidIp(ip)) {
-                    System.out.println("Invalid IP Address");
+            String host;
+            if (options.has(CLIArguments.HOST)) {
+                host = (String) options.valueOf(CLIArguments.HOST);
+                if (!isValidHost(host)) {
+                    System.out.println("Invalid Host");
                     System.out.println(USAGE_STRING);
                 }
             } else {
                 Scanner stdin = new Scanner(System.in);
                 do{
-                    System.out.print("Inserisci un indirizzo IP valido\nIP >>> ");
-                    ip = stdin.nextLine();
-                } while(!isValidIp(ip));
+                    System.out.print("Inserisci un host valido\nHost >>> ");
+                    host = stdin.nextLine();
+                } while(!isValidHost(host));
+                stdin.close();
             }
 
-            int port = (int) options.valueOf("port");
+            int port = (int) options.valueOf(CLIArguments.PORT);
 
-            String connection = (String) options.valueOf("connection");
-            if (!(connection.equals("socket") || connection.equals("rmi"))) {
+            String connection = (String) options.valueOf(CLIArguments.CONNECTION);
+            if (!(connection.equals(CLIArguments.SOCKET) || connection.equals(CLIArguments.RMI))) {
                 System.out.println("Invalid type of connection");
                 System.out.println(USAGE_STRING);
             }
 
-            String iface = (String) options.valueOf("interface");
-            if (!(iface.equals("cli") || iface.equals("gui"))) {
+            String iface = (String) options.valueOf(CLIArguments.INTERFACE);
+            if (!(iface.equals(CLIArguments.CLI) || iface.equals(CLIArguments.GUI))) {
                 System.out.println("Invalid type of interface");
                 System.out.println(USAGE_STRING);
             }
 
-            ClientNetwork socketClient = new SocketClient(ip, port, options.has("debug"));
-            Client client = new ClientCLI(socketClient, options.has("debug"));
+            ClientNetwork socketClient = new SocketClient(host, port, options.has(CLIArguments.DEBUG));
+            Client client = new ClientCLI(socketClient, options.has(CLIArguments.DEBUG));
             client.start();
 
         } catch (OptionException e) {
