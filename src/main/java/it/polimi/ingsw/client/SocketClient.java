@@ -120,13 +120,13 @@ public class SocketClient extends ClientNetwork {
     private void recv() {
         boolean run = true;
         while (run) {
-            JsonObject inputJson;
+            JsonObject inputJson = null;
             try {
                 inputJson = this.jsonParser.parse(this.readLine()).getAsJsonObject();
                 debug(inputJson.toString());
-            } catch (IOException e) {
+            } catch (IOException | NullPointerException e) {
                 error("Connection aborted");
-                break;
+                System.exit(Constants.INDEX_CONSTANT);
             }
             Methods recvMethod;
             try {
@@ -209,6 +209,7 @@ public class SocketClient extends ClientNetwork {
         String line = in.readLine();
         if (line == null) {
             error("DISCONNECTED");
+            System.exit(Constants.INDEX_CONSTANT);
         }
         return line;
     }
@@ -254,19 +255,29 @@ public class SocketClient extends ClientNetwork {
         if (input.get(JsonFields.LOGGED).getAsBoolean()) {
             uuid = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
             debug("INPUT " + input);
-            JsonArray players = input.get(JsonFields.PLAYERS).getAsJsonArray();
-            debug("SIZE: " + players.size());
-            if (players.size() < Constants.MAX_NUMBER_OF_PLAYERS) {
-                new Timer(true)
-                        .schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                updateWaitingPlayers(input);
-                            }
-                        }, 100);
-                this.subscribeToWRTimer();
+            if (input.get(JsonFields.RECONNECTED).getAsBoolean()) {
+                new Timer(true).schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        setChanged();
+                        notifyObservers(input);
+                    }
+                }, 100);
+            } else {
+                JsonArray players = input.get(JsonFields.PLAYERS).getAsJsonArray();
+                debug("SIZE: " + players.size());
+                if (players.size() < Constants.MAX_NUMBER_OF_PLAYERS) {
+                    new Timer(true)
+                            .schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    updateWaitingPlayers(input);
+                                }
+                            }, 100);
+                    this.subscribeToWRTimer();
+                }
+                this.rescheduleProbeTimer();
             }
-            this.rescheduleProbeTimer();
             return uuid;
         } else {
             return null;
@@ -427,7 +438,7 @@ public class SocketClient extends ClientNetwork {
      */
     private void updateToolCards(JsonObject input){
         JsonArray toolCards = input.getAsJsonArray(JsonFields.TOOL_CARDS);
-        List toolCardsStrings = new ArrayList();
+        List<String> toolCardsStrings = new ArrayList<>();
         for(JsonElement obj : toolCards){
             String toolCardString = NotificationsMessages.TOOL_CARDS;
             toolCardString += obj.getAsJsonObject().get(JsonFields.NAME).getAsString();
@@ -509,6 +520,12 @@ public class SocketClient extends ClientNetwork {
         turnManagamentStrings.add(input.get(JsonFields.CURRENT_ROUND).getAsString());
         turnManagamentStrings.add(input.get(JsonFields.GAME_OVER).getAsString());
         turnManagamentStrings.add(input.get(JsonFields.ACTIVE_PLAYER).getAsString());
+        String suspendedPlayers = input.get(JsonFields.SUSPENDED_PLAYERS).getAsJsonArray().toString();
+        suspendedPlayers = suspendedPlayers
+                .substring(1, suspendedPlayers.length() - 1)
+                .replace("\",", "$")
+                .replace("\"", "");
+        turnManagamentStrings.add(suspendedPlayers);
         this.setChanged();
         this.notifyObservers(turnManagamentStrings);
     }

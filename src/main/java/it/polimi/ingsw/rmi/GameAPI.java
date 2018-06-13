@@ -20,6 +20,7 @@ public interface GameAPI extends Remote {
     List<String> getCurrentPlayers() throws RemoteException;
     void nextTurn() throws RemoteException;
     void subscribeToTurnManagerTimer(Observer observer) throws RemoteException;
+    void unsubscribeFromTurnManagerTimer(Observer observer) throws RemoteException;
     Map<String, Integer> getFinalScores() throws RemoteException;
     List<ObjectiveCard> getPublicObjectiveCards() throws RemoteException;
     List<ToolCard> getToolCards() throws RemoteException;
@@ -27,6 +28,9 @@ public interface GameAPI extends Remote {
     // Player
     Player getPlayer(UUID id) throws RemoteException;
     String getActivePlayer() throws RemoteException;
+    void suspendPlayer(UUID id) throws RemoteException;
+    void unsuspendPlayer(UUID id) throws RemoteException;
+    List<String> getSuspendedPlayers() throws RemoteException;
     int getFavorTokensOf(String nickname) throws RemoteException;
     WindowPattern getWindowPatternOf(String nickname) throws RemoteException;
     void choosePattern(UUID id, int patternIndex) throws RemoteException;

@@ -29,7 +29,12 @@ public class GameEndPoint implements GameAPI {
 
     @Override
     public void subscribeToTurnManagerTimer(Observer observer) {
-        this.game.getTurnManager().getTimer().addObserver(observer);
+        this.game.getTurnManager().subscribeToTimer(observer);
+    }
+
+    @Override
+    public void unsubscribeFromTurnManagerTimer(Observer observer) {
+        this.game.getTurnManager().unsubscribeFromTimer(observer);
     }
 
     @Override
@@ -67,6 +72,21 @@ public class GameEndPoint implements GameAPI {
                 .findFirst();
         if (result.isPresent()) return result.get().getNickname();
         else throw new NoSuchElementException("No Active Player found");
+    }
+
+    @Override
+    public void suspendPlayer(UUID id) {
+        this.getPlayer(id).setSuspended(true);
+    }
+
+    @Override
+    public void unsuspendPlayer(UUID id) {
+        this.getPlayer(id).setSuspended(false);
+    }
+
+    @Override
+    public List<String> getSuspendedPlayers() {
+        return this.game.getSuspendedPlayers();
     }
 
     @Override

@@ -6,6 +6,8 @@ import it.polimi.ingsw.util.NotificationsMessages;
 import java.util.*;
 import java.util.stream.*;
 
+import static org.fusesource.jansi.Ansi.ansi;
+
 
 /**
  * This class handles the turns and the related timers.
@@ -21,6 +23,7 @@ public class TurnManager extends Observable {
     private CountdownTimer timer;
     private int timeout = 30;
     private boolean roundOver;
+    private Player previousPlayer;
 
     /**
      * @param players the list of players taking part in the Game.
@@ -32,11 +35,10 @@ public class TurnManager extends Observable {
         Stream<Integer> backRange = IntStream.range(0, this.getNumberOfPlayers()).boxed().sorted(Collections.reverseOrder());
         this.playersOrder = Stream.concat(forwardRange, backRange).collect(Collectors.toList());
         this.index = 0;
-        this.timer = new CountdownTimer(NotificationsMessages.TURN_MANAGER, this.timeout);
+        this.timer = new CountdownTimer(NotificationsMessages.TURN_MANAGER);
         this.roundOver = false;
         this.setActivePlayer(this.getCurrentPlayer());
         // TODO Set timer for first turn of first round
-        this.timer.schedule(this::nextTurn, this.timeout);
     }
 
     /**
@@ -63,12 +65,21 @@ public class TurnManager extends Observable {
         return this.players.get(this.getCurrentPlayerIndex());
     }
 
-    /**
-     * @author Fabio Codiglioni
-     * @return the timer instance.
-     */
-    public CountdownTimer getTimer() {
-        return this.timer;
+    public Player getPreviousPlayer() {
+        return this.previousPlayer;
+    }
+
+    public void subscribeToTimer(Observer observer) {
+        this.timer.addObserver(observer);
+        if (this.timer.countObservers() == 1)
+            this.timer.schedule(() -> {
+                this.nextTurn();
+                suspendPlayer(this.getPreviousPlayer().getNickname());
+            }, this.timeout);
+    }
+
+    public void unsubscribeFromTimer(Observer observer) {
+        this.timer.deleteObserver(observer);
     }
 
     /**
@@ -140,7 +151,9 @@ public class TurnManager extends Observable {
      */
     public void nextTurn() {
         this.timer.cancel();
-        this.index++;
+        this.previousPlayer = this.players.get(this.getCurrentPlayerIndex());
+        do this.index++;
+        while (this.index < this.playersOrder.size() && this.getCurrentPlayer().isSuspended());
         this.roundOver = false;
         if (this.index == this.playersOrder.size()) {
             this.index = 0;
@@ -150,7 +163,10 @@ public class TurnManager extends Observable {
             this.notifyObservers();
         }
         this.setActivePlayer(this.getCurrentPlayer());
-        this.timer.schedule(this::nextTurn, this.timeout);        // TODO
+        this.timer.schedule(() -> {
+            this.nextTurn();
+            suspendPlayer(this.getPreviousPlayer().getNickname());
+        }, this.timeout);
     }
 
 

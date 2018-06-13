@@ -66,8 +66,6 @@ public class ServerSocketHandler implements Runnable, Observer {
                 error("Probe error");
                 notifyDisconnectedUser();
                 Thread.currentThread().interrupt();
-                waitingRoomEndPoint.unsubscribeFromWaitingRoom(this);
-                waitingRoomEndPoint.unsubscribeFromWaitingRoomTimer(this);
             }
             JsonObject payload = new JsonObject();
             payload.addProperty(JsonFields.METHOD, Methods.PROBE.getString());
@@ -79,8 +77,15 @@ public class ServerSocketHandler implements Runnable, Observer {
     private void notifyDisconnectedUser() {
         String address = clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort();
         log("Disconnected " + address + " (nickname: " + nickname + ")");
-        waitingRoomEndPoint.removePlayer(nickname);
-        //game.getTurnManager().suspendPlayer(nickname);
+        if (waitingRoomEndPoint != null) {
+            waitingRoomEndPoint.removePlayer(nickname);
+            waitingRoomEndPoint.unsubscribeFromWaitingRoom(this);
+            waitingRoomEndPoint.unsubscribeFromWaitingRoomTimer(this);
+        }
+        if (gameEndPoint != null) {
+            gameEndPoint.unsubscribeFromTurnManagerTimer(this);
+            gameEndPoint.suspendPlayer(uuid);
+        }
         run = false;
         Thread.currentThread().interrupt();
     }
@@ -184,6 +189,7 @@ public class ServerSocketHandler implements Runnable, Observer {
             JsonObject payload = new JsonObject();
             payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
             payload.addProperty(JsonFields.LOGGED, true);
+            payload.addProperty(JsonFields.RECONNECTED, false);
             payload.addProperty(JsonFields.PLAYER_ID, uuid.toString());
             JsonArray waitingPlayers = new JsonArray();
             for (Player p : this.waitingRoomEndPoint.getWaitingPlayers())
@@ -200,6 +206,32 @@ public class ServerSocketHandler implements Runnable, Observer {
             payload.addProperty(JsonFields.LOGGED, false);
             debug("PAYLOAD " + payload.toString());
             out.println(payload.toString());
+        } catch (NicknameAlreadyUsedInGameException e) {
+            game = e.getGame();
+            nickname = tempNickname;
+            Player player = game.getPlayerForNickname(nickname);
+            uuid = player.getId();
+            log(nickname + " logged back in (" + uuid + ")");
+            this.game.addObserver(this);
+            this.gameEndPoint = new GameEndPoint(game);
+            waitingRoomEndPoint.unsubscribeFromWaitingRoom(this);
+            waitingRoomEndPoint.unsubscribeFromWaitingRoomTimer(this);
+            JsonObject payload = new JsonObject();
+            payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
+            payload.addProperty(JsonFields.LOGGED, true);
+            payload.addProperty(JsonFields.RECONNECTED, true);
+            payload.addProperty(JsonFields.PLAYER_ID, uuid.toString());
+            debug("PAYLOAD " + payload.toString());
+            out.println(payload.toString());
+            this.probeThread = new Thread(this::probe);
+            this.probeThread.start();
+            gameEndPoint.unsuspendPlayer(uuid);
+            new Timer(true).schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    fullUpdate();
+                }
+            }, 500);
         }
     }
 
@@ -417,6 +449,9 @@ public class ServerSocketHandler implements Runnable, Observer {
         payload.addProperty(JsonFields.CURRENT_ROUND, this.gameEndPoint.getCurrentRound());
         payload.addProperty(JsonFields.GAME_OVER, this.gameEndPoint.getRoundTrack().isGameOver());
         payload.addProperty(JsonFields.ACTIVE_PLAYER, this.gameEndPoint.getActivePlayer());
+        JsonArray suspendedPlayers = new JsonArray();
+        this.gameEndPoint.getSuspendedPlayers().forEach(suspendedPlayers::add);
+        payload.add(JsonFields.SUSPENDED_PLAYERS, suspendedPlayers);
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());
     }
@@ -462,6 +497,7 @@ public class ServerSocketHandler implements Runnable, Observer {
         } else if (o instanceof Game) {
             switch (stringArg) {
                 case NotificationsMessages.TURN_MANAGEMENT:
+                case NotificationsMessages.SUSPENDED:
                 case NotificationsMessages.PLACE_DIE:
                 case NotificationsMessages.USE_TOOL_CARD:
                     //System.out.println(ansi().fgGreen().a(stringArg).reset());

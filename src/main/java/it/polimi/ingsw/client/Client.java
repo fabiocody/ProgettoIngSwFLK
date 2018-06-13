@@ -18,9 +18,11 @@ public abstract class Client implements Observer {
     private boolean gameStarted = false;
     private boolean active = false;
     private boolean patternChosen = false;
+    private boolean suspended = false;
     private boolean gameOver = false;
+    private String activeNickname = null;
+    private List<String> suspendedPlayers = new ArrayList<>();
     private int favorTokens = 0;
-    private int round = 1;
 
     Client(ClientNetwork network, boolean debugActive) {
         this.debugActive = debugActive;
@@ -31,6 +33,7 @@ public abstract class Client implements Observer {
             log("Connection established");
         } catch (IOException e) {
             error("Connection failed");
+            System.exit(1);
         }
     }
 
@@ -78,13 +81,14 @@ public abstract class Client implements Observer {
         return active;
     }
 
-    void setActive (Boolean active){
+    void setActive(Boolean active){
         this.active = active;
     }
 
-    void setActive (String activeNickname){
+    void setActive(String activeNickname){
        this.active = activeNickname.equals(nickname);
-       if(!this.active) log("Aspetta il tuo turno.");
+       this.activeNickname = activeNickname;
+       if (!this.active && !this.suspended) log("Aspetta il tuo turno.");
     }
 
     boolean isPatternChosen() {
@@ -95,6 +99,15 @@ public abstract class Client implements Observer {
         this.patternChosen = patternChosen;
     }
 
+    boolean isSuspended() {
+        return suspended;
+    }
+
+    void setSuspended(List<String> suspendedPlayers) {
+        this.suspended = suspendedPlayers.contains(this.getNickname());
+        this.suspendedPlayers = suspendedPlayers;
+    }
+
     boolean isGameOver() {
         return gameOver;
     }
@@ -103,6 +116,10 @@ public abstract class Client implements Observer {
         this.gameOver = gameOver;
     }
 
+    public String getActiveNickname() {
+        return activeNickname;
+    }
+      
     public int getFavorTokens() {
         return favorTokens;
     }
@@ -111,15 +128,9 @@ public abstract class Client implements Observer {
         this.favorTokens = favorTokens;
     }
 
-    int getRound() {
-        return round;
+    public List<String> getSuspendedPlayers() {
+        return suspendedPlayers;
     }
-
-    void setRound(int round) {
-        this.round = round;
-    }
-
-
 
     /**
      * this method is used to print standard messages

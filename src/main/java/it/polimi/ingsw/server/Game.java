@@ -8,6 +8,7 @@ import it.polimi.ingsw.util.NotificationsMessages;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -80,6 +81,11 @@ public class Game extends Observable implements Observer {
         return new Vector<>(this.players);
     }
 
+    public boolean isNicknameUsedInThisGame(String nickname) {
+        return this.players.stream()
+                .anyMatch(p -> p.getNickname().equals(nickname));
+    }
+
     /**
      * @author Fabio Codiglioni
      * @param nickname the nickname to look for.
@@ -108,12 +114,23 @@ public class Game extends Observable implements Observer {
                 .allMatch(Player::isWindowPatternChosen);
     }
 
+    public List<String> getSuspendedPlayers() {
+        return this.players.stream()
+                .filter(Player::isSuspended)
+                .map(Player::getNickname)
+                .collect(Collectors.toList());
+    }
+
     /**
      * @author Fabio Codiglioni
      * @return the Turn Manager instance associated with the Game.
      */
     public TurnManager getTurnManager() {
         synchronized (turnManagerLock) {
+            if (this.turnManager == null) {
+                this.turnManager = new TurnManager(this.players);
+                this.turnManager.addObserver(this.getRoundTrack());
+            }
             return this.turnManager;
         }
     }
@@ -288,11 +305,10 @@ public class Game extends Observable implements Observer {
                 notifyObservers(NotificationsMessages.GAME_OVER);
             }
         } else if (o instanceof Player) {
-            if (arg != null && arg.equals(NotificationsMessages.PLACE_DIE)) {
+            if (arg != null && (arg.equals(NotificationsMessages.PLACE_DIE) || arg.equals(NotificationsMessages.SUSPENDED))) {
                 setChanged();
                 notifyObservers(arg);
-            }
-            else if (this.arePlayersReady()) {
+            } else if (this.arePlayersReady()) {
                 setChanged();
                 notifyObservers(NotificationsMessages.TURN_MANAGEMENT);
             }

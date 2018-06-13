@@ -80,13 +80,34 @@ public class SagradaServer implements Observer {
      * @return a boolean true if the nickname is already in use or false otherwise
      */
     public synchronized boolean isNicknameUsed(String nickname) {
-        Stream<String> gameStream = this.getGames().stream()
+        return isNicknameUsedWR(nickname) || (isNicknameUsedGame(nickname) != null && !isNicknameSuspended(nickname));
+        /*Stream<String> gameStream = this.getGames().stream()
                 .flatMap(g -> g.getPlayers().stream())
                 .map(Player::getNickname);
         Stream<String> waitingRoomStream = WaitingRoom.getInstance().getWaitingPlayers().stream()
                 .map(Player::getNickname);
         return Stream.concat(gameStream, waitingRoomStream)
+                .anyMatch(n -> n.equals(nickname));*/
+    }
+
+    public synchronized boolean isNicknameUsedWR(String nickname) {
+        return WaitingRoom.getInstance().getWaitingPlayers().stream()
+                .map(Player::getNickname)
                 .anyMatch(n -> n.equals(nickname));
+    }
+
+    public synchronized Game isNicknameUsedGame(String nickname) {
+        Optional<Game> game = this.getGames().stream()
+                .filter(g -> g.isNicknameUsedInThisGame(nickname))
+                .findFirst();
+        return game.orElse(null);
+    }
+
+    public synchronized boolean isNicknameSuspended(String nickname) {
+        return this.getGames().stream()
+                .flatMap(g -> g.getPlayers().stream())
+                .filter(player -> player.getNickname().equals(nickname))
+                .anyMatch(Player::isSuspended);
     }
 
     public synchronized boolean isNicknameNotValid(String nickname){
@@ -114,8 +135,10 @@ public class SagradaServer implements Observer {
      * @param arg the arguments of the update
      */
     public void update(Observable o, Object arg) {
-        if (o instanceof WaitingRoom && arg instanceof Game)
-            getGames().add((Game) arg);
+        if (o instanceof WaitingRoom)
+            if (arg instanceof Game) {
+                getGames().add((Game) arg);
+            }
     }
 
     public static void main(String[] args) {

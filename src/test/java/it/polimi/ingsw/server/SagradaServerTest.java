@@ -13,7 +13,7 @@ public class SagradaServerTest {
             WaitingRoom.getInstance().addPlayer("ABC");
             assertTrue(SagradaServer.getInstance().isNicknameUsed("ABC"));
             WaitingRoom.getInstance().removePlayer("ABC");
-        } catch (LoginFailedException e) {
+        } catch (LoginFailedException | NicknameAlreadyUsedInGameException e) {
             fail("Login failed");
         }
     }

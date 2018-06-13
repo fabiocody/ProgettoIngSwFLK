@@ -73,6 +73,7 @@
     "method": "addPlayer",
     "logged": <bool>,
     "playerID": <string>,
+    "reconnected": <bool>,
     "players": [
         <nickname: string>,
         ...
@@ -225,7 +226,10 @@ After this request, the server will send to each client the following informatio
     "method": "turnManagement",
     "currentRound": <int>,
     "gameOver": <bool>,
-    "activePlayer": <nickname: string>
+    "activePlayer": <nickname: string>,
+    "suspended": [
+        <nickname: string>
+    ]
 }
 ```
 
