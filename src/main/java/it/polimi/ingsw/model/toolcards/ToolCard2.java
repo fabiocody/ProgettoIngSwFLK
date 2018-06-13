@@ -57,11 +57,16 @@ public class ToolCard2 extends ToolCard {
             throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
         PlacementConstraint constraint = new PositionConstraint(new ValueConstraint(new OrthogonalConstraint(new EmptyConstraint())));
         this.moveDie(player, fromIndex, toIndex, constraint);
-        this.setUsed();
         setChanged();
         notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
 
+    /**
+     * This method is used to send a JsonObject containing the fields that the user will have to fill to use this tool card
+     *
+     * @author Kai de Gast
+     * @return JsonObject containing the required fields filled with momentary constants
+     */
     @Override
     public JsonObject requiredData() {
         JsonObject payload = new JsonObject();

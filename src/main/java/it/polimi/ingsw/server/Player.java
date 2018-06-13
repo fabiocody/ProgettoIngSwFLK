@@ -161,6 +161,12 @@ public class Player extends Observable {
         this.notifyObservers(NotificationsMessages.PLACE_DIE);
     }
 
+    public synchronized void placeDie(Die d, int position, PlacementConstraint constraint){
+        if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException("you already placed a die this turn");
+        this.getWindowPattern().placeDie(d, position, constraint);
+        setDiePlacedInThisTurn(true);
+    }
+
 
     public boolean isWindowPatternChosen() {
         return windowPatternChosen;

@@ -198,7 +198,7 @@ public class SocketClient extends ClientNetwork {
     }
 
     /**
-     * this method analyzes the string of an incoming message
+     * This method analyzes the string of an incoming message
      *
      * @return the received string
      * @throws IOException socket error
@@ -289,6 +289,11 @@ public class SocketClient extends ClientNetwork {
         //debug("INPUT " + this.pollResponseBuffer());
     }
 
+    /**
+     * This method is used when a player chooses his window pattern at the beginning of the game
+     *
+     * @param patternIndex the index of the chosen window pattern
+     */
     void choosePattern(int patternIndex) {
         JsonObject payload = new JsonObject();
         JsonObject arg = new JsonObject();
@@ -297,6 +302,14 @@ public class SocketClient extends ClientNetwork {
         this.sendMessage(payload, Methods.CHOOSE_PATTERN.getString());
     }
 
+    /**
+     * This method is used to place a die from the draft pool in the specified position
+     *
+     * @param draftPoolIndex the index of the draft pool which contains the die
+     * @param x the column index in which the user wants to place the die
+     * @param y the row index in which the user wants to place the die
+     * @return boolean true if the die place was successful, false otherwise
+     */
     boolean placeDie(int draftPoolIndex, int x, int y){
         JsonObject payload = new JsonObject();
         JsonObject arg = new JsonObject();
@@ -310,6 +323,13 @@ public class SocketClient extends ClientNetwork {
         return input.get(JsonFields.RESULT).getAsBoolean();
     }
 
+    /**
+     * This method handles the request from a user to use a tool card
+     *
+     * @param cardIndex index of the specified tool card
+     * @param data JsonObject containing all the necessary fields filled with information given by the user
+     * @return
+     */
     boolean useToolCard(int cardIndex, JsonObject data){
         JsonObject payload = new JsonObject();
         JsonObject arg = new JsonObject();
@@ -322,6 +342,12 @@ public class SocketClient extends ClientNetwork {
         return input.get(JsonFields.RESULT).getAsBoolean();
     }
 
+    /**
+     * This method is used to request the information needed to use the specified tool card
+     *
+     * @param cardIndex the index of the tool card that the user wants to use
+     * @return JsonObject containing the required fields for the specified tool card
+     */
     JsonObject requiredData(int cardIndex){
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.CARD_INDEX, cardIndex);
@@ -331,6 +357,9 @@ public class SocketClient extends ClientNetwork {
         return input;
     }
 
+    /**
+     * This method is used to pass to the next turn
+     */
     void nextTurn() {
         JsonObject payload = new JsonObject();
         this.sendMessage(payload, Methods.NEXT_TURN.getString());
@@ -363,6 +392,12 @@ public class SocketClient extends ClientNetwork {
         this.notifyObservers(Arrays.asList(NotificationsMessages.GAME_TIMER_TICK, tick));
     }
 
+    /**
+     * This method is used to set up the game for a player providing the private objective card and the window patterns
+     * from which the will have to choose one
+     *
+     * @param input JsonObject received from the server containing the data for the private objective card and the 4 window patterns
+     */
     private void gameSetup(JsonObject input) {
         String privateObjectiveCardString = NotificationsMessages.PRIVATE_OBJECTIVE_CARD + "Il tuo obiettivo privato è:\n";
         privateObjectiveCardString += input.get(JsonFields.PRIVATE_OBJECTIVE_CARD).getAsJsonObject().get(JsonFields.NAME).getAsString();
@@ -385,6 +420,11 @@ public class SocketClient extends ClientNetwork {
         this.notifyObservers(input.get(JsonFields.PLAYERS).getAsJsonArray());
     }
 
+    /**
+     * This method is used to update the tool cards seen by the client
+     *
+     * @param input JsonObject containing the data of the tool cards
+     */
     private void updateToolCards(JsonObject input){
         JsonArray toolCards = input.getAsJsonArray(JsonFields.TOOL_CARDS);
         List toolCardsStrings = new ArrayList();
@@ -400,6 +440,11 @@ public class SocketClient extends ClientNetwork {
         this.notifyObservers(toolCardsStrings);
     }
 
+    /**
+     * This method is used to update the window patterns seen by the client
+     *
+     * @param input JsonObject containing the data of the window patterns
+     */
     private void updateWindowPatterns(JsonObject input){
         List<String> windowPatternsList = new ArrayList<>();
         windowPatternsList.add(NotificationsMessages.UPDATE_WINDOW_PATTERNS);
@@ -412,6 +457,11 @@ public class SocketClient extends ClientNetwork {
         this.notifyObservers(windowPatternsList);
     }
 
+    /**
+     * This method is used to show the bublic objective cards to the client
+     *
+     * @param input
+     */
     private void publicObjectiveCards(JsonObject input){
         JsonArray publicObjectiveCards= input.getAsJsonArray(JsonFields.PUBLIC_OBJECTIVE_CARDS);
         List<String> publicObjectiveCardsStrings = new ArrayList<>();
@@ -431,6 +481,11 @@ public class SocketClient extends ClientNetwork {
         this.notifyObservers(publicObjectiveCardsStrings);
     }
 
+    /**
+     * This method is used to update the draft pool seen by the client
+     *
+     * @param input JsonObject containing the data of the draft pool
+     */
     private void updateDraftPool(JsonObject input){
         JsonArray draftPoolDice = input.getAsJsonArray(JsonFields.DICE);
         List<String> draftPoolDieStrings = new ArrayList<>();

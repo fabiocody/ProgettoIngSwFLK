@@ -51,11 +51,16 @@ public class ToolCard1 extends ToolCard {
         if (d.getValue() == 1 && newValue == 6 || d.getValue() == 6 && newValue == 1)
             throw new InvalidEffectResultException("Cannot make a 1 into 6 or a 6 into 1");
         else d.setValue(newValue);
-        this.setUsed();
         setChanged();
         notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
 
+    /**
+     * This method is used to send a JsonObject containing the fields that the user will have to fill to use this tool card
+     *
+     * @author Kai de Gast
+     * @return JsonObject containing the required fields filled with momentary constants
+     */
     public JsonObject requiredData(){
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());

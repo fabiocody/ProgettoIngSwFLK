@@ -254,13 +254,27 @@ public class ServerSocketHandler implements Runnable, Observer {
         int cardIndex = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.CARD_INDEX).getAsInt();
         JsonObject data = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DATA).getAsJsonObject();
         UUID id = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
-        data.addProperty(JsonFields.PLAYER_ID, id.toString()); //serve nickname, non UUID
+        boolean tax;
+        tax = !(input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE));
+        data.addProperty(JsonFields.PLAYER_ID, id.toString());
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, JsonFields.USE_TOOL_CARD);
         try {
             this.gameEndPoint.useToolCard(id, cardIndex, data);
             payload.addProperty(JsonFields.RESULT, true);
             log(nickname + " used a tool card");
+            if (tax) {      //TODO spostare nel gameEndPoint
+                if (!gameEndPoint.getToolCards().get(cardIndex).isUsed()) {
+                    this.gameEndPoint.getPlayer(id).setFavorTokens(this.gameEndPoint.getPlayer(id).getFavorTokens() - 1);
+                    debug("removed 1 favor token");
+                } else {
+                    this.gameEndPoint.getPlayer(id).setFavorTokens(this.gameEndPoint.getPlayer(id).getFavorTokens() - 2);
+                    debug("removed 2 favor tokens");
+                }
+            }
+            if (!(input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE))) {
+                this.gameEndPoint.getToolCards().get(cardIndex).setUsed();
+            }
             debug("PAYLOAD " + payload.toString());
             out.println(payload.toString());
         } catch (RemoteException | InvalidEffectArgumentException | InvalidEffectResultException e) {
@@ -274,9 +288,18 @@ public class ServerSocketHandler implements Runnable, Observer {
 
     private void requiredData(JsonObject input) {
         int cardIndex = input.get(JsonFields.CARD_INDEX).getAsInt();
+        UUID id = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
         JsonObject payload = this.gameEndPoint.requiredData(cardIndex);
+        if ((this.gameEndPoint.getPlayer(id).getFavorTokens()<2 && gameEndPoint.getToolCards().get(cardIndex).isUsed()) ||
+                (this.gameEndPoint.getPlayer(id).getFavorTokens()<1 && !gameEndPoint.getToolCards().get(cardIndex).isUsed())){
+            payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.NO_FAVOR_TOKENS, Constants.INDEX_CONSTANT);
+        }
         if (payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX) && this.gameEndPoint.getRoundTrack().getAllDice().isEmpty()){
             payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.ROUND_TRACK);
+        }
+        if ((payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.TO_CELL_X)) &&
+                (!(payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.FROM_CELL_X))) && (this.gameEndPoint.getPlayer(id).isDiePlacedInThisTurn()) && (!payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.SECOND_DIE_PLACEMENT))) {
+            payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.DIE);
         }
         debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());

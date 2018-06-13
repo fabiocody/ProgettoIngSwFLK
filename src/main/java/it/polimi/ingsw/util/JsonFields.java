@@ -49,6 +49,8 @@ public class JsonFields {
     public static final String CONTINUE = "continue";
     public static final String IMPOSSIBLE_TO_USE_TOOL_CARD = "impossibleToUseToolCard";
     public static final String STOP = "stop";
+    public static final String NO_FAVOR_TOKENS = "noFavorTokens";
+    public static final String SECOND_DIE_PLACEMENT = "secondDiePlacement";
 
 
     private JsonFields() throws IllegalAccessException {

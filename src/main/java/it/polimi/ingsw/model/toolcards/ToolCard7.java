@@ -3,6 +3,7 @@ package it.polimi.ingsw.model.toolcards;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.server.Game;
+import it.polimi.ingsw.util.Constants;
 import it.polimi.ingsw.util.JsonFields;
 import it.polimi.ingsw.util.Methods;
 import it.polimi.ingsw.util.NotificationsMessages;
@@ -36,16 +37,24 @@ public class ToolCard7 extends ToolCard {
         if (!this.getGame().getTurnManager().isSecondHalfOfRound())
             throw new InvalidEffectResultException();
         this.getGame().getDiceGenerator().getDraftPool().forEach(Die::roll);
-        this.setUsed();
         setChanged();
         notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
 
+    /**
+     * This method is used to send a JsonObject containing the fields that the user will have to fill to use this tool card
+     *
+     * @author Kai de Gast
+     * @return JsonObject containing the required fields filled with momentary constants
+     */
     @Override
     public JsonObject requiredData() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
+        JsonObject data = new JsonObject();
+        payload.add(JsonFields.DATA, data);
         return payload;
     }
+
 
 }
