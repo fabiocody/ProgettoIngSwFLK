@@ -124,7 +124,8 @@ public class ClientCLI extends Client {
                                     } else {
                                         do {
                                             draftPoolIndex = draftPoolLength;
-                                            input = input("Quale dado vuoi piazzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE);
+                                            log("Quale dado vuoi piazzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE);
+                                            input = asyncInput("timerPrompt");
                                             try {
                                                 draftPoolIndex = Integer.valueOf(input) - 1;
                                                 if (draftPoolIndex == -1) throw new CancelException();
@@ -133,7 +134,8 @@ public class ClientCLI extends Client {
                                             }
                                         } while (draftPoolIndex < 0 || draftPoolIndex >= draftPoolLength);
                                         do {
-                                            input = input("In quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE);
+                                            log("In quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE);
+                                            input = asyncInput("timerPrompt");
                                             try {
                                                 x = Integer.valueOf(input) - 1;
                                                 if (x == -1) throw new CancelException();
@@ -142,7 +144,8 @@ public class ClientCLI extends Client {
                                             }
                                         } while (x < 0 || x >= NUMBER_OF_PATTERN_COLUMNS);
                                         do {
-                                            input = input("In quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE);
+                                            log("In quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE);
+                                            input = asyncInput("timerPrompt");
                                             try {
                                                 y = Integer.valueOf(input) - 1;
                                                 if (y == -1) throw new CancelException();
@@ -165,7 +168,8 @@ public class ClientCLI extends Client {
                                     }
                                     if (showPrompt) {
                                         do {
-                                            input = input("Quale carta strumento vuoi usare [1-3]?");
+                                            log("Quale carta strumento vuoi usare [1-3]?");
+                                            input = asyncInput("timerPrompt");
                                             try {
                                                 cardIndex = Integer.valueOf(input) - 1;
                                                 if (cardIndex == -1) throw new CancelException();
@@ -189,7 +193,8 @@ public class ClientCLI extends Client {
                                         } else {
                                             if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP)) {
                                                 do {
-                                                    input = input("Vuoi continuare[si 1/no 0]? ");
+                                                    log("Vuoi continuare [si 1/no 0]?");
+                                                    input = asyncInput("timerPrompt");
                                                     try {
                                                         continueIndex = Integer.valueOf(input);
                                                         if (continueIndex == 1) stop = false;
@@ -203,7 +208,8 @@ public class ClientCLI extends Client {
                                             if (continueIndex != 0) {
                                                 if (requiredData.get("data").getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) {
                                                     do {
-                                                        input = input("Quale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]?");
+                                                        log("Quale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]?");
+                                                        input = asyncInput("timerPrompt");
                                                         try {
                                                             draftPoolIndex = Integer.valueOf(input) - 1;
                                                             if (draftPoolIndex == -1) throw new CancelException();
@@ -215,7 +221,8 @@ public class ClientCLI extends Client {
                                                 }
                                                 if (requiredData.get("data").getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX)) {
                                                     do {
-                                                        input = input("Quale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]?");
+                                                        log("Quale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]?");
+                                                        input = asyncInput("timerPrompt");
                                                         try {
                                                             roundTrackIndex = Integer.valueOf(input) - 1;
                                                             if (roundTrackIndex == -1) throw new CancelException();
@@ -228,7 +235,8 @@ public class ClientCLI extends Client {
                                                 }
                                                 if (requiredData.get("data").getAsJsonObject().has(JsonFields.DELTA)) {
                                                     do {
-                                                        input = input("Vuoi aunmentare[1] o diminuire[0] il valore del dado? >>>");
+                                                        log("Vuoi aunmentare[1] o diminuire[0] il valore del dado?");
+                                                        input = asyncInput("timerPrompt");
                                                         try {
                                                             delta = Integer.valueOf(input);
                                                             if (delta == 0) delta = -1;
@@ -240,7 +248,8 @@ public class ClientCLI extends Client {
                                                 }
                                                 if (requiredData.get("data").getAsJsonObject().has(JsonFields.NEW_VALUE)) {
                                                     do {
-                                                        input = input("Quale valore vuoi assegnare al dado[1-6]? >>>");
+                                                        log("Quale valore vuoi assegnare al dado[1-6]?");
+                                                        input = asyncInput("timerPrompt");
                                                         try {
                                                             newValue = Integer.valueOf(input);
                                                             if (newValue == 0) throw new CancelException();
@@ -252,7 +261,8 @@ public class ClientCLI extends Client {
                                                 }
                                                 if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_X)) {
                                                     do {
-                                                        input = input("Da quale colonna vuoi muoverlo [1-5]?");
+                                                        log("Da quale colonna vuoi muoverlo [1-5]?");
+                                                        input = asyncInput("timerPrompt");
                                                         try {
                                                             fromCellX = Integer.valueOf(input) - 1;
                                                             if (fromCellX == -1) throw new CancelException();
@@ -264,7 +274,8 @@ public class ClientCLI extends Client {
                                                 }
                                                 if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_Y)) {
                                                     do {
-                                                        input = input("Da quale riga vuoi muoverlo [1-4]?");
+                                                        log("Da quale riga vuoi muoverlo [1-4]?");
+                                                        input = asyncInput("timerPrompt");
                                                         try {
                                                             fromCellY = Integer.valueOf(input) - 1;
                                                             if (fromCellY == -1) throw new CancelException();
@@ -276,7 +287,8 @@ public class ClientCLI extends Client {
                                                 }
                                                 if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_X)) {
                                                     do {
-                                                        input = input("In quale colonna vuoi piazzarlo [1-5]?");
+                                                        log("In quale colonna vuoi piazzarlo [1-5]?");
+                                                        input = asyncInput("timerPrompt");
                                                         try {
                                                             toCellX = Integer.valueOf(input) - 1;
                                                             if (toCellX == -1) throw new CancelException();
@@ -288,7 +300,8 @@ public class ClientCLI extends Client {
                                                 }
                                                 if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_Y)) {
                                                     do {
-                                                        input = input("In quale riga vuoi piazzarlo [1-4]?");
+                                                        log("In quale riga vuoi piazzarlo [1-4]?");
+                                                        input = asyncInput("timerPrompt");
                                                         try {
                                                             toCellY = Integer.valueOf(input) - 1;
                                                             if (toCellY == -1) throw new CancelException();
