@@ -60,6 +60,12 @@ public class ToolCard12 extends ToolCard {
         notifyObservers("$useToolCard$");
     }
 
+    /**
+     * this method is used to send a JsonObject containing the fields that the user will have to fill to use this tool card
+     *
+     * @author Kai de Gast
+     * @return JsonObject containing the required fields filled with momentary constants
+     */
     @Override
     public JsonObject requiredData() {   //TODO decidere colore tracciato round
         JsonObject payload = new JsonObject();

@@ -70,6 +70,12 @@ public class ToolCard4 extends ToolCard {
         }
     }
 
+    /**
+     * This method is used to send a JsonObject containing the fields that the user will have to fill to use this tool card
+     *
+     * @author Kai de Gast
+     * @return JsonObject containing the required fields filled with momentary constants
+     */
     @Override
     public JsonObject requiredData() {
         JsonObject payload = new JsonObject();
