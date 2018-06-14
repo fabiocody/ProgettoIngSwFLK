@@ -30,9 +30,9 @@ public abstract class Client implements Observer {
         this.network.addObserver(this);
         try {
             network.setup();
-            log("Connection established");
+            Logger.println("Connection established");
         } catch (IOException e) {
-            error("Connection failed");
+            Logger.error("Connection failed");
             System.exit(1);
         }
     }
@@ -88,7 +88,7 @@ public abstract class Client implements Observer {
     void setActive(String activeNickname){
        this.active = activeNickname.equals(nickname);
        this.activeNickname = activeNickname;
-       if (!this.active && !this.suspended) log("Aspetta il tuo turno.");
+       if (!this.active && !this.suspended) Logger.println("Aspetta il tuo turno.");
     }
 
     boolean isPatternChosen() {
@@ -130,34 +130,6 @@ public abstract class Client implements Observer {
 
     public List<String> getSuspendedPlayers() {
         return suspendedPlayers;
-    }
-
-    /**
-     * this method is used to print standard messages
-     *
-     * @param message that we want to print
-     */
-    static void log(String message) {
-        System.out.println(message);
-    }
-
-    /**
-     * this method is used to print messages intended for debugging
-     *
-     * @param message that we want to print out
-     */
-    void debug(String message) {
-        if (this.isDebugActive())
-            System.out.println("[DEBUG] " + message);
-    }
-
-    /**
-     * this method is used to print error messages
-     *
-     * @param message that we want to print out
-     */
-    static void error(String message) {
-        System.err.println("[ERROR] " + message);
     }
 
     static boolean isValidHost(String host){

@@ -7,8 +7,8 @@ import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.rmi.GameAPI;
 import it.polimi.ingsw.model.toolcards.*;
 import it.polimi.ingsw.util.JsonFields;
-
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,7 +17,8 @@ public class GameEndPoint implements GameAPI {
 
     private Game game;
 
-    GameEndPoint(Game game) {
+    GameEndPoint(Game game) /*throws RemoteException*/ {
+        //super();
         this.game = game;
     }
 

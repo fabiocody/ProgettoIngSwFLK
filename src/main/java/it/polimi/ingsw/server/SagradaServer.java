@@ -4,6 +4,8 @@ import it.polimi.ingsw.util.*;
 import joptsimple.*;
 import java.io.IOException;
 import java.net.*;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Stream;
@@ -22,8 +24,8 @@ public class SagradaServer implements Observer {
     private int port;
     private boolean run = true;
     private List<Game> games;
-    private boolean debugActive;
-    private int gameTimeout = 30;
+    private int wrTimeout = 30;
+    private int gameTimeout = 60;
 
     /**
      * this method is the constructor that sets the port and adds an observer to the waiting room
@@ -41,16 +43,20 @@ public class SagradaServer implements Observer {
         return instance;
     }
 
-    /**
-     * @param wrTimeout the duration of the timer for the waiting room
-     * @param gameTimeout the duration of the timer for the game
-     * @param debugActive if present activates the debug messages
-     */
-    public void startSocketServer(int port, int wrTimeout, int gameTimeout, boolean debugActive) {
+    public void start(int port, int wrTimeout, int gameTimeout, boolean debugActive) {
         this.port = port;
-        this.debugActive = debugActive;
+        this.wrTimeout = wrTimeout;
         this.gameTimeout = gameTimeout;
-        WaitingRoom.getInstance().setTimeout(wrTimeout);
+        Logger.setDebugActive(debugActive);
+        WaitingRoom.getInstance().setTimeout(this.wrTimeout);
+        new Thread(this::startSocketServer).start();
+        this.startRMI();
+    }
+
+    /**
+     *
+     */
+    private void startSocketServer() {
         ExecutorService executor = Executors.newCachedThreadPool();
         try (ServerSocket serverSocket = new ServerSocket(this.port);){
             System.out.println("Server up and running");
@@ -61,6 +67,14 @@ public class SagradaServer implements Observer {
             executor.shutdown();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void startRMI() {
+        try {
+            LocateRegistry.createRegistry(this.port);
+        } catch (RemoteException e) {
+
         }
     }
 
@@ -115,13 +129,6 @@ public class SagradaServer implements Observer {
     }
 
     /**
-     * @return true if the debug option is active or false otherwise
-     */
-    public boolean isDebugActive() {
-        return debugActive;
-    }
-
-    /**
      * @return the duration of the timer for the game
      */
     public int getGameTimeout() {
@@ -157,7 +164,7 @@ public class SagradaServer implements Observer {
             } else {
                 port = Constants.DEFAULT_PORT;
             }
-            SagradaServer.getInstance().startSocketServer(port, wrTimerout, gameTimeout, options.has(CLIArguments.DEBUG));
+            SagradaServer.getInstance().start(port, wrTimerout, gameTimeout, options.has(CLIArguments.DEBUG));
         } catch (OptionException e) {
             System.out.println("usage: sagradaserver [--debug] [--port PORT] --wr-timer Y --game-timeout Z");
         }

@@ -1,14 +1,20 @@
 package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.rmi.WaitingRoomAPI;
+import java.util.*;
 
-import java.rmi.RemoteException;
-import java.util.List;
-import java.util.Observer;
-import java.util.UUID;
-import java.util.Vector;
 
 public class WaitingRoomEndPoint implements WaitingRoomAPI {
+
+    private static WaitingRoomEndPoint instance;
+
+    private WaitingRoomEndPoint() {}
+
+    public static WaitingRoomEndPoint getInstance() {
+        if (instance == null)
+            instance = new WaitingRoomEndPoint();
+        return instance;
+    }
 
     @Override
     public UUID addPlayer(String nickname) throws LoginFailedException, NicknameAlreadyUsedInGameException {
@@ -44,4 +50,5 @@ public class WaitingRoomEndPoint implements WaitingRoomAPI {
     public void unsubscribeFromWaitingRoom(Observer observer) {
         WaitingRoom.getInstance().deleteObserver(observer);
     }
+
 }

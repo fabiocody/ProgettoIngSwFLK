@@ -34,8 +34,7 @@ public class ClientCLI extends Client {
     private String wrTimeout;
     private String wrPlayers;
     private String gameTimeout = "00";
-    //private String lastPrintedLine = "";
-    int cardIndex = INDEX_CONSTANT;
+    private int cardIndex = INDEX_CONSTANT;
 
     private int draftPoolLength;
     private long roundTrackLength = 0;
@@ -47,7 +46,7 @@ public class ClientCLI extends Client {
 
     void start() {
         AnsiConsole.systemInstall();
-        System.out.print(ansi().eraseScreen().cursor(0, 0));
+        Logger.print(ansi().eraseScreen().cursor(0, 0).toString());
         try {
             this.stdin = new BufferedReader(new InputStreamReader(System.in));
             do addPlayer(); while (!this.isLogged());
@@ -60,7 +59,7 @@ public class ClientCLI extends Client {
             }
             if (!this.isPatternChosen()) {
                 Integer patternIndex = INDEX_CONSTANT;
-                log("");
+                Logger.println("");
                 do {
                     input = input("Scegli la tua carta Schema [1-4] >>>");
                     try {
@@ -71,7 +70,7 @@ public class ClientCLI extends Client {
                 } while (patternIndex <= 0 || patternIndex > 4);
                 this.getNetwork().choosePattern(patternIndex - 1);
                 this.setPatternChosen(true);
-                log("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
+                Logger.println("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
                 while (!this.isGameStarted()) Thread.sleep(10);
             }
             while (!this.isGameOver()) {
@@ -92,7 +91,7 @@ public class ClientCLI extends Client {
               
                 this.getSuspendedPlayers().stream()
                         .reduce((s, r) -> s + ", " + r)
-                        .ifPresent(sp -> log("Giocatori sospesi: " + sp + "\n"));
+                        .ifPresent(sp -> Logger.println("Giocatori sospesi: " + sp + "\n"));
 
                 input = "";
                 while (isSuspended() && !input.equals(getNickname())) {
@@ -105,76 +104,76 @@ public class ClientCLI extends Client {
                 while (!this.isActive() && !this.isGameOver()) Thread.sleep(10);
 
                 if (!isGameOver()) {
-                    log("È il tuo turno!");
+                    Logger.println("È il tuo turno!");
                     do {
                         try {
                             if (showPrompt) {
                                 cardIndex = INDEX_CONSTANT;
-                                log("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
+                                Logger.println("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
                                         "passare il turno.");
-                                log("Scegli cosa fare [1-3]");
+                                Logger.println("Scegli cosa fare [1-3]");
                                 input = asyncInput("timerPrompt");
                             }
                             try {
                                 if (showPrompt) this.instructionIndex = Integer.valueOf(input);
                                 if (instructionIndex == 1) {
                                     if (dieAlreadyPlaced) {
-                                        log("Hai già piazzato un dado questo turno!");
+                                        Logger.println("Hai già piazzato un dado questo turno!");
                                         this.instructionIndex = INDEX_CONSTANT;
                                     } else {
                                         do {
                                             draftPoolIndex = draftPoolLength;
-                                            log("Quale dado vuoi piazzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE);
+                                            Logger.println("Quale dado vuoi piazzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE);
                                             input = asyncInput("timerPrompt");
                                             try {
                                                 draftPoolIndex = Integer.valueOf(input) - 1;
                                                 if (draftPoolIndex == -1) throw new CancelException();
                                             } catch (NumberFormatException e) {
-                                                log("Indice non valido\n");
+                                                Logger.println("Indice non valido\n");
                                             }
                                         } while (draftPoolIndex < 0 || draftPoolIndex >= draftPoolLength);
                                         do {
-                                            log("In quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE);
+                                            Logger.println("In quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE);
                                             input = asyncInput("timerPrompt");
                                             try {
                                                 x = Integer.valueOf(input) - 1;
                                                 if (x == -1) throw new CancelException();
                                             } catch (NumberFormatException e) {
-                                                log("Indice non valido\n");
+                                                Logger.println("Indice non valido\n");
                                             }
                                         } while (x < 0 || x >= NUMBER_OF_PATTERN_COLUMNS);
                                         do {
-                                            log("In quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE);
+                                            Logger.println("In quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE);
                                             input = asyncInput("timerPrompt");
                                             try {
                                                 y = Integer.valueOf(input) - 1;
                                                 if (y == -1) throw new CancelException();
                                             } catch (NumberFormatException e) {
-                                                log("Indice non valido\n");
+                                                Logger.println("Indice non valido\n");
                                             }
                                         } while (y < 0 || y >= NUMBER_OF_PATTERN_ROWS);
                                         if (this.getNetwork().placeDie(draftPoolIndex, x, y)) {
-                                            log("Dado piazzato\n");
+                                            Logger.println("Dado piazzato\n");
                                             dieAlreadyPlaced = true;
                                         } else {
-                                            log("Posizionamento invalido\n");
+                                            Logger.println("Posizionamento invalido\n");
                                         }
                                         this.instructionIndex = INDEX_CONSTANT;
                                     }
                                 } else if (instructionIndex == 2) {  //Tool card
                                     if (toolCardAlreadyUsed) {
-                                        log("Hai già usato una carta strumento questo turno!\n");
+                                        Logger.println("Hai già usato una carta strumento questo turno!\n");
                                         this.instructionIndex = INDEX_CONSTANT;
                                     }
                                     if (showPrompt) {
                                         do {
-                                            log("Quale carta strumento vuoi usare [1-3]?");
+                                            Logger.println("Quale carta strumento vuoi usare [1-3]?");
                                             input = asyncInput("timerPrompt");
                                             try {
                                                 cardIndex = Integer.valueOf(input) - 1;
                                                 if (cardIndex == -1) throw new CancelException();
                                             } catch (NumberFormatException e) {
-                                                log("Indice non valido\n");
+                                                Logger.println("Indice non valido\n");
                                                 continue;
                                             }
                                         } while (cardIndex < 0 || cardIndex >= 3);
@@ -182,18 +181,18 @@ public class ClientCLI extends Client {
                                     JsonObject requiredData = this.getNetwork().requiredData(cardIndex);
                                     requiredData.remove("method");
                                     if (requiredData.get("data").getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS)) {
-                                        log("Non hai abbastanza segnalini favore per utilizzare questa carta strumento");
+                                        Logger.println("Non hai abbastanza segnalini favore per utilizzare questa carta strumento");
                                         instructionIndex = INDEX_CONSTANT;
                                         showPrompt = true;
                                     } else {
                                         if (requiredData.get("data").getAsJsonObject().has("impossibleToUseToolCard")) {
-                                            log("Non puoi utilizzare questa carta strumento: " + requiredData.get("data").getAsJsonObject().get("impossibleToUseToolCard").getAsString());
+                                            Logger.println("Non puoi utilizzare questa carta strumento: " + requiredData.get("data").getAsJsonObject().get("impossibleToUseToolCard").getAsString());
                                             instructionIndex = INDEX_CONSTANT;
                                             showPrompt = true;
                                         } else {
                                             if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP)) {
                                                 do {
-                                                    log("Vuoi continuare [si 1/no 0]?");
+                                                    Logger.println("Vuoi continuare [si 1/no 0]?");
                                                     input = asyncInput("timerPrompt");
                                                     try {
                                                         continueIndex = Integer.valueOf(input);
@@ -201,113 +200,113 @@ public class ClientCLI extends Client {
                                                         else stop = true;
                                                         requiredData.get("data").getAsJsonObject().addProperty(JsonFields.STOP, stop);
                                                     } catch (NumberFormatException e) {
-                                                        log("Indice non valido\n");
+                                                        Logger.println("Indice non valido\n");
                                                     }
                                                 } while (!(continueIndex == 1 || continueIndex == 0));
                                             }
                                             if (continueIndex != 0) {
                                                 if (requiredData.get("data").getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) {
                                                     do {
-                                                        log("Quale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]?");
+                                                        Logger.println("Quale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]?");
                                                         input = asyncInput("timerPrompt");
                                                         try {
                                                             draftPoolIndex = Integer.valueOf(input) - 1;
                                                             if (draftPoolIndex == -1) throw new CancelException();
                                                             requiredData.get("data").getAsJsonObject().addProperty("draftPoolIndex", draftPoolIndex);
                                                         } catch (NumberFormatException e) {
-                                                            log("Indice non valido\n");
+                                                            Logger.println("Indice non valido\n");
                                                         }
                                                     } while (draftPoolIndex < 0 || draftPoolIndex >= draftPoolLength);
                                                 }
                                                 if (requiredData.get("data").getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX)) {
                                                     do {
-                                                        log("Quale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]?");
+                                                        Logger.println("Quale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]?");
                                                         input = asyncInput("timerPrompt");
                                                         try {
                                                             roundTrackIndex = Integer.valueOf(input) - 1;
                                                             if (roundTrackIndex == -1) throw new CancelException();
                                                             requiredData.get("data").getAsJsonObject().addProperty("roundTrackIndex", roundTrackIndex);
                                                         } catch (NumberFormatException e) {
-                                                            log("Indice non valido\n");
+                                                            Logger.println("Indice non valido\n");
                                                         }
                                                     }
                                                     while (roundTrackIndex < 0 || roundTrackIndex >= roundTrackLength);
                                                 }
                                                 if (requiredData.get("data").getAsJsonObject().has(JsonFields.DELTA)) {
                                                     do {
-                                                        log("Vuoi aunmentare[1] o diminuire[0] il valore del dado?");
+                                                        Logger.println("Vuoi aunmentare[1] o diminuire[0] il valore del dado?");
                                                         input = asyncInput("timerPrompt");
                                                         try {
                                                             delta = Integer.valueOf(input);
                                                             if (delta == 0) delta = -1;
                                                             requiredData.get("data").getAsJsonObject().addProperty("delta", delta);
                                                         } catch (NumberFormatException e) {
-                                                            log("Indice non valido\n");
+                                                            Logger.println("Indice non valido\n");
                                                         }
                                                     } while (!(delta == 1 || delta == -1));
                                                 }
                                                 if (requiredData.get("data").getAsJsonObject().has(JsonFields.NEW_VALUE)) {
                                                     do {
-                                                        log("Quale valore vuoi assegnare al dado[1-6]?");
+                                                        Logger.println("Quale valore vuoi assegnare al dado[1-6]?");
                                                         input = asyncInput("timerPrompt");
                                                         try {
                                                             newValue = Integer.valueOf(input);
                                                             if (newValue == 0) throw new CancelException();
                                                             requiredData.get("data").getAsJsonObject().addProperty("newValue", newValue);
                                                         } catch (NumberFormatException e) {
-                                                            log("Indice non valido\n");
+                                                            Logger.println("Indice non valido\n");
                                                         }
                                                     } while (newValue < 1 || newValue > 6);
                                                 }
                                                 if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_X)) {
                                                     do {
-                                                        log("Da quale colonna vuoi muoverlo [1-5]?");
+                                                        Logger.println("Da quale colonna vuoi muoverlo [1-5]?");
                                                         input = asyncInput("timerPrompt");
                                                         try {
                                                             fromCellX = Integer.valueOf(input) - 1;
                                                             if (fromCellX == -1) throw new CancelException();
                                                             requiredData.get("data").getAsJsonObject().addProperty("fromCellX", fromCellX);
                                                         } catch (NumberFormatException e) {
-                                                            log("Indice non valido\n");
+                                                            Logger.println("Indice non valido\n");
                                                         }
                                                     } while (fromCellX < 0 || fromCellX >= NUMBER_OF_PATTERN_COLUMNS);
                                                 }
                                                 if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_Y)) {
                                                     do {
-                                                        log("Da quale riga vuoi muoverlo [1-4]?");
+                                                        Logger.println("Da quale riga vuoi muoverlo [1-4]?");
                                                         input = asyncInput("timerPrompt");
                                                         try {
                                                             fromCellY = Integer.valueOf(input) - 1;
                                                             if (fromCellY == -1) throw new CancelException();
                                                             requiredData.get("data").getAsJsonObject().addProperty("fromCellY", fromCellY);
                                                         } catch (NumberFormatException e) {
-                                                            log("Indice non valido\n");
+                                                            Logger.println("Indice non valido\n");
                                                         }
                                                     } while (fromCellY < 0 || fromCellY >= NUMBER_OF_PATTERN_ROWS);
                                                 }
                                                 if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_X)) {
                                                     do {
-                                                        log("In quale colonna vuoi piazzarlo [1-5]?");
+                                                        Logger.println("In quale colonna vuoi piazzarlo [1-5]?");
                                                         input = asyncInput("timerPrompt");
                                                         try {
                                                             toCellX = Integer.valueOf(input) - 1;
                                                             if (toCellX == -1) throw new CancelException();
                                                             requiredData.get("data").getAsJsonObject().addProperty("toCellX", toCellX);
                                                         } catch (NumberFormatException e) {
-                                                            log("Indice non valido\n");
+                                                            Logger.println("Indice non valido\n");
                                                         }
                                                     } while (toCellX < 0 || toCellX >= NUMBER_OF_PATTERN_COLUMNS);
                                                 }
                                                 if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_Y)) {
                                                     do {
-                                                        log("In quale riga vuoi piazzarlo [1-4]?");
+                                                        Logger.println("In quale riga vuoi piazzarlo [1-4]?");
                                                         input = asyncInput("timerPrompt");
                                                         try {
                                                             toCellY = Integer.valueOf(input) - 1;
                                                             if (toCellY == -1) throw new CancelException();
                                                             requiredData.get("data").getAsJsonObject().addProperty("toCellY", toCellY);
                                                         } catch (NumberFormatException e) {
-                                                            log("Indice non valido\n");
+                                                            Logger.println("Indice non valido\n");
                                                         }
                                                     } while (toCellY < 0 || toCellY >= NUMBER_OF_PATTERN_ROWS);
                                                 }
@@ -316,7 +315,7 @@ public class ClientCLI extends Client {
                                                         toolCardAlreadyUsed = false;
                                                         showPrompt = false;
                                                     } else {
-                                                        log("Carta strumento usata con successo\n");
+                                                        Logger.println("Carta strumento usata con successo\n");
                                                         toolCardAlreadyUsed = true;
                                                         showPrompt = true;
                                                     }
@@ -326,7 +325,7 @@ public class ClientCLI extends Client {
                                                         this.instructionIndex = INDEX_CONSTANT;
                                                     }
                                                 } else {
-                                                    log("Carta strumento non usata");
+                                                    Logger.println("Carta strumento non usata");
                                                     this.instructionIndex = 2;
                                                     toolCardAlreadyUsed = false;
                                                     showPrompt = false;
@@ -348,24 +347,24 @@ public class ClientCLI extends Client {
                                 if (isSuspended()) break;
                             } 
                         } catch (CancelException e) {
-                            log("Mossa annullata.");
+                            Logger.println("Mossa annullata.");
                             showPrompt = true;
                             instructionIndex = INDEX_CONSTANT;
                         }
                     } while (this.instructionIndex < 1 || this.instructionIndex > 3);
                 } else {
-                    log("\nLa partita è finita!");
+                    Logger.println("\nLa partita è finita!");
                 }
             }
         } catch (IOException | InterruptedException e) {
-            error("Errore non specificato");
+            Logger.error("Errore non specificato");
         } finally {
-            log("");
+            Logger.println("");
             try {
                 getNetwork().teardown();
                 AnsiConsole.systemUninstall();
             } catch (IOException e) {
-                error("Exception raised while tearing down");
+                Logger.error("Exception raised while tearing down");
                 e.printStackTrace();
             }
         }
@@ -379,7 +378,7 @@ public class ClientCLI extends Client {
      * @throws IOException thrown if an IO error occurs.
      */
     private String input(String prompt) throws IOException {
-        System.out.print(prompt + " ");
+        Logger.print(prompt + " ");
         String line = stdin.readLine();
         return line;
     }
@@ -393,7 +392,7 @@ public class ClientCLI extends Client {
                 if (stdinBuffer == null) stdinBuffer = new StringBuilder();
             }
             Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
-            System.out.print(method.invoke(this));
+            Logger.print(method.invoke(this).toString());
             while (!stopAsyncInput) {
                 if (System.in.available() != 0) {
                     int c = System.in.read();
@@ -404,8 +403,8 @@ public class ClientCLI extends Client {
                         }
                         //lastPrintedLine = "";
                         /*Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
-                        System.out.print(method.invoke(this));*/
-                        System.out.println();
+                        Logger.print(method.invoke(this));*/
+                        Logger.println();
                         break;
                     } else if (c == 0x7F) {
                         synchronized (stdinBufferLock) {
@@ -417,7 +416,7 @@ public class ClientCLI extends Client {
                         }
                     }
                     method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
-                    System.out.print(method.invoke(this));
+                    Logger.print(method.invoke(this).toString());
                 }
                 Thread.sleep(10);
             }
@@ -428,13 +427,13 @@ public class ClientCLI extends Client {
                 stty(ttyConfig.trim());
             }
             catch (Exception e) {
-                error("Exception restoring tty config");
+                Logger.error("Exception restoring tty config");
             }
         }
         if (!stopAsyncInput && !methodName.equals("timerPrompt")) {
             try {
                 Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
-                System.out.print(method.invoke(this));
+                Logger.print(method.invoke(this).toString());
             } catch (NoSuchMethodException | ClassNotFoundException | InvocationTargetException | IllegalAccessException e) {
                 e.printStackTrace();
             }
@@ -496,14 +495,14 @@ public class ClientCLI extends Client {
         this.setNickname(nickname);
         setUUID(this.getNetwork().addPlayer(this.getNickname()));
         setLogged(this.getUUID() != null);
-        if (isLogged()) log("Login riuscito!");
+        if (isLogged()) Logger.println("Login riuscito!");
         else {
             if(nickname.equals(""))
-                log("Login fallito! I nickname non possono essere vuoti");
+                Logger.println("Login fallito! I nickname non possono essere vuoti");
             else if(nickname.contains(" "))
-                log("Login fallito! I nickname non possono contenere spazi");
+                Logger.println("Login fallito! I nickname non possono contenere spazi");
             else if(nickname.length() > MAX_NICKNAME_LENGTH)
-                log("Login fallito! I nickname non possono essere più lunghi di 20 caratteri");
+                Logger.println("Login fallito! I nickname non possono essere più lunghi di 20 caratteri");
         }
     }
 
@@ -578,7 +577,7 @@ public class ClientCLI extends Client {
                             this.setFavorTokens(entry.getValue().getAsInt());
                         favorTokenString += "\n" + entry.getKey() + ": " + entry.getValue().getAsInt();
                     }
-                    log(favorTokenString);
+                    Logger.println(favorTokenString);
                 }
                 if(jsonArg.get(JsonFields.METHOD).getAsString().equals(JsonFields.FINAL_SCORES)){
                     String finalScoresString = "\nRisultati finali";
@@ -586,7 +585,7 @@ public class ClientCLI extends Client {
                     for (Map.Entry<String, JsonElement> entry : entrySet) {
                         finalScoresString += "\n" + entry.getKey() + ": " + entry.getValue().getAsInt();
                     }
-                    log(finalScoresString);
+                    Logger.println(finalScoresString);
                 }
             }
             if (arg instanceof List) {      // Window Patterns
@@ -598,24 +597,25 @@ public class ClientCLI extends Client {
                 List<String> argAsList = (List) arg;
                 if (argAsList.get(0).equals(NotificationsMessages.WR_TIMER_TICK)) {
                     this.wrTimeout = argAsList.get(1);
-                    System.out.print(waitingRoomMessage());
+                    Logger.print(waitingRoomMessage());
                 } else if (argAsList.get(0).equals(NotificationsMessages.GAME_TIMER_TICK)) {
                     this.gameTimeout = argAsList.get(1);
                     if (isActive())
-                        System.out.print(timerPrompt());
+                        Logger.print(timerPrompt());
                     else {
                         String timerString = "È il turno di " + this.getActiveNickname() + " [" + gameTimeout + "]";
                         if (isSuspended()) {
-                            System.out.print(ansi()
+                            Logger.print(ansi()
                                     .eraseLine(Erase.ALL)
                                     .cursorUpLine()
                                     .eraseLine(Erase.ALL)
                                     .a(timerString)
                                     .a('\n')
                                     .a(reconnectionPrompt())
+                                    .toString()
                             );
                         } else {
-                            System.out.print(updateLine(timerString));
+                            Logger.print(updateLine(timerString));
                         }
                     }
                 } else if (argAsList.get(0).startsWith(NotificationsMessages.SELECTABLE_WINDOW_PATTERNS)) {
@@ -627,8 +627,8 @@ public class ClientCLI extends Client {
                         for (int k = 0; k < Constants.MAX_NICKNAME_LENGTH; k++) newWPString.append(" ");
                         argAsList.set(i, newWPString.toString() + "\n" + argAsList.get(i));
                     }
-                    System.out.println();
-                    log(windowPatternsMessage(argAsList));
+                    Logger.println();
+                    Logger.println(windowPatternsMessage(argAsList));
                 } else if (argAsList.get(0).equals(NotificationsMessages.UPDATE_WINDOW_PATTERNS)){
                     argAsList.remove(0);
                     List<String> patterns = new ArrayList<>();
@@ -641,7 +641,7 @@ public class ClientCLI extends Client {
                         patterns.add(s);
                     }
                     String prettyWindowPatterns = windowPatternsMessage(patterns);
-                    log(prettyWindowPatterns);
+                    Logger.println(prettyWindowPatterns);
                 } else if (argAsList.get(0).startsWith(NotificationsMessages.TOOL_CARDS)) {   //Tool card
                     String cards = "";
                     for (String s : argAsList) {
@@ -653,7 +653,7 @@ public class ClientCLI extends Client {
                         cards += s;
                     }
                     cards = cards.replace("$NL$","\n\n");
-                    log(cards);
+                    Logger.println(cards);
                 } else if (argAsList.get(0).startsWith(NotificationsMessages.PUBLIC_OBJECTIVE_CARDS)) {   //Public Objective Card
                     StringBuilder cards = new StringBuilder();
                     for (String s : argAsList) {
@@ -664,7 +664,7 @@ public class ClientCLI extends Client {
                         cards.append(s);
                     }
                     cards.append(privateObjectiveCard).append("\n\n");
-                    log(cards.toString());
+                    Logger.println(cards.toString());
                 } else if (argAsList.get(0).startsWith(NotificationsMessages.DRAFT_POOL)) {   //DraftPool
                     String draftPool = "Riserva: ";
                     this.draftPoolLength = 0;
@@ -673,7 +673,7 @@ public class ClientCLI extends Client {
                         draftPool += s;
                         draftPoolLength++;
                     }
-                    log("\n" + draftPool + "\n");
+                    Logger.println("\n" + draftPool + "\n");
                 } else if (argAsList.get(0).equals(NotificationsMessages.TURN_MANAGEMENT)) {
                     argAsList.remove(0);
                     if(!this.isGameStarted()) this.setGameStarted(true);
@@ -683,21 +683,21 @@ public class ClientCLI extends Client {
                         suspendedPlayers = new ArrayList<>();
                     this.setSuspended(suspendedPlayers);
                     this.setActive(argAsList.get(2));
-                    //log("Suspended: " + argAsList.get(3));
+                    //Logger.println("Suspended: " + argAsList.get(3));
                     stopAsyncInput = true;
                 }
             } else if (arg instanceof String) {
                 String input = (String) arg;
                 if (input.startsWith(NotificationsMessages.PRIVATE_OBJECTIVE_CARD)) {
-                    System.out.print(ansi().eraseScreen().cursor(0, 0));
+                    Logger.print(ansi().eraseScreen().cursor(0, 0).toString());
                     input = input.replace(NotificationsMessages.PRIVATE_OBJECTIVE_CARD, "");
                     privateObjectiveCard = input;
-                    log(privateObjectiveCard);
+                    Logger.println(privateObjectiveCard);
                 }
                 if (input.startsWith(NotificationsMessages.ROUND_TRACK)) {
                     input = input.replace(NotificationsMessages.ROUND_TRACK,"");
                     roundTrackLength = input.chars().filter(ch -> ch == ']').count();
-                    log("Tracciato del Round\n" + input + "\n");
+                    Logger.println("Tracciato del Round\n" + input + "\n");
                 }
             } else if (arg instanceof Iterable) {   // Players
                 if (!this.isPatternChosen()) {  //Players in waiting room
@@ -705,9 +705,9 @@ public class ClientCLI extends Client {
                             .replace("]", "")
                             .replace("\",", ",")
                             .replace("\"", " ");
-                    System.out.print(waitingRoomMessage());
+                    Logger.print(waitingRoomMessage());
                 } else {
-                    System.out.print(ansi().eraseScreen().cursor(0, 0));
+                    Logger.print(ansi().eraseScreen().cursor(0, 0).toString());
                 }
             } else if (arg instanceof JsonObject) {
                 JsonObject jsonArg = (JsonObject) arg;
