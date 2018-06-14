@@ -1,7 +1,8 @@
 package it.polimi.ingsw.toolcards;
 
+import it.polimi.ingsw.model.game.Game;
+import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.toolcards.*;
-import it.polimi.ingsw.server.*;
 import it.polimi.ingsw.util.Constants;
 import org.junit.jupiter.api.*;
 import java.util.*;

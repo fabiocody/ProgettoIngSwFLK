@@ -1,18 +1,22 @@
 package it.polimi.ingsw.server;
 
+import it.polimi.ingsw.model.game.LoginFailedException;
+import it.polimi.ingsw.model.game.NicknameAlreadyUsedInGameException;
+import it.polimi.ingsw.model.game.Player;
+import it.polimi.ingsw.model.game.WaitingRoom;
 import it.polimi.ingsw.rmi.WaitingRoomAPI;
 import java.util.*;
 
 
-public class WaitingRoomEndPoint implements WaitingRoomAPI {
+public class WaitingRoomController implements WaitingRoomAPI {
 
-    private static WaitingRoomEndPoint instance;
+    private static WaitingRoomController instance;
 
-    private WaitingRoomEndPoint() {}
+    private WaitingRoomController() {}
 
-    public static WaitingRoomEndPoint getInstance() {
+    public static WaitingRoomController getInstance() {
         if (instance == null)
-            instance = new WaitingRoomEndPoint();
+            instance = new WaitingRoomController();
         return instance;
     }
 

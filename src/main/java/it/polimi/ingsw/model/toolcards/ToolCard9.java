@@ -2,9 +2,11 @@ package it.polimi.ingsw.model.toolcards;
 
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
+import it.polimi.ingsw.model.game.DieAlreadyPlacedException;
+import it.polimi.ingsw.model.game.Game;
+import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
 import it.polimi.ingsw.model.placementconstraints.*;
-import it.polimi.ingsw.server.*;
 import it.polimi.ingsw.util.Constants;
 import it.polimi.ingsw.util.JsonFields;
 import it.polimi.ingsw.util.Methods;

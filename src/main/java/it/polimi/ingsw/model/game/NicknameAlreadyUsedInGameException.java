@@ -1,4 +1,6 @@
-package it.polimi.ingsw.server;
+package it.polimi.ingsw.model.game;
+
+import it.polimi.ingsw.model.game.Game;
 
 public class NicknameAlreadyUsedInGameException extends Exception {
 

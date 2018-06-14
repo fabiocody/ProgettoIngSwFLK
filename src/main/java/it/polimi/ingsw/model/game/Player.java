@@ -1,6 +1,7 @@
-package it.polimi.ingsw.server;
+package it.polimi.ingsw.model.game;
 
 import it.polimi.ingsw.model.dice.Die;
+import it.polimi.ingsw.model.game.DieAlreadyPlacedException;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
@@ -64,7 +65,7 @@ public class Player extends Observable {
      * @author Team
      * @return the UUID of the Player.
      */
-    UUID getId() {
+    public UUID getId() {
         return id;
     }
 

@@ -1,4 +1,4 @@
-package it.polimi.ingsw.server;
+package it.polimi.ingsw.model.game;
 
 /**
  * This exception is thrown when the login fails, because the nickname supplied is already being used.

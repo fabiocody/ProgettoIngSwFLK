@@ -1,4 +1,4 @@
-package it.polimi.ingsw.server;
+package it.polimi.ingsw.model.game;
 
 import it.polimi.ingsw.model.dice.DiceGenerator;
 import it.polimi.ingsw.model.objectivecards.*;
@@ -244,13 +244,13 @@ public class Game extends Observable implements Observer {
         this.getDiceGenerator().generateDraftPool();
     }
 
-    void removeDieFromDraftPool(int draftPoolIndex){
+    public void removeDieFromDraftPool(int draftPoolIndex){
         this.diceGenerator.drawDieFromDraftPool(draftPoolIndex);
         setChanged();
         notifyObservers(NotificationsMessages.DRAFT_POOL);
     }
 
-    void nextTurn() {
+    public void nextTurn() {
         this.turnManager.nextTurn();
         if(!this.roundTrack.isGameOver()) {
             setChanged();

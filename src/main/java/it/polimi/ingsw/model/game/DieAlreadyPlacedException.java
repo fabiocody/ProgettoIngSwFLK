@@ -1,4 +1,4 @@
-package it.polimi.ingsw.server;
+package it.polimi.ingsw.model.game;
 
 /**
  * This exception is thrown when a player tries to place two roundTrack in the same turn.

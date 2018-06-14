@@ -1,5 +1,6 @@
-package it.polimi.ingsw.server;
+package it.polimi.ingsw.model.game;
 
+import it.polimi.ingsw.server.SagradaServer;
 import it.polimi.ingsw.util.Constants;
 import it.polimi.ingsw.util.CountdownTimer;
 import it.polimi.ingsw.util.NotificationsMessages;
@@ -104,7 +105,7 @@ public class WaitingRoom extends Observable {
      * @author Fabio Codiglioni
      * @param nickname the nickname of the Player that wants to be removed.
      */
-    synchronized void removePlayer(String nickname) {
+    public synchronized void removePlayer(String nickname) {
         Optional<Player> player = this.getWaitingPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst();
         if (player.isPresent()) {
             this.getWaitingPlayers().remove(player.get());

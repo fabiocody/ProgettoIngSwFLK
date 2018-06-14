@@ -2,13 +2,13 @@ package it.polimi.ingsw.rmi;
 
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.*;
+import it.polimi.ingsw.model.game.DieAlreadyPlacedException;
+import it.polimi.ingsw.model.game.Player;
+import it.polimi.ingsw.model.game.RoundTrack;
 import it.polimi.ingsw.model.objectivecards.*;
 import it.polimi.ingsw.model.patterncards.*;
-import it.polimi.ingsw.server.*;
 import it.polimi.ingsw.model.toolcards.*;
-import org.omg.CORBA.DynAnyPackage.Invalid;
 
-import javax.activity.InvalidActivityException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.*;

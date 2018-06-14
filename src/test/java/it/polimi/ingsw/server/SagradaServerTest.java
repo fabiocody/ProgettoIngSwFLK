@@ -1,5 +1,8 @@
 package it.polimi.ingsw.server;
 
+import it.polimi.ingsw.model.game.LoginFailedException;
+import it.polimi.ingsw.model.game.NicknameAlreadyUsedInGameException;
+import it.polimi.ingsw.model.game.WaitingRoom;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 

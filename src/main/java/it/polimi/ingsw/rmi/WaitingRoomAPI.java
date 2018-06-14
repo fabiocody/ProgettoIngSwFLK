@@ -1,6 +1,9 @@
 package it.polimi.ingsw.rmi;
 
-import it.polimi.ingsw.server.*;
+import it.polimi.ingsw.model.game.LoginFailedException;
+import it.polimi.ingsw.model.game.NicknameAlreadyUsedInGameException;
+import it.polimi.ingsw.model.game.Player;
+
 import java.rmi.*;
 import java.util.*;
 

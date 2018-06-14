@@ -2,22 +2,25 @@ package it.polimi.ingsw.server;
 
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
+import it.polimi.ingsw.model.game.DieAlreadyPlacedException;
+import it.polimi.ingsw.model.game.Game;
+import it.polimi.ingsw.model.game.Player;
+import it.polimi.ingsw.model.game.RoundTrack;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.rmi.GameAPI;
 import it.polimi.ingsw.model.toolcards.*;
 import it.polimi.ingsw.util.JsonFields;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class GameEndPoint implements GameAPI {
+public class GameController implements GameAPI {
 
     private Game game;
 
-    GameEndPoint(Game game) /*throws RemoteException*/ {
+    GameController(Game game) /*throws RemoteException*/ {
         //super();
         this.game = game;
     }

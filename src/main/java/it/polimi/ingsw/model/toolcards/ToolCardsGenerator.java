@@ -1,6 +1,6 @@
 package it.polimi.ingsw.model.toolcards;
 
-import it.polimi.ingsw.server.Game;
+import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.util.Constants;
 
 import java.lang.reflect.InvocationTargetException;
