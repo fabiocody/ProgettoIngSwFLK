@@ -5,7 +5,7 @@ import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
-import it.polimi.ingsw.util.Colors;
+import it.polimi.ingsw.model.Colors;
 import it.polimi.ingsw.util.Constants;
 import it.polimi.ingsw.util.JsonFields;
 import it.polimi.ingsw.util.Methods;

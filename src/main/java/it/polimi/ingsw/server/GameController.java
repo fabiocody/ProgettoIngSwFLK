@@ -2,29 +2,40 @@ package it.polimi.ingsw.server;
 
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
-import it.polimi.ingsw.model.game.DieAlreadyPlacedException;
-import it.polimi.ingsw.model.game.Game;
-import it.polimi.ingsw.model.game.Player;
-import it.polimi.ingsw.model.game.RoundTrack;
+import it.polimi.ingsw.model.game.*;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.rmi.GameAPI;
 import it.polimi.ingsw.model.toolcards.*;
-import it.polimi.ingsw.util.JsonFields;
+import it.polimi.ingsw.util.*;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class GameController implements GameAPI {
+public class GameController implements GameAPI, Observer {
 
     private Game game;
+    private List<ServerNetwork> serverNetworks = new Vector<>();
 
-    GameController(Game game) /*throws RemoteException*/ {
-        //super();
+    GameController(Game game) {
         this.game = game;
+        this.game.addObserver(this);
     }
 
+    Game getGame() {
+        return game;
+    }
+
+    public boolean addServerNetwork(ServerNetwork network) {
+        return serverNetworks.add(network);
+    }
+
+    public boolean removeServerNetwork(ServerNetwork network) {
+        return serverNetworks.remove(network);
+    }
+
+    @Override
     public List<String> getCurrentPlayers() {
         return this.game.getPlayers().stream()
                 .map(Player::getNickname)
@@ -163,4 +174,29 @@ public class GameController implements GameAPI {
         this.game.nextTurn();
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        String stringArg = String.valueOf(arg);
+        if (o instanceof CountdownTimer) {
+            if (stringArg.startsWith(NotificationsMessages.TURN_MANAGER)) {
+                int tick = Integer.parseInt(stringArg.split(" ")[1]);
+                Logger.debug("Game Timer tick (from update): " + tick);
+                serverNetworks.forEach(network -> network.updateTimerTick(Methods.GAME_TIMER_TICK, tick));
+            }
+        } else if (o instanceof Game) {
+            switch (stringArg) {
+                case NotificationsMessages.TURN_MANAGEMENT:
+                case NotificationsMessages.SUSPENDED:
+                case NotificationsMessages.PLACE_DIE:
+                case NotificationsMessages.USE_TOOL_CARD:
+                    this.game.getTurnManager().subscribeToTimer(this);
+                    serverNetworks.forEach(ServerNetwork::fullUpdate);
+                    break;
+                case NotificationsMessages.GAME_OVER:
+                    serverNetworks.forEach(ServerNetwork::updateFinalScores);
+                    serverNetworks.forEach(ServerNetwork::turnManagement);
+                    break;
+            }
+        }
+    }
 }

@@ -4,7 +4,7 @@ import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.objectivecards.*;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.placementconstraints.EmptyConstraint;
-import it.polimi.ingsw.util.Colors;
+import it.polimi.ingsw.model.Colors;
 import it.polimi.ingsw.util.Constants;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;

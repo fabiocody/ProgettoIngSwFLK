@@ -6,7 +6,7 @@ public class RMINames {
         throw new IllegalStateException();
     }
 
-    public static final String WAITING_ROOM_API = "//0.0.0.0/WaitingRoomAPI";
-    public static final String GAME_API = "//0.0.0.0/GameAPI";
+    public static final String SERVER = "//0.0.0.0/Server";
+    public static final String CLIENT = "//0.0.0.0/Client";
 
 }

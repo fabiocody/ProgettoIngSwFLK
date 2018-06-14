@@ -3,10 +3,12 @@ package it.polimi.ingsw.server;
 import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.game.WaitingRoom;
+import it.polimi.ingsw.rmi.RMINames;
 import it.polimi.ingsw.util.*;
 import joptsimple.*;
 import java.io.IOException;
 import java.net.*;
+import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.*;
@@ -18,14 +20,14 @@ import java.util.concurrent.*;
  *
  * @author Team
  */
-public class SagradaServer implements Observer {
+public class SagradaServer extends Observable implements Observer {
     // Observes WaitingRoom
 
     private static SagradaServer instance;
 
     private int port;
     private boolean run = true;
-    private List<Game> games;
+    private List<GameController> gameControllers;
     private int wrTimeout = 30;
     private int gameTimeout = 60;
 
@@ -45,7 +47,7 @@ public class SagradaServer implements Observer {
         return instance;
     }
 
-    public void start(int port, int wrTimeout, int gameTimeout, boolean debugActive) {
+    private void start(int port, int wrTimeout, int gameTimeout, boolean debugActive) {
         this.port = port;
         this.wrTimeout = wrTimeout;
         this.gameTimeout = gameTimeout;
@@ -60,11 +62,14 @@ public class SagradaServer implements Observer {
      */
     private void startSocketServer() {
         ExecutorService executor = Executors.newCachedThreadPool();
-        try (ServerSocket serverSocket = new ServerSocket(this.port);){
-            System.out.println("Server up and running");
+        try (ServerSocket serverSocket = new ServerSocket(this.port)){
+            System.out.println("Socket server up and running");
             while (run) {
                 Socket socket = serverSocket.accept();
-                executor.submit(new ServerSocketHandler(socket));
+                ServerSocketHandler serverSocketHandler = new ServerSocketHandler(socket);
+                WaitingRoomController.getInstance().addServerNetwork(serverSocketHandler);
+                this.addObserver(serverSocketHandler);
+                executor.submit(serverSocketHandler);
             }
             executor.shutdown();
         } catch (IOException e) {
@@ -73,20 +78,27 @@ public class SagradaServer implements Observer {
     }
 
     private void startRMI() {
-        try {
-            LocateRegistry.createRegistry(this.port);
+        /*try {
+            LocateRegistry.createRegistry(1099);
         } catch (RemoteException e) {
-
+            e.printStackTrace();
         }
+        try {
+            Naming.rebind(RMINames.WAITING_ROOM_API, WaitingRoomController.getInstance());
+        } catch (MalformedURLException e) {
+            Logger.error("Cannot register object");
+        } catch (RemoteException e) {
+            Logger.error("Connection error: " + e.getMessage());
+        }*/
     }
 
     /**
-     * @return a list of all the active games
+     * @return a list of all the active game controllers
      */
-    List<Game> getGames() {
-        if (this.games == null)
-            this.games = new Vector<>();
-        return this.games;
+    List<GameController> getGameControllers() {
+        if (this.gameControllers == null)
+            this.gameControllers = new Vector<>();
+        return this.gameControllers;
     }
 
     /**
@@ -113,15 +125,16 @@ public class SagradaServer implements Observer {
     }
 
     public synchronized Game isNicknameUsedGame(String nickname) {
-        Optional<Game> game = this.getGames().stream()
+        Optional<Game> game = this.getGameControllers().stream()
+                .map(GameController::getGame)
                 .filter(g -> g.isNicknameUsedInThisGame(nickname))
                 .findFirst();
         return game.orElse(null);
     }
 
     public synchronized boolean isNicknameSuspended(String nickname) {
-        return this.getGames().stream()
-                .flatMap(g -> g.getPlayers().stream())
+        return this.getGameControllers().stream()
+                .flatMap(controller -> controller.getGame().getPlayers().stream())
                 .filter(player -> player.getNickname().equals(nickname))
                 .anyMatch(Player::isSuspended);
     }
@@ -144,10 +157,12 @@ public class SagradaServer implements Observer {
      * @param arg the arguments of the update
      */
     public void update(Observable o, Object arg) {
-        if (o instanceof WaitingRoom)
-            if (arg instanceof Game) {
-                getGames().add((Game) arg);
-            }
+        if (o instanceof WaitingRoom && arg instanceof Game) {
+            GameController gameController = new GameController((Game) arg);
+            this.getGameControllers().add(gameController);
+            this.setChanged();
+            this.notifyObservers(gameController);       // Notify ServerSocketHandler
+        }
     }
 
     public static void main(String[] args) {

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.dice;
 
+import it.polimi.ingsw.model.Colors;
 import it.polimi.ingsw.util.*;
 import java.util.*;
 

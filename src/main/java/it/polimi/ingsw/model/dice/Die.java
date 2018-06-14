@@ -1,6 +1,6 @@
 package it.polimi.ingsw.model.dice;
 
-import it.polimi.ingsw.util.Colors;
+import it.polimi.ingsw.model.Colors;
 import java.util.concurrent.ThreadLocalRandom;
 import static org.fusesource.jansi.Ansi.ansi;
 

@@ -4,7 +4,7 @@ import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.placementconstraints.*;
-import it.polimi.ingsw.util.Colors;
+import it.polimi.ingsw.model.Colors;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 

@@ -1,7 +1,7 @@
 package it.polimi.ingsw.model.objectivecards;
 
 import it.polimi.ingsw.model.patterncards.Cell;
-import it.polimi.ingsw.util.Colors;
+import it.polimi.ingsw.model.Colors;
 import java.util.*;
 import java.util.stream.Collectors;
 

@@ -2,6 +2,7 @@ package it.polimi.ingsw.toolcards;
 
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
+import it.polimi.ingsw.model.Colors;
 import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.patterncards.WindowPattern;

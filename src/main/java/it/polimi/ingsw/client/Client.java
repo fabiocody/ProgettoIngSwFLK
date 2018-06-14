@@ -8,7 +8,7 @@ import java.util.*;
 
 public abstract class Client implements Observer {
 
-    private static final String USAGE_STRING = "usage: sagradaclient [--debug] [--ip IP] [--port PORT] [--connection socket|rmi] [--interface cli|gui]";
+    private static final String USAGE_STRING = "usage: sagradaclient [--debug] [--host HOST] [--port PORT] [--connection socket|rmi] [--interface cli|gui]";
 
     private String nickname;
     private UUID uuid;
@@ -151,17 +151,20 @@ public abstract class Client implements Observer {
         try {
             OptionSet options = parser.parse(args);
 
+            boolean debug = options.has(CLIArguments.DEBUG);
+
             String host;
             if (options.has(CLIArguments.HOST)) {
                 host = (String) options.valueOf(CLIArguments.HOST);
                 if (!isValidHost(host)) {
-                    System.out.println("Invalid Host");
-                    System.out.println(USAGE_STRING);
+                    Logger.println("Invalid Host");
+                    Logger.println(USAGE_STRING);
+                    System.exit(Constants.EXIT_ERROR);
                 }
             } else {
                 Scanner stdin = new Scanner(System.in);
                 do{
-                    System.out.print("Inserisci un host valido\nHost >>> ");
+                    Logger.print("Inserisci un host valido\nHost >>> ");
                     host = stdin.nextLine();
                 } while(!isValidHost(host));
                 stdin.close();
@@ -170,23 +173,32 @@ public abstract class Client implements Observer {
             int port = (int) options.valueOf(CLIArguments.PORT);
 
             String connection = (String) options.valueOf(CLIArguments.CONNECTION);
-            if (!(connection.equals(CLIArguments.SOCKET) || connection.equals(CLIArguments.RMI))) {
-                System.out.println("Invalid type of connection");
-                System.out.println(USAGE_STRING);
+            ClientNetwork clientNetwork = null;
+            if (connection.equals(CLIArguments.SOCKET))
+                clientNetwork = new SocketClient(host, port, debug);
+            else if (connection.equals(CLIArguments.RMI))
+                clientNetwork = new RMIClient(host, port, debug);
+            else {
+                Logger.println("Invalid type of connection");
+                Logger.println(USAGE_STRING);
+                System.exit(Constants.EXIT_ERROR);
             }
 
             String iface = (String) options.valueOf(CLIArguments.INTERFACE);
             if (!(iface.equals(CLIArguments.CLI) || iface.equals(CLIArguments.GUI))) {
-                System.out.println("Invalid type of interface");
-                System.out.println(USAGE_STRING);
+                Logger.println("Invalid type of interface");
+                Logger.println(USAGE_STRING);
+                System.exit(Constants.EXIT_ERROR);
             }
 
-            ClientNetwork socketClient = new SocketClient(host, port, options.has(CLIArguments.DEBUG));
-            Client client = new ClientCLI(socketClient, options.has(CLIArguments.DEBUG));
+
+            Client client = new ClientCLI(clientNetwork, debug);
             client.start();
 
         } catch (OptionException e) {
-            System.out.println(USAGE_STRING);
+            e.printStackTrace();
+            Logger.println(USAGE_STRING);
+            System.exit(Constants.EXIT_ERROR);
         }
     }
 

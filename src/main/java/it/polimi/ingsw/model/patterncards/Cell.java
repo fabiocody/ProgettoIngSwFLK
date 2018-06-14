@@ -1,7 +1,8 @@
 package it.polimi.ingsw.model.patterncards;
 
 import it.polimi.ingsw.model.dice.Die;
-import it.polimi.ingsw.util.*;
+import it.polimi.ingsw.model.Colors;
+
 import static org.fusesource.jansi.Ansi.*;
 
 /**

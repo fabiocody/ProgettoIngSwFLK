@@ -1,8 +1,6 @@
 package it.polimi.ingsw.model.game;
 
-import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.server.SagradaServer;
-import it.polimi.ingsw.util.CountdownTimer;
 import it.polimi.ingsw.util.NotificationsMessages;
 
 import java.util.*;

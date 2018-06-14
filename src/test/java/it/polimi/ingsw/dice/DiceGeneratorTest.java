@@ -1,7 +1,7 @@
 package it.polimi.ingsw.dice;
 
 import static org.junit.jupiter.api.Assertions.*;
-import it.polimi.ingsw.util.Colors;
+import it.polimi.ingsw.model.Colors;
 import it.polimi.ingsw.util.Constants;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

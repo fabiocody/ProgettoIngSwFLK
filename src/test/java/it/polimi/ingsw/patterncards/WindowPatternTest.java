@@ -3,7 +3,7 @@ package it.polimi.ingsw.patterncards;
 import it.polimi.ingsw.model.dice.*;
 import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.model.placementconstraints.EmptyConstraint;
-import it.polimi.ingsw.util.Colors;
+import it.polimi.ingsw.model.Colors;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import it.polimi.ingsw.util.Constants;

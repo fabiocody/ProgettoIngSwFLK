@@ -1,7 +1,6 @@
 package it.polimi.ingsw.model.game;
 
 import it.polimi.ingsw.model.dice.Die;
-import it.polimi.ingsw.model.game.DieAlreadyPlacedException;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
