@@ -3,7 +3,11 @@ package it.polimi.ingsw.server;
 import com.google.gson.*;
 import it.polimi.ingsw.model.game.*;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
+import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
+import it.polimi.ingsw.model.toolcards.InvalidEffectArgumentException;
+import it.polimi.ingsw.model.toolcards.InvalidEffectResultException;
+import it.polimi.ingsw.model.toolcards.ToolCard;
 import it.polimi.ingsw.rmi.*;
 import it.polimi.ingsw.util.*;
 import java.rmi.*;
@@ -64,19 +68,81 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     }
 
     @Override
-    public void nextTurn() throws RemoteException {
+    public void choosePattern(int patternIndex) {
+        gameController.choosePattern(uuid, patternIndex);
+        Logger.log(this.nickname + " has chosen pattern " + patternIndex);
+    }
 
+    @Override
+    public boolean placeDie(int draftPoolIndex, int x, int y) {
+        try {
+            this.gameController.placeDie(this.uuid, draftPoolIndex, x, y);
+            Logger.log(this.nickname + " placed a die");
+            return true;
+        } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
+            Logger.log(this.nickname + "'s die placement attempt was refused");
+            return false;
+        }
+    }
+
+    @Override
+    public void nextTurn() {
+        gameController.nextTurn();
+        Logger.log(this.nickname + " has ended his turn");
+    }
+
+    @Override
+    public JsonObject requiredData(int cardIndex) {
+        JsonObject payload = this.gameController.requiredData(cardIndex);
+        Player player = this.gameController.getPlayer(uuid);
+        if ((player.getFavorTokens()<2 && gameController.getToolCards().get(cardIndex).isUsed()) ||
+                (player.getFavorTokens()<1 && !gameController.getToolCards().get(cardIndex).isUsed())){
+            payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.NO_FAVOR_TOKENS, Constants.INDEX_CONSTANT);
+        }
+        if (payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX) && this.gameController.getRoundTrack().getAllDice().isEmpty()){
+            payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.ROUND_TRACK);
+        }
+        if ((payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.TO_CELL_X)) &&
+                (!(payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.FROM_CELL_X))) && (player.isDiePlacedInThisTurn()) && (!payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.SECOND_DIE_PLACEMENT))) {
+            payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.DIE);
+        }
+        return payload;
+    }
+
+    @Override
+    public boolean useToolCard(int cardIndex, JsonObject requiredData) {
+        requiredData.addProperty(JsonFields.PLAYER_ID, uuid.toString());
+        try {
+            this.gameController.useToolCard(uuid, cardIndex, requiredData);
+            Logger.println(this.nickname + " used a tool card");
+            return true;
+        } catch (InvalidEffectArgumentException | InvalidEffectResultException e) {
+            //e.printStackTrace();
+            Logger.println(this.nickname + " usage of tool card was refused");
+            return false;
+        }
     }
 
 
     @Override
     void updatePlayersList() {
-
+        try {
+            client.updatePlayersList(gameController.getCurrentPlayers());
+        } catch (RemoteException e) {
+            connectionError();
+        }
     }
 
     @Override
     void updateToolCards() {
-
+        List<String> cards = new ArrayList<>();
+        for (ToolCard card : this.gameController.getToolCards())
+            cards.add(createToolCardJson(card).toString());
+        try {
+            client.updateToolCards(cards);
+        } catch (RemoteException e) {
+            connectionError();
+        }
     }
 
     @Override

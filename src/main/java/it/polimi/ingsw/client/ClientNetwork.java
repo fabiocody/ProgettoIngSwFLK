@@ -3,13 +3,8 @@ package it.polimi.ingsw.client;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.util.Constants;
 import it.polimi.ingsw.util.Logger;
-
 import java.io.IOException;
-import java.rmi.RemoteException;
-import java.util.Observable;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.*;
 
 
 public abstract class ClientNetwork extends Observable {
@@ -56,12 +51,12 @@ public abstract class ClientNetwork extends Observable {
     abstract void setup() throws IOException;
     abstract void teardown() throws IOException;
 
-    abstract UUID addPlayer(String nickname) throws RemoteException;
-    abstract void choosePattern(int patternIndex) throws RemoteException;
-    abstract boolean placeDie(int draftPoolIndex, int x, int y) throws RemoteException;
-    abstract void nextTurn() throws RemoteException;
-    abstract JsonObject requiredData(int cardIndex) throws RemoteException;
-    abstract boolean useToolCard(int cardIndex, JsonObject requiredData) throws RemoteException;
+    abstract UUID addPlayer(String nickname);
+    abstract void choosePattern(int patternIndex);
+    abstract boolean placeDie(int draftPoolIndex, int x, int y);
+    abstract void nextTurn();
+    abstract JsonObject requiredData(int cardIndex);
+    abstract boolean useToolCard(int cardIndex, JsonObject requiredData);
 
     void rescheduleProbeTimer() {
         if (this.probeTimer != null) {

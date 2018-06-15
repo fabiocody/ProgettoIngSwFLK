@@ -1,5 +1,6 @@
 package it.polimi.ingsw.client;
 
+import com.google.gson.JsonArray;
 import it.polimi.ingsw.util.*;
 import joptsimple.*;
 import java.io.IOException;
@@ -191,7 +192,6 @@ public abstract class Client implements Observer {
                 Logger.println(USAGE_STRING);
                 System.exit(Constants.EXIT_ERROR);
             }
-
 
             Client client = new ClientCLI(clientNetwork, debug);
             client.start();

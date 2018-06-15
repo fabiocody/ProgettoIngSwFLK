@@ -1,6 +1,7 @@
 package it.polimi.ingsw.client;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import it.polimi.ingsw.rmi.*;
@@ -126,6 +127,74 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         selectableWPStrings.add(0, NotificationsMessages.SELECTABLE_WINDOW_PATTERNS);
         this.setChanged();
         this.notifyObservers(selectableWPStrings);
+    }
+
+    @Override
+    public void updatePlayersList(List<String> players) {
+        JsonArray playersJSON = new JsonArray();
+        players.forEach(playersJSON::add);
+        this.setChanged();
+        this.notifyObservers(playersJSON);
+    }
+
+    @Override
+    public void updateToolCards(List<String> cards) {
+        /*List<String> toolCardsStrings = new ArrayList<>();
+        for(JsonElement obj : cards){
+            String toolCardString = NotificationsMessages.TOOL_CARDS;
+            toolCardString += obj.getAsJsonObject().get(JsonFields.NAME).getAsString();
+            toolCardString += " - ";
+            toolCardString += obj.getAsJsonObject().get(JsonFields.DESCRIPTION).getAsString();
+            //TODO toolCardString += obj.getAsJsonObject().get("used").getAsString();
+            toolCardsStrings.add(toolCardString);
+        }
+        this.setChanged();
+        this.notifyObservers(toolCardsStrings);*/
+    }
+
+    @Override
+    public void sendPublicObjectiveCards(List<String> cards) throws RemoteException {
+
+    }
+
+    @Override
+    public void updateWindowPatterns(List<String> cards) throws RemoteException {
+
+    }
+
+    @Override
+    public void updateFavorTokens() {
+
+    }
+
+    @Override
+    public void updateDraftPool() {
+
+    }
+
+    @Override
+    public void updateRoundTrack() {
+
+    }
+
+    @Override
+    public void turnManagement() {
+
+    }
+
+    @Override
+    public void updateFinalScores() {
+
+    }
+
+    @Override
+    public void setupGame() {
+
+    }
+
+    @Override
+    public void fullUpdate() {
+
     }
 
     @Override

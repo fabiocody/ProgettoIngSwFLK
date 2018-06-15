@@ -2,6 +2,7 @@ package it.polimi.ingsw.server;
 
 import com.google.gson.*;
 import it.polimi.ingsw.model.patterncards.*;
+import it.polimi.ingsw.model.toolcards.ToolCard;
 import it.polimi.ingsw.util.*;
 import java.util.*;
 
@@ -24,11 +25,11 @@ public abstract class ServerNetwork implements Observer {
     abstract void updateRoundTrack();
     abstract void turnManagement();
     abstract void updateFinalScores();
-
     abstract void updateTimerTick(Methods method, String tick);
     abstract void updateWaitingPlayers(List<String> players);
     abstract void setupGame();
     abstract void fullUpdate();
+
     abstract void sendProbe();
     abstract void showDisconnectedUserMessage();
 
@@ -52,6 +53,14 @@ public abstract class ServerNetwork implements Observer {
         wpJSON.add(JsonFields.GRID, grid);
         wpJSON.addProperty(JsonFields.CLI_STRING, wp.toString());
         return wpJSON;
+    }
+
+    JsonObject createToolCardJson(ToolCard card) {
+        JsonObject jsonCard = new JsonObject();
+        jsonCard.addProperty(JsonFields.NAME, card.getName());
+        jsonCard.addProperty(JsonFields.DESCRIPTION, card.getDescription());
+        jsonCard.addProperty(JsonFields.USED, card.isUsed());
+        return jsonCard;
     }
 
     void probeCheck() {

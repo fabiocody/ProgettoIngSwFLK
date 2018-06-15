@@ -1,7 +1,6 @@
 package it.polimi.ingsw.client;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import it.polimi.ingsw.util.*;
 import org.fusesource.jansi.AnsiConsole;
 import org.omg.SendingContext.RunTime;
@@ -565,40 +564,16 @@ public class ClientCLI extends Client {
 
     @Override
     public void update(Observable o, Object arg) {
-        if (o instanceof ClientNetwork) {
-            if(arg instanceof JsonObject){
-                JsonObject jsonArg = (JsonObject) arg;
-                if(jsonArg.get(JsonFields.METHOD).getAsString().equals(JsonFields.FAVOR_TOKENS)){
-                    String favorTokenString = "\nSegnalini Favore";
-                    Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FAVOR_TOKENS).getAsJsonObject().entrySet();
-                    for (Map.Entry<String, JsonElement> entry : entrySet) {
-                        if(entry.getKey().equals(this.getNickname()))
-                            this.setFavorTokens(entry.getValue().getAsInt());
-                        favorTokenString += "\n" + entry.getKey() + ": " + entry.getValue().getAsInt();
-                    }
-                    Logger.println(favorTokenString);
-                }
-                if(jsonArg.get(JsonFields.METHOD).getAsString().equals(JsonFields.FINAL_SCORES)){
-                    String finalScoresString = "\nRisultati finali";
-                    Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FINAL_SCORES).getAsJsonObject().entrySet();
-                    for (Map.Entry<String, JsonElement> entry : entrySet) {
-                        finalScoresString += "\n" + entry.getKey() + ": " + entry.getValue().getAsInt();
-                    }
-                    Logger.println(finalScoresString);
-                }
-            }
-            if (arg instanceof List) {      // Window Patterns
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                List<String> argAsList = (List) arg;
-                if (argAsList.get(0).equals(NotificationsMessages.WR_TIMER_TICK)) {
-                    this.wrTimeout = argAsList.get(1);
+        if (o instanceof ClientNetwork && arg instanceof JsonObject) {
+            JsonObject jsonArg = (JsonObject) arg;
+            Methods method = Methods.getAsMethods(jsonArg.get(JsonFields.METHOD).getAsString());
+            switch (method) {
+                case WR_TIMER_TICK:
+                    this.wrTimeout = jsonArg.get(JsonFields.TICK).getAsString();
                     Logger.print(waitingRoomMessage());
-                } else if (argAsList.get(0).equals(NotificationsMessages.GAME_TIMER_TICK)) {
-                    this.gameTimeout = argAsList.get(1);
+                    break;
+                case GAME_TIMER_TICK:
+                    this.gameTimeout = jsonArg.get(JsonFields.TICK).getAsString();
                     if (isActive())
                         Logger.print(timerPrompt());
                     else {
@@ -617,43 +592,91 @@ public class ClientCLI extends Client {
                             Logger.print(updateLine(timerString));
                         }
                     }
-                } else if (argAsList.get(0).startsWith(NotificationsMessages.SELECTABLE_WINDOW_PATTERNS)) {
+                    break;
+                case SELECTABLE_WINDOW_PATTERNS:
                     stopAsyncInput = true;
-                    argAsList.remove(0);
-                    for (int i = 0; i < argAsList.size(); i++) {
+                    JsonArray windowPatternsArray = jsonArg.getAsJsonArray(JsonFields.WINDOW_PATTERNS);
+                    List<String> windowPatterns = new ArrayList<>();
+                    for (int i = 0; i < windowPatternsArray.size(); i++) {
                         StringBuilder newWPString = new StringBuilder();
                         newWPString.append(i+1);
                         for (int k = 0; k < Constants.MAX_NICKNAME_LENGTH; k++) newWPString.append(" ");
-                        argAsList.set(i, newWPString.toString() + "\n" + argAsList.get(i));
+                        windowPatterns.set(i, newWPString.toString() + "\n" + windowPatternsArray.get(i));
                     }
                     Logger.println();
-                    Logger.println(windowPatternsMessage(argAsList));
-                } else if (argAsList.get(0).equals(NotificationsMessages.UPDATE_WINDOW_PATTERNS)){
-                    argAsList.remove(0);
-                    List<String> patterns = new ArrayList<>();
-                    for (String s: argAsList) {
-                        String spaces = "";
-                        for(int i = 0; i <= MAX_NICKNAME_LENGTH - s.substring(0,s.indexOf("$")).length(); i++)
-                            spaces += " ";
-                        spaces += "\n";
-                        s = s.replace("$",spaces);
-                        patterns.add(s);
+                    Logger.println(windowPatternsMessage(windowPatterns));
+                    break;
+                case WINDOW_PATTERNS:
+                    JsonObject windowPatternsJson = jsonArg.getAsJsonObject(JsonFields.WINDOW_PATTERNS);
+                    windowPatterns = new ArrayList<>();
+                    for (Map.Entry<String, JsonElement> entry : windowPatternsJson.entrySet()) {
+                        StringBuilder patternString = new StringBuilder(entry.getKey());
+                        while (patternString.length() < MAX_NICKNAME_LENGTH)
+                            patternString.append(' ');
+                        patternString.append('\n')
+                                .append(entry.getValue().getAsJsonObject().get(JsonFields.CLI_STRING).getAsString());
+                        windowPatterns.add(patternString.toString());
                     }
-                    String prettyWindowPatterns = windowPatternsMessage(patterns);
-                    Logger.println(prettyWindowPatterns);
-                } else if (argAsList.get(0).startsWith(NotificationsMessages.TOOL_CARDS)) {   //Tool card
-                    String cards = "";
-                    for (String s : argAsList) {
-                        int index = argAsList.indexOf(s) + 1;
-                        s = s.replace("\n",". ");
-                        s = s.replace(NotificationsMessages.TOOL_CARDS, "Carta Strumento " + index + ": ");
-                        s = s.replace(" - ", "\nEffetto: ");
-                        s += "$NL$";
-                        cards += s;
+                    Logger.println(windowPatternsMessage(windowPatterns));
+                    break;
+                case TOOL_CARDS:
+                    JsonArray toolCards = jsonArg.getAsJsonArray(JsonFields.TOOL_CARDS);
+                    StringBuilder toolCardsString = new StringBuilder();
+                    for (int i = 0; i < toolCards.size(); i++) {
+                        JsonObject toolCard = toolCards.get(i).getAsJsonObject();
+                        toolCardsString
+                                .append("Carta strumento ")
+                                .append(i)
+                                .append(": ")
+                                .append(toolCard.get(JsonFields.NAME).getAsString())
+                                .append('\n')
+                                .append("Effetto: ")
+                                .append(toolCard.get(JsonFields.DESCRIPTION).getAsString())
+                                .append('\n')
+                                .append("Prezzo: ")
+                                .append(toolCard.get(JsonFields.USED).getAsBoolean() ? 2 : 1)
+                                .append(" segnalini favore")
+                                .append("\n\n");
                     }
-                    cards = cards.replace("$NL$","\n\n");
-                    Logger.println(cards);
-                } else if (argAsList.get(0).startsWith(NotificationsMessages.PUBLIC_OBJECTIVE_CARDS)) {   //Public Objective Card
+                    Logger.println(toolCardsString.toString());
+                    break;
+                case PUBLIC_OBJECTIVE_CARDS:
+                    // TODO Continuare da qui
+                    break;
+                case FAVOR_TOKENS:
+                    StringBuilder favorTokenString = new StringBuilder("\nSegnalini Favore");
+                    Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FAVOR_TOKENS).getAsJsonObject().entrySet();
+                    for (Map.Entry<String, JsonElement> entry : entrySet) {
+                        if (entry.getKey().equals(this.getNickname()))
+                            this.setFavorTokens(entry.getValue().getAsInt());
+                        favorTokenString.append("\n").append(entry.getKey()).append(": ").append(entry.getValue().getAsInt());
+                    }
+                    Logger.println(favorTokenString.toString());
+                    break;
+                case FINAL_SCORES:
+                    StringBuilder finalScoresString = new StringBuilder("\nRisultati finali");
+                    entrySet = jsonArg.get(JsonFields.FINAL_SCORES).getAsJsonObject().entrySet();
+                    for (Map.Entry<String, JsonElement> entry : entrySet) {
+                        finalScoresString.append("\n").append(entry.getKey()).append(": ").append(entry.getValue().getAsInt());
+                    }
+                    Logger.println(finalScoresString.toString());
+                    break;
+
+            }
+        }
+    }
+
+    private void oldUpdate(Observer o, Object arg) {
+        if (o instanceof ClientNetwork) {
+            if (arg instanceof List) {      // Window Patterns
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                List<String> argAsList = (List) arg;
+                if (argAsList.get(0).startsWith(NotificationsMessages.PUBLIC_OBJECTIVE_CARDS)) {   //Public Objective Card
+                    // TODO continuare da qui
                     StringBuilder cards = new StringBuilder();
                     for (String s : argAsList) {
                         s = s.replace(NotificationsMessages.PUBLIC_OBJECTIVE_CARDS, "Obiettivo Pubblico: ");

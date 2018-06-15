@@ -143,16 +143,27 @@ public class GameController implements GameAPI, Observer {
     }
 
     @Override
-    public void placeDie(UUID id, int draftPoolIndex, int x, int y) throws DieAlreadyPlacedException {
+    public void placeDie(UUID id, int draftPoolIndex, int x, int y) {
         Die d = this.getDraftPool().get(draftPoolIndex);
         getPlayer(id).placeDie(d,x,y);
         this.game.removeDieFromDraftPool(draftPoolIndex);
     }
 
     @Override
-    public void useToolCard(UUID id, int toolCardsIndex, JsonObject data) throws RemoteException, InvalidEffectResultException, InvalidEffectArgumentException {
-        data.addProperty(JsonFields.PLAYER, getPlayer(id).getNickname());
-        this.game.getToolCards().get(toolCardsIndex).effect(data);
+    public void useToolCard(UUID uuid, int cardIndex, JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
+        ToolCard toolCard = getToolCards().get(cardIndex);
+        data.addProperty(JsonFields.PLAYER, getPlayer(uuid).getNickname());
+        toolCard.effect(data);
+        if (!data.has(JsonFields.CONTINUE)) {
+            if (!toolCard.isUsed()) {
+                getPlayer(uuid).setFavorTokens(getPlayer(uuid).getFavorTokens() - 1);
+                Logger.debug("removed 1 favor token");
+            } else {
+                getPlayer(uuid).setFavorTokens(getPlayer(uuid).getFavorTokens() - 2);
+                Logger.debug("removed 2 favor tokens");
+            }
+            toolCard.setUsed();
+        }
     }
 
     @Override

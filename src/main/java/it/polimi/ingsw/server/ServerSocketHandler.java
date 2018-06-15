@@ -173,7 +173,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
     private void choosePattern(JsonObject input) {
         int patternIndex = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.PATTERN_INDEX).getAsInt();
         this.gameController.choosePattern(this.uuid, patternIndex);
-        Logger.println(this.nickname + " has chosen pattern " + patternIndex);
+        Logger.log(this.nickname + " has chosen pattern " + patternIndex);
     }
 
     private void placeDie(JsonObject input) {
@@ -223,7 +223,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             }
             Logger.debug("PAYLOAD " + payload.toString());
             out.println(payload.toString());
-        } catch (RemoteException | InvalidEffectArgumentException | InvalidEffectResultException e) {
+        } catch (InvalidEffectArgumentException | InvalidEffectResultException e) {
             e.printStackTrace();        // TODO Remove
             payload.addProperty(JsonFields.RESULT, false);
             Logger.println(this.nickname + " usage of tool card was refused");
@@ -274,13 +274,8 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.TOOL_CARDS.getString());
         JsonArray cards = new JsonArray();
-        for (ToolCard card : this.gameController.getToolCards()) {
-            JsonObject jsonCard = new JsonObject();
-            jsonCard.addProperty(JsonFields.NAME, card.getName());
-            jsonCard.addProperty(JsonFields.DESCRIPTION, card.getDescription());
-            jsonCard.addProperty(JsonFields.USED, card.isUsed());
-            cards.add(jsonCard);
-        }
+        for (ToolCard card : this.gameController.getToolCards())
+            cards.add(createToolCardJson(card));
         payload.add(JsonFields.TOOL_CARDS, cards);
         Logger.debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());

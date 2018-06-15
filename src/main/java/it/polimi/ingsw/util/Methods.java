@@ -15,6 +15,8 @@ public enum Methods {
     WR_TIMER_TICK("wrTimerTick"),
     GAME_SETUP("gameSetup"),
     GAME_TIMER_TICK("gameTimerTick"),
+    PRIVATE_OBJECTIVE_CARD("privateObjectiveCard"),
+    SELECTABLE_WINDOW_PATTERNS("selectableWindowPatterns"),
     CHOOSE_PATTERN("choosePattern"),
     TURN_MANAGEMENT("turnManagement"),
     PLAYERS("players"),

@@ -118,7 +118,9 @@ public class SocketClient extends ClientNetwork {
                     this.updateWaitingPlayers(inputJson);
                     break;
                 case WR_TIMER_TICK:
-                    this.wrTimerTick(inputJson);
+                case GAME_TIMER_TICK:
+                    this.setChanged();
+                    this.notifyObservers(inputJson);
                     break;
                 case GAME_SETUP:
                     this.gameSetup(inputJson);
@@ -152,10 +154,6 @@ public class SocketClient extends ClientNetwork {
                     break;
                 case FINAL_SCORES:
                     this.updateFinalScores(inputJson);
-                    break;
-                case GAME_TIMER_TICK:
-                    this.gameTimerTick(inputJson);
-                    break;
             }
         }
     }
@@ -310,23 +308,6 @@ public class SocketClient extends ClientNetwork {
     private void updateWaitingPlayers(JsonObject input) {
         this.setChanged();
         this.notifyObservers(input.get(JsonFields.PLAYERS).getAsJsonArray());
-    }
-
-    /**
-     * This method is used to print out an updated timer
-     *
-     * @param input data from the server
-     */
-    private void wrTimerTick(JsonObject input) {
-        String tick = String.valueOf(input.get(JsonFields.TICK).getAsString());
-        this.setChanged();
-        this.notifyObservers(Arrays.asList(NotificationsMessages.WR_TIMER_TICK, tick));
-    }
-
-    private void gameTimerTick(JsonObject input) {
-        String tick = String.valueOf(input.get(JsonFields.TICK).getAsInt());
-        this.setChanged();
-        this.notifyObservers(Arrays.asList(NotificationsMessages.GAME_TIMER_TICK, tick));
     }
 
     /**

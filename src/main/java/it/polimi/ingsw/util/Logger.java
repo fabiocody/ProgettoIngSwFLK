@@ -45,4 +45,5 @@ public class Logger {
     public static void connectionLost() {
         error("Connection lost");
     }
+
 }
