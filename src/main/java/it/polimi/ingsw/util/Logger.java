@@ -1,5 +1,7 @@
 package it.polimi.ingsw.util;
 
+import java.time.LocalDateTime;
+
 public class Logger {
 
     private static boolean debugActive = false;
@@ -25,7 +27,7 @@ public class Logger {
     }
 
     public static void debug(String message) {
-        if (isDebugActive()) println("[DEBUG] " + message);
+        if (isDebugActive()) println("[DEBUG " + LocalDateTime.now() + "] " + message);
     }
 
     public static void error(String message) {

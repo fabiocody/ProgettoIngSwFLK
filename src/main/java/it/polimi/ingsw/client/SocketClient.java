@@ -23,7 +23,6 @@ public class SocketClient extends ClientNetwork {
     private Queue<JsonObject> responseBuffer;
     private final Object responseBufferLock = new Object();
     private Thread recvThread;
-    private Timer probeTimer;
     private boolean toBeKilled = false;
 
     // FLAGS
@@ -104,8 +103,6 @@ public class SocketClient extends ClientNetwork {
             Logger.debug("Received method " + recvMethod.getString());
             switch (recvMethod) {
                 case ADD_PLAYER:
-                case SUBSCRIBE_TO_WR_TIMER:
-                case SUBSCRIBE_TO_GAME_TIMER:
                 case CHOOSE_PATTERN:
                 case NEXT_TURN:
                 case PLACE_DIE:
@@ -180,21 +177,6 @@ public class SocketClient extends ClientNetwork {
         return line;
     }
 
-    private void rescheduleProbeTimer() {
-        if (this.probeTimer != null) {
-            this.probeTimer.cancel();
-            this.probeTimer.purge();
-        }
-        this.probeTimer = new Timer(true);
-        this.probeTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Logger.error("Connection lost PROBE");
-                System.exit(Constants.INDEX_CONSTANT);
-            }
-        }, 10 * 1000);
-    }
-
     private void probe() {
         this.sendMessage(new JsonObject(), Methods.PROBE.getString());
         this.rescheduleProbeTimer();
@@ -231,40 +213,12 @@ public class SocketClient extends ClientNetwork {
                     }
                 }, 100);
             } else {
-                /*JsonArray players = input.get(JsonFields.PLAYERS).getAsJsonArray();
-                Logger.debug("SIZE: " + players.size());
-                if (players.size() < Constants.MAX_NUMBER_OF_PLAYERS) {
-                    new Timer(true)
-                            .schedule(new TimerTask() {
-                                @Override
-                                public void run() {
-                                    updateWaitingPlayers(input);
-                                }
-                            }, 100);
-                    this.subscribeToWRTimer();
-                }*/
                 this.rescheduleProbeTimer();
             }
             return getUuid();
         } else {
             return null;
         }
-    }
-
-    /**
-     * This method is used to subscribe a client to the waiting room timer, so that the client will receive regular
-     * updates
-     */
-    private void subscribeToWRTimer() {
-        JsonObject payload = new JsonObject();
-        this.sendMessage(payload, Methods.SUBSCRIBE_TO_WR_TIMER.getString());
-        //Logger.debug("INPUT " + this.pollResponseBuffer());
-    }
-
-    private void subscribeToGameTimer() {
-        JsonObject payload = new JsonObject();
-        this.sendMessage(payload, Methods.SUBSCRIBE_TO_GAME_TIMER.getString());
-        //Logger.debug("INPUT " + this.pollResponseBuffer());
     }
 
     /**
@@ -398,7 +352,6 @@ public class SocketClient extends ClientNetwork {
     }
 
     private void inGamePlayers(JsonObject input) {
-        this.subscribeToGameTimer();
         this.setChanged();
         this.notifyObservers(input.get(JsonFields.PLAYERS).getAsJsonArray());
     }

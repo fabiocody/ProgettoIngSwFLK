@@ -21,6 +21,7 @@ public class GameController implements GameAPI, Observer {
     GameController(Game game) {
         this.game = game;
         this.game.addObserver(this);
+        this.game.getPlayers().forEach(p -> p.addObserver(this));
     }
 
     Game getGame() {
@@ -40,16 +41,6 @@ public class GameController implements GameAPI, Observer {
         return this.game.getPlayers().stream()
                 .map(Player::getNickname)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public void subscribeToTurnManagerTimer(Observer observer) {
-        this.game.getTurnManager().subscribeToTimer(observer);
-    }
-
-    @Override
-    public void unsubscribeFromTurnManagerTimer(Observer observer) {
-        this.game.getTurnManager().unsubscribeFromTimer(observer);
     }
 
     @Override

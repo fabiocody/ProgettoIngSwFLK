@@ -165,7 +165,7 @@ public class SagradaServer extends Observable implements Observer {
             GameController gameController = new GameController((Game) arg);
             this.getGameControllers().add(gameController);
             this.setChanged();
-            this.notifyObservers(gameController);       // Notify ServerSocketHandler
+            this.notifyObservers(gameController);       // Notify ServerNetwork
         }
     }
 

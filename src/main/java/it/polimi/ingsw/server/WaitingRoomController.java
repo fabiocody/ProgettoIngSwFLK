@@ -50,26 +50,6 @@ public class WaitingRoomController implements WaitingRoomAPI, Observer {
                 .collect(Collectors.toList());
     }
 
-    /*@Override
-    public void subscribeToWaitingRoomTimer(Observer observer) {
-        WaitingRoom.getInstance().getTimer().addObserver(observer);
-    }
-
-    @Override
-    public void unsubscribeFromWaitingRoomTimer(Observer observer) {
-        WaitingRoom.getInstance().getTimer().deleteObserver(observer);
-    }
-
-    @Override
-    public void subscribeToWaitingRoom(Observer observer) {
-        WaitingRoom.getInstance().addObserver(observer);
-    }
-
-    @Override
-    public void unsubscribeFromWaitingRoom(Observer observer) {
-        WaitingRoom.getInstance().deleteObserver(observer);
-    }*/
-
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof WaitingRoom) {

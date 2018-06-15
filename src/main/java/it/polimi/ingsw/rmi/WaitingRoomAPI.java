@@ -40,37 +40,4 @@ public interface WaitingRoomAPI extends Remote {
      */
     List<String> getWaitingPlayers() throws RemoteException;
 
-    /**
-     * This method is used to subscribe a player to the waiting room timer, so that the client will receive regular
-     * updates
-     *
-     * @param observer the client that wants to be subscribed
-     * @throws RemoteException required by RMI
-     */
-    //void subscribeToWaitingRoomTimer(Observer observer) throws RemoteException;
-
-    /**
-     * This method is used to unsubscribe a player from the waiting room timer
-     *
-     * @param observer the client that no longer wants to be subscribed
-     * @throws RemoteException required by RMI
-     */
-    //void unsubscribeFromWaitingRoomTimer(Observer observer) throws RemoteException;
-
-    /**
-     * This method is used to subscribe a player to the waiting room, so that the client will receive regular
-     * updates
-     *
-     * @param observer the client that wants to be subscribed
-     * @throws RemoteException required by RMI
-     */
-    //void subscribeToWaitingRoom(Observer observer) throws RemoteException;
-
-    /**
-     * This method is used to unsubscribe a player from the waiting room timer
-     *
-     * @param observer the client that no longer wants to be subscribed
-     * @throws RemoteException required by RMI
-     */
-    //void unsubscribeFromWaitingRoom(Observer observer) throws RemoteException;
 }

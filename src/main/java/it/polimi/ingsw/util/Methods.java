@@ -12,10 +12,8 @@ public enum Methods {
 
     ADD_PLAYER("addPlayer"),
     UPDATE_WAITING_PLAYERS("updateWaitingPlayers"),
-    SUBSCRIBE_TO_WR_TIMER("subscribeToWRTimer"),
     WR_TIMER_TICK("wrTimerTick"),
     GAME_SETUP("gameSetup"),
-    SUBSCRIBE_TO_GAME_TIMER("subscribeToGameTimer"),
     GAME_TIMER_TICK("gameTimerTick"),
     CHOOSE_PATTERN("choosePattern"),
     TURN_MANAGEMENT("turnManagement"),

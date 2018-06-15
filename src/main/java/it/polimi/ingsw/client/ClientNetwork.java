@@ -1,11 +1,14 @@
 package it.polimi.ingsw.client;
 
 import com.google.gson.JsonObject;
+import it.polimi.ingsw.util.Constants;
 import it.polimi.ingsw.util.Logger;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Observable;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 
@@ -16,6 +19,8 @@ public abstract class ClientNetwork extends Observable {
 
     private String nickname;
     private UUID uuid;
+
+    private Timer probeTimer;
 
     ClientNetwork(String host, int port, boolean debug) {
         this.host = host;
@@ -57,5 +62,20 @@ public abstract class ClientNetwork extends Observable {
     abstract void nextTurn() throws RemoteException;
     abstract JsonObject requiredData(int cardIndex) throws RemoteException;
     abstract boolean useToolCard(int cardIndex, JsonObject requiredData) throws RemoteException;
+
+    void rescheduleProbeTimer() {
+        if (this.probeTimer != null) {
+            this.probeTimer.cancel();
+            this.probeTimer.purge();
+        }
+        this.probeTimer = new Timer(true);
+        this.probeTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Logger.error("Connection lost PROBE");
+                System.exit(Constants.EXIT_ERROR);
+            }
+        }, 10 * 1000);
+    }
 
 }

@@ -14,46 +14,24 @@ import java.util.*;
 
 
 public class ServerSocketHandler extends ServerNetwork implements Runnable {
-    // Observes CountdownTimer (from WaitingRoom and TurnManager), WaitingRoom and Game
 
     private Socket clientSocket;
     private BufferedReader in;
     private PrintWriter out;
     private JsonParser jsonParser;
     private boolean run = true;
-    private Thread probeThread;
-    private boolean probed = true;
 
     public ServerSocketHandler(Socket socket) {
         this.clientSocket = socket;
         this.jsonParser = new JsonParser();
     }
 
-    private void probe() {
-        while (Constants.INDEX_CONSTANT == Constants.INDEX_CONSTANT) {
-            try {
-                Thread.sleep(5 * 1000);
-            } catch (InterruptedException e) {
-                break;
-            }
-            if (!probed) {
-                Logger.error("Probe error");
-                notifyDisconnectedUser();
-                Thread.currentThread().interrupt();
-            }
-            JsonObject payload = new JsonObject();
-            payload.addProperty(JsonFields.METHOD, Methods.PROBE.getString());
-            out.println(payload.toString());
-            probed = false;
-        }
-    }
-
-    private void notifyDisconnectedUser() {
+    @Override
+    void notifyDisconnectedUser() {
         String address = clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort();
         Logger.println("Disconnected " + address + " (nickname: " + this.nickname + ")");
         WaitingRoomController.getInstance().removePlayer(this.nickname);
         if (gameController != null) {
-            gameController.unsubscribeFromTurnManagerTimer(this);
             gameController.suspendPlayer(this.uuid);
         }
         run = false;
@@ -94,13 +72,6 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
                 switch (calledMethod) {
                     case ADD_PLAYER:
                         this.addPlayer(input);
-                        break;
-                    case SUBSCRIBE_TO_WR_TIMER:
-                        this.subscribeToWRTimer();
-                        break;
-                    case SUBSCRIBE_TO_GAME_TIMER:
-                        // TODO
-                        this.subscribeToGameTimer();
                         break;
                     case CHOOSE_PATTERN:
                         this.choosePattern(input);
@@ -164,7 +135,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             payload.add(JsonFields.PLAYERS, waitingPlayers);
             Logger.debug("PAYLOAD " + payload.toString());
             out.println(payload.toString());
-            this.probeThread = new Thread(this::probe);
+            this.probeThread = new Thread(this::probeCheck);
             this.probeThread.start();
         } catch (LoginFailedException e) {
             Logger.println("Login failed for nickname " + tempNickname);
@@ -183,7 +154,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             Player player = game.getPlayerForNickname(this.nickname);
             this.uuid = player.getId();
             Logger.println(this.nickname + " logged back in (" + this.uuid + ")");
-            game.addObserver(this);
+            //game.addObserver(this);
             JsonObject payload = new JsonObject();
             payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
             payload.addProperty(JsonFields.LOGGED, true);
@@ -191,7 +162,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             payload.addProperty(JsonFields.PLAYER_ID, this.uuid.toString());
             Logger.debug("PAYLOAD " + payload.toString());
             out.println(payload.toString());
-            this.probeThread = new Thread(this::probe);
+            this.probeThread = new Thread(this::probeCheck);
             this.probeThread.start();
             gameController.unsuspendPlayer(this.uuid);
             new Timer(true).schedule(new TimerTask() {
@@ -201,27 +172,6 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
                 }
             }, 500);
         }
-    }
-
-    private void subscribeToWRTimer() {
-        //WaitingRoomController.getInstance().subscribeToWaitingRoomTimer(this);
-        //Logger.debug("WR timer registered");
-        /*JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.SUBSCRIBE_TO_WR_TIMER.getString());
-        payload.addProperty(JsonFields.RESULT, true);
-        Logger.debug("PAYLOAD " + payload.toString());
-        out.println(payload.toString());*/
-    }
-
-    private void subscribeToGameTimer() {
-        this.gameController.subscribeToTurnManagerTimer(this);
-        Logger.debug("Game timer registered");
-        /*JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.SUBSCRIBE_TO_GAME_TIMER.getString());
-        payload.addProperty(JsonFields.RESULT, true);
-        Logger.debug("PAYLOAD " + payload.toString());
-        out.println(payload.toString());
-        Logger.debug(Methods.SUBSCRIBE_TO_GAME_TIMER.getString() + " sent");*/
     }
 
     private void choosePattern(JsonObject input) {
@@ -470,28 +420,6 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         Logger.debug("Update Waiting Players List sent");
     }
 
-    private JsonObject createWindowPatternJSON(WindowPattern wp) {
-        JsonObject wpJSON = new JsonObject();
-        wpJSON.addProperty(JsonFields.DIFFICULTY, wp.getDifficulty());
-        JsonArray grid = new JsonArray();
-        for (Cell c : wp.getGrid()) {
-            JsonObject cellJSON = new JsonObject();
-            cellJSON.addProperty(JsonFields.COLOR, c.getCellColor() != null ? c.getCellColor().toString() : null);
-            cellJSON.addProperty(JsonFields.VALUE, c.getCellValue());
-            JsonObject die = null;
-            if (c.getPlacedDie() != null) {
-                die = new JsonObject();
-                die.addProperty(JsonFields.COLOR, c.getPlacedDie().getColor().toString());
-                die.addProperty(JsonFields.VALUE, c.getPlacedDie().getValue());
-            }
-            cellJSON.add(JsonFields.DIE, die);
-            grid.add(cellJSON);
-        }
-        wpJSON.add(JsonFields.GRID, grid);
-        wpJSON.addProperty(JsonFields.CLI_STRING, wp.toString());
-        return wpJSON;
-    }
-
     @Override
     void setupGame() {
         Logger.debug("setupGame called");
@@ -535,7 +463,11 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             turnManagement();
         }
     }
+
+    @Override
+    void sendProbe() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty(JsonFields.METHOD, Methods.PROBE.getString());
+        out.println(payload.toString());
+    }
 }
-
-
-
