@@ -85,10 +85,9 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     }
 
     @Override
-    public void wrTimerTick(int tick) {
-        String tickString = String.valueOf(tick);
+    public void wrTimerTick(String tick) {
         this.setChanged();
-        this.notifyObservers(Arrays.asList(NotificationsMessages.WR_TIMER_TICK, tickString));
+        this.notifyObservers(Arrays.asList(NotificationsMessages.WR_TIMER_TICK, tick));
     }
 
     @Override
@@ -100,10 +99,9 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     }
 
     @Override
-    public void gameTimerTick(int tick) {
-        String tickString = String.valueOf(tick);
+    public void gameTimerTick(String tick) {
         this.setChanged();
-        this.notifyObservers(Arrays.asList(NotificationsMessages.GAME_TIMER_TICK, tickString));
+        this.notifyObservers(Arrays.asList(NotificationsMessages.GAME_TIMER_TICK, tick));
     }
 
     @Override

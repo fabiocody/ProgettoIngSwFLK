@@ -28,12 +28,12 @@ public class GameController implements GameAPI, Observer {
         return game;
     }
 
-    public boolean addServerNetwork(ServerNetwork network) {
-        return serverNetworks.add(network);
+    void addServerNetwork(ServerNetwork network) {
+        serverNetworks.add(network);
     }
 
-    public boolean removeServerNetwork(ServerNetwork network) {
-        return serverNetworks.remove(network);
+    void removeServerNetwork(ServerNetwork network) {
+        serverNetworks.remove(network);
     }
 
     @Override
@@ -170,7 +170,7 @@ public class GameController implements GameAPI, Observer {
         String stringArg = String.valueOf(arg);
         if (o instanceof CountdownTimer) {
             if (stringArg.startsWith(NotificationsMessages.TURN_MANAGER)) {
-                int tick = Integer.parseInt(stringArg.split(" ")[1]);
+                String tick = stringArg.split(" ")[1];
                 Logger.debug("Game Timer tick (from update): " + tick);
                 serverNetworks.forEach(network -> network.updateTimerTick(Methods.GAME_TIMER_TICK, tick));
             }

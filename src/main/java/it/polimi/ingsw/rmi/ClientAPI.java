@@ -8,10 +8,10 @@ public interface ClientAPI extends Remote {
 
     void probe() throws RemoteException;
 
-    void wrTimerTick(int tick) throws RemoteException;
+    void wrTimerTick(String tick) throws RemoteException;
     void updateWaitingPlayers(List<String> players) throws RemoteException;
 
-    void gameTimerTick(int tick) throws RemoteException;
+    void gameTimerTick(String tick) throws RemoteException;
     void sendPrivateObjectiveCard(String card) throws RemoteException;
     void sendSelectableWindowPatterns(List<String> cards) throws RemoteException;
 

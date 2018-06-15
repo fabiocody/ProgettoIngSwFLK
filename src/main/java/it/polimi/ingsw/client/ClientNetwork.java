@@ -72,10 +72,10 @@ public abstract class ClientNetwork extends Observable {
         this.probeTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                Logger.error("Connection lost PROBE");
+                Logger.connectionLost();
                 System.exit(Constants.EXIT_ERROR);
             }
-        }, 10 * 1000);
+        }, Constants.PROBE_TIMEOUT * 2000);
     }
 
 }

@@ -90,7 +90,7 @@ public class SocketClient extends ClientNetwork {
                 inputJson = this.jsonParser.parse(this.readLine()).getAsJsonObject();
                 Logger.debug(inputJson.toString());
             } catch (IOException | NullPointerException e) {
-                Logger.error("Connection aborted");
+                Logger.connectionLost();
                 System.exit(Constants.INDEX_CONSTANT);
             }
             Methods recvMethod;
@@ -171,7 +171,7 @@ public class SocketClient extends ClientNetwork {
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         String line = in.readLine();
         if (line == null) {
-            Logger.error("DISCONNECTED");
+            Logger.connectionLost();
             System.exit(Constants.INDEX_CONSTANT);
         }
         return line;
@@ -318,7 +318,7 @@ public class SocketClient extends ClientNetwork {
      * @param input data from the server
      */
     private void wrTimerTick(JsonObject input) {
-        String tick = String.valueOf(input.get(JsonFields.TICK).getAsInt());
+        String tick = String.valueOf(input.get(JsonFields.TICK).getAsString());
         this.setChanged();
         this.notifyObservers(Arrays.asList(NotificationsMessages.WR_TIMER_TICK, tick));
     }

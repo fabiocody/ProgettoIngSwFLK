@@ -25,12 +25,12 @@ public abstract class ServerNetwork implements Observer {
     abstract void turnManagement();
     abstract void updateFinalScores();
 
-    abstract void updateTimerTick(Methods method, int tick);
+    abstract void updateTimerTick(Methods method, String tick);
     abstract void updateWaitingPlayers(List<String> players);
     abstract void setupGame();
     abstract void fullUpdate();
     abstract void sendProbe();
-    abstract void notifyDisconnectedUser();
+    abstract void showDisconnectedUserMessage();
 
     JsonObject createWindowPatternJSON(WindowPattern wp) {
         JsonObject wpJSON = new JsonObject();
@@ -57,19 +57,30 @@ public abstract class ServerNetwork implements Observer {
     void probeCheck() {
         while (Constants.INDEX_CONSTANT == Constants.INDEX_CONSTANT) {
             try {
-                Thread.sleep(5 * 1000);
+                Thread.sleep(Constants.PROBE_TIMEOUT * 1000);
             } catch (InterruptedException e) {
                 break;
             }
             Logger.debug("Checking probe for " + nickname);
             if (!probed) {
                 Logger.error("Probe error");
-                this.notifyDisconnectedUser();
+                this.onUserDisconnection();
                 Thread.currentThread().interrupt();
+            } else {
+                probed = false;
+                this.sendProbe();
             }
-            probed = false;
-            this.sendProbe();
         }
+    }
+
+    void onUserDisconnection() {
+        WaitingRoomController.getInstance().removePlayer(this.nickname);
+        WaitingRoomController.getInstance().removeServerNetwork(this);
+        if (gameController != null) {
+            gameController.suspendPlayer(this.uuid);
+            gameController.removeServerNetwork(this);
+        }
+        this.showDisconnectedUserMessage();
     }
 
     @Override

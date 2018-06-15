@@ -26,11 +26,23 @@ public class Logger {
         println("");
     }
 
+    public static void log(String message) {
+        println(LocalDateTime.now() + message);
+    }
+
     public static void debug(String message) {
         if (isDebugActive()) println("[DEBUG " + LocalDateTime.now() + "] " + message);
     }
 
     public static void error(String message) {
         System.err.println("[ERROR] " + message);
+    }
+
+    public static void connectionLost(String nickname) {
+        error("Connection lost (" + nickname + ")");
+    }
+
+    public static void connectionLost() {
+        error("Connection lost");
     }
 }

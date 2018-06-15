@@ -357,7 +357,8 @@ public class ClientCLI extends Client {
                 }
             }
         } catch (IOException | InterruptedException e) {
-            Logger.error("Errore non specificato");
+            Logger.println("");
+            System.exit(Constants.EXIT_ERROR);
         } finally {
             Logger.println("");
             try {
@@ -549,12 +550,10 @@ public class ClientCLI extends Client {
     }
 
     private String updateLine(String line) {
-        String newLine = ansi().cursorToColumn(0)
+        return ansi().cursorToColumn(0)
                 .eraseLine(Erase.FORWARD)
                 .a(line)
                 .toString();
-        //lastPrintedLine = line;
-        return newLine;
     }
 
     private String reconnectionPrompt() {

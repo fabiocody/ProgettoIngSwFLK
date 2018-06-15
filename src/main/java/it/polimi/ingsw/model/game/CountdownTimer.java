@@ -57,6 +57,8 @@ public class CountdownTimer extends Observable implements Runnable {
         this.remainingTime = 0;
         this.task = null;
         this.timerThread = null;
+        this.setChanged();
+        this.notifyObservers(this.id + " ∞");
     }
 
     /**

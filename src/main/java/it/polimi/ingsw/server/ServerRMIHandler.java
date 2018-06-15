@@ -50,7 +50,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             uuid = WaitingRoomController.getInstance().addPlayer(nickname);
             this.nickname = nickname;
-            Logger.println(nickname + " logged in successfully");
+            Logger.println(nickname + " logged in successfully (" + uuid + ")");
             this.probeThread = new Thread(this::probeCheck);
             this.probeThread.start();
         } catch (LoginFailedException e) {
@@ -115,14 +115,14 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     }
 
     @Override
-    void updateTimerTick(Methods method, int tick) {
+    void updateTimerTick(Methods method, String tick) {
         switch (method) {
             case WR_TIMER_TICK:
                 try {
                     client.wrTimerTick(tick);
                     Logger.debug("updateTimerTick sent to " + nickname);
                 } catch (RemoteException e) {
-                    Logger.error("Connection error: " + e.getMessage());
+                    connectionError();
                 }
                 break;
             case GAME_TIMER_TICK:
@@ -130,7 +130,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
                     client.gameTimerTick(tick);
                     Logger.debug("updateTimerTick sent to " + nickname);
                 } catch (RemoteException e) {
-                    Logger.error("Connection error: " + e.getMessage());
+                    connectionError();
                 }
                 break;
             default:
@@ -144,7 +144,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.updateWaitingPlayers(players);
         } catch (RemoteException e) {
-            Logger.error("Connection error: " + e.getMessage());
+            connectionError();
         }
     }
 
@@ -160,7 +160,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.sendPrivateObjectiveCard(privateObjectiveCardJSON.toString());
         } catch (RemoteException e) {
-            Logger.error("Connection error: " + e.getMessage());
+            connectionError();
         }
 
         List<WindowPattern> windowPatterns = player.getWindowPatternList();
@@ -171,7 +171,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.sendSelectableWindowPatterns(windowPatternsJSON);
         } catch (RemoteException e) {
-            Logger.error("Connection error: " + e.getMessage());
+            connectionError();
         }
 
         Logger.println("A game has started for " + nickname);
@@ -188,18 +188,19 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.probe();
         } catch (RemoteException e) {
-            Logger.error("Connection error: " + e.getMessage());
+            connectionError();
         }
     }
 
     @Override
-    void notifyDisconnectedUser() {
+    void showDisconnectedUserMessage() {
         Logger.println(nickname + " was disconnected");
-        WaitingRoomController.getInstance().removePlayer(this.nickname);
-        if (gameController != null) {
-            gameController.suspendPlayer(this.uuid);
-        }
         Thread.currentThread().interrupt();
+    }
+
+    private void connectionError() {
+        Logger.connectionLost(nickname);
+        this.onUserDisconnection();
     }
 
 }

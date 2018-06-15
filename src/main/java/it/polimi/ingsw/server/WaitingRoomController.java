@@ -4,6 +4,7 @@ import it.polimi.ingsw.model.game.*;
 import it.polimi.ingsw.rmi.WaitingRoomAPI;
 import it.polimi.ingsw.util.*;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 
@@ -12,6 +13,8 @@ public class WaitingRoomController implements WaitingRoomAPI, Observer {
     private static WaitingRoomController instance;
 
     private List<ServerNetwork> serverNetworks;
+    private final Object serverNetworksLock = new Object();
+    private boolean serverNetworksBusy = false;
 
     private WaitingRoomController() {
         this.serverNetworks = new Vector<>();
@@ -25,12 +28,53 @@ public class WaitingRoomController implements WaitingRoomAPI, Observer {
         return instance;
     }
 
-    public boolean addServerNetwork(ServerNetwork network) {
-        return serverNetworks.add(network);
+    void addServerNetwork(ServerNetwork network) {
+        synchronized (serverNetworksLock) {
+            new Thread(() -> {
+                synchronized (serverNetworksLock) {
+                    Logger.debug("Attempt to add ServerNetwork");
+                    while (serverNetworksBusy) {
+                        try {
+                            serverNetworksLock.wait();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                    serverNetworks.add(network);
+                    Logger.debug("ServerNetwork added");
+                }
+            }).start();
+        }
     }
 
-    public boolean removeServerNetwork(ServerNetwork network) {
-        return serverNetworks.remove(network);
+    void removeServerNetwork(ServerNetwork network) {
+        synchronized (serverNetworksLock) {
+            new Thread(() -> {
+                synchronized (serverNetworksLock) {
+                    Logger.debug("Attempt to remove ServerNetwork");
+                    while (serverNetworksBusy) {
+                        try {
+                            serverNetworksLock.wait();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                    serverNetworks.remove(network);
+                    Logger.debug("ServerNetwork removed");
+                }
+            }).start();
+        }
+    }
+
+    private void forEachServerNetwork(Consumer<? super ServerNetwork> action) {
+        synchronized (serverNetworksLock) {
+            serverNetworksBusy = true;
+            for (ServerNetwork serverNetwork : serverNetworks) {
+                action.accept(serverNetwork);
+            }
+            serverNetworksBusy = false;
+            serverNetworksLock.notifyAll();
+        }
     }
 
     @Override
@@ -58,14 +102,14 @@ public class WaitingRoomController implements WaitingRoomAPI, Observer {
                 List<String> players = ((List<Player>) arg).stream()
                         .map(Player::getNickname)
                         .collect(Collectors.toList());
-                serverNetworks.forEach(network -> network.updateWaitingPlayers(players));
+                forEachServerNetwork(network -> network.updateWaitingPlayers(players));
             }
         } else if (o instanceof CountdownTimer) {
             String stringArg = String.valueOf(arg);
             if (stringArg.startsWith(NotificationsMessages.WAITING_ROOM)) {
-                int tick = Integer.parseInt(stringArg.split(" ")[1]);
+                String tick = stringArg.split(" ")[1];
                 Logger.debug("WR Timer tick (from update): " + tick);
-                serverNetworks.forEach(network -> network.updateTimerTick(Methods.WR_TIMER_TICK, tick));
+                forEachServerNetwork(network -> network.updateTimerTick(Methods.WR_TIMER_TICK, tick));
             }
         }
     }

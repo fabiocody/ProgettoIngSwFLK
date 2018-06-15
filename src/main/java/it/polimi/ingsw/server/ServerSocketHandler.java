@@ -27,13 +27,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
     }
 
     @Override
-    void notifyDisconnectedUser() {
+    void showDisconnectedUserMessage() {
         String address = clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort();
         Logger.println("Disconnected " + address + " (nickname: " + this.nickname + ")");
-        WaitingRoomController.getInstance().removePlayer(this.nickname);
-        if (gameController != null) {
-            gameController.suspendPlayer(this.uuid);
-        }
         run = false;
         Thread.currentThread().interrupt();
     }
@@ -104,7 +100,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
     private String readLine() throws IOException {
         String line = in.readLine();
         if (line == null) {
-            this.notifyDisconnectedUser();
+            this.onUserDisconnection();
             this.probeThread.interrupt();
             Thread.currentThread().interrupt();
         }
@@ -398,13 +394,12 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
     // UPDATE HANDLER
 
     @Override
-    void updateTimerTick(Methods method, int tick) {
-        Logger.debug("updateTimerTick called");
+    void updateTimerTick(Methods method, String tick) {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, method.getString());
         payload.addProperty(JsonFields.TICK, tick);
         out.println(payload.toString());
-        Logger.debug("Timer Tick Update sent");
+        Logger.debug("updateTimerTick sent to" + nickname);
     }
 
     @Override
