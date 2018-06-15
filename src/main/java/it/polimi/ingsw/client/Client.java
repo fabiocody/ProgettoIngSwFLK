@@ -33,6 +33,7 @@ public abstract class Client implements Observer {
             Logger.println("Connection established");
         } catch (IOException e) {
             Logger.error("Connection failed");
+            e.printStackTrace();
             System.exit(1);
         }
     }

@@ -38,7 +38,7 @@ public interface WaitingRoomAPI extends Remote {
      * @return a list of the players currently logged in the waiting room
      * @throws RemoteException required by RMI
      */
-    List<Player> getWaitingPlayers() throws RemoteException;
+    List<String> getWaitingPlayers() throws RemoteException;
 
     /**
      * This method is used to subscribe a player to the waiting room timer, so that the client will receive regular

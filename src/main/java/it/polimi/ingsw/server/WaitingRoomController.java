@@ -4,6 +4,7 @@ import it.polimi.ingsw.model.game.*;
 import it.polimi.ingsw.rmi.WaitingRoomAPI;
 import it.polimi.ingsw.util.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class WaitingRoomController implements WaitingRoomAPI, Observer {
@@ -14,6 +15,7 @@ public class WaitingRoomController implements WaitingRoomAPI, Observer {
 
     private WaitingRoomController() {
         this.serverNetworks = new Vector<>();
+        WaitingRoom.getInstance().addObserver(this);
         WaitingRoom.getInstance().getTimer().addObserver(this);
     }
 
@@ -42,8 +44,10 @@ public class WaitingRoomController implements WaitingRoomAPI, Observer {
     }
 
     @Override
-    public List<Player> getWaitingPlayers() {
-        return new Vector<>(WaitingRoom.getInstance().getWaitingPlayers());
+    public List<String> getWaitingPlayers() {
+        return WaitingRoom.getInstance().getWaitingPlayers().stream()
+                .map(Player::getNickname)
+                .collect(Collectors.toList());
     }
 
     /*@Override
@@ -70,7 +74,11 @@ public class WaitingRoomController implements WaitingRoomAPI, Observer {
     public void update(Observable o, Object arg) {
         if (o instanceof WaitingRoom) {
             if (arg instanceof List /*&& getUuid() != null*/) {
-                serverNetworks.forEach(network -> network.updateWaitingPlayersList((List<Player>) arg));
+                Logger.debug("Updating waiting players");
+                List<String> players = ((List<Player>) arg).stream()
+                        .map(Player::getNickname)
+                        .collect(Collectors.toList());
+                serverNetworks.forEach(network -> network.updateWaitingPlayers(players));
             }
         } else if (o instanceof CountdownTimer) {
             String stringArg = String.valueOf(arg);

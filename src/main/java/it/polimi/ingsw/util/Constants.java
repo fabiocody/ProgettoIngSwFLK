@@ -14,5 +14,6 @@ public class Constants {
     public static final int NUMBER_OF_ROUNDS = 10;
     public static final String EXIT_MESSAGE = "Premi 0 per annullare.";
     public static final int DEFAULT_PORT = 42000;
+    public static final int DEFAULT_RMI_PORT = 1099;
     public static final int EXIT_ERROR = 1;
 }

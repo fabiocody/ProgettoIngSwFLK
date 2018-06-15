@@ -1,31 +1,52 @@
 package it.polimi.ingsw.server;
 
-import com.google.gson.JsonObject;
-import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.game.*;
-import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
-import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
-import it.polimi.ingsw.model.patterncards.WindowPattern;
-import it.polimi.ingsw.model.toolcards.InvalidEffectArgumentException;
-import it.polimi.ingsw.model.toolcards.InvalidEffectResultException;
-import it.polimi.ingsw.model.toolcards.ToolCard;
-import it.polimi.ingsw.rmi.ServerAPI;
+import it.polimi.ingsw.rmi.*;
+import it.polimi.ingsw.util.*;
+
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.List;
-import java.util.Map;
-import java.util.Observer;
-import java.util.UUID;
+import java.util.*;
 
 
-public class ServerRMIHandler extends UnicastRemoteObject implements ServerAPI {
+public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
-    ServerRMIHandler() throws RemoteException {
+    ClientAPI client;
+
+    ServerRMIHandler(ClientAPI client) {
+        this.client = client;
+        if (this.client != null) WaitingRoomController.getInstance().addServerNetwork(this);
+    }
+
+    ServerRMIHandler() {
+        this(null);
     }
 
     @Override
-    public List<String> getCurrentPlayers() {
-        return null;
+    public ServerAPI connect(ClientAPI client) {
+        Logger.println("User connected via RMI");
+        try {
+            return (ServerAPI) UnicastRemoteObject.exportObject(new ServerRMIHandler(client), 0);
+        } catch (RemoteException e) {
+            Logger.error("Cannot export new ServerAPI");
+            return null;
+        }
+    }
+
+    @Override
+    public UUID addPlayer(String nickname) {
+        Logger.debug(nickname + " is attempting to log in");
+        UUID uuid = null;
+        try {
+            uuid = WaitingRoomController.getInstance().addPlayer(nickname);
+            this.nickname = nickname;
+            Logger.println(nickname + " logged in successfully");
+        } catch (LoginFailedException e) {
+            Logger.error(nickname + " log in failed");
+        } catch (NicknameAlreadyUsedInGameException e) {
+            Logger.println("Welcome back " + nickname);
+        }
+        return uuid;
     }
 
     @Override
@@ -33,128 +54,86 @@ public class ServerRMIHandler extends UnicastRemoteObject implements ServerAPI {
 
     }
 
+
     @Override
-    public void subscribeToTurnManagerTimer(Observer observer) throws RemoteException {
+    void updatePlayersList() {
 
     }
 
     @Override
-    public void unsubscribeFromTurnManagerTimer(Observer observer) throws RemoteException {
+    void updateToolCards() {
 
     }
 
     @Override
-    public Map<String, Integer> getFinalScores() throws RemoteException {
-        return null;
-    }
-
-    @Override
-    public List<ObjectiveCard> getPublicObjectiveCards() throws RemoteException {
-        return null;
-    }
-
-    @Override
-    public List<ToolCard> getToolCards() throws RemoteException {
-        return null;
-    }
-
-    @Override
-    public Player getPlayer(UUID id) throws RemoteException {
-        return null;
-    }
-
-    @Override
-    public String getActivePlayer() throws RemoteException {
-        return null;
-    }
-
-    @Override
-    public void suspendPlayer(UUID id) throws RemoteException {
+    void sendPublicObjectiveCards() {
 
     }
 
     @Override
-    public void unsuspendPlayer(UUID id) throws RemoteException {
+    void updateWindowPatterns() {
 
     }
 
     @Override
-    public List<String> getSuspendedPlayers() throws RemoteException {
-        return null;
-    }
-
-    @Override
-    public int getFavorTokensOf(String nickname) throws RemoteException {
-        return 0;
-    }
-
-    @Override
-    public WindowPattern getWindowPatternOf(String nickname) throws RemoteException {
-        return null;
-    }
-
-    @Override
-    public void choosePattern(UUID id, int patternIndex) throws RemoteException {
+    void updateFavorTokens() {
 
     }
 
     @Override
-    public boolean arePlayersReady() throws RemoteException {
-        return false;
-    }
-
-    @Override
-    public int getCurrentRound() throws RemoteException {
-        return 0;
-    }
-
-    @Override
-    public List<Die> getRoundTrackDice() throws RemoteException {
-        return null;
-    }
-
-    @Override
-    public RoundTrack getRoundTrack() throws RemoteException {
-        return null;
-    }
-
-    @Override
-    public List<Die> getDraftPool() throws RemoteException {
-        return null;
-    }
-
-    @Override
-    public void placeDie(UUID playerID, int draftPoolIndex, int x, int y) throws RemoteException, InvalidPlacementException, DieAlreadyPlacedException {
+    void updateDraftPool() {
 
     }
 
     @Override
-    public void useToolCard(UUID id, int toolCardsIndex, JsonObject data) throws RemoteException, InvalidEffectResultException, InvalidEffectArgumentException {
+    void updateRoundTrack() {
 
     }
 
     @Override
-    public JsonObject requiredData(int toolCardsIndex) throws RemoteException {
-        return null;
-    }
-
-    @Override
-    public UUID addPlayer(String nickname) throws RemoteException, LoginFailedException, NicknameAlreadyUsedInGameException {
-        return null;
-    }
-
-    @Override
-    public void removePlayer(String nickname) throws RemoteException {
+    void turnManagement() {
 
     }
 
     @Override
-    public List<Player> getWaitingPlayers() throws RemoteException {
-        return null;
+    void updateFinalScores() {
+
     }
 
     @Override
-    public ServerAPI connect() throws RemoteException {
-        return new ServerRMIHandler();
+    void updateTimerTick(Methods method, int tick) {
+        switch (method) {
+            case WR_TIMER_TICK:
+                try {
+                    client.wrTimerTick(tick);
+                    Logger.debug("updateTimerTick sent to " + nickname);
+                } catch (RemoteException e) {
+                    Logger.error("Connection error");
+                }
+                break;
+                // TODO GAME_TIMER_TICK
+            default:
+                break;
+        }
+    }
+
+    @Override
+    void updateWaitingPlayers(List<String> players) {
+        Logger.debug("updateWaitingPlayers called");
+        try {
+            client.updateWaitingPlayers(players);
+        } catch (RemoteException e) {
+            Logger.error("Connection error");
+        }
+    }
+
+    @Override
+    void setupGame() {
+
+    }
+
+    @Override
+    void fullUpdate() {
+
     }
 }

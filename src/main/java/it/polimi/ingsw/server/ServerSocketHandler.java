@@ -159,8 +159,8 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             payload.addProperty(JsonFields.RECONNECTED, false);
             payload.addProperty(JsonFields.PLAYER_ID, this.uuid.toString());
             JsonArray waitingPlayers = new JsonArray();
-            for (Player p : WaitingRoomController.getInstance().getWaitingPlayers())
-                waitingPlayers.add(p.getNickname());
+            for (String p : WaitingRoomController.getInstance().getWaitingPlayers())
+                waitingPlayers.add(p);
             payload.add(JsonFields.PLAYERS, waitingPlayers);
             Logger.debug("PAYLOAD " + payload.toString());
             out.println(payload.toString());
@@ -458,12 +458,12 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
     }
 
     @Override
-    void updateWaitingPlayersList(List<Player> players) {
-        Logger.debug("updateWaitingPlayersList called");
+    void updateWaitingPlayers(List<String> players) {
+        Logger.debug("updateWaitingPlayers called");
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.UPDATE_WAITING_PLAYERS.getString());
         JsonArray array = new JsonArray();
-        for (Player p : players) array.add(p.getNickname());
+        for (String p : players) array.add(p);
         payload.add(JsonFields.PLAYERS, array);
         Logger.debug("PAYLOAD " + payload.toString());
         out.println(payload.toString());

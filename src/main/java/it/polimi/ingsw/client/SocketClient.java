@@ -231,7 +231,7 @@ public class SocketClient extends ClientNetwork {
                     }
                 }, 100);
             } else {
-                JsonArray players = input.get(JsonFields.PLAYERS).getAsJsonArray();
+                /*JsonArray players = input.get(JsonFields.PLAYERS).getAsJsonArray();
                 Logger.debug("SIZE: " + players.size());
                 if (players.size() < Constants.MAX_NUMBER_OF_PLAYERS) {
                     new Timer(true)
@@ -242,7 +242,7 @@ public class SocketClient extends ClientNetwork {
                                 }
                             }, 100);
                     this.subscribeToWRTimer();
-                }
+                }*/
                 this.rescheduleProbeTimer();
             }
             return getUuid();

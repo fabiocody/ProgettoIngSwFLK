@@ -404,7 +404,7 @@ public class ClientCLI extends Client {
                         //lastPrintedLine = "";
                         /*Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
                         Logger.print(method.invoke(this));*/
-                        Logger.println();
+                        //Logger.println();
                         break;
                     } else if (c == 0x7F) {
                         synchronized (stdinBufferLock) {
@@ -495,8 +495,8 @@ public class ClientCLI extends Client {
         this.setNickname(nickname);
         setUUID(this.getNetwork().addPlayer(this.getNickname()));
         setLogged(this.getUUID() != null);
-        if (isLogged()) Logger.println("Login riuscito!");
-        else {
+        //if (isLogged()) Logger.println("Login riuscito!");
+        if (!isLogged()) {
             if(nickname.equals(""))
                 Logger.println("Login fallito! I nickname non possono essere vuoti");
             else if(nickname.contains(" "))

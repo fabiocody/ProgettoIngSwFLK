@@ -1,6 +1,7 @@
 package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.model.game.Player;
+import it.polimi.ingsw.rmi.ServerAPI;
 import it.polimi.ingsw.util.Methods;
 import java.util.*;
 
@@ -22,7 +23,7 @@ public abstract class ServerNetwork implements Observer {
     abstract void updateFinalScores();
 
     abstract void updateTimerTick(Methods method, int tick);
-    abstract void updateWaitingPlayersList(List<Player> players);
+    abstract void updateWaitingPlayers(List<String> players);
     abstract void setupGame();
     abstract void fullUpdate();
 

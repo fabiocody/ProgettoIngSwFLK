@@ -4,6 +4,7 @@ import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.game.WaitingRoom;
 import it.polimi.ingsw.rmi.RMINames;
+import it.polimi.ingsw.rmi.ServerAPI;
 import it.polimi.ingsw.util.*;
 import joptsimple.*;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.net.*;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -78,18 +80,20 @@ public class SagradaServer extends Observable implements Observer {
     }
 
     private void startRMI() {
-        /*try {
+        try {
             LocateRegistry.createRegistry(1099);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
         try {
-            Naming.rebind(RMINames.WAITING_ROOM_API, WaitingRoomController.getInstance());
+            ServerAPI welcomeServer = (ServerAPI) UnicastRemoteObject.exportObject(new ServerRMIHandler(), 0);
+            Naming.rebind(RMINames.SERVER, welcomeServer);
+            Logger.println("RMI server up and running");
         } catch (MalformedURLException e) {
             Logger.error("Cannot register object");
         } catch (RemoteException e) {
             Logger.error("Connection error: " + e.getMessage());
-        }*/
+        }
     }
 
     /**

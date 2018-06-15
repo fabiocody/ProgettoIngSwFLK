@@ -1,17 +1,18 @@
 package it.polimi.ingsw.client;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.model.game.LoginFailedException;
-import it.polimi.ingsw.model.game.NicknameAlreadyUsedInGameException;
 import it.polimi.ingsw.rmi.*;
 import it.polimi.ingsw.util.Logger;
+import it.polimi.ingsw.util.NotificationsMessages;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.rmi.*;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
 
-public class RMIClient extends ClientNetwork {
+public class RMIClient extends ClientNetwork implements ClientAPI {
 
     private ServerAPI server;
 
@@ -23,7 +24,10 @@ public class RMIClient extends ClientNetwork {
     void setup() throws IOException {
         try {
             ServerAPI welcomeServer = (ServerAPI) Naming.lookup(RMINames.SERVER);
-            server = welcomeServer.connect();
+            ClientAPI clientRemote = (ClientAPI) UnicastRemoteObject.exportObject(this, 0);
+            server = welcomeServer.connect(clientRemote);
+            if (server == null)
+                throw new IOException();
         } catch (MalformedURLException e) {
             Logger.error("Malformed URL");
             throw new IOException();
@@ -40,20 +44,14 @@ public class RMIClient extends ClientNetwork {
 
     @Override
     UUID addPlayer(String nickname) {
-        /*Logger.debug("addPlayer called");
-        this.setNickname(nickname);
+        UUID uuid = null;
         try {
-            this.setUuid(server.addPlayer(nickname));
-            Logger.debug("Login successful");
-            // TODO Update waiting players
+            uuid = server.addPlayer(nickname);
         } catch (RemoteException e) {
-            e.printStackTrace();
-        } catch (LoginFailedException e) {
-            return null;
-        } catch (NicknameAlreadyUsedInGameException e) {
-            e.printStackTrace();
-        }*/
-        return this.getUuid();
+            Logger.error("Connection error");
+        }
+        setUuid(uuid);
+        return uuid;
     }
 
     @Override
@@ -79,5 +77,20 @@ public class RMIClient extends ClientNetwork {
     @Override
     boolean useToolCard(int cardIndex, JsonObject requiredData) {
         return false;
+    }
+
+    @Override
+    public void wrTimerTick(int tick) {
+        String tickString = String.valueOf(tick);
+        this.setChanged();
+        this.notifyObservers(Arrays.asList(NotificationsMessages.WR_TIMER_TICK, tickString));
+    }
+
+    @Override
+    public void updateWaitingPlayers(List<String> players) {
+        JsonArray waitingPlayers = new JsonArray();
+        players.forEach(waitingPlayers::add);
+        this.setChanged();
+        this.notifyObservers(waitingPlayers);
     }
 }

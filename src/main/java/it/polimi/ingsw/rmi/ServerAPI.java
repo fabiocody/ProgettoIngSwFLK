@@ -1,9 +1,14 @@
 package it.polimi.ingsw.rmi;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
+import java.rmi.*;
+import java.util.*;
 
 
-public interface ServerAPI extends Remote, WaitingRoomAPI, GameAPI {
-    ServerAPI connect() throws RemoteException;
+public interface ServerAPI extends Remote {
+
+    ServerAPI connect(ClientAPI client) throws RemoteException;
+
+    UUID addPlayer(String nickname) throws RemoteException;
+
+    void nextTurn() throws RemoteException;
 }
