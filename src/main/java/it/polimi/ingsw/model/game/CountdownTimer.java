@@ -55,13 +55,19 @@ public class CountdownTimer extends Observable implements Runnable {
      *
      * @author Fabio Codiglioni
      */
-    public void cancel() {
+    public void cancel(boolean withUpdate) {
         if (this.timerThread != null) this.timerThread.interrupt();
         this.remainingTime = 0;
         this.task = null;
         this.timerThread = null;
-        this.setChanged();
-        this.notifyObservers(this.id + " ∞");
+        if (withUpdate) {
+            this.setChanged();
+            this.notifyObservers(this.id + " ∞");
+        }
+    }
+
+    public void cancel() {
+        cancel(false);
     }
 
     /**

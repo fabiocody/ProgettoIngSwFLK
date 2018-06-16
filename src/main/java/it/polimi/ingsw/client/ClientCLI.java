@@ -3,19 +3,12 @@ package it.polimi.ingsw.client;
 import com.google.gson.*;
 import it.polimi.ingsw.util.*;
 import org.fusesource.jansi.AnsiConsole;
-import org.omg.SendingContext.RunTime;
-
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
+import java.util.stream.*;
 import static it.polimi.ingsw.util.Constants.*;
 import static org.fusesource.jansi.Ansi.*;
-import it.polimi.ingsw.util.JsonFields;
 
 
 public class ClientCLI extends Client {
@@ -38,6 +31,7 @@ public class ClientCLI extends Client {
 
     private int draftPoolLength;
     private long roundTrackLength = 0;
+
     private String privateObjectiveCard;
 
     ClientCLI(ClientNetwork network, boolean debugActive) {
@@ -88,16 +82,18 @@ public class ClientCLI extends Client {
                 int toCellY = INDEX_CONSTANT;
                 int continueIndex = INDEX_CONSTANT;
                 boolean stop = false;
-              
-                this.getSuspendedPlayers().stream()
-                        .reduce((s, r) -> s + ", " + r)
-                        .ifPresent(sp -> Logger.println("Giocatori sospesi: " + sp + "\n"));
 
-                input = "";
-                while (isSuspended() && !input.equals(getNickname())) {
-                    input = asyncInput("reconnectionPrompt");
-                    if (input.equals(getNickname())) {
-                        this.getNetwork().addPlayer(getNickname());
+                if (!isGameOver()) {
+                    this.getSuspendedPlayers().stream()
+                            .reduce((s, r) -> s + ", " + r)
+                            .ifPresent(sp -> Logger.println("Giocatori sospesi: " + sp + "\n"));
+
+                    input = "";
+                    while (isSuspended() && !input.equals(getNickname())) {
+                        input = asyncInput("reconnectionPrompt");
+                        if (input.equals(getNickname())) {
+                            this.getNetwork().addPlayer(getNickname());
+                        }
                     }
                 }
 
@@ -352,9 +348,9 @@ public class ClientCLI extends Client {
                             instructionIndex = INDEX_CONSTANT;
                         }
                     } while (this.instructionIndex < 1 || this.instructionIndex > 3);
-                } else {
+                } /*else {
                     Logger.println("\nLa partita è finita!");
-                }
+                }*/
             }
         } catch (IOException | InterruptedException e) {
             Logger.println("");
@@ -766,6 +762,7 @@ public class ClientCLI extends Client {
                         suspendedPlayers = new ArrayList<>();*/
         this.setSuspended(suspendedPlayers);
         this.setActive(jsonArg.get(JsonFields.ACTIVE_PLAYER).getAsString());
+        if (!isActive() && !isSuspended() && !isGameOver()) Logger.println("Aspetta il tuo turno.");
         //Logger.println("Suspended: " + argAsList.get(3));
         stopAsyncInput = true;
     }
@@ -782,11 +779,14 @@ public class ClientCLI extends Client {
     }
 
     private void finalScoresUpdateHandle(JsonObject jsonArg) {
-        StringBuilder finalScoresString = new StringBuilder("\nRisultati finali");
+        StringBuilder finalScoresString = new StringBuilder("\nLa partita è finita!\nRisultati finali");
         Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FINAL_SCORES).getAsJsonObject().entrySet();
         for (Map.Entry<String, JsonElement> entry : entrySet)
             finalScoresString.append("\n").append(entry.getKey()).append(": ").append(entry.getValue().getAsInt());
         Logger.println(finalScoresString.toString());
+        Logger.println("");
+        AnsiConsole.systemUninstall();
+        System.exit(0);
     }
 
 }

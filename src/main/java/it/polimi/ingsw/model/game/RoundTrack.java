@@ -85,13 +85,13 @@ public class RoundTrack extends Observable implements Observer {
     public void incrementRound() {
         synchronized (currentRoundLock) {
             synchronized (gameOverLock) {
-                if (this.currentRound == Constants.NUMBER_OF_ROUNDS && !gameOver) {
+                this.currentRound++;
+                if (this.currentRound >= Constants.NUMBER_OF_ROUNDS && !gameOver) {
                     this.gameOver = true;
                     this.setChanged();
                     this.notifyObservers(NotificationsMessages.GAME_OVER);
                 }
                 if (!gameOver) {
-                    this.currentRound++;
                     this.setChanged();
                     this.notifyObservers(NotificationsMessages.ROUND_INCREMENTED);
                 }
@@ -155,7 +155,16 @@ public class RoundTrack extends Observable implements Observer {
      * @param arg the argument of the notification.
      */
     public void update(Observable o, Object arg) {
-        if (o instanceof TurnManager) this.incrementRound();
+        if (o instanceof TurnManager) {
+            String stringArg = String.valueOf(arg);
+            if (stringArg.equals(NotificationsMessages.ROUND_INCREMENTED)) {
+                this.incrementRound();
+            } else if (stringArg.equals(NotificationsMessages.GAME_OVER)) {
+                this.gameOver = true;
+                this.setChanged();
+                this.notifyObservers(NotificationsMessages.GAME_OVER);
+            }
+        }
     }
 
 }

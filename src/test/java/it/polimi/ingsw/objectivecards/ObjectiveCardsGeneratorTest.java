@@ -8,11 +8,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ObjectiveCardsGeneratorTest {
 
-    private static ObjectiveCardsGenerator generator;
-    private static int numberOfPlayers = 3;
+    private ObjectiveCardsGenerator generator;
+    private int numberOfPlayers = 3;
 
-    @BeforeAll
-    static void setUp() {
+    @BeforeEach
+    void setUp() {
         generator = new ObjectiveCardsGenerator(numberOfPlayers);
     }
 

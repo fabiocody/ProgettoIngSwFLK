@@ -10,10 +10,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RoundTrackTest {
 
-    private static RoundTrack roundTrack;
+    private RoundTrack roundTrack;
 
-    @BeforeAll
-    static void setup() {
+    @BeforeEach
+    void setup() {
         roundTrack = new RoundTrack();
         roundTrack.getAllDice(); //initialization
     }
@@ -27,7 +27,7 @@ class RoundTrackTest {
             assertEquals(previousRound + 1, roundTrack.getCurrentRound());
         }
         roundTrack.incrementRound();
-        assertEquals(Constants.NUMBER_OF_ROUNDS, roundTrack.getCurrentRound());
+        assertEquals(Constants.NUMBER_OF_ROUNDS + 1, roundTrack.getCurrentRound());
     }
 
     @Test

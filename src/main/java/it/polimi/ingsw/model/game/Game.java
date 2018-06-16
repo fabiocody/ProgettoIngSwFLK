@@ -265,6 +265,7 @@ public class Game extends Observable implements Observer {
      * @author Fabio Codiglioni
      */
     private void endGame() {
+        this.turnManager.cancelTimer();
         this.players.forEach(this::calcScoreForPlayer);
         assert this.getFinalScores().keySet().containsAll(this.players);
     }
@@ -300,6 +301,7 @@ public class Game extends Observable implements Observer {
                 setChanged();
                 notifyObservers(NotificationsMessages.ROUND_TRACK);
             } else if (arg.equals(NotificationsMessages.GAME_OVER)) {
+                this.getTurnManager().cancelTimer();
                 this.endGame();
                 setChanged();
                 notifyObservers(NotificationsMessages.GAME_OVER);

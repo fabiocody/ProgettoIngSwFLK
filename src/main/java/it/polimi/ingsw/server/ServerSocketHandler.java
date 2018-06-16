@@ -443,7 +443,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
 
     @Override
     void fullUpdate() {
-        if (!this.gameController.getRoundTrack().isGameOver()) {
+        //if (!this.gameController.getRoundTrack().isGameOver()) {
             updatePlayersList();
             updateToolCards();
             sendPublicObjectiveCards();
@@ -452,7 +452,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             updateDraftPool();
             updateRoundTrack();
             turnManagement();
-        }
+        //}
     }
 
     @Override

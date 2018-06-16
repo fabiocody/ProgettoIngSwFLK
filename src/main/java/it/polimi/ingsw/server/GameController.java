@@ -186,12 +186,16 @@ public class GameController implements GameAPI, Observer {
                 case NotificationsMessages.SUSPENDED:
                 case NotificationsMessages.PLACE_DIE:
                 case NotificationsMessages.USE_TOOL_CARD:
-                    this.game.getTurnManager().subscribeToTimer(this);
+                    if (!getRoundTrack().isGameOver())
+                        this.game.getTurnManager().subscribeToTimer(this);
                     serverNetworks.forEach(ServerNetwork::fullUpdate);
                     break;
                 case NotificationsMessages.GAME_OVER:
+                    serverNetworks.forEach(ServerNetwork::fullUpdate);
                     serverNetworks.forEach(ServerNetwork::updateFinalScores);
-                    serverNetworks.forEach(ServerNetwork::turnManagement);
+                    //serverNetworks.forEach(ServerNetwork::turnManagement);
+                    SagradaServer.getInstance().getGameControllers().remove(this);
+
                     break;
             }
         }

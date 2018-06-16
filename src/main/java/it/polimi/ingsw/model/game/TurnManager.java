@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model.game;
 
 import it.polimi.ingsw.server.SagradaServer;
+import it.polimi.ingsw.util.Logger;
 import it.polimi.ingsw.util.NotificationsMessages;
 
 import java.util.*;
@@ -38,7 +39,6 @@ public class TurnManager extends Observable {
         this.timer = new CountdownTimer(NotificationsMessages.TURN_MANAGER);
         this.roundOver = false;
         this.setActivePlayer(this.getCurrentPlayer());
-        // TODO Set timer for first turn of first round
     }
 
     /**
@@ -72,8 +72,8 @@ public class TurnManager extends Observable {
     public void subscribeToTimer(Observer observer) {
         this.timer.addObserver(observer);
         this.timer.schedule(() -> {
+            suspendPlayer(this.getCurrentPlayer().getNickname());
             this.nextTurn();
-            suspendPlayer(this.getPreviousPlayer().getNickname());
         }, this.timeout);
     }
 
@@ -120,6 +120,11 @@ public class TurnManager extends Observable {
         this.setSuspendedPlayer(nickname, true);
     }
 
+    void cancelTimer() {
+        if (timer != null) timer.cancel();
+        Logger.debug("TurnManager timer canceled");
+    }
+
     /**
      * @author Fabio Codiglioni
      * @param nickname the nickname of the Player that has to be set as not suspended.
@@ -143,29 +148,40 @@ public class TurnManager extends Observable {
         return this.index >= this.playersOrder.size() / 2;
     }
 
+    private long countUnsuspendedPlayers() {
+        return players.stream()
+                .filter(player -> !player.isSuspended())
+                .count();
+    }
+
     /**
      * This method has to be called by each Player when the end their turn.
      *
      * @author Fabio Codiglioni
      */
     public void nextTurn() {
-        this.timer.cancel();
-        this.previousPlayer = this.players.get(this.getCurrentPlayerIndex());
-        do this.index++;
-        while (this.index < this.playersOrder.size() && this.getCurrentPlayer().isSuspended());
-        this.roundOver = false;
-        if (this.index == this.playersOrder.size()) {
-            this.index = 0;
-            Collections.rotate(this.players, -1);   // shift starting player
-            this.roundOver = true;
+        this.timer.cancel(true);
+        if (countUnsuspendedPlayers() == 1) {
             this.setChanged();
-            this.notifyObservers();
-        }
-        this.setActivePlayer(this.getCurrentPlayer());
+            this.notifyObservers(NotificationsMessages.GAME_OVER);
+        } else {
+            this.previousPlayer = this.players.get(this.getCurrentPlayerIndex());
+            do this.index++;
+            while (this.index < this.playersOrder.size() && this.getCurrentPlayer().isSuspended());
+            this.roundOver = false;
+            if (this.index == this.playersOrder.size()) {
+                this.index = 0;
+                Collections.rotate(this.players, -1);   // shift starting player
+                this.roundOver = true;
+                this.setChanged();
+                this.notifyObservers(NotificationsMessages.ROUND_INCREMENTED);
+            }
+            this.setActivePlayer(this.getCurrentPlayer());
         /*this.timer.schedule(() -> {
             this.nextTurn();
             suspendPlayer(this.getPreviousPlayer().getNickname());
         }, this.timeout);*/
+        }
     }
 
 

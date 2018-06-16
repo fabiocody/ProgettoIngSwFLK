@@ -85,7 +85,6 @@ public abstract class Client implements Observer {
     void setActive(String activeNickname){
        this.active = activeNickname.equals(nickname);
        this.activeNickname = activeNickname;
-       if (!this.active && !this.suspended) Logger.println("Aspetta il tuo turno.");
     }
 
     boolean isPatternChosen() {

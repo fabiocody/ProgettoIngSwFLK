@@ -16,5 +16,5 @@ public class Constants {
     public static final int DEFAULT_PORT = 42000;
     public static final int DEFAULT_RMI_PORT = 1099;
     public static final int EXIT_ERROR = 1;
-    public static final long PROBE_TIMEOUT = 3;
+    public static final long PROBE_TIMEOUT = 600;       // TODO Set to 3
 }

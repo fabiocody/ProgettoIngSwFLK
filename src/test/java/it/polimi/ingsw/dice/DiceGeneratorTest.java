@@ -3,8 +3,7 @@ package it.polimi.ingsw.dice;
 import static org.junit.jupiter.api.Assertions.*;
 import it.polimi.ingsw.model.Colors;
 import it.polimi.ingsw.util.Constants;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import it.polimi.ingsw.model.dice.*;
 
 import java.util.*;
@@ -12,10 +11,10 @@ import java.util.*;
 
 class DiceGeneratorTest {
 
-    private static DiceGenerator generator;
+    private DiceGenerator generator;
 
-    @BeforeAll
-    static void setup() {
+    @BeforeEach
+    void setup() {
         generator = new DiceGenerator(Constants.MAX_NUMBER_OF_PLAYERS);
     }
 
