@@ -14,7 +14,6 @@ public abstract class Client implements Observer {
     private String nickname;
     private UUID uuid;
     private ClientNetwork network;
-    private boolean debugActive;
     private boolean logged = false;
     private boolean gameStarted = false;
     private boolean active = false;
@@ -26,7 +25,7 @@ public abstract class Client implements Observer {
     private int favorTokens = 0;
 
     Client(ClientNetwork network, boolean debugActive) {
-        this.debugActive = debugActive;
+        Logger.setDebugActive(debugActive);
         this.network = network;
         this.network.addObserver(this);
         try {
@@ -57,10 +56,6 @@ public abstract class Client implements Observer {
 
     ClientNetwork getNetwork() {
         return network;
-    }
-
-    boolean isDebugActive() {
-        return debugActive;
     }
 
     boolean isLogged() {

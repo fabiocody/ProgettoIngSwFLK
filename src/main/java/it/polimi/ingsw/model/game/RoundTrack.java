@@ -124,7 +124,7 @@ public class RoundTrack extends Observable implements Observer {
 
     public String toString() {
         synchronized (diceLock) {
-            StringBuilder roundTrackCli = new StringBuilder(NotificationsMessages.ROUND_TRACK);
+            StringBuilder roundTrackCli = new StringBuilder();
             Optional<Integer> maxDiceInRound = Arrays.stream(getRoundTrackDice())
                     .map(List::size)
                     .max(Comparator.naturalOrder());

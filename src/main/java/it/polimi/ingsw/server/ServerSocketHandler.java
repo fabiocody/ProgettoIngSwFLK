@@ -9,7 +9,6 @@ import it.polimi.ingsw.model.toolcards.*;
 import it.polimi.ingsw.util.*;
 import java.io.*;
 import java.net.*;
-import java.rmi.RemoteException;
 import java.util.*;
 
 
@@ -93,7 +92,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             }
         } catch (Exception e) {
             Logger.error("run");
-            e.printStackTrace();
+            this.onUserDisconnection();
+            this.probeThread.interrupt();
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -348,7 +349,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
     @Override
     void updateRoundTrack() {
         JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.ROUND_TRACK_DICE.getString());
+        payload.addProperty(JsonFields.METHOD, Methods.ROUND_TRACK.getString());
         JsonArray dice = new JsonArray();
         for (Die d : this.gameController.getRoundTrackDice()) {
             dice.add(generateJsonDie(d));

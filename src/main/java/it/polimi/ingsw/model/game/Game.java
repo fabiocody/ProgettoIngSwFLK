@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 public class Game extends Observable implements Observer {
     // Observes RoundTrack and Player(s)
-    // Is observed by ServerSocketHandler
+    // Is observed by GameController
 
     // Game
     private List<Player> players;

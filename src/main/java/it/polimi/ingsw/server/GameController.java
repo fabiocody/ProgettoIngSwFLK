@@ -121,11 +121,6 @@ public class GameController implements GameAPI, Observer {
     }
 
     @Override
-    public boolean arePlayersReady() {
-        return this.game.arePlayersReady();
-    }
-
-    @Override
     public int getCurrentRound() {
         return this.game.getRoundTrack().getCurrentRound();
     }

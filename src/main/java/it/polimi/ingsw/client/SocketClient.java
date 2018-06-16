@@ -115,45 +115,24 @@ public class SocketClient extends ClientNetwork {
                     }
                     break;
                 case UPDATE_WAITING_PLAYERS:
-                    this.updateWaitingPlayers(inputJson);
-                    break;
                 case WR_TIMER_TICK:
                 case GAME_TIMER_TICK:
+                case GAME_SETUP:
+                case TURN_MANAGEMENT:
+                case PLAYERS:
+                case PUBLIC_OBJECTIVE_CARDS:
+                case DRAFT_POOL:
+                case ROUND_TRACK:
+                case FAVOR_TOKENS:
+                case FINAL_SCORES:
+                case TOOL_CARDS:
+                case WINDOW_PATTERNS:
                     this.setChanged();
                     this.notifyObservers(inputJson);
-                    break;
-                case GAME_SETUP:
-                    this.gameSetup(inputJson);
-                    break;
-                case TURN_MANAGEMENT:
-                    this.turnManagement(inputJson);
-                    break;
-                case PLAYERS:
-                    this.inGamePlayers(inputJson);
-                    break;
-                case PUBLIC_OBJECTIVE_CARDS:
-                    this.publicObjectiveCards(inputJson);
-                    break;
-                case TOOL_CARDS:
-                    this.updateToolCards(inputJson);
-                    break;
-                case WINDOW_PATTERNS:
-                    this.updateWindowPatterns(inputJson);
-                    break;
-                case DRAFT_POOL:
-                    this.updateDraftPool(inputJson);
                     break;
                 case PROBE:
                     this.probe();
                     break;
-                case ROUND_TRACK_DICE:
-                    this.updateRoundTrack(inputJson);
-                    break;
-                case FAVOR_TOKENS:
-                    this.updateFavorTokens(inputJson);
-                    break;
-                case FINAL_SCORES:
-                    this.updateFinalScores(inputJson);
             }
         }
     }
@@ -298,152 +277,6 @@ public class SocketClient extends ClientNetwork {
     void nextTurn() {
         JsonObject payload = new JsonObject();
         this.sendMessage(payload, Methods.NEXT_TURN.getString());
-    }
-
-    /**
-     * This method is used to print out an updated list of waiting players
-     *
-     * @param input data from the server
-     */
-    private void updateWaitingPlayers(JsonObject input) {
-        this.setChanged();
-        this.notifyObservers(input.get(JsonFields.PLAYERS).getAsJsonArray());
-    }
-
-    /**
-     * This method is used to set up the game for a player providing the private objective card and the window patterns
-     * from which the will have to choose one
-     *
-     * @param input JsonObject received from the server containing the data for the private objective card and the 4 window patterns
-     */
-    private void gameSetup(JsonObject input) {
-        String privateObjectiveCardString = NotificationsMessages.PRIVATE_OBJECTIVE_CARD + "Il tuo obiettivo privato è:\n";
-        privateObjectiveCardString += input.get(JsonFields.PRIVATE_OBJECTIVE_CARD).getAsJsonObject().get(JsonFields.NAME).getAsString();
-        privateObjectiveCardString += " - ";
-        privateObjectiveCardString += input.get(JsonFields.PRIVATE_OBJECTIVE_CARD).getAsJsonObject().get(JsonFields.DESCRIPTION).getAsString();
-        this.setChanged();
-        this.notifyObservers(privateObjectiveCardString);
-        JsonArray windowPatterns = input.getAsJsonArray(JsonFields.WINDOW_PATTERNS);
-        List<String> selectableWPStrings = StreamSupport.stream(windowPatterns.spliterator(), false)
-                .map(obj -> obj.getAsJsonObject().get(JsonFields.CLI_STRING).getAsString())
-                .collect(Collectors.toList());
-        selectableWPStrings.add(0, NotificationsMessages.SELECTABLE_WINDOW_PATTERNS);
-        this.setChanged();
-        this.notifyObservers(selectableWPStrings);
-    }
-
-    private void inGamePlayers(JsonObject input) {
-        this.setChanged();
-        this.notifyObservers(input.get(JsonFields.PLAYERS).getAsJsonArray());
-    }
-
-    /**
-     * This method is used to update the tool cards seen by the client
-     *
-     * @param input JsonObject containing the data of the tool cards
-     */
-    private void updateToolCards(JsonObject input){
-        JsonArray toolCards = input.getAsJsonArray(JsonFields.TOOL_CARDS);
-        List<String> toolCardsStrings = new ArrayList<>();
-        for(JsonElement obj : toolCards){
-            String toolCardString = NotificationsMessages.TOOL_CARDS;
-            toolCardString += obj.getAsJsonObject().get(JsonFields.NAME).getAsString();
-            toolCardString += " - ";
-            toolCardString += obj.getAsJsonObject().get(JsonFields.DESCRIPTION).getAsString();
-            //TODO toolCardString += obj.getAsJsonObject().get("used").getAsString();
-            toolCardsStrings.add(toolCardString);
-        }
-        this.setChanged();
-        this.notifyObservers(toolCardsStrings);
-    }
-
-    /**
-     * This method is used to update the window patterns seen by the client
-     *
-     * @param input JsonObject containing the data of the window patterns
-     */
-    private void updateWindowPatterns(JsonObject input){
-        List<String> windowPatternsList = new ArrayList<>();
-        windowPatternsList.add(NotificationsMessages.UPDATE_WINDOW_PATTERNS);
-        Set<Map.Entry<String, JsonElement>> entrySet = input.get(JsonFields.WINDOW_PATTERNS).getAsJsonObject().entrySet();
-        for (Map.Entry<String, JsonElement> entry : entrySet) {
-            String keyValue = entry.getKey() + "$" + entry.getValue().getAsJsonObject().get(JsonFields.CLI_STRING).getAsString();
-            windowPatternsList.add(keyValue);
-        }
-        this.setChanged();
-        this.notifyObservers(windowPatternsList);
-    }
-
-    /**
-     * This method is used to show the bublic objective cards to the client
-     *
-     * @param input
-     */
-    private void publicObjectiveCards(JsonObject input){
-        JsonArray publicObjectiveCards= input.getAsJsonArray(JsonFields.PUBLIC_OBJECTIVE_CARDS);
-        List<String> publicObjectiveCardsStrings = new ArrayList<>();
-        for(JsonElement obj : publicObjectiveCards){
-            String publicObjectiveCardString = NotificationsMessages.PUBLIC_OBJECTIVE_CARDS;
-            publicObjectiveCardString += obj.getAsJsonObject().get(JsonFields.NAME).getAsString();
-            publicObjectiveCardString += " $- ";
-            publicObjectiveCardString += obj.getAsJsonObject().get(JsonFields.DESCRIPTION).getAsString();
-            publicObjectiveCardString += " $$- ";
-            if(obj.getAsJsonObject().get(JsonFields.VICTORY_POINTS).isJsonNull())
-                publicObjectiveCardString += "#";
-            else
-                publicObjectiveCardString += obj.getAsJsonObject().get(JsonFields.VICTORY_POINTS).getAsInt();
-            publicObjectiveCardsStrings.add(publicObjectiveCardString);
-        }
-        this.setChanged();
-        this.notifyObservers(publicObjectiveCardsStrings);
-    }
-
-    /**
-     * This method is used to update the draft pool seen by the client
-     *
-     * @param input JsonObject containing the data of the draft pool
-     */
-    private void updateDraftPool(JsonObject input){
-        JsonArray draftPoolDice = input.getAsJsonArray(JsonFields.DICE);
-        List<String> draftPoolDieStrings = new ArrayList<>();
-        for(JsonElement obj : draftPoolDice){
-            String dieString = NotificationsMessages.DRAFT_POOL;
-            dieString += obj.getAsJsonObject().get(JsonFields.CLI_STRING).getAsString();
-            draftPoolDieStrings.add(dieString);
-        }
-        this.setChanged();
-        this.notifyObservers(draftPoolDieStrings);
-    }
-
-    private void updateRoundTrack(JsonObject input){
-        this.setChanged();
-        this.notifyObservers(input.get(JsonFields.CLI_STRING).getAsString());
-    }
-
-    private void turnManagement(JsonObject input) {
-        List<String> turnManagamentStrings = new ArrayList<>();
-        turnManagamentStrings.add(NotificationsMessages.TURN_MANAGEMENT);
-        turnManagamentStrings.add(input.get(JsonFields.CURRENT_ROUND).getAsString());
-        turnManagamentStrings.add(input.get(JsonFields.GAME_OVER).getAsString());
-        turnManagamentStrings.add(input.get(JsonFields.ACTIVE_PLAYER).getAsString());
-        String suspendedPlayers = input.get(JsonFields.SUSPENDED_PLAYERS).getAsJsonArray().toString();
-        suspendedPlayers = suspendedPlayers
-                .substring(1, suspendedPlayers.length() - 1)
-                .replace("\",", "$")
-                .replace("\"", "");
-        turnManagamentStrings.add(suspendedPlayers);
-        this.setChanged();
-        this.notifyObservers(turnManagamentStrings);
-    }
-
-    private void updateFavorTokens(JsonObject input){
-        this.setChanged();
-        this.notifyObservers(input);
-    }
-
-    private void updateFinalScores(JsonObject input){
-        this.setChanged();
-        this.notifyObservers(input);
     }
 
 }

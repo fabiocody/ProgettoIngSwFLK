@@ -71,11 +71,10 @@ public class TurnManager extends Observable {
 
     public void subscribeToTimer(Observer observer) {
         this.timer.addObserver(observer);
-        if (this.timer.countObservers() == 1)
-            this.timer.schedule(() -> {
-                this.nextTurn();
-                suspendPlayer(this.getPreviousPlayer().getNickname());
-            }, this.timeout);
+        this.timer.schedule(() -> {
+            this.nextTurn();
+            suspendPlayer(this.getPreviousPlayer().getNickname());
+        }, this.timeout);
     }
 
     public void unsubscribeFromTimer(Observer observer) {
@@ -163,10 +162,10 @@ public class TurnManager extends Observable {
             this.notifyObservers();
         }
         this.setActivePlayer(this.getCurrentPlayer());
-        this.timer.schedule(() -> {
+        /*this.timer.schedule(() -> {
             this.nextTurn();
             suspendPlayer(this.getPreviousPlayer().getNickname());
-        }, this.timeout);
+        }, this.timeout);*/
     }
 
 

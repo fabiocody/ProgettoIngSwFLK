@@ -41,10 +41,13 @@ public class CountdownTimer extends Observable implements Runnable {
      * @param remainingTime the amount of time after which the task's <code>run</code> method is invoked.
      */
     public void schedule(Runnable task, int remainingTime) {
+        this.cancel();
         this.remainingTime = remainingTime;
         this.task = task;
         this.timerThread = new Thread(this);
         this.start();
+        this.setChanged();
+        this.notifyObservers(this.id + " " + this.remainingTime);
     }
 
     /**

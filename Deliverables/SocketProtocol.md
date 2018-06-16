@@ -355,7 +355,7 @@ After this request, the server will send to each client the following informatio
 
 ```
 {
-    "method": "roundTrackDice",
+    "method": "roundTrack",
     "dice": [
         {
             "color": <string>,

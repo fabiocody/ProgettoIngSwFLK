@@ -10,6 +10,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static it.polimi.ingsw.util.Constants.*;
@@ -562,188 +563,230 @@ public class ClientCLI extends Client {
         }
     }
 
+    // OBSERVER METHODS
+
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof ClientNetwork && arg instanceof JsonObject) {
             JsonObject jsonArg = (JsonObject) arg;
             Methods method = Methods.getAsMethods(jsonArg.get(JsonFields.METHOD).getAsString());
             switch (method) {
+                case ADD_PLAYER:
+                    addPlayerUpdateHandle(jsonArg);
+                    break;
+                case UPDATE_WAITING_PLAYERS:
+                    updateWaitingPlayersUpdateHandle(jsonArg);
+                    break;
                 case WR_TIMER_TICK:
                     this.wrTimeout = jsonArg.get(JsonFields.TICK).getAsString();
                     Logger.print(waitingRoomMessage());
                     break;
                 case GAME_TIMER_TICK:
-                    this.gameTimeout = jsonArg.get(JsonFields.TICK).getAsString();
-                    if (isActive())
-                        Logger.print(timerPrompt());
-                    else {
-                        String timerString = "È il turno di " + this.getActiveNickname() + " [" + gameTimeout + "]";
-                        if (isSuspended()) {
-                            Logger.print(ansi()
-                                    .eraseLine(Erase.ALL)
-                                    .cursorUpLine()
-                                    .eraseLine(Erase.ALL)
-                                    .a(timerString)
-                                    .a('\n')
-                                    .a(reconnectionPrompt())
-                                    .toString()
-                            );
-                        } else {
-                            Logger.print(updateLine(timerString));
-                        }
-                    }
+                    gameTimerTickUpdateHandle(jsonArg);
                     break;
-                case SELECTABLE_WINDOW_PATTERNS:
-                    stopAsyncInput = true;
-                    JsonArray windowPatternsArray = jsonArg.getAsJsonArray(JsonFields.WINDOW_PATTERNS);
-                    List<String> windowPatterns = new ArrayList<>();
-                    for (int i = 0; i < windowPatternsArray.size(); i++) {
-                        StringBuilder newWPString = new StringBuilder();
-                        newWPString.append(i+1);
-                        for (int k = 0; k < Constants.MAX_NICKNAME_LENGTH; k++) newWPString.append(" ");
-                        windowPatterns.set(i, newWPString.toString() + "\n" + windowPatternsArray.get(i));
-                    }
-                    Logger.println();
-                    Logger.println(windowPatternsMessage(windowPatterns));
+                case GAME_SETUP:
+                    privateObjectiveCardUpdateHandle(jsonArg);
+                    selectableWindowPatternsUpdateHandle(jsonArg);
                     break;
                 case WINDOW_PATTERNS:
-                    JsonObject windowPatternsJson = jsonArg.getAsJsonObject(JsonFields.WINDOW_PATTERNS);
-                    windowPatterns = new ArrayList<>();
-                    for (Map.Entry<String, JsonElement> entry : windowPatternsJson.entrySet()) {
-                        StringBuilder patternString = new StringBuilder(entry.getKey());
-                        while (patternString.length() < MAX_NICKNAME_LENGTH)
-                            patternString.append(' ');
-                        patternString.append('\n')
-                                .append(entry.getValue().getAsJsonObject().get(JsonFields.CLI_STRING).getAsString());
-                        windowPatterns.add(patternString.toString());
-                    }
-                    Logger.println(windowPatternsMessage(windowPatterns));
+                    windowPatternsUpdateHandle(jsonArg);
                     break;
                 case TOOL_CARDS:
-                    JsonArray toolCards = jsonArg.getAsJsonArray(JsonFields.TOOL_CARDS);
-                    StringBuilder toolCardsString = new StringBuilder();
-                    for (int i = 0; i < toolCards.size(); i++) {
-                        JsonObject toolCard = toolCards.get(i).getAsJsonObject();
-                        toolCardsString
-                                .append("Carta strumento ")
-                                .append(i)
-                                .append(": ")
-                                .append(toolCard.get(JsonFields.NAME).getAsString())
-                                .append('\n')
-                                .append("Effetto: ")
-                                .append(toolCard.get(JsonFields.DESCRIPTION).getAsString())
-                                .append('\n')
-                                .append("Prezzo: ")
-                                .append(toolCard.get(JsonFields.USED).getAsBoolean() ? 2 : 1)
-                                .append(" segnalini favore")
-                                .append("\n\n");
-                    }
-                    Logger.println(toolCardsString.toString());
+                    toolCardsUpdateHandle(jsonArg);
                     break;
                 case PUBLIC_OBJECTIVE_CARDS:
-                    // TODO Continuare da qui
+                    publicObjectiveCardsUpdateHandle(jsonArg);
+                    break;
+                case DRAFT_POOL:
+                    draftPoolUpdateHandle(jsonArg);
+                    break;
+                case TURN_MANAGEMENT:
+                    turnManagementUpdateHandle(jsonArg);
+                    break;
+                case ROUND_TRACK:
+                    String roundTrack = jsonArg.get(JsonFields.CLI_STRING).getAsString();
+                    roundTrackLength = roundTrack.chars().filter(ch -> ch == ']').count();
+                    Logger.println("Tracciato del Round\n" + roundTrack + "\n");
+                    break;
+                case PLAYERS:
+                    Logger.print(ansi().eraseScreen().cursor(0, 0).toString());
                     break;
                 case FAVOR_TOKENS:
-                    StringBuilder favorTokenString = new StringBuilder("\nSegnalini Favore");
-                    Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FAVOR_TOKENS).getAsJsonObject().entrySet();
-                    for (Map.Entry<String, JsonElement> entry : entrySet) {
-                        if (entry.getKey().equals(this.getNickname()))
-                            this.setFavorTokens(entry.getValue().getAsInt());
-                        favorTokenString.append("\n").append(entry.getKey()).append(": ").append(entry.getValue().getAsInt());
-                    }
-                    Logger.println(favorTokenString.toString());
+                    favorTokensUpdateHandle(jsonArg);
                     break;
                 case FINAL_SCORES:
-                    StringBuilder finalScoresString = new StringBuilder("\nRisultati finali");
-                    entrySet = jsonArg.get(JsonFields.FINAL_SCORES).getAsJsonObject().entrySet();
-                    for (Map.Entry<String, JsonElement> entry : entrySet) {
-                        finalScoresString.append("\n").append(entry.getKey()).append(": ").append(entry.getValue().getAsInt());
-                    }
-                    Logger.println(finalScoresString.toString());
+                    finalScoresUpdateHandle(jsonArg);
                     break;
-
+                default:
+                    throw new IllegalStateException("This was not supposed to happen! " + method.toString());
             }
         }
     }
 
-    private void oldUpdate(Observer o, Object arg) {
-        if (o instanceof ClientNetwork) {
-            if (arg instanceof List) {      // Window Patterns
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                List<String> argAsList = (List) arg;
-                if (argAsList.get(0).startsWith(NotificationsMessages.PUBLIC_OBJECTIVE_CARDS)) {   //Public Objective Card
-                    // TODO continuare da qui
-                    StringBuilder cards = new StringBuilder();
-                    for (String s : argAsList) {
-                        s = s.replace(NotificationsMessages.PUBLIC_OBJECTIVE_CARDS, "Obiettivo Pubblico: ");
-                        s = s.replace(" $- ", "\nDescrizione: ");
-                        s = s.replace(" $$- ", "\nPunti Vittoria (PV) per ogni set completo di questo tipo: ");
-                        s += "\n\n";
-                        cards.append(s);
-                    }
-                    cards.append(privateObjectiveCard).append("\n\n");
-                    Logger.println(cards.toString());
-                } else if (argAsList.get(0).startsWith(NotificationsMessages.DRAFT_POOL)) {   //DraftPool
-                    String draftPool = "Riserva: ";
-                    this.draftPoolLength = 0;
-                    for (String s : argAsList){
-                        s = s.replace(NotificationsMessages.DRAFT_POOL,"");
-                        draftPool += s;
-                        draftPoolLength++;
-                    }
-                    Logger.println("\n" + draftPool + "\n");
-                } else if (argAsList.get(0).equals(NotificationsMessages.TURN_MANAGEMENT)) {
-                    argAsList.remove(0);
-                    if(!this.isGameStarted()) this.setGameStarted(true);
-                    this.setGameOver(Boolean.valueOf(argAsList.get(1)));
-                    List<String> suspendedPlayers = Arrays.asList(argAsList.get(3).split("$"));
-                    if (suspendedPlayers.size() == 1 && suspendedPlayers.get(0).equals(""))
-                        suspendedPlayers = new ArrayList<>();
-                    this.setSuspended(suspendedPlayers);
-                    this.setActive(argAsList.get(2));
-                    //Logger.println("Suspended: " + argAsList.get(3));
-                    stopAsyncInput = true;
-                }
-            } else if (arg instanceof String) {
-                String input = (String) arg;
-                if (input.startsWith(NotificationsMessages.PRIVATE_OBJECTIVE_CARD)) {
-                    Logger.print(ansi().eraseScreen().cursor(0, 0).toString());
-                    input = input.replace(NotificationsMessages.PRIVATE_OBJECTIVE_CARD, "");
-                    privateObjectiveCard = input;
-                    Logger.println(privateObjectiveCard);
-                }
-                if (input.startsWith(NotificationsMessages.ROUND_TRACK)) {
-                    input = input.replace(NotificationsMessages.ROUND_TRACK,"");
-                    roundTrackLength = input.chars().filter(ch -> ch == ']').count();
-                    Logger.println("Tracciato del Round\n" + input + "\n");
-                }
-            } else if (arg instanceof Iterable) {   // Players
-                if (!this.isPatternChosen()) {  //Players in waiting room
-                    this.wrPlayers = arg.toString().replace("[", "")
-                            .replace("]", "")
-                            .replace("\",", ",")
-                            .replace("\"", " ");
-                    Logger.print(waitingRoomMessage());
-                } else {
-                    Logger.print(ansi().eraseScreen().cursor(0, 0).toString());
-                }
-            } else if (arg instanceof JsonObject) {
-                JsonObject jsonArg = (JsonObject) arg;
-                Methods method = Methods.getAsMethods(jsonArg.get(JsonFields.METHOD).getAsString());
-                if (method == Methods.ADD_PLAYER && jsonArg.get(JsonFields.RECONNECTED).getAsBoolean()) {
-                    bypassWaitingRoom = true;
-                    stopAsyncInput = true;
-                    this.setPatternChosen(true);
-                    this.setSuspended(this.getSuspendedPlayers().stream()
-                            .filter(s -> !s.equals(this.getNickname()))
-                            .collect(Collectors.toList()));
-                }
+    private void addPlayerUpdateHandle(JsonObject jsonArg) {
+        if (jsonArg.get(JsonFields.RECONNECTED).getAsBoolean()) {
+            bypassWaitingRoom = true;
+            stopAsyncInput = true;
+            this.setPatternChosen(true);
+            this.setSuspended(this.getSuspendedPlayers().stream()
+                    .filter(s -> !s.equals(this.getNickname()))
+                    .collect(Collectors.toList()));
+        }
+    }
+
+    private void updateWaitingPlayersUpdateHandle(JsonObject jsonArg) {
+        if (!this.isPatternChosen()) {
+            JsonArray playersArray = jsonArg.get(JsonFields.PLAYERS).getAsJsonArray();
+            this.wrPlayers = StreamSupport.stream(playersArray.spliterator(), false)
+                    .map(JsonElement::getAsString)
+                    .reduce((s, r) -> s + ", " + r)
+                    .orElse(null);
+            Logger.print(waitingRoomMessage());
+        }
+    }
+
+    private void gameTimerTickUpdateHandle(JsonObject jsonArg) {
+        this.gameTimeout = jsonArg.get(JsonFields.TICK).getAsString();
+        if (isActive())
+            Logger.print(timerPrompt());
+        else {
+            String timerString = "È il turno di " + this.getActiveNickname() + " [" + gameTimeout + "]";
+            if (isSuspended()) {
+                Logger.print(ansi()
+                        .eraseLine(Erase.ALL)
+                        .cursorUpLine()
+                        .eraseLine(Erase.ALL)
+                        .a(timerString)
+                        .a('\n')
+                        .a(reconnectionPrompt())
+                        .toString()
+                );
+            } else {
+                Logger.print(updateLine(timerString));
             }
         }
+    }
+
+    private void selectableWindowPatternsUpdateHandle(JsonObject jsonArg) {
+        stopAsyncInput = true;
+        JsonArray windowPatternsArray = jsonArg.getAsJsonArray(JsonFields.WINDOW_PATTERNS);
+        List<String> windowPatterns = new ArrayList<>();
+        for (int i = 0; i < windowPatternsArray.size(); i++) {
+            JsonObject windowPattern = windowPatternsArray.get(i).getAsJsonObject();
+            StringBuilder indexString = new StringBuilder();
+            indexString.append(i+1);
+            for (int k = 0; k < Constants.MAX_NICKNAME_LENGTH; k++) indexString.append(" ");
+            windowPatterns.add(indexString.toString() + "\n" + windowPattern.get(JsonFields.CLI_STRING).getAsString());
+        }
+        Logger.println();
+        Logger.println(windowPatternsMessage(windowPatterns));
+    }
+
+    private void windowPatternsUpdateHandle(JsonObject jsonArg) {
+        JsonObject windowPatternsJson = jsonArg.getAsJsonObject(JsonFields.WINDOW_PATTERNS);
+        List<String> windowPatterns = new ArrayList<>();
+        for (Map.Entry<String, JsonElement> entry : windowPatternsJson.entrySet()) {
+            StringBuilder patternString = new StringBuilder(entry.getKey());
+            while (patternString.length() < MAX_NICKNAME_LENGTH)
+                patternString.append(' ');
+            patternString.append('\n')
+                    .append(entry.getValue().getAsJsonObject().get(JsonFields.CLI_STRING).getAsString());
+            windowPatterns.add(patternString.toString());
+        }
+        Logger.println(windowPatternsMessage(windowPatterns));
+    }
+
+    private void toolCardsUpdateHandle(JsonObject jsonArg) {
+        JsonArray toolCards = jsonArg.getAsJsonArray(JsonFields.TOOL_CARDS);
+        StringBuilder toolCardsString = new StringBuilder();
+        for (int i = 0; i < toolCards.size(); i++) {
+            JsonObject toolCard = toolCards.get(i).getAsJsonObject();
+            toolCardsString
+                    .append("Carta strumento ")
+                    .append(i)
+                    .append(": ")
+                    .append(toolCard.get(JsonFields.NAME).getAsString())
+                    .append("\nEffetto: ")
+                    .append(toolCard.get(JsonFields.DESCRIPTION).getAsString())
+                    .append("\nPrezzo: ")
+                    .append(toolCard.get(JsonFields.USED).getAsBoolean() ? 2 : 1)
+                    .append(toolCard.get(JsonFields.USED).getAsBoolean() ? " segnalini" : " segnalino")
+                    .append(" favore")
+                    .append("\n\n");
+        }
+        Logger.println(toolCardsString.toString());
+    }
+
+    private void publicObjectiveCardsUpdateHandle(JsonObject jsonArg) {
+        JsonArray publicObjectiveCards = jsonArg.getAsJsonArray(JsonFields.PUBLIC_OBJECTIVE_CARDS);
+        StringBuilder objectiveCardsString = new StringBuilder();
+        for (JsonElement element : publicObjectiveCards){
+            JsonObject obj = element.getAsJsonObject();
+            objectiveCardsString
+                    .append("Obiettivo pubblico: ")
+                    .append(obj.get(JsonFields.NAME).getAsString())
+                    .append("\nDescrizione: ")
+                    .append(obj.get(JsonFields.DESCRIPTION).getAsString())
+                    .append("\nPunti Vittoria (PV) per ogni set completo di questo tipo: ")
+                    .append(obj.get(JsonFields.VICTORY_POINTS).isJsonNull() ? '#' : obj.get(JsonFields.VICTORY_POINTS).getAsInt())
+                    .append("\n\n");
+        }
+        objectiveCardsString.append(privateObjectiveCard).append("\n\n");
+        Logger.println(objectiveCardsString.toString());
+    }
+
+    private void privateObjectiveCardUpdateHandle(JsonObject jsonArg) {
+        Logger.print(ansi().eraseScreen().cursor(0, 0).toString());
+        JsonObject cardJson = jsonArg.getAsJsonObject(JsonFields.PRIVATE_OBJECTIVE_CARD);
+        privateObjectiveCard = "Obiettivo privato: " +
+                cardJson.get(JsonFields.NAME).getAsString() +
+                " - " +
+                cardJson.get(JsonFields.DESCRIPTION).getAsString();
+        Logger.println(privateObjectiveCard);
+    }
+
+    private void draftPoolUpdateHandle(JsonObject jsonArg) {
+        JsonArray draftPoolDice = jsonArg.getAsJsonArray(JsonFields.DICE);
+        StringBuilder draftPoolString = new StringBuilder("Riserva: ");
+        this.draftPoolLength = 0;
+        for (JsonElement element : draftPoolDice){
+            draftPoolString.append(element.getAsJsonObject().get(JsonFields.CLI_STRING).getAsString());
+            this.draftPoolLength++;
+        }
+        Logger.println("\n" + draftPoolString.toString() + "\n");
+    }
+
+    private void turnManagementUpdateHandle(JsonObject jsonArg) {
+        if (!this.isGameStarted()) this.setGameStarted(true);
+        this.setGameOver(jsonArg.get(JsonFields.GAME_OVER).getAsBoolean());
+        List<String> suspendedPlayers = StreamSupport.stream(jsonArg.getAsJsonArray(JsonFields.SUSPENDED_PLAYERS).spliterator(), false)
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toList());
+                    /*if (suspendedPlayers.size() == 1 && suspendedPlayers.get(0).equals(""))
+                        suspendedPlayers = new ArrayList<>();*/
+        this.setSuspended(suspendedPlayers);
+        this.setActive(jsonArg.get(JsonFields.ACTIVE_PLAYER).getAsString());
+        //Logger.println("Suspended: " + argAsList.get(3));
+        stopAsyncInput = true;
+    }
+
+    private void favorTokensUpdateHandle(JsonObject jsonArg) {
+        StringBuilder favorTokenString = new StringBuilder("\nSegnalini Favore");
+        Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FAVOR_TOKENS).getAsJsonObject().entrySet();
+        for (Map.Entry<String, JsonElement> entry : entrySet) {
+            if (entry.getKey().equals(this.getNickname()))
+                this.setFavorTokens(entry.getValue().getAsInt());
+            favorTokenString.append("\n").append(entry.getKey()).append(": ").append(entry.getValue().getAsInt());
+        }
+        Logger.println(favorTokenString.toString());
+    }
+
+    private void finalScoresUpdateHandle(JsonObject jsonArg) {
+        StringBuilder finalScoresString = new StringBuilder("\nRisultati finali");
+        Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FINAL_SCORES).getAsJsonObject().entrySet();
+        for (Map.Entry<String, JsonElement> entry : entrySet)
+            finalScoresString.append("\n").append(entry.getKey()).append(": ").append(entry.getValue().getAsInt());
+        Logger.println(finalScoresString.toString());
     }
 
 }
