@@ -1,5 +1,7 @@
 package it.polimi.ingsw.util;
 
+import com.google.gson.JsonObject;
+
 import java.time.LocalDateTime;
 
 public class Logger {
@@ -32,6 +34,10 @@ public class Logger {
 
     public static void debug(String message) {
         if (isDebugActive()) println("[DEBUG " + LocalDateTime.now() + "] " + message);
+    }
+
+    public static void debugPayload(JsonObject payload) {
+        debug("PAYLOAD " + payload.toString());
     }
 
     public static void error(String message) {

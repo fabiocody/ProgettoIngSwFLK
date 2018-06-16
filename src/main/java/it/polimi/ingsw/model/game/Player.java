@@ -158,7 +158,7 @@ public class Player extends Observable {
         this.notifyObservers(NotificationsMessages.PLACE_DIE);
     }
 
-    public synchronized void placeDie(Die d, int position, PlacementConstraint constraint){
+    public /*synchronized*/ void placeDie(Die d, int position, PlacementConstraint constraint){
         if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException("you already placed a die this turn");
         this.getWindowPattern().placeDie(d, position, constraint);
         setDiePlacedInThisTurn(true);
@@ -291,7 +291,7 @@ public class Player extends Observable {
      * @author Fabio Codiglioni
      * @return the nickname of the Player
      */
-    public synchronized String toString() {
+    public String toString() {
         return this.getNickname();
     }
 

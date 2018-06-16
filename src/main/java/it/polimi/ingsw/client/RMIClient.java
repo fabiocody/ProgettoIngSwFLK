@@ -1,19 +1,13 @@
 package it.polimi.ingsw.client;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import it.polimi.ingsw.rmi.*;
-import it.polimi.ingsw.util.JsonFields;
-import it.polimi.ingsw.util.Logger;
-import it.polimi.ingsw.util.NotificationsMessages;
+import it.polimi.ingsw.util.*;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 public class RMIClient extends ClientNetwork implements ClientAPI {
@@ -45,156 +39,65 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
 
     @Override
     void teardown() throws IOException {
-
+        // TODO
     }
 
     @Override
     UUID addPlayer(String nickname) {
-        UUID uuid = null;
         try {
             uuid = server.addPlayer(nickname);
         } catch (RemoteException e) {
-            Logger.error("Connection error: " + e.getMessage());
+            connectionError();
         }
-        setUuid(uuid);
         return uuid;
     }
 
     @Override
     void choosePattern(int patternIndex) {
-
+        try {
+            server.choosePattern(patternIndex);
+        } catch (RemoteException e) {
+            connectionError();
+        }
     }
 
     @Override
     boolean placeDie(int draftPoolIndex, int x, int y) {
-        return false;
+        try {
+            return server.placeDie(draftPoolIndex, x, y);
+        } catch (RemoteException e) {
+            connectionError();
+            return false;
+        }
     }
 
     @Override
     void nextTurn() {
-
+        try {
+            server.nextTurn();
+        } catch (RemoteException e) {
+            connectionError();
+        }
     }
 
     @Override
     JsonObject requiredData(int cardIndex) {
-        return null;
+        try {
+            return server.requiredData(cardIndex);
+        } catch (RemoteException e) {
+            connectionError();
+            return null;
+        }
     }
 
     @Override
     boolean useToolCard(int cardIndex, JsonObject requiredData) {
-        return false;
-    }
-
-    @Override
-    public void wrTimerTick(String tick) {
-        this.setChanged();
-        this.notifyObservers(Arrays.asList(NotificationsMessages.WR_TIMER_TICK, tick));
-    }
-
-    @Override
-    public void updateWaitingPlayers(List<String> players) {
-        JsonArray waitingPlayers = new JsonArray();
-        players.forEach(waitingPlayers::add);
-        this.setChanged();
-        this.notifyObservers(waitingPlayers);
-    }
-
-    @Override
-    public void gameTimerTick(String tick) {
-        this.setChanged();
-        this.notifyObservers(Arrays.asList(NotificationsMessages.GAME_TIMER_TICK, tick));
-    }
-
-    @Override
-    public void sendPrivateObjectiveCard(String cardJsonString) {
-        // TODO $REFACTOR$
-        JsonObject card = this.jsonParser.parse(cardJsonString).getAsJsonObject();
-        String privateObjectiveCardString = NotificationsMessages.PRIVATE_OBJECTIVE_CARD + "Il tuo obiettivo privato è:\n";
-        privateObjectiveCardString += card.get(JsonFields.NAME).getAsString();
-        privateObjectiveCardString += " - ";
-        privateObjectiveCardString += card.get(JsonFields.DESCRIPTION).getAsString();
-        this.setChanged();
-        this.notifyObservers(privateObjectiveCardString);
-    }
-
-    @Override
-    public void sendSelectableWindowPatterns(List<String> cards) {
-        // TODO $REFACTOR$
-        List<String> selectableWPStrings = cards.stream()
-                .map(s -> jsonParser.parse(s).getAsJsonObject())
-                .map(obj -> obj.get(JsonFields.CLI_STRING).getAsString())
-                .collect(Collectors.toList());
-        selectableWPStrings.add(0, NotificationsMessages.SELECTABLE_WINDOW_PATTERNS);
-        this.setChanged();
-        this.notifyObservers(selectableWPStrings);
-    }
-
-    @Override
-    public void updatePlayersList(List<String> players) {
-        JsonArray playersJSON = new JsonArray();
-        players.forEach(playersJSON::add);
-        this.setChanged();
-        this.notifyObservers(playersJSON);
-    }
-
-    @Override
-    public void updateToolCards(List<String> cards) {
-        /*List<String> toolCardsStrings = new ArrayList<>();
-        for(JsonElement obj : cards){
-            String toolCardString = NotificationsMessages.TOOL_CARDS;
-            toolCardString += obj.getAsJsonObject().get(JsonFields.NAME).getAsString();
-            toolCardString += " - ";
-            toolCardString += obj.getAsJsonObject().get(JsonFields.DESCRIPTION).getAsString();
-            //TODO toolCardString += obj.getAsJsonObject().get("used").getAsString();
-            toolCardsStrings.add(toolCardString);
+        try {
+            return server.useToolCard(cardIndex, requiredData);
+        } catch (RemoteException e) {
+            connectionError();
+            return false;
         }
-        this.setChanged();
-        this.notifyObservers(toolCardsStrings);*/
-    }
-
-    @Override
-    public void sendPublicObjectiveCards(List<String> cards) throws RemoteException {
-
-    }
-
-    @Override
-    public void updateWindowPatterns(List<String> cards) throws RemoteException {
-
-    }
-
-    @Override
-    public void updateFavorTokens() {
-
-    }
-
-    @Override
-    public void updateDraftPool() {
-
-    }
-
-    @Override
-    public void updateRoundTrack() {
-
-    }
-
-    @Override
-    public void turnManagement() {
-
-    }
-
-    @Override
-    public void updateFinalScores() {
-
-    }
-
-    @Override
-    public void setupGame() {
-
-    }
-
-    @Override
-    public void fullUpdate() {
-
     }
 
     @Override
@@ -202,9 +105,21 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             server.probe();
         } catch (RemoteException e) {
-            Logger.error("Connection error: " + e.getMessage());
+            connectionError();
         }
         this.rescheduleProbeTimer();
+    }
+
+    private void connectionError() {
+        Logger.connectionLost(nickname);
+        System.exit(Constants.EXIT_ERROR);
+    }
+
+    @Override
+    public void update(String jsonString) throws RemoteException {
+        JsonObject payload = jsonParser.parse(jsonString).getAsJsonObject();
+        this.setChanged();
+        this.notifyObservers(payload);
     }
 
 }

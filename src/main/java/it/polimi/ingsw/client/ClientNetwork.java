@@ -12,8 +12,8 @@ public abstract class ClientNetwork extends Observable {
     private String host;
     private int port;
 
-    private String nickname;
-    private UUID uuid;
+    String nickname;
+    UUID uuid;
 
     private Timer probeTimer;
 
@@ -29,23 +29,6 @@ public abstract class ClientNetwork extends Observable {
 
     int getPort() {
         return port;
-    }
-
-
-    String getNickname() {
-        return nickname;
-    }
-
-    void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    UUID getUuid() {
-        return uuid;
-    }
-
-    void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     abstract void setup() throws IOException;
