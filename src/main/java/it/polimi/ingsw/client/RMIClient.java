@@ -1,8 +1,8 @@
 package it.polimi.ingsw.client;
 
 import com.google.gson.*;
-import it.polimi.ingsw.rmi.*;
-import it.polimi.ingsw.util.*;
+import it.polimi.ingsw.shared.rmi.*;
+import it.polimi.ingsw.shared.util.*;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.rmi.*;

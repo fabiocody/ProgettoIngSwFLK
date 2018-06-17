@@ -1,12 +1,10 @@
 package it.polimi.ingsw.server;
 
 import com.google.gson.*;
-import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.game.*;
-import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.model.toolcards.*;
-import it.polimi.ingsw.util.*;
+import it.polimi.ingsw.shared.util.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;

@@ -1,12 +1,11 @@
 package it.polimi.ingsw.client;
 
 import com.google.gson.*;
-import it.polimi.ingsw.util.*;
+import it.polimi.ingsw.shared.util.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.*;
 
 
 /**

@@ -1,6 +1,6 @@
 package it.polimi.ingsw.client;
 
-import it.polimi.ingsw.util.*;
+import it.polimi.ingsw.shared.util.*;
 import joptsimple.*;
 import java.io.IOException;
 import java.util.*;

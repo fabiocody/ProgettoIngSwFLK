@@ -1,8 +1,8 @@
 package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.model.game.*;
-import it.polimi.ingsw.rmi.WaitingRoomAPI;
-import it.polimi.ingsw.util.*;
+import it.polimi.ingsw.shared.rmi.WaitingRoomAPI;
+import it.polimi.ingsw.shared.util.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;

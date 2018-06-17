@@ -2,7 +2,7 @@ package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.model.dice.*;
 import it.polimi.ingsw.model.game.RoundTrack;
-import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.shared.util.Constants;
 import org.junit.jupiter.api.*;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;

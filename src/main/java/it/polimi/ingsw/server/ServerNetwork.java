@@ -6,7 +6,7 @@ import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.model.toolcards.ToolCard;
-import it.polimi.ingsw.util.*;
+import it.polimi.ingsw.shared.util.*;
 import java.util.*;
 
 

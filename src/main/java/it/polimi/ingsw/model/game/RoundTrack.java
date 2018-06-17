@@ -1,12 +1,12 @@
 package it.polimi.ingsw.model.game;
 
 import it.polimi.ingsw.model.dice.Die;
-import it.polimi.ingsw.util.Constants;
-import it.polimi.ingsw.util.NotificationsMessages;
+import it.polimi.ingsw.shared.util.Constants;
+import it.polimi.ingsw.shared.util.NotificationsMessages;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import static it.polimi.ingsw.util.Constants.*;
+import static it.polimi.ingsw.shared.util.Constants.*;
 import static org.fusesource.jansi.Ansi.ansi;
 
 

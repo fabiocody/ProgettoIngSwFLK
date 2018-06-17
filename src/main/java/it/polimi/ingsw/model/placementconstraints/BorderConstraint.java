@@ -2,7 +2,7 @@ package it.polimi.ingsw.model.placementconstraints;
 
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.patterncards.Cell;
-import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.shared.util.Constants;
 
 
 public class BorderConstraint extends Constraint {

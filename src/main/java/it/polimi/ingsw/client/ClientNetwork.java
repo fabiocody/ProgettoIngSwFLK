@@ -1,8 +1,8 @@
 package it.polimi.ingsw.client;
 
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.util.Constants;
-import it.polimi.ingsw.util.Logger;
+import it.polimi.ingsw.shared.util.Constants;
+import it.polimi.ingsw.shared.util.Logger;
 import java.io.IOException;
 import java.util.*;
 

@@ -4,8 +4,8 @@ import com.google.gson.*;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.model.Colors;
-import it.polimi.ingsw.util.JsonFields;
-import static it.polimi.ingsw.util.Constants.*;
+import it.polimi.ingsw.shared.util.JsonFields;
+import static it.polimi.ingsw.shared.util.Constants.*;
 
 import java.util.Arrays;
 import java.io.IOException;

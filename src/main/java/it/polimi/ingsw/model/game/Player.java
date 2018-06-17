@@ -4,8 +4,8 @@ import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
-import it.polimi.ingsw.util.Constants;
-import it.polimi.ingsw.util.NotificationsMessages;
+import it.polimi.ingsw.shared.util.Constants;
+import it.polimi.ingsw.shared.util.NotificationsMessages;
 import java.util.*;
 import java.util.stream.Collectors;
 

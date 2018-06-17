@@ -1,13 +1,13 @@
 package it.polimi.ingsw.client;
 
 import com.google.gson.*;
-import it.polimi.ingsw.util.*;
+import it.polimi.ingsw.shared.util.*;
 import org.fusesource.jansi.AnsiConsole;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.*;
-import static it.polimi.ingsw.util.Constants.*;
+import static it.polimi.ingsw.shared.util.Constants.*;
 import static org.fusesource.jansi.Ansi.*;
 
 

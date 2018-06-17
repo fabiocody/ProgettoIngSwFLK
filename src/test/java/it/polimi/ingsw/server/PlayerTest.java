@@ -3,7 +3,7 @@ package it.polimi.ingsw.server;
 import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCardsGenerator;
 import it.polimi.ingsw.model.patterncards.*;
-import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.shared.util.Constants;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
