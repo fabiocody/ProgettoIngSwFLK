@@ -308,6 +308,7 @@ public class Game extends Observable implements Observer {
             }
         } else if (o instanceof Player) {
             if (arg != null && (arg.equals(NotificationsMessages.PLACE_DIE) || arg.equals(NotificationsMessages.SUSPENDED))) {
+                if (arg.equals(NotificationsMessages.PLACE_DIE))
                 setChanged();
                 notifyObservers(arg);
             } else if (this.arePlayersReady()) {

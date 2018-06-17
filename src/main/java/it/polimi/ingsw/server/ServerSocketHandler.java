@@ -130,7 +130,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             for (String p : WaitingRoomController.getInstance().getWaitingPlayers())
                 waitingPlayers.add(p);
             payload.add(JsonFields.PLAYERS, waitingPlayers);
-            Logger.debug("PAYLOAD " + payload.toString());
+            Logger.debugPayload(payload);
             out.println(payload.toString());
             this.probeThread = new Thread(this::probeCheck);
             this.probeThread.start();
@@ -139,7 +139,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             JsonObject payload = new JsonObject();
             payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
             payload.addProperty(JsonFields.LOGGED, false);
-            Logger.debug("PAYLOAD " + payload.toString());
+            Logger.debugPayload(payload);
             out.println(payload.toString());
         } catch (NicknameAlreadyUsedInGameException e) {
             Game game = e.getGame();
@@ -157,7 +157,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             payload.addProperty(JsonFields.LOGGED, true);
             payload.addProperty(JsonFields.RECONNECTED, true);
             payload.addProperty(JsonFields.PLAYER_ID, this.uuid.toString());
-            Logger.debug("PAYLOAD " + payload.toString());
+            Logger.debugPayload(payload);
             out.println(payload.toString());
             this.probeThread = new Thread(this::probeCheck);
             this.probeThread.start();
@@ -187,12 +187,12 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             this.gameController.placeDie(this.uuid, draftPoolIndex, x, y);
             payload.addProperty(JsonFields.RESULT, true);
             Logger.println(this.nickname + " placed a die");
-            Logger.debug("PAYLOAD " + payload.toString());
+            Logger.debugPayload(payload);
             out.println(payload.toString());
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
             payload.addProperty(JsonFields.RESULT, false);
             Logger.println(this.nickname + " die placement was refused");
-            Logger.debug("PAYLOAD " + payload.toString());
+            Logger.debugPayload(payload);
             out.println(payload.toString());
         }
     }
@@ -222,13 +222,13 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             if (!(input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE))) {
                 this.gameController.getToolCards().get(cardIndex).setUsed();
             }
-            Logger.debug("PAYLOAD " + payload.toString());
+            Logger.debugPayload(payload);
             out.println(payload.toString());
         } catch (InvalidEffectArgumentException | InvalidEffectResultException e) {
             e.printStackTrace();        // TODO Remove
             payload.addProperty(JsonFields.RESULT, false);
             Logger.println(this.nickname + " usage of tool card was refused");
-            Logger.debug("PAYLOAD " + payload.toString());
+            Logger.debugPayload(payload);
             out.println(payload.toString());
         }
     }
@@ -248,7 +248,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
                 (!(payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.FROM_CELL_X))) && (this.gameController.getPlayer(id).isDiePlacedInThisTurn()) && (!payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.SECOND_DIE_PLACEMENT))) {
             payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.DIE);
         }
-        Logger.debug("PAYLOAD " + payload.toString());
+        Logger.debugPayload(payload);
         out.println(payload.toString());
     }
 
@@ -258,201 +258,87 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
     }
 
     @Override
-    void updatePlayersList() {
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.PLAYERS.getString());
-        JsonArray playersJSON = new JsonArray();
-        for (String name : this.gameController.getCurrentPlayers()) {
-            playersJSON.add(name);
-        }
-        payload.add(JsonFields.PLAYERS, playersJSON);
-        Logger.debug("PAYLOAD " + payload.toString());
+    JsonObject updatePlayersList() {
+        JsonObject payload = super.updatePlayersList();
         out.println(payload.toString());
+        return payload;
     }
 
     @Override
-    void updateToolCards() {
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.TOOL_CARDS.getString());
-        JsonArray cards = new JsonArray();
-        for (ToolCard card : this.gameController.getToolCards())
-            cards.add(createToolCardJson(card));
-        payload.add(JsonFields.TOOL_CARDS, cards);
-        Logger.debug("PAYLOAD " + payload.toString());
+    JsonObject updateToolCards() {
+        JsonObject payload = super.updateToolCards();
         out.println(payload.toString());
+        return payload;
     }
 
     @Override
-    void sendPublicObjectiveCards() {
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.PUBLIC_OBJECTIVE_CARDS.getString());
-        JsonArray cards = new JsonArray();
-        for (ObjectiveCard card : this.gameController.getPublicObjectiveCards()) {
-            JsonObject jsonCard = new JsonObject();
-            jsonCard.addProperty(JsonFields.NAME, card.getName());
-            jsonCard.addProperty(JsonFields.DESCRIPTION, card.getDescription());
-            jsonCard.addProperty(JsonFields.VICTORY_POINTS, card.getVictoryPoints());
-            cards.add(jsonCard);
-        }
-        payload.add(JsonFields.PUBLIC_OBJECTIVE_CARDS, cards);
-        Logger.debug("PAYLOAD " + payload.toString());
+    JsonObject sendPublicObjectiveCards() {
+        JsonObject payload = super.sendPublicObjectiveCards();
         out.println(payload.toString());
+        return payload;
     }
 
     @Override
-    void updateWindowPatterns() {
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.WINDOW_PATTERNS.getString());
-        JsonObject windowPatterns = new JsonObject();
-        for (String player : this.gameController.getCurrentPlayers()) {
-            windowPatterns.add(player, createWindowPatternJSON(this.gameController.getWindowPatternOf(player)));
-        }
-        payload.add(JsonFields.WINDOW_PATTERNS, windowPatterns);
-        Logger.debug("PAYLOAD " + payload.toString());
+    JsonObject updateWindowPatterns() {
+        JsonObject payload = super.updateWindowPatterns();
         out.println(payload.toString());
+        return payload;
     }
 
     @Override
-    void updateFavorTokens() {
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.FAVOR_TOKENS.getString());
-        JsonObject favorTokens = new JsonObject();
-        for (String player : this.gameController.getCurrentPlayers()) {
-            favorTokens.addProperty(player, this.gameController.getFavorTokensOf(player));
-        }
-        payload.add(JsonFields.FAVOR_TOKENS, favorTokens);
-        Logger.debug("PAYLOAD " + payload.toString());
+    JsonObject updateFavorTokens() {
+        JsonObject payload = super.updateFavorTokens();
         out.println(payload.toString());
-    }
-
-    private JsonObject generateJsonDie(Die d) {
-        JsonObject jsonDie = new JsonObject();
-        jsonDie.addProperty(JsonFields.COLOR, d.getColor().toString());
-        jsonDie.addProperty(JsonFields.VALUE, d.getValue());
-        jsonDie.addProperty(JsonFields.CLI_STRING, d.toString());
-        return jsonDie;
+        return payload;
     }
 
     @Override
-    void updateDraftPool() {
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.DRAFT_POOL.getString());
-        JsonArray dice = new JsonArray();
-        for (Die d : this.gameController.getDraftPool()) {
-            dice.add(generateJsonDie(d));
-        }
-        payload.add(JsonFields.DICE, dice);
-        Logger.debug("PAYLOAD " + payload.toString());
+    JsonObject updateDraftPool() {
+        JsonObject payload = super.updateDraftPool();
         out.println(payload.toString());
+        return payload;
     }
 
     @Override
-    void updateRoundTrack() {
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.ROUND_TRACK.getString());
-        JsonArray dice = new JsonArray();
-        for (Die d : this.gameController.getRoundTrackDice()) {
-            dice.add(generateJsonDie(d));
-        }
-        payload.add(JsonFields.DICE, dice);
-        payload.addProperty(JsonFields.CLI_STRING, this.gameController.getRoundTrack().toString());
-        Logger.debug("PAYLOAD " + payload.toString());
+    JsonObject updateRoundTrack() {
+        JsonObject payload = super.updateRoundTrack();
         out.println(payload.toString());
+        return payload;
     }
 
     @Override
-    void turnManagement() {
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.TURN_MANAGEMENT.getString());
-        payload.addProperty(JsonFields.CURRENT_ROUND, this.gameController.getCurrentRound());
-        payload.addProperty(JsonFields.GAME_OVER, this.gameController.getRoundTrack().isGameOver());
-        payload.addProperty(JsonFields.ACTIVE_PLAYER, this.gameController.getActivePlayer());
-        JsonArray suspendedPlayers = new JsonArray();
-        this.gameController.getSuspendedPlayers().forEach(suspendedPlayers::add);
-        payload.add(JsonFields.SUSPENDED_PLAYERS, suspendedPlayers);
-        Logger.debug("PAYLOAD " + payload.toString());
+    JsonObject turnManagement() {
+        JsonObject payload = super.turnManagement();
         out.println(payload.toString());
+        return payload;
     }
 
     @Override
-    void updateFinalScores() {
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.FINAL_SCORES.getString());
-        JsonObject finalScores = new JsonObject();
-        for (String player : this.gameController.getFinalScores().keySet()) {
-            finalScores.addProperty(player, this.gameController.getFinalScores().get(player));
-        }
-        payload.add(JsonFields.FINAL_SCORES, finalScores);
-        Logger.debug("PAYLOAD " + payload.toString());
+    JsonObject updateFinalScores() {
+        JsonObject payload = super.updateFinalScores();
         out.println(payload.toString());
-    }
-
-    // UPDATE HANDLER
-
-    @Override
-    void updateTimerTick(Methods method, String tick) {
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, method.getString());
-        payload.addProperty(JsonFields.TICK, tick);
-        out.println(payload.toString());
-        Logger.debug("updateTimerTick sent to" + nickname);
+        return payload;
     }
 
     @Override
-    void updateWaitingPlayers(List<String> players) {
-        Logger.debug("updateWaitingPlayers called");
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.UPDATE_WAITING_PLAYERS.getString());
-        JsonArray array = new JsonArray();
-        for (String p : players) array.add(p);
-        payload.add(JsonFields.PLAYERS, array);
-        Logger.debug("PAYLOAD " + payload.toString());
+    JsonObject updateTimerTick(Methods method, String tick) {
+        JsonObject payload = super.updateTimerTick(method, tick);
         out.println(payload.toString());
-        Logger.debug("Update Waiting Players List sent");
+        return payload;
     }
 
     @Override
-    void setupGame() {
-        Logger.debug("setupGame called");
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.GAME_SETUP.getString());
-        Player player = this.gameController.getPlayer(this.uuid);
-        ObjectiveCard privateObjectiveCard = player.getPrivateObjectiveCard();
-
-        // Private objective card
-        JsonObject privateObjectiveCardJSON = new JsonObject();
-        privateObjectiveCardJSON.addProperty(JsonFields.NAME, privateObjectiveCard.getName());
-        privateObjectiveCardJSON.addProperty(JsonFields.DESCRIPTION, privateObjectiveCard.getDescription());
-        privateObjectiveCardJSON.addProperty(JsonFields.VICTORY_POINTS, privateObjectiveCard.getVictoryPoints());
-        payload.add(JsonFields.PRIVATE_OBJECTIVE_CARD, privateObjectiveCardJSON);
-
-        // Window Patterns
-        List<WindowPattern> windowPatterns = player.getWindowPatternList();
-        JsonArray windowPatternsJSON = new JsonArray();
-        for (WindowPattern wp : windowPatterns) {
-            windowPatternsJSON.add(createWindowPatternJSON(wp));
-        }
-        payload.add(JsonFields.WINDOW_PATTERNS, windowPatternsJSON);
-
+    JsonObject updateWaitingPlayers() {
+        JsonObject payload = super.updateWaitingPlayers();
         out.println(payload.toString());
-
-        Logger.println("A game has started for " + this.nickname);
-
-        this.gameController.getPlayer(this.uuid).addObserver(this);
+        return payload;
     }
 
     @Override
-    void fullUpdate() {
-        //if (!this.gameController.getRoundTrack().isGameOver()) {
-            updatePlayersList();
-            updateToolCards();
-            sendPublicObjectiveCards();
-            updateWindowPatterns();
-            updateFavorTokens();
-            updateDraftPool();
-            updateRoundTrack();
-            turnManagement();
-        //}
+    JsonObject setupGame() {
+        JsonObject payload = super.setupGame();
+        out.println(payload.toString());
+        return payload;
     }
 
     @Override

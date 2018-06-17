@@ -139,8 +139,8 @@ public class WindowPattern {
      * @author  Luca dell'Oglio
      */
 
-    public synchronized void placeDie(Die d, int position, PlacementConstraint withConstraint){
-        if(withConstraint.checkConstraint(this.grid, position, d))
+    public synchronized void placeDie(Die d, int position, PlacementConstraint withConstraint) {
+        if (withConstraint.checkConstraint(this.grid, position, d))
             this.grid[position].setPlacedDie(d);
         else
             throw new InvalidPlacementException("Die " + d + " cannot be placed in position " + position);
@@ -155,8 +155,8 @@ public class WindowPattern {
      * @author  Luca dell'Oglio
      */
 
-    public synchronized void placeDie(Die d, int position){
-        if(this.isGridEmpty())
+    public synchronized void placeDie(Die d, int position) {
+        if (this.isGridEmpty())
             this.placeDie(d, position, PlacementConstraint.initialConstraint());
         else
             this.placeDie(d, position, PlacementConstraint.standardConstraint());

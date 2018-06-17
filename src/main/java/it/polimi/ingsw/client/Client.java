@@ -1,6 +1,5 @@
 package it.polimi.ingsw.client;
 
-import com.google.gson.JsonArray;
 import it.polimi.ingsw.util.*;
 import joptsimple.*;
 import java.io.IOException;

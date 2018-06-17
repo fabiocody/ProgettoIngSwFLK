@@ -398,10 +398,7 @@ public class ClientCLI extends Client {
                             bufferString = stdinBuffer.toString();
                             stdinBuffer = new StringBuilder();
                         }
-                        //lastPrintedLine = "";
-                        /*Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
-                        Logger.print(method.invoke(this));*/
-                        //Logger.println();
+                        Logger.println();
                         break;
                     } else if (c == 0x7F) {
                         synchronized (stdinBufferLock) {
@@ -786,7 +783,7 @@ public class ClientCLI extends Client {
         Logger.println(finalScoresString.toString());
         Logger.println("");
         AnsiConsole.systemUninstall();
-        System.exit(0);
+        System.exit(Constants.EXIT_STATUS);
     }
 
 }

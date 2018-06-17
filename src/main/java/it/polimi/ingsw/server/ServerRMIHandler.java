@@ -2,12 +2,8 @@ package it.polimi.ingsw.server;
 
 import com.google.gson.*;
 import it.polimi.ingsw.model.game.*;
-import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
-import it.polimi.ingsw.model.patterncards.WindowPattern;
-import it.polimi.ingsw.model.toolcards.InvalidEffectArgumentException;
-import it.polimi.ingsw.model.toolcards.InvalidEffectResultException;
-import it.polimi.ingsw.model.toolcards.ToolCard;
+import it.polimi.ingsw.model.toolcards.*;
 import it.polimi.ingsw.rmi.*;
 import it.polimi.ingsw.util.*;
 import java.rmi.*;
@@ -125,128 +121,136 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
 
     @Override
-    void updatePlayersList() {
+    JsonObject updatePlayersList() {
+        JsonObject payload = super.updatePlayersList();
+        Logger.debug("PAYLOAD " + payload.toString());
         try {
-            client.updatePlayersList(gameController.getCurrentPlayers());
+            client.update(payload.toString());
         } catch (RemoteException e) {
             connectionError();
         }
+        return payload;
     }
 
     @Override
-    void updateToolCards() {
-        List<String> cards = new ArrayList<>();
-        for (ToolCard card : this.gameController.getToolCards())
-            cards.add(createToolCardJson(card).toString());
+    JsonObject updateToolCards() {
+        JsonObject payload = super.updateToolCards();
         try {
-            client.updateToolCards(cards);
+            client.update(payload.toString());
         } catch (RemoteException e) {
             connectionError();
         }
+        return payload;
     }
 
     @Override
-    void sendPublicObjectiveCards() {
-
-    }
-
-    @Override
-    void updateWindowPatterns() {
-
-    }
-
-    @Override
-    void updateFavorTokens() {
-
-    }
-
-    @Override
-    void updateDraftPool() {
-
-    }
-
-    @Override
-    void updateRoundTrack() {
-
-    }
-
-    @Override
-    void turnManagement() {
-
-    }
-
-    @Override
-    void updateFinalScores() {
-
-    }
-
-    @Override
-    void updateTimerTick(Methods method, String tick) {
-        switch (method) {
-            case WR_TIMER_TICK:
-                try {
-                    client.wrTimerTick(tick);
-                    Logger.debug("updateTimerTick sent to " + nickname);
-                } catch (RemoteException e) {
-                    connectionError();
-                }
-                break;
-            case GAME_TIMER_TICK:
-                try {
-                    client.gameTimerTick(tick);
-                    Logger.debug("updateTimerTick sent to " + nickname);
-                } catch (RemoteException e) {
-                    connectionError();
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    @Override
-    void updateWaitingPlayers(List<String> players) {
-        Logger.debug("updateWaitingPlayers called");
+    JsonObject sendPublicObjectiveCards() {
+        JsonObject payload = super.sendPublicObjectiveCards();
         try {
-            client.updateWaitingPlayers(players);
+            client.update(payload.toString());
         } catch (RemoteException e) {
             connectionError();
         }
+        return payload;
     }
 
     @Override
-    void setupGame() {
-        Player player = this.gameController.getPlayer(uuid);
-
-        ObjectiveCard privateObjectiveCard = player.getPrivateObjectiveCard();
-        JsonObject privateObjectiveCardJSON = new JsonObject();
-        privateObjectiveCardJSON.addProperty(JsonFields.NAME, privateObjectiveCard.getName());
-        privateObjectiveCardJSON.addProperty(JsonFields.DESCRIPTION, privateObjectiveCard.getDescription());
-        privateObjectiveCardJSON.addProperty(JsonFields.VICTORY_POINTS, privateObjectiveCard.getVictoryPoints());
+    JsonObject updateWindowPatterns() {
+        JsonObject payload = super.updateWindowPatterns();
         try {
-            client.sendPrivateObjectiveCard(privateObjectiveCardJSON.toString());
+            client.update(payload.toString());
         } catch (RemoteException e) {
             connectionError();
         }
-
-        List<WindowPattern> windowPatterns = player.getWindowPatternList();
-        List<String> windowPatternsJSON = new ArrayList<>();
-        for (WindowPattern wp : windowPatterns) {
-            windowPatternsJSON.add(createWindowPatternJSON(wp).toString());
-        }
-        try {
-            client.sendSelectableWindowPatterns(windowPatternsJSON);
-        } catch (RemoteException e) {
-            connectionError();
-        }
-
-        Logger.println("A game has started for " + nickname);
-
+        return payload;
     }
 
     @Override
-    void fullUpdate() {
+    JsonObject updateFavorTokens() {
+        JsonObject payload = super.updateFavorTokens();
+        try {
+            client.update(payload.toString());
+        } catch (RemoteException e) {
+            connectionError();
+        }
+        return payload;
+    }
 
+    @Override
+    JsonObject updateDraftPool() {
+        JsonObject payload = super.updateDraftPool();
+        try {
+            client.update(payload.toString());
+        } catch (RemoteException e) {
+            connectionError();
+        }
+        return payload;
+    }
+
+    @Override
+    JsonObject updateRoundTrack() {
+        JsonObject payload = super.updateRoundTrack();
+        try {
+            client.update(payload.toString());
+        } catch (RemoteException e) {
+            connectionError();
+        }
+        return payload;
+    }
+
+    @Override
+    JsonObject turnManagement() {
+        JsonObject payload = super.turnManagement();
+        try {
+            client.update(payload.toString());
+        } catch (RemoteException e) {
+            connectionError();
+        }
+        return payload;
+    }
+
+    @Override
+    JsonObject updateFinalScores() {
+        JsonObject payload = super.updateFinalScores();
+        try {
+            client.update(payload.toString());
+        } catch (RemoteException e) {
+            connectionError();
+        }
+        return payload;
+    }
+
+    @Override
+    JsonObject updateTimerTick(Methods method, String tick) {
+        JsonObject payload = super.updateTimerTick(method, tick);
+        try {
+            client.update(payload.toString());
+        } catch (RemoteException e) {
+            connectionError();
+        }
+        return payload;
+    }
+
+    @Override
+    JsonObject updateWaitingPlayers() {
+        JsonObject payload = super.updateWaitingPlayers();
+        try {
+            client.update(payload.toString());
+        } catch (RemoteException e) {
+            connectionError();
+        }
+        return payload;
+    }
+
+    @Override
+    JsonObject setupGame() {
+        JsonObject payload = super.setupGame();
+        try {
+            client.update(payload.toString());
+        } catch (RemoteException e) {
+            connectionError();
+        }
+        return payload;
     }
 
     @Override

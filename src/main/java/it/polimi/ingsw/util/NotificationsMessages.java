@@ -10,14 +10,7 @@ public class NotificationsMessages {
     public static final String GAME_OVER = "$gameOver$";
     public static final String WAITING_ROOM = "$waitingRoom$";
     public static final String TURN_MANAGER = "$turnManager$";
-    public static final String UPDATE_WINDOW_PATTERNS = "$updateWindowPatterns$";
-    public static final String TOOL_CARDS = "$toolCards$";
-    public static final String PUBLIC_OBJECTIVE_CARDS = "$publicObjectiveCards$";
     public static final String DRAFT_POOL = "$draftPool$";
-    public static final String PRIVATE_OBJECTIVE_CARD = "$privateObjectiveCard$";
-    public static final String SELECTABLE_WINDOW_PATTERNS = "$selectableWindowPatterns$";
-    public static final String WR_TIMER_TICK = "$wrTimerTick$";
-    public static final String GAME_TIMER_TICK = "$gameTimerTick$";
     public static final String SUSPENDED = "$suspended$";
 
     private NotificationsMessages() throws IllegalAccessException {
