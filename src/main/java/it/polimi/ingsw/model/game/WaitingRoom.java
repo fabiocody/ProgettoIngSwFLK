@@ -109,7 +109,7 @@ public class WaitingRoom extends Observable {
         if (player.isPresent()) {
             this.getWaitingPlayers().remove(player.get());
             if (this.getWaitingPlayers().size() < 2)
-                this.timer.cancel();
+                this.timer.cancel(true);
             this.setChanged();
             this.notifyObservers(this.getWaitingPlayers());
         }

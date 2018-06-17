@@ -26,7 +26,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     @Override
     public ServerAPI connect(ClientAPI client) {
-        Logger.println("User connected via RMI");
+        Logger.log("User connected via RMI");
         try {
             ServerNetwork remoteServer = new ServerRMIHandler(client);
             SagradaServer.getInstance().addObserver(remoteServer);
@@ -50,13 +50,13 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             uuid = WaitingRoomController.getInstance().addPlayer(nickname);
             this.nickname = nickname;
-            Logger.println(nickname + " logged in successfully (" + uuid + ")");
+            Logger.log(nickname + " logged in successfully (" + uuid + ")");
             this.probeThread = new Thread(this::probeCheck);
             this.probeThread.start();
         } catch (LoginFailedException e) {
             Logger.error(nickname + " log in failed");
         } catch (NicknameAlreadyUsedInGameException e) {
-            Logger.println("Welcome back " + nickname);
+            Logger.log("Welcome back " + nickname);
             this.probeThread = new Thread(this::probeCheck);
             this.probeThread.start();
         }
@@ -110,11 +110,11 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         requiredData.addProperty(JsonFields.PLAYER_ID, uuid.toString());
         try {
             this.gameController.useToolCard(uuid, cardIndex, requiredData);
-            Logger.println(this.nickname + " used a tool card");
+            Logger.log(this.nickname + " used a tool card");
             return true;
         } catch (InvalidEffectArgumentException | InvalidEffectResultException e) {
             //e.printStackTrace();
-            Logger.println(this.nickname + " usage of tool card was refused");
+            Logger.log(this.nickname + " usage of tool card was refused");
             return false;
         }
     }
@@ -264,7 +264,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     @Override
     void showDisconnectedUserMessage() {
-        Logger.println(nickname + " was disconnected");
+        Logger.log(nickname + " was disconnected");
         Thread.currentThread().interrupt();
     }
 

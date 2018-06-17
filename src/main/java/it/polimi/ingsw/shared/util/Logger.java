@@ -29,7 +29,7 @@ public class Logger {
     }
 
     public static void log(String message) {
-        println(LocalDateTime.now() + message);
+        println("[" + LocalDateTime.now() + "] " + message);
     }
 
     public static void debug(String message) {
