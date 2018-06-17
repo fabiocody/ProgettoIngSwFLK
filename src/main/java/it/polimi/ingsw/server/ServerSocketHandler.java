@@ -26,7 +26,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
     @Override
     void showDisconnectedUserMessage() {
         String address = clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort();
-        Logger.println("Disconnected " + address + " (nickname: " + this.nickname + ")");
+        Logger.log("Disconnected " + address + " (nickname: " + this.nickname + ")");
         run = false;
         Thread.currentThread().interrupt();
     }
@@ -38,7 +38,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         try (Socket socket = this.clientSocket;
              BufferedReader in = this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              PrintWriter out = this.out = new PrintWriter(socket.getOutputStream(), true)) {
-            Logger.println("Connected to " + socket.getInetAddress() + ":" + socket.getPort() + " via socket");
+            Logger.log("Connected to " + socket.getInetAddress() + ":" + socket.getPort() + " via socket");
             while (this.run) {
                 JsonObject input;
                 try {
@@ -118,7 +118,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         try {
             this.uuid = WaitingRoomController.getInstance().addPlayer(tempNickname);
             this.nickname = tempNickname;
-            Logger.println(this.nickname + " logged in successfully (" + this.uuid + ")");
+            Logger.log(this.nickname + " logged in successfully (" + this.uuid + ")");
             JsonObject payload = new JsonObject();
             payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
             payload.addProperty(JsonFields.LOGGED, true);
@@ -133,7 +133,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             this.probeThread = new Thread(this::probeCheck);
             this.probeThread.start();
         } catch (LoginFailedException e) {
-            Logger.println("Login failed for nickname " + tempNickname);
+            Logger.log("Login failed for nickname " + tempNickname);
             JsonObject payload = new JsonObject();
             payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
             payload.addProperty(JsonFields.LOGGED, false);
@@ -148,7 +148,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             this.nickname = tempNickname;
             Player player = game.getPlayerForNickname(this.nickname);
             this.uuid = player.getId();
-            Logger.println(this.nickname + " logged back in (" + this.uuid + ")");
+            Logger.log(this.nickname + " logged back in (" + this.uuid + ")");
             //game.addObserver(this);
             JsonObject payload = new JsonObject();
             payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
@@ -184,12 +184,12 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         try {
             this.gameController.placeDie(this.uuid, draftPoolIndex, x, y);
             payload.addProperty(JsonFields.RESULT, true);
-            Logger.println(this.nickname + " placed a die");
+            Logger.log(this.nickname + " placed a die");
             Logger.debugPayload(payload);
             out.println(payload.toString());
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
             payload.addProperty(JsonFields.RESULT, false);
-            Logger.println(this.nickname + " die placement was refused");
+            Logger.log(this.nickname + " die placement was refused");
             Logger.debugPayload(payload);
             out.println(payload.toString());
         }
@@ -207,7 +207,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         try {
             this.gameController.useToolCard(id, cardIndex, data);
             payload.addProperty(JsonFields.RESULT, true);
-            Logger.println(this.nickname + " used a tool card");
+            Logger.log(this.nickname + " used a tool card");
             if (tax) {      //TODO spostare nel gameController
                 if (!gameController.getToolCards().get(cardIndex).isUsed()) {
                     this.gameController.getPlayer(id).setFavorTokens(this.gameController.getPlayer(id).getFavorTokens() - 1);
@@ -225,7 +225,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         } catch (InvalidEffectArgumentException | InvalidEffectResultException e) {
             e.printStackTrace();        // TODO Remove
             payload.addProperty(JsonFields.RESULT, false);
-            Logger.println(this.nickname + " usage of tool card was refused");
+            Logger.log(this.nickname + " usage of tool card was refused");
             Logger.debugPayload(payload);
             out.println(payload.toString());
         }
@@ -252,7 +252,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
 
     private void nextTurn() {
         this.gameController.nextTurn();
-        Logger.println(this.nickname + " has ended his turn");
+        Logger.log(this.nickname + " has ended his turn");
     }
 
     @Override
