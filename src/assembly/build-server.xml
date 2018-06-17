@@ -11,10 +11,10 @@ http://maven.apache.org/ASSEMBLY/2.0.0 ">
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/target/classes</directory>
+            <directory>${project.build.outputDirectory}</directory>
             <outputDirectory>/</outputDirectory>
             <excludes>
-                <exclude>**/it/polimi/ingsw/client/</exclude>
+                <exclude>it/polimi/ingsw/client/</exclude>
             </excludes>
         </fileSet>
     </fileSets>
@@ -24,6 +24,11 @@ http://maven.apache.org/ASSEMBLY/2.0.0 ">
             <useProjectArtifact>true</useProjectArtifact>
             <unpack>true</unpack>
             <scope>runtime</scope>
+            <unpackOptions>
+                <excludes>
+                    <exclude>it/polimi/ingsw/client/</exclude>
+                </excludes>
+            </unpackOptions>
         </dependencySet>
     </dependencySets>
 </assembly>
