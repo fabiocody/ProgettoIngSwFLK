@@ -107,7 +107,7 @@
                   <mainClass>it.polimi.ingsw.server.SagradaServer</mainClass>
                 </manifest>
               </archive>
-              <finalName>${project.artifactId}-server</finalName>
+              <finalName>${project.artifactId}-server-${project.version}</finalName>
             </configuration>
             <phase>package</phase>
             <goals>
@@ -123,7 +123,7 @@
                   <mainClass>it.polimi.ingsw.client.Client</mainClass>
                 </manifest>
               </archive>
-              <finalName>${project.artifactId}-client</finalName>
+              <finalName>${project.artifactId}-client-${project.version}</finalName>
             </configuration>
             <phase>package</phase>
             <goals>

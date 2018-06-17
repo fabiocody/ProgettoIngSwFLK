@@ -172,8 +172,8 @@ public class SagradaServer extends Observable implements Observer {
     public static void main(String[] args) {
         OptionParser parser = new OptionParser();
         parser.accepts(CLIArguments.DEBUG);
-        parser.accepts(CLIArguments.WR_TIMEOUT).withRequiredArg().required().ofType(Integer.class);
-        parser.accepts(CLIArguments.GAME_TIMEOUT).withRequiredArg().required().ofType(Integer.class);
+        parser.accepts(CLIArguments.WR_TIMEOUT).withRequiredArg().ofType(Integer.class).defaultsTo(30);
+        parser.accepts(CLIArguments.GAME_TIMEOUT).withRequiredArg().ofType(Integer.class).defaultsTo(90);
         parser.accepts(CLIArguments.PORT).withRequiredArg().ofType(Integer.class);
         try {
             OptionSet options = parser.parse(args);
@@ -187,7 +187,7 @@ public class SagradaServer extends Observable implements Observer {
             }
             SagradaServer.getInstance().start(port, wrTimerout, gameTimeout, options.has(CLIArguments.DEBUG));
         } catch (OptionException e) {
-            System.out.println("usage: sagradaserver [--debug] [--port PORT] --wr-timer Y --game-timeout Z");
+            System.out.println("usage: sagradaserver [--debug] [--port PORT] [--wr-timeout Y] [--game-timeout Z]");
         }
     }
 
