@@ -7,6 +7,10 @@ import java.util.*;
 
 public interface ServerAPI extends Remote {
 
+    static String getServerRMIName(String host, int port) throws RemoteException {
+        return "//" + host + ":" + port + "/Server";
+    }
+
     ServerAPI connect(ClientAPI client) throws RemoteException;
     void probe() throws RemoteException;
 

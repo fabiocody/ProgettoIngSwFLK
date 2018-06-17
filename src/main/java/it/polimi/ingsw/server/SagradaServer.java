@@ -3,7 +3,6 @@ package it.polimi.ingsw.server;
 import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.game.WaitingRoom;
-import it.polimi.ingsw.shared.rmi.RMINames;
 import it.polimi.ingsw.shared.rmi.ServerAPI;
 import it.polimi.ingsw.shared.util.*;
 import joptsimple.*;
@@ -30,7 +29,6 @@ public class SagradaServer extends Observable implements Observer {
     private int port;
     private boolean run = true;
     private List<GameController> gameControllers;
-    private int wrTimeout = 30;
     private int gameTimeout = 60;
 
     /**
@@ -51,10 +49,9 @@ public class SagradaServer extends Observable implements Observer {
 
     private void start(int port, int wrTimeout, int gameTimeout, boolean debugActive) {
         this.port = port;
-        this.wrTimeout = wrTimeout;
         this.gameTimeout = gameTimeout;
         Logger.setDebugActive(debugActive);
-        WaitingRoom.getInstance().setTimeout(this.wrTimeout);
+        WaitingRoom.getInstance().setTimeout(wrTimeout);
         new Thread(this::startSocketServer).start();
         this.startRMI();
     }
@@ -81,13 +78,13 @@ public class SagradaServer extends Observable implements Observer {
 
     private void startRMI() {
         try {
-            LocateRegistry.createRegistry(1099);
+            LocateRegistry.createRegistry(Constants.DEFAULT_RMI_PORT);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
         try {
             ServerAPI welcomeServer = (ServerAPI) UnicastRemoteObject.exportObject(new ServerRMIHandler(), 0);
-            Naming.rebind(RMINames.SERVER, welcomeServer);
+            Naming.rebind(ServerAPI.getServerRMIName("0.0.0.0", Constants.DEFAULT_RMI_PORT), welcomeServer);
             Logger.println("RMI server up and running");
         } catch (MalformedURLException e) {
             Logger.error("Cannot register object");

@@ -90,7 +90,7 @@ public class SocketClient extends ClientNetwork {
                 Logger.debug(inputJson.toString());
             } catch (IOException | NullPointerException e) {
                 Logger.connectionLost();
-                System.exit(Constants.INDEX_CONSTANT);
+                System.exit(Constants.EXIT_ERROR);
             }
             Methods recvMethod;
             try {
@@ -148,7 +148,7 @@ public class SocketClient extends ClientNetwork {
         String line = in.readLine();
         if (line == null) {
             Logger.connectionLost();
-            System.exit(Constants.INDEX_CONSTANT);
+            System.exit(Constants.EXIT_ERROR);
         }
         return line;
     }
