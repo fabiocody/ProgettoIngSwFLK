@@ -84,12 +84,14 @@ public class SagradaServer extends Observable implements Observer {
         }
         try {
             ServerAPI welcomeServer = (ServerAPI) UnicastRemoteObject.exportObject(new ServerRMIHandler(), 0);
-            Naming.rebind(ServerAPI.getServerRMIName("0.0.0.0", Constants.DEFAULT_RMI_PORT), welcomeServer);
+            Naming.rebind("//localhost/" + Constants.SERVER_RMI_NAME, welcomeServer);
             Logger.println("RMI server up and running");
         } catch (MalformedURLException e) {
             Logger.error("Cannot register object");
+            Logger.error("RMI server couldn't be started");
         } catch (RemoteException e) {
             Logger.error("Connection error: " + e.getMessage());
+            Logger.error("RMI server couldn't be started");
         }
     }
 

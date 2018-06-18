@@ -23,7 +23,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     @Override
     void setup() throws IOException {
         try {
-            ServerAPI welcomeServer = (ServerAPI) Naming.lookup(ServerAPI.getServerRMIName(getHost(), getPort()));
+            ServerAPI welcomeServer = (ServerAPI) Naming.lookup("//" + getHost() + "/" + Constants.SERVER_RMI_NAME);
             ClientAPI clientRemote = (ClientAPI) UnicastRemoteObject.exportObject(this, 0);
             server = welcomeServer.connect(clientRemote);
             if (server == null)
