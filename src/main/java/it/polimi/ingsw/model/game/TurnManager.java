@@ -1,8 +1,8 @@
 package it.polimi.ingsw.model.game;
 
 import it.polimi.ingsw.server.SagradaServer;
-import it.polimi.ingsw.util.Logger;
-import it.polimi.ingsw.util.NotificationsMessages;
+import it.polimi.ingsw.shared.util.Logger;
+import it.polimi.ingsw.shared.util.NotificationsMessages;
 
 import java.util.*;
 import java.util.stream.*;

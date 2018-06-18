@@ -4,7 +4,7 @@ import it.polimi.ingsw.model.dice.DiceGenerator;
 import it.polimi.ingsw.model.objectivecards.*;
 import it.polimi.ingsw.model.patterncards.PatternCardsGenerator;
 import it.polimi.ingsw.model.toolcards.*;
-import it.polimi.ingsw.util.NotificationsMessages;
+import it.polimi.ingsw.shared.util.NotificationsMessages;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -308,6 +308,7 @@ public class Game extends Observable implements Observer {
             }
         } else if (o instanceof Player) {
             if (arg != null && (arg.equals(NotificationsMessages.PLACE_DIE) || arg.equals(NotificationsMessages.SUSPENDED))) {
+                if (arg.equals(NotificationsMessages.PLACE_DIE))
                 setChanged();
                 notifyObservers(arg);
             } else if (this.arePlayersReady()) {

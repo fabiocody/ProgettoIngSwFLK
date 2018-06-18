@@ -3,9 +3,8 @@ package it.polimi.ingsw.server;
 import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.game.WaitingRoom;
-import it.polimi.ingsw.rmi.RMINames;
-import it.polimi.ingsw.rmi.ServerAPI;
-import it.polimi.ingsw.util.*;
+import it.polimi.ingsw.shared.rmi.ServerAPI;
+import it.polimi.ingsw.shared.util.*;
 import joptsimple.*;
 import java.io.IOException;
 import java.net.*;
@@ -30,7 +29,6 @@ public class SagradaServer extends Observable implements Observer {
     private int port;
     private boolean run = true;
     private List<GameController> gameControllers;
-    private int wrTimeout = 30;
     private int gameTimeout = 60;
 
     /**
@@ -51,10 +49,9 @@ public class SagradaServer extends Observable implements Observer {
 
     private void start(int port, int wrTimeout, int gameTimeout, boolean debugActive) {
         this.port = port;
-        this.wrTimeout = wrTimeout;
         this.gameTimeout = gameTimeout;
         Logger.setDebugActive(debugActive);
-        WaitingRoom.getInstance().setTimeout(this.wrTimeout);
+        WaitingRoom.getInstance().setTimeout(wrTimeout);
         new Thread(this::startSocketServer).start();
         this.startRMI();
     }
@@ -81,18 +78,20 @@ public class SagradaServer extends Observable implements Observer {
 
     private void startRMI() {
         try {
-            LocateRegistry.createRegistry(1099);
+            LocateRegistry.createRegistry(Constants.DEFAULT_RMI_PORT);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
         try {
             ServerAPI welcomeServer = (ServerAPI) UnicastRemoteObject.exportObject(new ServerRMIHandler(), 0);
-            Naming.rebind(RMINames.SERVER, welcomeServer);
+            Naming.rebind("//localhost/" + Constants.SERVER_RMI_NAME, welcomeServer);
             Logger.println("RMI server up and running");
         } catch (MalformedURLException e) {
             Logger.error("Cannot register object");
+            Logger.error("RMI server couldn't be started");
         } catch (RemoteException e) {
             Logger.error("Connection error: " + e.getMessage());
+            Logger.error("RMI server couldn't be started");
         }
     }
 
@@ -172,8 +171,8 @@ public class SagradaServer extends Observable implements Observer {
     public static void main(String[] args) {
         OptionParser parser = new OptionParser();
         parser.accepts(CLIArguments.DEBUG);
-        parser.accepts(CLIArguments.WR_TIMEOUT).withRequiredArg().required().ofType(Integer.class);
-        parser.accepts(CLIArguments.GAME_TIMEOUT).withRequiredArg().required().ofType(Integer.class);
+        parser.accepts(CLIArguments.WR_TIMEOUT).withRequiredArg().ofType(Integer.class).defaultsTo(30);
+        parser.accepts(CLIArguments.GAME_TIMEOUT).withRequiredArg().ofType(Integer.class).defaultsTo(90);
         parser.accepts(CLIArguments.PORT).withRequiredArg().ofType(Integer.class);
         try {
             OptionSet options = parser.parse(args);
@@ -187,7 +186,7 @@ public class SagradaServer extends Observable implements Observer {
             }
             SagradaServer.getInstance().start(port, wrTimerout, gameTimeout, options.has(CLIArguments.DEBUG));
         } catch (OptionException e) {
-            System.out.println("usage: sagradaserver [--debug] [--port PORT] --wr-timer Y --game-timeout Z");
+            System.out.println("usage: sagradaserver [--debug] [--port PORT] [--wr-timeout Y] [--game-timeout Z]");
         }
     }
 

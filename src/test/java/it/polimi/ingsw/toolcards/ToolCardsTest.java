@@ -8,13 +8,13 @@ import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.model.toolcards.*;
-import it.polimi.ingsw.util.*;
+import it.polimi.ingsw.shared.util.*;
 import org.junit.jupiter.api.*;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import static it.polimi.ingsw.util.JsonFields.*;
+import static it.polimi.ingsw.shared.util.JsonFields.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 

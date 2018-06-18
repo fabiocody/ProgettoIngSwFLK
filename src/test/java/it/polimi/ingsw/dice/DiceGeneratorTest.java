@@ -2,7 +2,7 @@ package it.polimi.ingsw.dice;
 
 import static org.junit.jupiter.api.Assertions.*;
 import it.polimi.ingsw.model.Colors;
-import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.shared.util.Constants;
 import org.junit.jupiter.api.*;
 import it.polimi.ingsw.model.dice.*;
 

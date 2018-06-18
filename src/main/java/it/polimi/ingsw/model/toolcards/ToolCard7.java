@@ -3,9 +3,9 @@ package it.polimi.ingsw.model.toolcards;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.game.Game;
-import it.polimi.ingsw.util.JsonFields;
-import it.polimi.ingsw.util.Methods;
-import it.polimi.ingsw.util.NotificationsMessages;
+import it.polimi.ingsw.shared.util.JsonFields;
+import it.polimi.ingsw.shared.util.Methods;
+import it.polimi.ingsw.shared.util.NotificationsMessages;
 
 
 /**

@@ -1,7 +1,6 @@
 package it.polimi.ingsw.client;
 
-import com.google.gson.JsonArray;
-import it.polimi.ingsw.util.*;
+import it.polimi.ingsw.shared.util.*;
 import joptsimple.*;
 import java.io.IOException;
 import java.util.*;
@@ -34,7 +33,7 @@ public abstract class Client implements Observer {
         } catch (IOException e) {
             Logger.error("Connection failed");
             e.printStackTrace();
-            System.exit(1);
+            System.exit(Constants.EXIT_ERROR);
         }
     }
 

@@ -5,10 +5,10 @@ import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.game.*;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.model.patterncards.*;
-import it.polimi.ingsw.rmi.GameAPI;
+import it.polimi.ingsw.shared.rmi.GameAPI;
 import it.polimi.ingsw.model.toolcards.*;
-import it.polimi.ingsw.util.*;
-import java.rmi.RemoteException;
+import it.polimi.ingsw.shared.util.*;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -184,10 +184,12 @@ public class GameController implements GameAPI, Observer {
             switch (stringArg) {
                 case NotificationsMessages.TURN_MANAGEMENT:
                 case NotificationsMessages.SUSPENDED:
-                case NotificationsMessages.PLACE_DIE:
-                case NotificationsMessages.USE_TOOL_CARD:
                     if (!getRoundTrack().isGameOver())
                         this.game.getTurnManager().subscribeToTimer(this);
+                    serverNetworks.forEach(ServerNetwork::fullUpdate);
+                    break;
+                case NotificationsMessages.PLACE_DIE:
+                case NotificationsMessages.USE_TOOL_CARD:
                     serverNetworks.forEach(ServerNetwork::fullUpdate);
                     break;
                 case NotificationsMessages.GAME_OVER:

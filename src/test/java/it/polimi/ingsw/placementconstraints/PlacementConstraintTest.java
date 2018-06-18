@@ -8,7 +8,7 @@ import it.polimi.ingsw.model.Colors;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.shared.util.Constants;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;

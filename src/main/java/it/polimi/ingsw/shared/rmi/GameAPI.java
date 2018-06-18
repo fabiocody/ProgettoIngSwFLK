@@ -1,4 +1,4 @@
-package it.polimi.ingsw.rmi;
+package it.polimi.ingsw.shared.rmi;
 
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.*;

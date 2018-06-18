@@ -1,13 +1,13 @@
 package it.polimi.ingsw.client;
 
 import com.google.gson.*;
-import it.polimi.ingsw.util.*;
+import it.polimi.ingsw.shared.util.*;
 import org.fusesource.jansi.AnsiConsole;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.*;
-import static it.polimi.ingsw.util.Constants.*;
+import static it.polimi.ingsw.shared.util.Constants.*;
 import static org.fusesource.jansi.Ansi.*;
 
 public class ClientCLI extends Client {
@@ -305,10 +305,7 @@ public class ClientCLI extends Client {
                             bufferString = stdinBuffer.toString();
                             stdinBuffer = new StringBuilder();
                         }
-                        //lastPrintedLine = "";
-                        /*Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
-                        Logger.print(method.invoke(this));*/
-                        //Logger.println();
+                        Logger.println();
                         break;
                     } else if (c == 0x7F) {
                         synchronized (stdinBufferLock) {
@@ -751,7 +748,7 @@ public class ClientCLI extends Client {
         Logger.println(finalScoresString.toString());
         Logger.println("");
         AnsiConsole.systemUninstall();
-        System.exit(0);
+        System.exit(Constants.EXIT_STATUS);
     }
 
 }

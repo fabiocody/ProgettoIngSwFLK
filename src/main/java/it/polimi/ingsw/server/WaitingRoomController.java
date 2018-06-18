@@ -1,8 +1,8 @@
 package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.model.game.*;
-import it.polimi.ingsw.rmi.WaitingRoomAPI;
-import it.polimi.ingsw.util.*;
+import it.polimi.ingsw.shared.rmi.WaitingRoomAPI;
+import it.polimi.ingsw.shared.util.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -99,10 +99,7 @@ public class WaitingRoomController implements WaitingRoomAPI, Observer {
         if (o instanceof WaitingRoom) {
             if (arg instanceof List /*&& getUuid() != null*/) {
                 Logger.debug("Updating waiting players");
-                List<String> players = ((List<Player>) arg).stream()
-                        .map(Player::getNickname)
-                        .collect(Collectors.toList());
-                forEachServerNetwork(network -> network.updateWaitingPlayers(players));
+                forEachServerNetwork(ServerNetwork::updateWaitingPlayers);
             }
         } else if (o instanceof CountdownTimer) {
             String stringArg = String.valueOf(arg);

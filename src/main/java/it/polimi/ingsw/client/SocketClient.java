@@ -1,12 +1,11 @@
 package it.polimi.ingsw.client;
 
 import com.google.gson.*;
-import it.polimi.ingsw.util.*;
+import it.polimi.ingsw.shared.util.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.*;
 
 
 /**
@@ -91,7 +90,7 @@ public class SocketClient extends ClientNetwork {
                 Logger.debug(inputJson.toString());
             } catch (IOException | NullPointerException e) {
                 Logger.connectionLost();
-                System.exit(Constants.INDEX_CONSTANT);
+                System.exit(Constants.EXIT_ERROR);
             }
             Methods recvMethod;
             try {
@@ -149,7 +148,7 @@ public class SocketClient extends ClientNetwork {
         String line = in.readLine();
         if (line == null) {
             Logger.connectionLost();
-            System.exit(Constants.INDEX_CONSTANT);
+            System.exit(Constants.EXIT_ERROR);
         }
         return line;
     }
@@ -160,8 +159,8 @@ public class SocketClient extends ClientNetwork {
     }
 
     private void sendMessage(JsonObject payload, String method) {
-        if (this.getUuid() != null)
-            payload.addProperty(JsonFields.PLAYER_ID, this.getUuid().toString());
+        if (uuid != null)
+            payload.addProperty(JsonFields.PLAYER_ID, uuid.toString());
         payload.addProperty(JsonFields.METHOD, method);
         Logger.debug("PAYLOAD " + payload);
         out.println(payload.toString());
@@ -172,14 +171,14 @@ public class SocketClient extends ClientNetwork {
      */
     @Override
     UUID addPlayer(String nickname) {
-        this.setNickname(nickname);
+        this.nickname = nickname;
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.NICKNAME, nickname);
         Logger.debug("PAYLOAD " + payload.toString());
         this.sendMessage(payload, Methods.ADD_PLAYER.getString());
         JsonObject input = this.pollResponseBuffer();
         if (input.get(JsonFields.LOGGED).getAsBoolean()) {
-            this.setUuid(UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString()));
+            uuid = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
             Logger.debug("INPUT " + input);
             if (input.get(JsonFields.RECONNECTED).getAsBoolean()) {
                 new Timer(true).schedule(new TimerTask() {
@@ -192,7 +191,7 @@ public class SocketClient extends ClientNetwork {
             } else {
                 this.rescheduleProbeTimer();
             }
-            return getUuid();
+            return uuid;
         } else {
             return null;
         }

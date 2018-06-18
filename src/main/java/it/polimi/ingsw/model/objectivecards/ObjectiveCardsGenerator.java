@@ -1,6 +1,6 @@
 package it.polimi.ingsw.model.objectivecards;
 
-import it.polimi.ingsw.util.Constants;
+import it.polimi.ingsw.shared.util.Constants;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
