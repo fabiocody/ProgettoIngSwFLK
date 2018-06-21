@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 
 /**
- * This class describes the structure and implements the method of a window pattern.
+ * This class describes the structure and implements the methods of a window pattern.
  * @author  Luca dell'Oglio
  */
 

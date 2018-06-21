@@ -13,7 +13,6 @@ public abstract class Client implements Observer {
 
     private String nickname;
     private UUID uuid;
-    private ClientNetwork network;
     private boolean logged = false;
     private boolean gameStarted = false;
     private boolean active = false;
@@ -24,12 +23,11 @@ public abstract class Client implements Observer {
     private List<String> suspendedPlayers = new ArrayList<>();
     private int favorTokens = 0;
 
-    Client(ClientNetwork network, boolean debugActive) {
+    Client(boolean debugActive) {
         Logger.setDebugActive(debugActive);
-        this.network = network;
-        this.network.addObserver(this);
+        ClientNetwork.getInstance().addObserver(this);
         try {
-            network.setup();
+            ClientNetwork.getInstance().setup();
             Logger.println("Connection established");
         } catch (IOException e) {
             Logger.error("Connection failed");
@@ -52,10 +50,6 @@ public abstract class Client implements Observer {
 
     void setUUID(UUID uuid) {
         this.uuid = uuid;
-    }
-
-    ClientNetwork getNetwork() {
-        return network;
     }
 
     boolean isLogged() {
@@ -159,21 +153,20 @@ public abstract class Client implements Observer {
                 }
             } else {
                 Scanner stdin = new Scanner(System.in);
-                do{
+                do {
                     Logger.print("Inserisci un host valido\nHost >>> ");
                     host = stdin.nextLine();
-                } while(!isValidHost(host));
+                } while (!isValidHost(host));
                 stdin.close();
             }
 
             int port = (int) options.valueOf(CLIArguments.PORT);
 
             String connection = (String) options.valueOf(CLIArguments.CONNECTION);
-            ClientNetwork clientNetwork = null;
             if (connection.equals(CLIArguments.SOCKET))
-                clientNetwork = new SocketClient(host, port, debug);
+                ClientNetwork.setInstance(new SocketClient(host, port, debug));
             else if (connection.equals(CLIArguments.RMI))
-                clientNetwork = new RMIClient(host, port, debug);
+                ClientNetwork.setInstance(new RMIClient(host, port, debug));
             else {
                 Logger.println("Invalid type of connection");
                 Logger.println(USAGE_STRING);
@@ -182,7 +175,7 @@ public abstract class Client implements Observer {
 
             String iface = (String) options.valueOf(CLIArguments.INTERFACE);
             if (iface.equals(CLIArguments.CLI)) {
-                new ClientCLI(clientNetwork, debug).start();
+                new ClientCLI(debug).start();
             } else if (iface.equals(CLIArguments.GUI)) {
                 Application.launch(ClientGUIApplication.class);
             } else {

@@ -4,6 +4,10 @@ import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.patterncards.Cell;
 import java.util.List;
 
+/**
+ * This class describes the constraint of having to place a die adjacent to an already placed die.
+ * @author  Team
+ */
 
 public class PositionConstraint extends Constraint {
 

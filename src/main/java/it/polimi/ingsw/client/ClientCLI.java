@@ -10,7 +10,6 @@ import java.util.stream.*;
 import static it.polimi.ingsw.shared.util.Constants.*;
 import static org.fusesource.jansi.Ansi.*;
 
-
 public class ClientCLI extends Client {
 
     private String ttyConfig;
@@ -20,22 +19,25 @@ public class ClientCLI extends Client {
     private final Object stdinBufferLock = new Object();
 
     private boolean stopAsyncInput = false;
-    private boolean showPrompt = true;
     private boolean bypassWaitingRoom = false;
     private int instructionIndex = INDEX_CONSTANT;
 
     private String wrTimeout;
     private String wrPlayers;
     private String gameTimeout = "00";
-    private int cardIndex = INDEX_CONSTANT;
 
     private int draftPoolLength;
     private long roundTrackLength = 0;
 
+    private String input = "";
     private String privateObjectiveCard;
 
-    ClientCLI(ClientNetwork network, boolean debugActive) {
-        super(network, debugActive);
+    private boolean dieAlreadyPlaced = false;
+    private boolean toolCardAlreadyUsed = false;
+    private boolean turnOver = false;
+
+    ClientCLI(boolean debugActive) {
+        super(debugActive);
     }
 
     void start() {
@@ -44,45 +46,17 @@ public class ClientCLI extends Client {
         try {
             this.stdin = new BufferedReader(new InputStreamReader(System.in));
             do addPlayer(); while (!this.isLogged());
-            String input = "";
+
             if (!bypassWaitingRoom) {
                 do {
                     input = asyncInput("waitingRoomMessage");
                     if (input.equalsIgnoreCase("exit")) throw new InterruptedException();
                 } while (!stopAsyncInput && !bypassWaitingRoom);
             }
-            if (!this.isPatternChosen()) {
-                Integer patternIndex = INDEX_CONSTANT;
-                Logger.println("");
-                do {
-                    input = input("Scegli la tua carta Schema [1-4] >>>");
-                    try {
-                        patternIndex = Integer.valueOf(input);
-                    } catch (NumberFormatException e) {
-                        continue;
-                    }
-                } while (patternIndex <= 0 || patternIndex > 4);
-                this.getNetwork().choosePattern(patternIndex - 1);
-                this.setPatternChosen(true);
-                Logger.println("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
-                while (!this.isGameStarted()) Thread.sleep(10);
-            }
-            while (!this.isGameOver()) {
-                boolean dieAlreadyPlaced = false;
-                boolean toolCardAlreadyUsed = false;
-                int draftPoolIndex = INDEX_CONSTANT;
-                int x = INDEX_CONSTANT;
-                int y = INDEX_CONSTANT;
-                int roundTrackIndex = INDEX_CONSTANT;
-                int delta = INDEX_CONSTANT;
-                int newValue = INDEX_CONSTANT;
-                int fromCellX = INDEX_CONSTANT;
-                int fromCellY = INDEX_CONSTANT;
-                int toCellX = INDEX_CONSTANT;
-                int toCellY = INDEX_CONSTANT;
-                int continueIndex = INDEX_CONSTANT;
-                boolean stop = false;
 
+            if (!this.isPatternChosen()) this.choosePatternMessage();
+
+            while (!this.isGameOver()) {
                 if (!isGameOver()) {
                     this.getSuspendedPlayers().stream()
                             .reduce((s, r) -> s + ", " + r)
@@ -92,7 +66,7 @@ public class ClientCLI extends Client {
                     while (isSuspended() && !input.equals(getNickname())) {
                         input = asyncInput("reconnectionPrompt");
                         if (input.equals(getNickname())) {
-                            this.getNetwork().addPlayer(getNickname());
+                            ClientNetwork.getInstance().addPlayer(getNickname());
                         }
                     }
                 }
@@ -101,253 +75,40 @@ public class ClientCLI extends Client {
 
                 if (!isGameOver()) {
                     Logger.println("È il tuo turno!");
+                    this.turnOver = false;
+                    this.dieAlreadyPlaced = false;
+                    this.toolCardAlreadyUsed = false;
                     do {
                         try {
-                            if (showPrompt) {
-                                cardIndex = INDEX_CONSTANT;
-                                Logger.println("Premi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
-                                        "passare il turno.");
-                                Logger.println("Scegli cosa fare [1-3]");
-                                input = asyncInput("timerPrompt");
-                            }
+                            this.chooseActionMessage();
                             try {
-                                if (showPrompt) this.instructionIndex = Integer.valueOf(input);
-                                if (instructionIndex == 1) {
-                                    if (dieAlreadyPlaced) {
-                                        Logger.println("Hai già piazzato un dado questo turno!");
-                                        this.instructionIndex = INDEX_CONSTANT;
-                                    } else {
-                                        do {
-                                            draftPoolIndex = draftPoolLength;
-                                            Logger.println("Quale dado vuoi piazzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE);
-                                            input = asyncInput("timerPrompt");
-                                            try {
-                                                draftPoolIndex = Integer.valueOf(input) - 1;
-                                                if (draftPoolIndex == -1) throw new CancelException();
-                                            } catch (NumberFormatException e) {
-                                                Logger.println("Indice non valido\n");
-                                            }
-                                        } while (draftPoolIndex < 0 || draftPoolIndex >= draftPoolLength);
-                                        do {
-                                            Logger.println("In quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE);
-                                            input = asyncInput("timerPrompt");
-                                            try {
-                                                x = Integer.valueOf(input) - 1;
-                                                if (x == -1) throw new CancelException();
-                                            } catch (NumberFormatException e) {
-                                                Logger.println("Indice non valido\n");
-                                            }
-                                        } while (x < 0 || x >= NUMBER_OF_PATTERN_COLUMNS);
-                                        do {
-                                            Logger.println("In quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE);
-                                            input = asyncInput("timerPrompt");
-                                            try {
-                                                y = Integer.valueOf(input) - 1;
-                                                if (y == -1) throw new CancelException();
-                                            } catch (NumberFormatException e) {
-                                                Logger.println("Indice non valido\n");
-                                            }
-                                        } while (y < 0 || y >= NUMBER_OF_PATTERN_ROWS);
-                                        if (this.getNetwork().placeDie(draftPoolIndex, x, y)) {
-                                            Logger.println("Dado piazzato\n");
-                                            dieAlreadyPlaced = true;
-                                        } else {
-                                            Logger.println("Posizionamento invalido\n");
-                                        }
-                                        this.instructionIndex = INDEX_CONSTANT;
-                                    }
-                                } else if (instructionIndex == 2) {  //Tool card
-                                    if (toolCardAlreadyUsed) {
-                                        Logger.println("Hai già usato una carta strumento questo turno!\n");
-                                        this.instructionIndex = INDEX_CONSTANT;
-                                    }
-                                    if (showPrompt) {
-                                        do {
-                                            Logger.println("Quale carta strumento vuoi usare [1-3]?");
-                                            input = asyncInput("timerPrompt");
-                                            try {
-                                                cardIndex = Integer.valueOf(input) - 1;
-                                                if (cardIndex == -1) throw new CancelException();
-                                            } catch (NumberFormatException e) {
-                                                Logger.println("Indice non valido\n");
-                                                continue;
-                                            }
-                                        } while (cardIndex < 0 || cardIndex >= 3);
-                                    }
-                                    JsonObject requiredData = this.getNetwork().requiredData(cardIndex);
-                                    requiredData.remove("method");
-                                    if (requiredData.get("data").getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS)) {
-                                        Logger.println("Non hai abbastanza segnalini favore per utilizzare questa carta strumento");
-                                        instructionIndex = INDEX_CONSTANT;
-                                        showPrompt = true;
-                                    } else {
-                                        if (requiredData.get("data").getAsJsonObject().has("impossibleToUseToolCard")) {
-                                            Logger.println("Non puoi utilizzare questa carta strumento: " + requiredData.get("data").getAsJsonObject().get("impossibleToUseToolCard").getAsString());
-                                            instructionIndex = INDEX_CONSTANT;
-                                            showPrompt = true;
-                                        } else {
-                                            if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP)) {
-                                                do {
-                                                    Logger.println("Vuoi continuare [si 1/no 0]?");
-                                                    input = asyncInput("timerPrompt");
-                                                    try {
-                                                        continueIndex = Integer.valueOf(input);
-                                                        if (continueIndex == 1) stop = false;
-                                                        else stop = true;
-                                                        requiredData.get("data").getAsJsonObject().addProperty(JsonFields.STOP, stop);
-                                                    } catch (NumberFormatException e) {
-                                                        Logger.println("Indice non valido\n");
-                                                    }
-                                                } while (!(continueIndex == 1 || continueIndex == 0));
-                                            }
-                                            if (continueIndex != 0) {
-                                                if (requiredData.get("data").getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) {
-                                                    do {
-                                                        Logger.println("Quale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]?");
-                                                        input = asyncInput("timerPrompt");
-                                                        try {
-                                                            draftPoolIndex = Integer.valueOf(input) - 1;
-                                                            if (draftPoolIndex == -1) throw new CancelException();
-                                                            requiredData.get("data").getAsJsonObject().addProperty("draftPoolIndex", draftPoolIndex);
-                                                        } catch (NumberFormatException e) {
-                                                            Logger.println("Indice non valido\n");
-                                                        }
-                                                    } while (draftPoolIndex < 0 || draftPoolIndex >= draftPoolLength);
-                                                }
-                                                if (requiredData.get("data").getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX)) {
-                                                    do {
-                                                        Logger.println("Quale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]?");
-                                                        input = asyncInput("timerPrompt");
-                                                        try {
-                                                            roundTrackIndex = Integer.valueOf(input) - 1;
-                                                            if (roundTrackIndex == -1) throw new CancelException();
-                                                            requiredData.get("data").getAsJsonObject().addProperty("roundTrackIndex", roundTrackIndex);
-                                                        } catch (NumberFormatException e) {
-                                                            Logger.println("Indice non valido\n");
-                                                        }
-                                                    }
-                                                    while (roundTrackIndex < 0 || roundTrackIndex >= roundTrackLength);
-                                                }
-                                                if (requiredData.get("data").getAsJsonObject().has(JsonFields.DELTA)) {
-                                                    do {
-                                                        Logger.println("Vuoi aunmentare[1] o diminuire[0] il valore del dado?");
-                                                        input = asyncInput("timerPrompt");
-                                                        try {
-                                                            delta = Integer.valueOf(input);
-                                                            if (delta == 0) delta = -1;
-                                                            requiredData.get("data").getAsJsonObject().addProperty("delta", delta);
-                                                        } catch (NumberFormatException e) {
-                                                            Logger.println("Indice non valido\n");
-                                                        }
-                                                    } while (!(delta == 1 || delta == -1));
-                                                }
-                                                if (requiredData.get("data").getAsJsonObject().has(JsonFields.NEW_VALUE)) {
-                                                    do {
-                                                        Logger.println("Quale valore vuoi assegnare al dado[1-6]?");
-                                                        input = asyncInput("timerPrompt");
-                                                        try {
-                                                            newValue = Integer.valueOf(input);
-                                                            if (newValue == 0) throw new CancelException();
-                                                            requiredData.get("data").getAsJsonObject().addProperty("newValue", newValue);
-                                                        } catch (NumberFormatException e) {
-                                                            Logger.println("Indice non valido\n");
-                                                        }
-                                                    } while (newValue < 1 || newValue > 6);
-                                                }
-                                                if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_X)) {
-                                                    do {
-                                                        Logger.println("Da quale colonna vuoi muoverlo [1-5]?");
-                                                        input = asyncInput("timerPrompt");
-                                                        try {
-                                                            fromCellX = Integer.valueOf(input) - 1;
-                                                            if (fromCellX == -1) throw new CancelException();
-                                                            requiredData.get("data").getAsJsonObject().addProperty("fromCellX", fromCellX);
-                                                        } catch (NumberFormatException e) {
-                                                            Logger.println("Indice non valido\n");
-                                                        }
-                                                    } while (fromCellX < 0 || fromCellX >= NUMBER_OF_PATTERN_COLUMNS);
-                                                }
-                                                if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_Y)) {
-                                                    do {
-                                                        Logger.println("Da quale riga vuoi muoverlo [1-4]?");
-                                                        input = asyncInput("timerPrompt");
-                                                        try {
-                                                            fromCellY = Integer.valueOf(input) - 1;
-                                                            if (fromCellY == -1) throw new CancelException();
-                                                            requiredData.get("data").getAsJsonObject().addProperty("fromCellY", fromCellY);
-                                                        } catch (NumberFormatException e) {
-                                                            Logger.println("Indice non valido\n");
-                                                        }
-                                                    } while (fromCellY < 0 || fromCellY >= NUMBER_OF_PATTERN_ROWS);
-                                                }
-                                                if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_X)) {
-                                                    do {
-                                                        Logger.println("In quale colonna vuoi piazzarlo [1-5]?");
-                                                        input = asyncInput("timerPrompt");
-                                                        try {
-                                                            toCellX = Integer.valueOf(input) - 1;
-                                                            if (toCellX == -1) throw new CancelException();
-                                                            requiredData.get("data").getAsJsonObject().addProperty("toCellX", toCellX);
-                                                        } catch (NumberFormatException e) {
-                                                            Logger.println("Indice non valido\n");
-                                                        }
-                                                    } while (toCellX < 0 || toCellX >= NUMBER_OF_PATTERN_COLUMNS);
-                                                }
-                                                if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_Y)) {
-                                                    do {
-                                                        Logger.println("In quale riga vuoi piazzarlo [1-4]?");
-                                                        input = asyncInput("timerPrompt");
-                                                        try {
-                                                            toCellY = Integer.valueOf(input) - 1;
-                                                            if (toCellY == -1) throw new CancelException();
-                                                            requiredData.get("data").getAsJsonObject().addProperty("toCellY", toCellY);
-                                                        } catch (NumberFormatException e) {
-                                                            Logger.println("Indice non valido\n");
-                                                        }
-                                                    } while (toCellY < 0 || toCellY >= NUMBER_OF_PATTERN_ROWS);
-                                                }
-                                                if (this.getNetwork().useToolCard(cardIndex, requiredData.get("data").getAsJsonObject())) {
-                                                    if (requiredData.get("data").getAsJsonObject().has(JsonFields.CONTINUE)) {
-                                                        toolCardAlreadyUsed = false;
-                                                        showPrompt = false;
-                                                    } else {
-                                                        Logger.println("Carta strumento usata con successo\n");
-                                                        toolCardAlreadyUsed = true;
-                                                        showPrompt = true;
-                                                    }
-                                                    if (requiredData.get("data").getAsJsonObject().has(JsonFields.CONTINUE)) {
-                                                        this.instructionIndex = 2;
-                                                    } else {
-                                                        this.instructionIndex = INDEX_CONSTANT;
-                                                    }
-                                                } else {
-                                                    Logger.println("Carta strumento non usata");
-                                                    this.instructionIndex = 2;
-                                                    toolCardAlreadyUsed = false;
-                                                    showPrompt = false;
-                                                }
-                                            } else {
-                                                this.getNetwork().useToolCard(cardIndex, requiredData.get("data").getAsJsonObject());
-                                                toolCardAlreadyUsed = true;
-                                                showPrompt = true;
-                                                instructionIndex = INDEX_CONSTANT;
-                                            }
-                                        }
-                                    }
-                                    continueIndex = INDEX_CONSTANT;
-                                } else if (instructionIndex == 3) {
-                                    this.setActive(false);
-                                    this.getNetwork().nextTurn();
+                                this.instructionIndex = Integer.valueOf(input);
+
+                                switch (instructionIndex){
+                                    case 1: //Place Die
+                                        if (this.dieAlreadyPlaced) Logger.println("\nHai già piazzato un dado questo turno!");
+                                        else this.placeDieMove();
+                                        break;
+                                    case 2:
+                                        if (toolCardAlreadyUsed) Logger.println("\nHai già usato una carta strumento questo turno!");
+                                        else this.useToolCardMove();
+                                        break;
+                                    case 3:
+                                        this.setActive(false);
+                                        ClientNetwork.getInstance().nextTurn();
+                                        this.turnOver = true;
+                                        break;
+                                    default:
+                                        Logger.println("\nMossa invalida.");
+                                        break;
                                 }
                             } catch (NumberFormatException e) {
                                 if (isSuspended()) break;
-                            } 
+                            }
                         } catch (CancelException e) {
-                            Logger.println("Mossa annullata.");
-                            showPrompt = true;
-                            instructionIndex = INDEX_CONSTANT;
+                            Logger.println("\nMossa annullata.");
                         }
-                    } while (this.instructionIndex < 1 || this.instructionIndex > 3);
+                    } while (!turnOver);
                 } /*else {
                     Logger.println("\nLa partita è finita!");
                 }*/
@@ -358,12 +119,158 @@ public class ClientCLI extends Client {
         } finally {
             Logger.println("");
             try {
-                getNetwork().teardown();
+                ClientNetwork.getInstance().teardown();
                 AnsiConsole.systemUninstall();
             } catch (IOException e) {
                 Logger.error("Exception raised while tearing down");
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void choosePatternMessage() throws IOException, InterruptedException{
+        try {
+            Integer patternIndex = INDEX_CONSTANT;
+            Logger.println("");
+            do {
+                this.input = input("Scegli la tua carta Schema [1-4] >>>");
+                try {
+                    patternIndex = Integer.valueOf(input);
+                } catch (NumberFormatException e) {
+                    continue;
+                }
+            } while (patternIndex <= 0 || patternIndex > 4);
+            ClientNetwork.getInstance().choosePattern(patternIndex - 1);
+            this.setPatternChosen(true);
+            Logger.println("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
+            while (!this.isGameStarted()) Thread.sleep(10);
+        } catch (IOException | InterruptedException e){
+            throw e;
+        }
+    }
+
+    private void chooseActionMessage() throws IOException{
+        try {
+            Logger.println("\nPremi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
+                    "passare il turno.");
+            Logger.println("Scegli cosa fare [1-3]");
+            input = asyncInput("timerPrompt");
+        } catch (IOException e){
+            throw e;
+        }
+    }
+
+    private void placeDieMove() throws IOException, CancelException {
+        int draftPoolIndex;
+        int x;
+        int y;
+        try {
+            draftPoolIndex = this.getInputIndex("\nQuale dado vuoi piazzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE,0,draftPoolLength,true);
+            x = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_COLUMNS,true);
+            y = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_ROWS,true);
+        } catch (IOException | CancelException e){
+            throw e;
+        }
+        if (ClientNetwork.getInstance().placeDie(draftPoolIndex,x,y)) {
+            Logger.println("Dado piazzato\n");
+            this.dieAlreadyPlaced = true;
+        } else {
+            Logger.println("Posizionamento invalido\n");
+            this.dieAlreadyPlaced = false;
+        }
+    }
+
+    private boolean requireData (JsonObject requiredData, int cardIndex) throws CancelException, IOException{
+
+        int draftPoolIndex;
+        int roundTrackIndex;
+        int delta;
+        int newValue;
+        int fromCellX;
+        int fromCellY;
+        int toCellX;
+        int toCellY;
+
+        try{
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) {
+                draftPoolIndex = this.getInputIndex("\nQuale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE, 0, draftPoolLength,true);
+                requiredData.get("data").getAsJsonObject().addProperty("draftPoolIndex", draftPoolIndex);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX)) {
+                roundTrackIndex = this.getInputIndex("\nQuale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]? " + EXIT_MESSAGE, 0, (int) roundTrackLength,true);
+                requiredData.get("data").getAsJsonObject().addProperty("roundTrackIndex", roundTrackIndex);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.DELTA)) {
+                delta = this.getInputIndex("\nVuoi aumentare[1] o diminuire[-1] il valore del dado? " + EXIT_MESSAGE);
+                requiredData.get("data").getAsJsonObject().addProperty("delta", delta);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.NEW_VALUE)){
+                newValue = this.getInputIndex("\nQuale valore vuoi assegnare al dado[1-6]? " + EXIT_MESSAGE,1,7,false);
+                requiredData.get("data").getAsJsonObject().addProperty("newValue",newValue);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_X)) {
+                fromCellX = this.getInputIndex("\nDa quale colonna vuoi muoverlo [1-5]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_COLUMNS,true);
+                requiredData.get("data").getAsJsonObject().addProperty("fromCellX",fromCellX);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_Y)) {
+                fromCellY = this.getInputIndex("\nDa quale riga vuoi muoverlo [1-4]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_ROWS,true);
+                requiredData.get("data").getAsJsonObject().addProperty("fromCellY",fromCellY);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_X)) {
+                toCellX = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_COLUMNS,true);
+                requiredData.get("data").getAsJsonObject().addProperty("toCellX",toCellX);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_Y)) {
+                toCellY = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_ROWS,true);
+                requiredData.get("data").getAsJsonObject().addProperty("toCellY",toCellY);
+            }
+
+            if(ClientNetwork.getInstance().useToolCard(cardIndex,requiredData.get("data").getAsJsonObject())) {
+                Logger.println("\nCarta strumento usata con successo\n");
+                this.toolCardAlreadyUsed = true;
+                return true;
+            }
+            else {
+                Logger.println("\nCarta strumento non usata\n");
+                this.toolCardAlreadyUsed = false;
+                return false;
+            }
+
+        } catch (IOException | CancelException e) {
+            throw e;
+        }
+    }
+
+    private void useToolCardMove() throws IOException, CancelException {
+
+        int cardIndex;
+        boolean secondMove;
+        JsonObject requiredData;
+        boolean valid;
+        try {
+            cardIndex = this.getInputIndex("\nQuale carta strumento vuoi usare [1-3]? " + EXIT_MESSAGE, 0, 3,true);
+            requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
+            requiredData.remove("method");
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS)) {
+                Logger.println("\nNon hai abbastanza segnalini favore per utilizzare questa carta strumento");
+            } else {
+                if (requiredData.get("data").getAsJsonObject().has("impossibleToUseToolCard")) {
+                    Logger.println("\nNon puoi utilizzare questa carta strumento: " + requiredData.get("data").getAsJsonObject().get("impossibleToUseToolCard").getAsString());
+                } else {
+                    valid = this.requireData(requiredData,cardIndex);
+                    if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE) && valid) {
+                        secondMove = this.getInputBool("\nVuoi continuare [Sì 1/No 0]? ");
+                        if(secondMove) {
+                            requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
+                            requiredData.remove("method");
+                            this.requireData(requiredData,cardIndex);
+                        }
+                    }
+                }
+            }
+        }
+        catch (IOException | CancelException e) {
+            throw e;
         }
     }
 
@@ -435,6 +342,64 @@ public class ClientCLI extends Client {
         return bufferString;
     }
 
+    private int getInputIndex (String cliMessage, int lowerBound, int higherBound, boolean scale) throws CancelException, IOException {
+        int index = Constants.INDEX_CONSTANT;
+        int cancelValue = 0;
+        String userInput;
+        do {
+            try {
+                Logger.println(cliMessage);
+                userInput = asyncInput("timerPrompt");
+                index = Integer.valueOf(userInput);
+                if (scale){
+                    index -= 1;
+                    cancelValue -= 1;
+                }
+                if (index == cancelValue) throw new CancelException();
+            } catch (NumberFormatException e) {
+                Logger.println("Indice non valido\n");
+            } catch (CancelException | IOException e) {
+                throw e;
+            }
+        } while (index < lowerBound || index >= higherBound);
+        return index;
+    }
+
+    private int getInputIndex (String cliMessage) throws CancelException, IOException{
+        int index = Constants.INDEX_CONSTANT;
+        String userInput;
+        do {
+            try {
+                Logger.println(cliMessage);
+                userInput = asyncInput("timerPrompt");
+                index = Integer.valueOf(userInput);
+                if (index == 0) throw new CancelException();
+            } catch (NumberFormatException e) {
+                Logger.println("Indice non valido\n");
+            } catch (CancelException | IOException e) {
+                throw e;
+            }
+        } while (!(index == 1|| index == -1));
+        return index;
+    }
+
+    private boolean getInputBool (String cliMessage) throws IOException {
+        int index = Constants.INDEX_CONSTANT;
+        String userInput;
+        do {
+            try {
+                Logger.println(cliMessage);
+                userInput = asyncInput("timerPrompt");
+                index = Integer.valueOf(userInput);
+            } catch (NumberFormatException e) {
+                Logger.println("Indice non valido\n");
+            } catch (IOException e) {
+                throw e;
+            }
+        } while (!(index == 0|| index == 1));
+        return index == 1;
+    }
+
     /**
      * This method is used to put the terminal in raw mode, in order to simultaneously read from stdin and write to stdout.
      *
@@ -487,7 +452,7 @@ public class ClientCLI extends Client {
     private void addPlayer() throws IOException {
         String nickname = this.input("Nickname >>>");
         this.setNickname(nickname);
-        setUUID(this.getNetwork().addPlayer(this.getNickname()));
+        setUUID(ClientNetwork.getInstance().addPlayer(this.getNickname()));
         setLogged(this.getUUID() != null);
         //if (isLogged()) Logger.println("Login riuscito!");
         if (!isLogged()) {
@@ -696,7 +661,7 @@ public class ClientCLI extends Client {
             JsonObject toolCard = toolCards.get(i).getAsJsonObject();
             toolCardsString
                     .append("Carta strumento ")
-                    .append(i)
+                    .append(i+1)
                     .append(": ")
                     .append(toolCard.get(JsonFields.NAME).getAsString())
                     .append("\nEffetto: ")

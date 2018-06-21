@@ -4,6 +4,10 @@ import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.patterncards.Cell;
 import it.polimi.ingsw.shared.util.Constants;
 
+/**
+ * This class describes the constraint of having to place the die on the border of the grid when the grid is empty
+ * @author  Team
+ */
 
 public class BorderConstraint extends Constraint {
 

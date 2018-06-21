@@ -4,8 +4,9 @@ import com.google.gson.*;
 import it.polimi.ingsw.shared.rmi.*;
 import it.polimi.ingsw.shared.util.*;
 import java.io.*;
-import java.net.MalformedURLException;
+import java.net.*;
 import java.rmi.*;
+import java.rmi.registry.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
@@ -23,7 +24,10 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     @Override
     void setup() throws IOException {
         try {
-            ServerAPI welcomeServer = (ServerAPI) Naming.lookup("//" + getHost() + "/" + Constants.SERVER_RMI_NAME);
+            System.setProperty("java.rmi.server.hostname", getHost());
+            Registry registry = LocateRegistry.getRegistry(getHost(), getPort());
+            ServerAPI welcomeServer = (ServerAPI) registry.lookup(Constants.SERVER_RMI_NAME);
+            //ServerAPI welcomeServer = (ServerAPI) Naming.lookup("//" + getHost() + "/" + Constants.SERVER_RMI_NAME);
             ClientAPI clientRemote = (ClientAPI) UnicastRemoteObject.exportObject(this, 0);
             server = welcomeServer.connect(clientRemote);
             if (server == null)
@@ -47,7 +51,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             uuid = server.addPlayer(nickname);
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
         return uuid;
     }
@@ -57,7 +61,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             server.choosePattern(patternIndex);
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
     }
 
@@ -66,7 +70,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             return server.placeDie(draftPoolIndex, x, y);
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
             return false;
         }
     }
@@ -76,7 +80,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             server.nextTurn();
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
     }
 
@@ -85,7 +89,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             return server.requiredData(cardIndex);
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
             return null;
         }
     }
@@ -95,7 +99,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             return server.useToolCard(cardIndex, requiredData);
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
             return false;
         }
     }
@@ -105,13 +109,14 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             server.probe();
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
         this.rescheduleProbeTimer();
     }
 
-    private void connectionError() {
+    private void connectionError(Throwable e) {
         Logger.connectionLost(nickname);
+        e.printStackTrace();
         System.exit(Constants.EXIT_ERROR);
     }
 

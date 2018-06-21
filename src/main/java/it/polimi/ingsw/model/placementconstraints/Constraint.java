@@ -7,10 +7,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This class describes the structure and implements the methods of a Constraint.
+ * @author  Luca dell'Oglio
+ */
 
 public class Constraint implements PlacementConstraint {
 
     private PlacementConstraint addedConstraint;
+
+    /**
+     * @param   p the constraint to be added
+     * @author  Team
+     */
 
     public Constraint(PlacementConstraint p){
         this.addedConstraint = p;
@@ -20,6 +29,12 @@ public class Constraint implements PlacementConstraint {
     public boolean checkConstraint(Cell[] grid, int position, Die d) {
         return addedConstraint.checkConstraint(grid, position, d);
     }
+
+    /**
+     * @param   position a position on the <code>grid</code> of a <code>WindowPattern</code>
+     * @return  the valid placement indexes for <code>position</code>
+     * @author  Team
+     */
 
     public static List<Integer> validPositions(int position){
         List<Integer> list = new ArrayList<>();
@@ -48,6 +63,12 @@ public class Constraint implements PlacementConstraint {
         }
         return list;
     }
+
+    /**
+     * @param   position a position on the <code>grid</code> of a <code>WindowPattern</code>
+     * @return  the indexes of the orthogonally adjacent cells to the cell in <code>position</code>
+     * @author  Team
+     */
 
     public static List<Integer> validOrthogonalPositions(int position) {
         List<Integer> list = validPositions(position);

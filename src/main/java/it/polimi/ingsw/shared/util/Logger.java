@@ -1,8 +1,9 @@
 package it.polimi.ingsw.shared.util;
 
 import com.google.gson.JsonObject;
-
 import java.time.LocalDateTime;
+import static org.fusesource.jansi.Ansi.ansi;
+
 
 public class Logger {
 
@@ -41,7 +42,12 @@ public class Logger {
     }
 
     public static void error(String message) {
-        System.err.println("[ERROR] " + message);
+        String output;
+        if (isDebugActive())
+            output = "[ERROR " + LocalDateTime.now() + "] " + message;
+        else
+            output = "[ERROR] " + message;
+        System.err.println(ansi().fgRed().a(output).reset());
     }
 
     public static void connectionLost(String nickname) {
