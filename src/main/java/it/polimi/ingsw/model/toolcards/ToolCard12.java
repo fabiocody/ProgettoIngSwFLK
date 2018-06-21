@@ -68,7 +68,7 @@ public class ToolCard12 extends ToolCard {
      * @return JsonObject containing the required fields filled with momentary constants
      */
     @Override
-    public JsonObject requiredData() {   //TODO decidere colore tracciato round
+    public JsonObject requiredData() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
         JsonObject data = new JsonObject();

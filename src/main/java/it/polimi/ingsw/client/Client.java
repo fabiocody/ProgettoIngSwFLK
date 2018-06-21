@@ -1,6 +1,7 @@
 package it.polimi.ingsw.client;
 
 import it.polimi.ingsw.shared.util.*;
+import javafx.application.Application;
 import joptsimple.*;
 import java.io.IOException;
 import java.util.*;
@@ -180,14 +181,15 @@ public abstract class Client implements Observer {
             }
 
             String iface = (String) options.valueOf(CLIArguments.INTERFACE);
-            if (!(iface.equals(CLIArguments.CLI) || iface.equals(CLIArguments.GUI))) {
+            if (iface.equals(CLIArguments.CLI)) {
+                new ClientCLI(clientNetwork, debug).start();
+            } else if (iface.equals(CLIArguments.GUI)) {
+                Application.launch(ClientGUIApplication.class);
+            } else {
                 Logger.println("Invalid type of interface");
                 Logger.println(USAGE_STRING);
                 System.exit(Constants.EXIT_ERROR);
             }
-
-            Client client = new ClientCLI(clientNetwork, debug);
-            client.start();
 
         } catch (OptionException e) {
             e.printStackTrace();
