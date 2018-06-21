@@ -15,9 +15,11 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     ClientAPI client;
 
-    ServerRMIHandler(ClientAPI client) {
+    private ServerRMIHandler(ClientAPI client) {
+        System.setProperty("java.rmi.server.useCodebaseOnly", String.valueOf(false));
         this.client = client;
         if (this.client != null) WaitingRoomController.getInstance().addServerNetwork(this);
+        //if (clientHostname != null) System.setProperty("java.rmi.server.hostname", clientHostname);
     }
 
     ServerRMIHandler() {
@@ -33,6 +35,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
             return (ServerAPI) UnicastRemoteObject.exportObject((ServerAPI) remoteServer, 0);
         } catch (RemoteException e) {
             Logger.error("Cannot export new ServerAPI");
+            e.printStackTrace();
             return null;
         }
     }
@@ -127,7 +130,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
         return payload;
     }
@@ -138,7 +141,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
         return payload;
     }
@@ -149,7 +152,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
         return payload;
     }
@@ -160,7 +163,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
         return payload;
     }
@@ -171,7 +174,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
         return payload;
     }
@@ -182,7 +185,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
         return payload;
     }
@@ -193,7 +196,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
         return payload;
     }
@@ -204,7 +207,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
         return payload;
     }
@@ -215,7 +218,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
         return payload;
     }
@@ -226,7 +229,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
         return payload;
     }
@@ -237,7 +240,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
         return payload;
     }
@@ -248,7 +251,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
         return payload;
     }
@@ -258,7 +261,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.probe();
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
     }
 
@@ -268,8 +271,9 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         Thread.currentThread().interrupt();
     }
 
-    private void connectionError() {
+    private void connectionError(Throwable e) {
         Logger.connectionLost(nickname);
+        e.printStackTrace();
         this.onUserDisconnection();
     }
 

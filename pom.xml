@@ -105,7 +105,7 @@
               <descriptors>
                 <descriptor>src/assembly/build-server.xml</descriptor>
               </descriptors>
-              <finalName>${project.artifactId}-server-${project.version}</finalName>
+              <finalName>LM_13_server</finalName>
             </configuration>
             <phase>package</phase>
             <goals>
@@ -124,7 +124,7 @@
               <descriptors>
                 <descriptor>src/assembly/build-client.xml</descriptor>
               </descriptors>
-              <finalName>${project.artifactId}-client-${project.version}</finalName>
+              <finalName>LM_13_client</finalName>
             </configuration>
             <phase>package</phase>
             <goals>

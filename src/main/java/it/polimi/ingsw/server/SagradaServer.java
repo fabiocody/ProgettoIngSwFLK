@@ -1,16 +1,13 @@
 package it.polimi.ingsw.server;
 
-import it.polimi.ingsw.model.game.Game;
-import it.polimi.ingsw.model.game.Player;
-import it.polimi.ingsw.model.game.WaitingRoom;
+import it.polimi.ingsw.model.game.*;
 import it.polimi.ingsw.shared.rmi.ServerAPI;
 import it.polimi.ingsw.shared.util.*;
 import joptsimple.*;
 import java.io.IOException;
 import java.net.*;
-import java.rmi.Naming;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
+import java.rmi.*;
+import java.rmi.registry.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.*;
@@ -78,18 +75,16 @@ public class SagradaServer extends Observable implements Observer {
 
     private void startRMI() {
         try {
-            LocateRegistry.createRegistry(Constants.DEFAULT_RMI_PORT);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        try {
+            System.setProperty("java.rmi.server.hostname", "192.168.1.7");
+            Registry registry = LocateRegistry.createRegistry(Constants.DEFAULT_RMI_PORT);
             ServerAPI welcomeServer = (ServerAPI) UnicastRemoteObject.exportObject(new ServerRMIHandler(), 0);
-            Naming.rebind("//localhost/" + Constants.SERVER_RMI_NAME, welcomeServer);
+            registry.rebind(Constants.SERVER_RMI_NAME, welcomeServer);
+            //Naming.rebind("//localhost/" + Constants.SERVER_RMI_NAME, welcomeServer);
             Logger.println("RMI server up and running");
-        } catch (MalformedURLException e) {
+        } /*catch (MalformedURLException e) {
             Logger.error("Cannot register object");
             Logger.error("RMI server couldn't be started");
-        } catch (RemoteException e) {
+        }*/ catch (RemoteException e) {
             Logger.error("Connection error: " + e.getMessage());
             Logger.error("RMI server couldn't be started");
         }

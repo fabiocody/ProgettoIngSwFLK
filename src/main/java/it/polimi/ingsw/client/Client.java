@@ -158,10 +158,10 @@ public abstract class Client implements Observer {
                 }
             } else {
                 Scanner stdin = new Scanner(System.in);
-                do{
+                do {
                     Logger.print("Inserisci un host valido\nHost >>> ");
                     host = stdin.nextLine();
-                } while(!isValidHost(host));
+                } while (!isValidHost(host));
                 stdin.close();
             }
 

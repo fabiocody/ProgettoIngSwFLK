@@ -32,7 +32,7 @@ public class WaitingRoomController implements WaitingRoomAPI, Observer {
         synchronized (serverNetworksLock) {
             new Thread(() -> {
                 synchronized (serverNetworksLock) {
-                    Logger.debug("Attempt to add ServerNetwork");
+                    //Logger.debug("Attempt to add ServerNetwork");
                     while (serverNetworksBusy) {
                         try {
                             serverNetworksLock.wait();
@@ -41,7 +41,7 @@ public class WaitingRoomController implements WaitingRoomAPI, Observer {
                         }
                     }
                     serverNetworks.add(network);
-                    Logger.debug("ServerNetwork added");
+                    //Logger.debug("ServerNetwork added");
                 }
             }).start();
         }
@@ -51,7 +51,7 @@ public class WaitingRoomController implements WaitingRoomAPI, Observer {
         synchronized (serverNetworksLock) {
             new Thread(() -> {
                 synchronized (serverNetworksLock) {
-                    Logger.debug("Attempt to remove ServerNetwork");
+                    //Logger.debug("Attempt to remove ServerNetwork");
                     while (serverNetworksBusy) {
                         try {
                             serverNetworksLock.wait();
@@ -60,7 +60,7 @@ public class WaitingRoomController implements WaitingRoomAPI, Observer {
                         }
                     }
                     serverNetworks.remove(network);
-                    Logger.debug("ServerNetwork removed");
+                    //Logger.debug("ServerNetwork removed");
                 }
             }).start();
         }
