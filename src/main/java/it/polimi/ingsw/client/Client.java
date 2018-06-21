@@ -12,7 +12,6 @@ public abstract class Client implements Observer {
 
     private String nickname;
     private UUID uuid;
-    private ClientNetwork network;
     private boolean logged = false;
     private boolean gameStarted = false;
     private boolean active = false;
@@ -23,12 +22,11 @@ public abstract class Client implements Observer {
     private List<String> suspendedPlayers = new ArrayList<>();
     private int favorTokens = 0;
 
-    Client(ClientNetwork network, boolean debugActive) {
+    Client(boolean debugActive) {
         Logger.setDebugActive(debugActive);
-        this.network = network;
-        this.network.addObserver(this);
+        ClientNetwork.getInstance().addObserver(this);
         try {
-            network.setup();
+            ClientNetwork.getInstance().setup();
             Logger.println("Connection established");
         } catch (IOException e) {
             Logger.error("Connection failed");
@@ -51,10 +49,6 @@ public abstract class Client implements Observer {
 
     void setUUID(UUID uuid) {
         this.uuid = uuid;
-    }
-
-    ClientNetwork getNetwork() {
-        return network;
     }
 
     boolean isLogged() {
@@ -168,11 +162,10 @@ public abstract class Client implements Observer {
             int port = (int) options.valueOf(CLIArguments.PORT);
 
             String connection = (String) options.valueOf(CLIArguments.CONNECTION);
-            ClientNetwork clientNetwork = null;
             if (connection.equals(CLIArguments.SOCKET))
-                clientNetwork = new SocketClient(host, port, debug);
+                ClientNetwork.setInstance(new SocketClient(host, port, debug));
             else if (connection.equals(CLIArguments.RMI))
-                clientNetwork = new RMIClient(host, port, debug);
+                ClientNetwork.setInstance(new RMIClient(host, port, debug));
             else {
                 Logger.println("Invalid type of connection");
                 Logger.println(USAGE_STRING);
@@ -186,7 +179,7 @@ public abstract class Client implements Observer {
                 System.exit(Constants.EXIT_ERROR);
             }
 
-            Client client = new ClientCLI(clientNetwork, debug);
+            Client client = new ClientCLI(debug);
             client.start();
 
         } catch (OptionException e) {

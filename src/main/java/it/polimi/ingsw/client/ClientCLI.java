@@ -36,8 +36,8 @@ public class ClientCLI extends Client {
     private boolean toolCardAlreadyUsed = false;
     private boolean turnOver = false;
 
-    ClientCLI(ClientNetwork network, boolean debugActive) {
-        super(network, debugActive);
+    ClientCLI(boolean debugActive) {
+        super(debugActive);
     }
 
     void start() {
@@ -66,7 +66,7 @@ public class ClientCLI extends Client {
                     while (isSuspended() && !input.equals(getNickname())) {
                         input = asyncInput("reconnectionPrompt");
                         if (input.equals(getNickname())) {
-                            this.getNetwork().addPlayer(getNickname());
+                            ClientNetwork.getInstance().addPlayer(getNickname());
                         }
                     }
                 }
@@ -95,7 +95,7 @@ public class ClientCLI extends Client {
                                         break;
                                     case 3:
                                         this.setActive(false);
-                                        this.getNetwork().nextTurn();
+                                        ClientNetwork.getInstance().nextTurn();
                                         this.turnOver = true;
                                         break;
                                     default:
@@ -119,7 +119,7 @@ public class ClientCLI extends Client {
         } finally {
             Logger.println("");
             try {
-                getNetwork().teardown();
+                ClientNetwork.getInstance().teardown();
                 AnsiConsole.systemUninstall();
             } catch (IOException e) {
                 Logger.error("Exception raised while tearing down");
@@ -140,7 +140,7 @@ public class ClientCLI extends Client {
                     continue;
                 }
             } while (patternIndex <= 0 || patternIndex > 4);
-            this.getNetwork().choosePattern(patternIndex - 1);
+            ClientNetwork.getInstance().choosePattern(patternIndex - 1);
             this.setPatternChosen(true);
             Logger.println("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
             while (!this.isGameStarted()) Thread.sleep(10);
@@ -171,7 +171,7 @@ public class ClientCLI extends Client {
         } catch (IOException | CancelException e){
             throw e;
         }
-        if (this.getNetwork().placeDie(draftPoolIndex,x,y)) {
+        if (ClientNetwork.getInstance().placeDie(draftPoolIndex,x,y)) {
             Logger.println("Dado piazzato\n");
             this.dieAlreadyPlaced = true;
         } else {
@@ -225,7 +225,7 @@ public class ClientCLI extends Client {
                 requiredData.get("data").getAsJsonObject().addProperty("toCellY",toCellY);
             }
 
-            if(this.getNetwork().useToolCard(cardIndex,requiredData.get("data").getAsJsonObject())) {
+            if(ClientNetwork.getInstance().useToolCard(cardIndex,requiredData.get("data").getAsJsonObject())) {
                 Logger.println("\nCarta strumento usata con successo\n");
                 this.toolCardAlreadyUsed = true;
                 return true;
@@ -249,7 +249,7 @@ public class ClientCLI extends Client {
         boolean valid;
         try {
             cardIndex = this.getInputIndex("\nQuale carta strumento vuoi usare [1-3]? " + EXIT_MESSAGE, 0, 3,true);
-            requiredData = this.getNetwork().requiredData(cardIndex);
+            requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
             requiredData.remove("method");
             if (requiredData.get("data").getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS)) {
                 Logger.println("\nNon hai abbastanza segnalini favore per utilizzare questa carta strumento");
@@ -261,7 +261,7 @@ public class ClientCLI extends Client {
                     if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE) && valid) {
                         secondMove = this.getInputBool("\nVuoi continuare [Sì 1/No 0]? ");
                         if(secondMove) {
-                            requiredData = this.getNetwork().requiredData(cardIndex);
+                            requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
                             requiredData.remove("method");
                             this.requireData(requiredData,cardIndex);
                         }
@@ -452,7 +452,7 @@ public class ClientCLI extends Client {
     private void addPlayer() throws IOException {
         String nickname = this.input("Nickname >>>");
         this.setNickname(nickname);
-        setUUID(this.getNetwork().addPlayer(this.getNickname()));
+        setUUID(ClientNetwork.getInstance().addPlayer(this.getNickname()));
         setLogged(this.getUUID() != null);
         //if (isLogged()) Logger.println("Login riuscito!");
         if (!isLogged()) {

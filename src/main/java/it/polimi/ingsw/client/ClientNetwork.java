@@ -9,6 +9,9 @@ import java.util.*;
 
 public abstract class ClientNetwork extends Observable {
 
+    private static ClientNetwork instance;
+    private static boolean instanceSet = false;
+
     private String host;
     private int port;
 
@@ -21,6 +24,19 @@ public abstract class ClientNetwork extends Observable {
         this.host = host;
         this.port = port;
         Logger.setDebugActive(debug);
+    }
+
+    public static ClientNetwork getInstance() {
+        return instance;
+    }
+
+    public static void setInstance(ClientNetwork clientNetwork) {
+        if (!instanceSet) {
+            instance = clientNetwork;
+            instanceSet = true;
+        } else {
+            throw new IllegalStateException("Cannot set this instance more than one time");
+        }
     }
 
     String getHost() {
