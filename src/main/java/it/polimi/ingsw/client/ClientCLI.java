@@ -141,7 +141,7 @@ public class ClientCLI extends Client {
                 }
             } while (patternIndex <= 0 || patternIndex > 4);
             ClientNetwork.getInstance().choosePattern(patternIndex - 1);
-            this.setPatternChosen(true);
+            this.setPatternChosen();
             Logger.println("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
             while (!this.isGameStarted()) Thread.sleep(10);
         } catch (IOException | InterruptedException e){
@@ -585,7 +585,7 @@ public class ClientCLI extends Client {
         if (jsonArg.get(JsonFields.RECONNECTED).getAsBoolean()) {
             bypassWaitingRoom = true;
             stopAsyncInput = true;
-            this.setPatternChosen(true);
+            this.setPatternChosen();
             this.setSuspended(this.getSuspendedPlayers().stream()
                     .filter(s -> !s.equals(this.getNickname()))
                     .collect(Collectors.toList()));
@@ -715,7 +715,7 @@ public class ClientCLI extends Client {
     }
 
     private void turnManagementUpdateHandle(JsonObject jsonArg) {
-        if (!this.isGameStarted()) this.setGameStarted(true);
+        if (!this.isGameStarted()) this.setGameStarted();
         this.setGameOver(jsonArg.get(JsonFields.GAME_OVER).getAsBoolean());
         List<String> suspendedPlayers = StreamSupport.stream(jsonArg.getAsJsonArray(JsonFields.SUSPENDED_PLAYERS).spliterator(), false)
                 .map(JsonElement::getAsString)

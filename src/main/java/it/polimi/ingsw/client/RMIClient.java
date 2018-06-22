@@ -24,10 +24,8 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     @Override
     void setup() throws IOException {
         try {
-            System.setProperty("java.rmi.server.hostname", getHost());
             Registry registry = LocateRegistry.getRegistry(getHost(), getPort());
             ServerAPI welcomeServer = (ServerAPI) registry.lookup(Constants.SERVER_RMI_NAME);
-            //ServerAPI welcomeServer = (ServerAPI) Naming.lookup("//" + getHost() + "/" + Constants.SERVER_RMI_NAME);
             ClientAPI clientRemote = (ClientAPI) UnicastRemoteObject.exportObject(this, 0);
             server = welcomeServer.connect(clientRemote);
             if (server == null)
@@ -121,7 +119,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     }
 
     @Override
-    public void update(String jsonString) throws RemoteException {
+    public void update(String jsonString) {
         JsonObject payload = jsonParser.parse(jsonString).getAsJsonObject();
         this.setChanged();
         this.notifyObservers(payload);

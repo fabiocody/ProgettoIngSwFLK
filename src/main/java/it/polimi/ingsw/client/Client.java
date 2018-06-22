@@ -9,8 +9,6 @@ import java.util.*;
 
 public abstract class Client implements Observer {
 
-    private static final String USAGE_STRING = "usage: sagradaclient [--debug] [--host HOST] [--port PORT] [--connection socket|rmi] [--interface cli|gui]";
-
     private String nickname;
     private UUID uuid;
     private boolean logged = false;
@@ -64,8 +62,8 @@ public abstract class Client implements Observer {
         return gameStarted;
     }
 
-    void setGameStarted(boolean gameStarted) {
-        this.gameStarted = gameStarted;
+    void setGameStarted() {
+        this.gameStarted = true;
     }
 
     boolean isActive() {
@@ -85,8 +83,8 @@ public abstract class Client implements Observer {
         return patternChosen;
     }
 
-    void setPatternChosen(boolean patternChosen) {
-        this.patternChosen = patternChosen;
+    void setPatternChosen() {
+        this.patternChosen = true;
     }
 
     boolean isSuspended() {
@@ -106,7 +104,7 @@ public abstract class Client implements Observer {
         this.gameOver = gameOver;
     }
 
-    public String getActiveNickname() {
+    String getActiveNickname() {
         return activeNickname;
     }
       
@@ -114,21 +112,26 @@ public abstract class Client implements Observer {
         return favorTokens;
     }
 
-    public void setFavorTokens(int favorTokens) {
+    void setFavorTokens(int favorTokens) {
         this.favorTokens = favorTokens;
     }
 
-    public List<String> getSuspendedPlayers() {
+    List<String> getSuspendedPlayers() {
         return suspendedPlayers;
     }
 
-    static boolean isValidHost(String host){
+    private static boolean isValidHost(String host){
         String ipRegex= "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
         String urlRegex = "^[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
         return host.matches(ipRegex) || host.matches(urlRegex);
     }
 
     abstract void start();
+
+    private static void exitError() {
+        Logger.println(Constants.CLIENT_USAGE_STRING);
+        System.exit(Constants.EXIT_ERROR);
+    }
 
     public static void main(String[] args) {
         OptionParser parser = new OptionParser();
@@ -148,8 +151,7 @@ public abstract class Client implements Observer {
                 host = (String) options.valueOf(CLIArguments.HOST);
                 if (!isValidHost(host)) {
                     Logger.println("Invalid Host");
-                    Logger.println(USAGE_STRING);
-                    System.exit(Constants.EXIT_ERROR);
+                    exitError();
                 }
             } else {
                 Scanner stdin = new Scanner(System.in);
@@ -163,31 +165,36 @@ public abstract class Client implements Observer {
             int port = (int) options.valueOf(CLIArguments.PORT);
 
             String connection = (String) options.valueOf(CLIArguments.CONNECTION);
-            if (connection.equals(CLIArguments.SOCKET))
-                ClientNetwork.setInstance(new SocketClient(host, port, debug));
-            else if (connection.equals(CLIArguments.RMI))
-                ClientNetwork.setInstance(new RMIClient(host, port, debug));
-            else {
-                Logger.println("Invalid type of connection");
-                Logger.println(USAGE_STRING);
-                System.exit(Constants.EXIT_ERROR);
+            switch (connection) {
+                case CLIArguments.SOCKET:
+                    ClientNetwork.setInstance(new SocketClient(host, port, debug));
+                    break;
+                case CLIArguments.RMI:
+                    ClientNetwork.setInstance(new RMIClient(host, port, debug));
+                    break;
+                default:
+                    Logger.println("Invalid type of connection");
+                    exitError();
+                    break;
             }
 
             String iface = (String) options.valueOf(CLIArguments.INTERFACE);
-            if (iface.equals(CLIArguments.CLI)) {
-                new ClientCLI(debug).start();
-            } else if (iface.equals(CLIArguments.GUI)) {
-                Application.launch(ClientGUIApplication.class);
-            } else {
-                Logger.println("Invalid type of interface");
-                Logger.println(USAGE_STRING);
-                System.exit(Constants.EXIT_ERROR);
+            switch (iface) {
+                case CLIArguments.CLI:
+                    new ClientCLI(debug).start();
+                    break;
+                case CLIArguments.GUI:
+                    Application.launch(ClientGUIApplication.class);
+                    break;
+                default:
+                    Logger.println("Invalid type of interface");
+                    exitError();
+                    break;
             }
 
         } catch (OptionException e) {
-            e.printStackTrace();
-            Logger.println(USAGE_STRING);
-            System.exit(Constants.EXIT_ERROR);
+            //e.printStackTrace();
+            exitError();
         }
     }
 

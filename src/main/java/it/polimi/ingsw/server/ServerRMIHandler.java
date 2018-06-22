@@ -273,7 +273,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     private void connectionError(Throwable e) {
         Logger.connectionLost(nickname);
-        e.printStackTrace();
+        //e.printStackTrace();
         this.onUserDisconnection();
     }
 

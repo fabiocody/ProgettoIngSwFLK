@@ -1,6 +1,11 @@
 package it.polimi.ingsw.shared.util;
 
 public class Constants {
+
+    private Constants() {
+        throw new IllegalStateException("Cannot instantiate");
+    }
+
     public static final int INDEX_CONSTANT = 42;
     public static final int MAX_NICKNAME_LENGTH = 20;
     public static final int MAX_NUMBER_OF_PLAYERS = 4;
@@ -19,4 +24,6 @@ public class Constants {
     public static final int EXIT_ERROR = 1;
     public static final long PROBE_TIMEOUT = 3;
     public static final String SERVER_RMI_NAME = "SagradaServer";
+    public static final String SERVER_USAGE_STRING = "usage: sagradaserver server-host [--debug] [--port PORT] [--wr-timeout WR-TIMEOUT] [--game-timeout GAME-TIMEOUT]";
+    public static final String CLIENT_USAGE_STRING = "usage: sagradaclient [--debug] [--host HOST] [--port PORT] [--connection socket|rmi] [--interface cli|gui]";
 }
