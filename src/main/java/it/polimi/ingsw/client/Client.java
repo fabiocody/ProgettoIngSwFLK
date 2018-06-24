@@ -170,6 +170,7 @@ public abstract class Client implements Observer {
                     ClientNetwork.setInstance(new SocketClient(host, port, debug));
                     break;
                 case CLIArguments.RMI:
+                    port = Constants.DEFAULT_RMI_PORT;
                     ClientNetwork.setInstance(new RMIClient(host, port, debug));
                     break;
                 default:
