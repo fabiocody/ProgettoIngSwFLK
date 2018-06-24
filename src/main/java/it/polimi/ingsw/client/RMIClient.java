@@ -34,7 +34,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
             Logger.error("Malformed URL");
             throw new IOException();
         } catch (NotBoundException e) {
-            Logger.error("Il riferimento passato non è associato a nulla!");
+            Logger.error(Constants.SERVER_RMI_NAME + " not bound");
             throw new IOException();
         }
     }

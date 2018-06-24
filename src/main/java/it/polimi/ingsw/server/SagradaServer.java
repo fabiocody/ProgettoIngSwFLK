@@ -27,6 +27,8 @@ public class SagradaServer extends Observable implements Observer {
     private List<GameController> gameControllers;
     private int gameTimeout = 60;
 
+    private ServerAPI welcomeRMIServer;
+
     /**
      * this method is the constructor that sets the port and adds an observer to the waiting room
      */
@@ -77,8 +79,8 @@ public class SagradaServer extends Observable implements Observer {
         try {
             System.setProperty("java.rmi.server.hostname", host);
             Registry registry = LocateRegistry.createRegistry(Constants.DEFAULT_RMI_PORT);
-            ServerAPI welcomeServer = (ServerAPI) UnicastRemoteObject.exportObject(new ServerRMIHandler(), 0);
-            registry.rebind(Constants.SERVER_RMI_NAME, welcomeServer);
+            welcomeRMIServer = (ServerAPI) UnicastRemoteObject.exportObject(new ServerRMIHandler(), 0);
+            registry.rebind(Constants.SERVER_RMI_NAME, welcomeRMIServer);
             Logger.log("RMI server up and running");
         } catch (RemoteException e) {
             Logger.error("Connection error: " + e.getMessage());
