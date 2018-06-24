@@ -136,7 +136,7 @@ public abstract class Client implements Observer {
     public static void main(String[] args) {
         OptionParser parser = new OptionParser();
         parser.accepts(CLIArguments.DEBUG);
-        parser.accepts(CLIArguments.HOST).withRequiredArg();
+        parser.accepts(CLIArguments.HOST).withRequiredArg().required();
         parser.accepts(CLIArguments.PORT).withRequiredArg().ofType(Integer.class).defaultsTo(Constants.DEFAULT_PORT);
         parser.accepts(CLIArguments.CONNECTION).withRequiredArg().ofType(String.class).defaultsTo(CLIArguments.SOCKET);
         parser.accepts(CLIArguments.INTERFACE).withRequiredArg().ofType(String.class).defaultsTo(CLIArguments.CLI);

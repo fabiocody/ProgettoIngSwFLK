@@ -130,7 +130,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
         return payload;
     }
@@ -141,7 +141,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
         return payload;
     }
@@ -152,7 +152,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
         return payload;
     }
@@ -163,7 +163,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
         return payload;
     }
@@ -174,7 +174,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
         return payload;
     }
@@ -185,7 +185,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
         return payload;
     }
@@ -196,7 +196,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
         return payload;
     }
@@ -207,7 +207,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
         return payload;
     }
@@ -218,7 +218,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
         return payload;
     }
@@ -229,7 +229,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
         return payload;
     }
@@ -240,7 +240,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
         return payload;
     }
@@ -251,7 +251,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.update(payload.toString());
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
         return payload;
     }
@@ -261,7 +261,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         try {
             client.probe();
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
     }
 
@@ -271,9 +271,8 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         Thread.currentThread().interrupt();
     }
 
-    private void connectionError(Throwable e) {
+    private void connectionError() {
         Logger.connectionLost(nickname);
-        //e.printStackTrace();
         this.onUserDisconnection();
     }
 

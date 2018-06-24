@@ -49,7 +49,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             uuid = server.addPlayer(nickname);
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
         return uuid;
     }
@@ -59,7 +59,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             server.choosePattern(patternIndex);
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
     }
 
@@ -68,7 +68,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             return server.placeDie(draftPoolIndex, x, y);
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
             return false;
         }
     }
@@ -78,7 +78,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             server.nextTurn();
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
     }
 
@@ -87,7 +87,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             return server.requiredData(cardIndex);
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
             return null;
         }
     }
@@ -97,7 +97,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             return server.useToolCard(cardIndex, requiredData);
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
             return false;
         }
     }
@@ -107,14 +107,13 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             server.probe();
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
         this.rescheduleProbeTimer();
     }
 
-    private void connectionError(Throwable e) {
+    private void connectionError() {
         Logger.connectionLost(nickname);
-        e.printStackTrace();
         System.exit(Constants.EXIT_ERROR);
     }
 
