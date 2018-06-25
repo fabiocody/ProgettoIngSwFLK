@@ -19,7 +19,6 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         System.setProperty("java.rmi.server.useCodebaseOnly", String.valueOf(false));
         this.client = client;
         if (this.client != null) WaitingRoomController.getInstance().addServerNetwork(this);
-        //if (clientHostname != null) System.setProperty("java.rmi.server.hostname", clientHostname);
     }
 
     ServerRMIHandler() {
@@ -122,137 +121,97 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         }
     }
 
+    private void clientUpdate(String payload) {
+        try {
+            client.update(payload);
+        } catch (RemoteException e) {
+            connectionError();
+        }
+    }
+
 
     @Override
     JsonObject updatePlayersList() {
         JsonObject payload = super.updatePlayersList();
         Logger.debug("PAYLOAD " + payload.toString());
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError();
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject updateToolCards() {
         JsonObject payload = super.updateToolCards();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError();
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject sendPublicObjectiveCards() {
         JsonObject payload = super.sendPublicObjectiveCards();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError();
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject updateWindowPatterns() {
         JsonObject payload = super.updateWindowPatterns();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError();
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject updateFavorTokens() {
         JsonObject payload = super.updateFavorTokens();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError();
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject updateDraftPool() {
         JsonObject payload = super.updateDraftPool();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError();
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject updateRoundTrack() {
         JsonObject payload = super.updateRoundTrack();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError();
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject turnManagement() {
         JsonObject payload = super.turnManagement();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError();
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject updateFinalScores() {
         JsonObject payload = super.updateFinalScores();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError();
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject updateTimerTick(Methods method, String tick) {
         JsonObject payload = super.updateTimerTick(method, tick);
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError();
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject updateWaitingPlayers() {
         JsonObject payload = super.updateWaitingPlayers();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError();
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject setupGame() {
         JsonObject payload = super.setupGame();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError();
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 

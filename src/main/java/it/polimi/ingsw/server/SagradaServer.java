@@ -158,8 +158,8 @@ public class SagradaServer extends Observable implements Observer {
         OptionParser parser = new OptionParser();
         OptionSpec<String> serverHostArgument = parser.nonOptions(CLIArguments.HOST);
         parser.accepts(CLIArguments.DEBUG);
-        parser.accepts(CLIArguments.WR_TIMEOUT).withRequiredArg().ofType(Integer.class).defaultsTo(30);
-        parser.accepts(CLIArguments.GAME_TIMEOUT).withRequiredArg().ofType(Integer.class).defaultsTo(90);
+        parser.accepts(CLIArguments.WR_TIMEOUT).withRequiredArg().ofType(Integer.class).defaultsTo(Constants.DEFAULT_WR_TIMEOUT);
+        parser.accepts(CLIArguments.GAME_TIMEOUT).withRequiredArg().ofType(Integer.class).defaultsTo(Constants.DEFAULT_GAME_TIMEOUT);
         parser.accepts(CLIArguments.PORT).withRequiredArg().ofType(Integer.class);
         try {
             OptionSet options = parser.parse(args);

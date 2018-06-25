@@ -8,16 +8,12 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 
-public class WaitingRoomController implements WaitingRoomAPI, Observer {
+public class WaitingRoomController extends BaseController implements WaitingRoomAPI, Observer {
 
     private static WaitingRoomController instance;
 
-    private List<ServerNetwork> serverNetworks;
-    private final Object serverNetworksLock = new Object();
-    private boolean serverNetworksBusy = false;
-
     private WaitingRoomController() {
-        this.serverNetworks = new Vector<>();
+        super();
         WaitingRoom.getInstance().addObserver(this);
         WaitingRoom.getInstance().getTimer().addObserver(this);
     }
@@ -26,55 +22,6 @@ public class WaitingRoomController implements WaitingRoomAPI, Observer {
         if (instance == null)
             instance = new WaitingRoomController();
         return instance;
-    }
-
-    void addServerNetwork(ServerNetwork network) {
-        synchronized (serverNetworksLock) {
-            new Thread(() -> {
-                synchronized (serverNetworksLock) {
-                    //Logger.debug("Attempt to add ServerNetwork");
-                    while (serverNetworksBusy) {
-                        try {
-                            serverNetworksLock.wait();
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-                    serverNetworks.add(network);
-                    //Logger.debug("ServerNetwork added");
-                }
-            }).start();
-        }
-    }
-
-    void removeServerNetwork(ServerNetwork network) {
-        synchronized (serverNetworksLock) {
-            new Thread(() -> {
-                synchronized (serverNetworksLock) {
-                    //Logger.debug("Attempt to remove ServerNetwork");
-                    while (serverNetworksBusy) {
-                        try {
-                            serverNetworksLock.wait();
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-                    serverNetworks.remove(network);
-                    //Logger.debug("ServerNetwork removed");
-                }
-            }).start();
-        }
-    }
-
-    private void forEachServerNetwork(Consumer<? super ServerNetwork> action) {
-        synchronized (serverNetworksLock) {
-            serverNetworksBusy = true;
-            for (ServerNetwork serverNetwork : serverNetworks) {
-                action.accept(serverNetwork);
-            }
-            serverNetworksBusy = false;
-            serverNetworksLock.notifyAll();
-        }
     }
 
     @Override

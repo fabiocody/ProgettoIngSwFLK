@@ -633,7 +633,7 @@ public class ClientCLI extends Client {
             JsonObject windowPattern = windowPatternsArray.get(i).getAsJsonObject();
             StringBuilder indexString = new StringBuilder();
             indexString.append(i+1);
-            for (int k = 0; k < Constants.MAX_NICKNAME_LENGTH; k++) indexString.append(" ");
+            while (indexString.length() < Constants.MAX_NICKNAME_LENGTH) indexString.append(' ');
             windowPatterns.add(indexString.toString() + "\n" + windowPattern.get(JsonFields.CLI_STRING).getAsString());
         }
         Logger.println();

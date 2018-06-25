@@ -13,12 +13,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class GameController implements GameAPI, Observer {
+public class GameController extends BaseController implements GameAPI, Observer {
 
     private Game game;
-    private List<ServerNetwork> serverNetworks = new Vector<>();
 
     GameController(Game game) {
+        super();
         this.game = game;
         this.game.addObserver(this);
         this.game.getPlayers().forEach(p -> p.addObserver(this));
@@ -26,14 +26,6 @@ public class GameController implements GameAPI, Observer {
 
     Game getGame() {
         return game;
-    }
-
-    void addServerNetwork(ServerNetwork network) {
-        serverNetworks.add(network);
-    }
-
-    void removeServerNetwork(ServerNetwork network) {
-        serverNetworks.remove(network);
     }
 
     @Override
@@ -178,7 +170,7 @@ public class GameController implements GameAPI, Observer {
             if (stringArg.startsWith(NotificationsMessages.TURN_MANAGER)) {
                 String tick = stringArg.split(" ")[1];
                 Logger.debug("Game Timer tick (from update): " + tick);
-                serverNetworks.forEach(network -> network.updateTimerTick(Methods.GAME_TIMER_TICK, tick));
+                forEachServerNetwork(network -> network.updateTimerTick(Methods.GAME_TIMER_TICK, tick));
             }
         } else if (o instanceof Game) {
             switch (stringArg) {
@@ -186,16 +178,16 @@ public class GameController implements GameAPI, Observer {
                 case NotificationsMessages.SUSPENDED:
                     if (!getRoundTrack().isGameOver())
                         this.game.getTurnManager().subscribeToTimer(this);
-                    serverNetworks.forEach(ServerNetwork::fullUpdate);
+                    forEachServerNetwork(ServerNetwork::fullUpdate);
                     break;
                 case NotificationsMessages.PLACE_DIE:
                 case NotificationsMessages.USE_TOOL_CARD:
-                    serverNetworks.forEach(ServerNetwork::fullUpdate);
+                    forEachServerNetwork(ServerNetwork::fullUpdate);
                     break;
                 case NotificationsMessages.GAME_OVER:
-                    serverNetworks.forEach(ServerNetwork::fullUpdate);
-                    serverNetworks.forEach(ServerNetwork::updateFinalScores);
-                    //serverNetworks.forEach(ServerNetwork::turnManagement);
+                    forEachServerNetwork(ServerNetwork::fullUpdate);
+                    forEachServerNetwork(ServerNetwork::updateFinalScores);
+                    //forEachServerNetwork(ServerNetwork::turnManagement);
                     SagradaServer.getInstance().getGameControllers().remove(this);
 
                     break;
