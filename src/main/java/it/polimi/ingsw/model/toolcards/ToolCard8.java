@@ -9,7 +9,7 @@ import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
 import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
-import it.polimi.ingsw.shared.util.NotificationsMessages;
+import it.polimi.ingsw.shared.util.NotificationMessages;
 
 
 /**
@@ -51,7 +51,7 @@ public class ToolCard8 extends ToolCard {
             throw new InvalidEffectArgumentException("Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")");
         this.placeDie(player, draftPoolIndex, cellIndex);
         setChanged();
-        notifyObservers(NotificationsMessages.USE_TOOL_CARD);
+        notifyObservers(NotificationMessages.USE_TOOL_CARD);
     }
 
     /**

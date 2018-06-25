@@ -6,7 +6,7 @@ import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
-import it.polimi.ingsw.shared.util.NotificationsMessages;
+import it.polimi.ingsw.shared.util.NotificationMessages;
 
 
 /**
@@ -52,7 +52,7 @@ public class ToolCard1 extends ToolCard {
             throw new InvalidEffectResultException("Cannot make a 1 into 6 or a 6 into 1");
         else d.setValue(newValue);
         setChanged();
-        notifyObservers(NotificationsMessages.USE_TOOL_CARD);
+        notifyObservers(NotificationMessages.USE_TOOL_CARD);
     }
 
     /**

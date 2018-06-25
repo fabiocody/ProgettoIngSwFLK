@@ -1,6 +1,6 @@
 package it.polimi.ingsw.shared.util;
 
-public class NotificationsMessages {
+public class NotificationMessages {
 
     public static final String TURN_MANAGEMENT = "$turnManagement$";
     public static final String PLACE_DIE = "$placeDie$";
@@ -13,7 +13,7 @@ public class NotificationsMessages {
     public static final String DRAFT_POOL = "$draftPool$";
     public static final String SUSPENDED = "$suspended$";
 
-    private NotificationsMessages() throws IllegalAccessException {
+    private NotificationMessages() throws IllegalAccessException {
         throw new IllegalAccessException("Cannot instantiate");
     }
 

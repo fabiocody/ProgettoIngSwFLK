@@ -7,7 +7,7 @@ import it.polimi.ingsw.model.placementconstraints.*;
 import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
-import it.polimi.ingsw.shared.util.NotificationsMessages;
+import it.polimi.ingsw.shared.util.NotificationMessages;
 
 
 /**
@@ -59,7 +59,7 @@ public class ToolCard2 extends ToolCard {
         PlacementConstraint constraint = new PositionConstraint(new ValueConstraint(new OrthogonalConstraint(new EmptyConstraint())));
         this.moveDie(player, fromIndex, toIndex, constraint);
         setChanged();
-        notifyObservers(NotificationsMessages.USE_TOOL_CARD);
+        notifyObservers(NotificationMessages.USE_TOOL_CARD);
     }
 
     /**

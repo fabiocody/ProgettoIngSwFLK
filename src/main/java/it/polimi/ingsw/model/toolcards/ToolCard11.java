@@ -9,7 +9,7 @@ import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
-import it.polimi.ingsw.shared.util.NotificationsMessages;
+import it.polimi.ingsw.shared.util.NotificationMessages;
 
 
 /**
@@ -73,7 +73,7 @@ public class ToolCard11 extends ToolCard {
                 break;
         }
         setChanged();
-        notifyObservers(NotificationsMessages.USE_TOOL_CARD);
+        notifyObservers(NotificationMessages.USE_TOOL_CARD);
     }
 
     /**

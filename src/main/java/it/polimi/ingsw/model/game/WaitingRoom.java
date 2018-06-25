@@ -2,7 +2,7 @@ package it.polimi.ingsw.model.game;
 
 import it.polimi.ingsw.server.SagradaServer;
 import it.polimi.ingsw.shared.util.Constants;
-import it.polimi.ingsw.shared.util.NotificationsMessages;
+import it.polimi.ingsw.shared.util.NotificationMessages;
 
 import java.util.*;
 
@@ -27,7 +27,7 @@ public class WaitingRoom extends Observable {
      * @author Fabio Codiglioni
      */
     private WaitingRoom() {
-        this.timer = new CountdownTimer(NotificationsMessages.WAITING_ROOM);
+        this.timer = new CountdownTimer(NotificationMessages.WAITING_ROOM);
     }
 
     /**
