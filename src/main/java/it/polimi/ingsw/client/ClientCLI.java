@@ -25,7 +25,6 @@ public class ClientCLI extends Client {
     private String wrTimeout;
     private String wrPlayers;
     private String gameTimeout = "00";
-
     private int draftPoolLength;
     private long roundTrackLength = 0;
 
@@ -137,14 +136,18 @@ public class ClientCLI extends Client {
                 try {
                     patternIndex = Integer.valueOf(input);
                 } catch (NumberFormatException e) {
+                    if (Logger.isDebugActive()) e.printStackTrace();
                     continue;
                 }
             } while (patternIndex <= 0 || patternIndex > 4);
             ClientNetwork.getInstance().choosePattern(patternIndex - 1);
-            this.setPatternChosen(true);
-            Logger.println("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
-            while (!this.isGameStarted()) Thread.sleep(10);
+            this.setPatternChosen();
+            if (!isGameStarted()) {
+                Logger.println("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
+                while (!this.isGameStarted()) Thread.sleep(10);
+            }
         } catch (IOException | InterruptedException e){
+            if (Logger.isDebugActive()) e.printStackTrace();
             throw e;
         }
     }
@@ -180,7 +183,7 @@ public class ClientCLI extends Client {
         }
     }
 
-    private boolean requireData (JsonObject requiredData, int cardIndex) throws CancelException, IOException{
+    private boolean useData(JsonObject requiredData, int cardIndex) throws CancelException, IOException{
 
         int draftPoolIndex;
         int roundTrackIndex;
@@ -257,13 +260,16 @@ public class ClientCLI extends Client {
                 if (requiredData.get("data").getAsJsonObject().has("impossibleToUseToolCard")) {
                     Logger.println("\nNon puoi utilizzare questa carta strumento: " + requiredData.get("data").getAsJsonObject().get("impossibleToUseToolCard").getAsString());
                 } else {
-                    valid = this.requireData(requiredData,cardIndex);
+                    valid = this.useData(requiredData,cardIndex);
                     if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE) && valid) {
-                        secondMove = this.getInputBool("\nVuoi continuare [Sì 1/No 0]? ");
+                        if(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP))
+                            secondMove = this.getInputBool("\nVuoi continuare [Sì 1/No 0]? ");
+                        else
+                            secondMove = true;
                         if(secondMove) {
                             requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
                             requiredData.remove("method");
-                            this.requireData(requiredData,cardIndex);
+                            this.useData(requiredData,cardIndex);
                         }
                     }
                 }
@@ -454,14 +460,16 @@ public class ClientCLI extends Client {
         this.setNickname(nickname);
         setUUID(ClientNetwork.getInstance().addPlayer(this.getNickname()));
         setLogged(this.getUUID() != null);
-        //if (isLogged()) Logger.println("Login riuscito!");
         if (!isLogged()) {
-            if(nickname.equals(""))
+            if (nickname.equals("")) {
                 Logger.println("Login fallito! I nickname non possono essere vuoti");
-            else if(nickname.contains(" "))
+            } else if (nickname.contains(" ")) {
                 Logger.println("Login fallito! I nickname non possono contenere spazi");
-            else if(nickname.length() > MAX_NICKNAME_LENGTH)
-                Logger.println("Login fallito! I nickname non possono essere più lunghi di 20 caratteri");
+            } else if (nickname.length() > MAX_NICKNAME_LENGTH) {
+                Logger.println("Login fallito! I nickname non possono essere più lunghi di " + MAX_NICKNAME_LENGTH + " caratteri");
+            } else {
+                Logger.println("Login fallito! Questo nickname è già in uso");
+            }
         }
     }
 
@@ -585,7 +593,7 @@ public class ClientCLI extends Client {
         if (jsonArg.get(JsonFields.RECONNECTED).getAsBoolean()) {
             bypassWaitingRoom = true;
             stopAsyncInput = true;
-            this.setPatternChosen(true);
+            this.setPatternChosen();
             this.setSuspended(this.getSuspendedPlayers().stream()
                     .filter(s -> !s.equals(this.getNickname()))
                     .collect(Collectors.toList()));
@@ -599,7 +607,7 @@ public class ClientCLI extends Client {
                     .map(JsonElement::getAsString)
                     .reduce((s, r) -> s + ", " + r)
                     .orElse(null);
-            Logger.print(waitingRoomMessage());
+            if (isLogged()) Logger.print(waitingRoomMessage());
         }
     }
 
@@ -633,7 +641,7 @@ public class ClientCLI extends Client {
             JsonObject windowPattern = windowPatternsArray.get(i).getAsJsonObject();
             StringBuilder indexString = new StringBuilder();
             indexString.append(i+1);
-            for (int k = 0; k < Constants.MAX_NICKNAME_LENGTH; k++) indexString.append(" ");
+            while (indexString.length() < Constants.MAX_NICKNAME_LENGTH) indexString.append(' ');
             windowPatterns.add(indexString.toString() + "\n" + windowPattern.get(JsonFields.CLI_STRING).getAsString());
         }
         Logger.println();
@@ -715,7 +723,7 @@ public class ClientCLI extends Client {
     }
 
     private void turnManagementUpdateHandle(JsonObject jsonArg) {
-        if (!this.isGameStarted()) this.setGameStarted(true);
+        if (!this.isGameStarted()) this.setGameStarted();
         this.setGameOver(jsonArg.get(JsonFields.GAME_OVER).getAsBoolean());
         List<String> suspendedPlayers = StreamSupport.stream(jsonArg.getAsJsonArray(JsonFields.SUSPENDED_PLAYERS).spliterator(), false)
                 .map(JsonElement::getAsString)
@@ -743,12 +751,24 @@ public class ClientCLI extends Client {
     private void finalScoresUpdateHandle(JsonObject jsonArg) {
         StringBuilder finalScoresString = new StringBuilder("\nLa partita è finita!\nRisultati finali");
         Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FINAL_SCORES).getAsJsonObject().entrySet();
-        for (Map.Entry<String, JsonElement> entry : entrySet)
-            finalScoresString.append("\n").append(entry.getKey()).append(": ").append(entry.getValue().getAsInt());
+        for (Map.Entry<String, JsonElement> entry : entrySet) {
+            String name = entry.getKey();
+            if (name.equals(JsonFields.WINNER)) {
+                String value = entry.getValue().getAsString();
+                finalScoresString.append("\n").append(name).append(": ").append(value);
+            } else {
+                int value = entry.getValue().getAsInt();
+                finalScoresString.append("\n").append(name).append(": ").append(value);
+            }
+        }
         Logger.println(finalScoresString.toString());
-        Logger.println("");
-        AnsiConsole.systemUninstall();
-        System.exit(Constants.EXIT_STATUS);
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                AnsiConsole.systemUninstall();
+                System.exit(Constants.EXIT_STATUS);
+            }
+        }, 1000);
     }
 
 }

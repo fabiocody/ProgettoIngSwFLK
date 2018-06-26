@@ -132,6 +132,16 @@ public class WindowPattern {
     }
 
     /**
+     * @return  true if <code>grid</code> contains only one die
+     * @author  Luca dell'Oglio
+     */
+
+    public boolean checkIfOnlyOneDie() {
+        return 1 == Arrays.stream(this.grid).filter(c -> c.getPlacedDie() != null).count();
+    }
+
+
+    /**
      * @param   d the die to place
      * @param   position the index that identifies the cell where to put the die on
      * @param   withConstraint the <code>placementConstraint</code> to comply

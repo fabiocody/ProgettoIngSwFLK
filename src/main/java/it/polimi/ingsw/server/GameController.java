@@ -5,7 +5,6 @@ import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.game.*;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.model.patterncards.*;
-import it.polimi.ingsw.shared.rmi.GameAPI;
 import it.polimi.ingsw.model.toolcards.*;
 import it.polimi.ingsw.shared.util.*;
 
@@ -13,12 +12,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class GameController implements GameAPI, Observer {
+public class GameController extends BaseController implements Observer {
 
     private Game game;
-    private List<ServerNetwork> serverNetworks = new Vector<>();
 
     GameController(Game game) {
+        super();
         this.game = game;
         this.game.addObserver(this);
         this.game.getPlayers().forEach(p -> p.addObserver(this));
@@ -28,42 +27,25 @@ public class GameController implements GameAPI, Observer {
         return game;
     }
 
-    void addServerNetwork(ServerNetwork network) {
-        serverNetworks.add(network);
-    }
-
-    void removeServerNetwork(ServerNetwork network) {
-        serverNetworks.remove(network);
-    }
-
-    @Override
-    public List<String> getCurrentPlayers() {
+    List<String> getCurrentPlayers() {
         return this.game.getPlayers().stream()
                 .map(Player::getNickname)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Map<String, Integer> getFinalScores() {
-        return this.game.getFinalScores().entrySet().stream()
-                .collect(Collectors.toMap(
-                        e -> e.getKey().getNickname(),
-                        Map.Entry::getValue
-                ));
+    Map<String, Scores> getFinalScores() {
+        return this.game.getFinalScores();
     }
 
-    @Override
-    public List<ObjectiveCard> getPublicObjectiveCards() {
+    List<ObjectiveCard> getPublicObjectiveCards() {
         return this.game.getPublicObjectiveCards();
     }
 
-    @Override
-    public List<ToolCard> getToolCards() {
+    List<ToolCard> getToolCards() {
         return this.game.getToolCards();
     }
 
-    @Override
-    public Player getPlayer(UUID id) {
+    Player getPlayer(UUID id) {
         Optional<Player> result = this.game.getPlayers().stream()
                 .filter(p -> p.getId().equals(id))
                 .findFirst();
@@ -71,8 +53,7 @@ public class GameController implements GameAPI, Observer {
         else throw new NoSuchElementException("No Player object for uuid " + id);
     }
 
-    @Override
-    public String getActivePlayer(){
+    String getActivePlayer(){
         Optional<Player> result = this.game.getPlayers().stream()
                 .filter(Player::isActive)
                 .findFirst();
@@ -80,23 +61,19 @@ public class GameController implements GameAPI, Observer {
         else throw new NoSuchElementException("No Active Player found");
     }
 
-    @Override
-    public void suspendPlayer(UUID id) {
+    void suspendPlayer(UUID id) {
         this.getPlayer(id).setSuspended(true);
     }
 
-    @Override
-    public void unsuspendPlayer(UUID id) {
+    void unsuspendPlayer(UUID id) {
         this.getPlayer(id).setSuspended(false);
     }
 
-    @Override
-    public List<String> getSuspendedPlayers() {
+    List<String> getSuspendedPlayers() {
         return this.game.getSuspendedPlayers();
     }
 
-    @Override
-    public int getFavorTokensOf(String nickname) {
+    int getFavorTokensOf(String nickname) {
         Optional<Integer> result = this.game.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(nickname))
                 .map(Player::getFavorTokens)
@@ -105,8 +82,7 @@ public class GameController implements GameAPI, Observer {
         else throw new NoSuchElementException("Cannot retrieve favor tokens because no Player object with specified nickname has been found");
     }
 
-    @Override
-    public WindowPattern getWindowPatternOf(String nickname) {
+    WindowPattern getWindowPatternOf(String nickname) {
         Optional<WindowPattern> result = this.game.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(nickname))
                 .map(Player::getWindowPattern)
@@ -115,37 +91,32 @@ public class GameController implements GameAPI, Observer {
         else throw new NoSuchElementException("Cannot retrieve WindowPattern because no Player object with specified nickname has been found");
     }
 
-    @Override
-    public void choosePattern(UUID id, int patternIndex){
+    void choosePattern(UUID id, int patternIndex){
         getPlayer(id).chooseWindowPattern(patternIndex);
     }
 
-    @Override
-    public int getCurrentRound() {
+    int getCurrentRound() {
         return this.game.getRoundTrack().getCurrentRound();
     }
 
-    @Override
-    public List<Die> getRoundTrackDice() {
+    List<Die> getRoundTrackDice() {
         return new Vector<>(this.game.getRoundTrack().getAllDice());
     }
 
-    public RoundTrack getRoundTrack(){ return this.game.getRoundTrack(); }
+    RoundTrack getRoundTrack(){ return this.game.getRoundTrack(); }
 
-    @Override
-    public List<Die> getDraftPool() {
+    List<Die> getDraftPool() {
         return this.game.getDiceGenerator().getDraftPool();
     }
 
-    @Override
-    public void placeDie(UUID id, int draftPoolIndex, int x, int y) {
+    void placeDie(UUID id, int draftPoolIndex, int x, int y) {
         Die d = this.getDraftPool().get(draftPoolIndex);
-        getPlayer(id).placeDie(d,x,y);
+        getPlayer(id).placeDie(d, x, y);
         this.game.removeDieFromDraftPool(draftPoolIndex);
+        forEachServerNetwork(ServerNetwork::fullUpdate);
     }
 
-    @Override
-    public void useToolCard(UUID uuid, int cardIndex, JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
+    void useToolCard(UUID uuid, int cardIndex, JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         ToolCard toolCard = getToolCards().get(cardIndex);
         data.addProperty(JsonFields.PLAYER, getPlayer(uuid).getNickname());
         toolCard.effect(data);
@@ -159,46 +130,45 @@ public class GameController implements GameAPI, Observer {
             }
             toolCard.setUsed();
         }
+        forEachServerNetwork(ServerNetwork::fullUpdate);
     }
 
-    @Override
-    public JsonObject requiredData(int toolCardsIndex){
+    JsonObject requiredData(int toolCardsIndex){
         return this.game.getToolCards().get(toolCardsIndex).requiredData();
     }
 
-    @Override
-    public void nextTurn() {
+    void nextTurn() {
         this.game.nextTurn();
     }
 
-    @Override
     public void update(Observable o, Object arg) {
         String stringArg = String.valueOf(arg);
         if (o instanceof CountdownTimer) {
-            if (stringArg.startsWith(NotificationsMessages.TURN_MANAGER)) {
+            if (stringArg.startsWith(NotificationMessages.TURN_MANAGER)) {
                 String tick = stringArg.split(" ")[1];
                 Logger.debug("Game Timer tick (from update): " + tick);
-                serverNetworks.forEach(network -> network.updateTimerTick(Methods.GAME_TIMER_TICK, tick));
+                forEachServerNetwork(network -> network.updateTimerTick(Methods.GAME_TIMER_TICK, tick));
             }
         } else if (o instanceof Game) {
             switch (stringArg) {
-                case NotificationsMessages.TURN_MANAGEMENT:
-                case NotificationsMessages.SUSPENDED:
+                case NotificationMessages.TURN_MANAGEMENT:
+                case NotificationMessages.SUSPENDED:
                     if (!getRoundTrack().isGameOver())
                         this.game.getTurnManager().subscribeToTimer(this);
-                    serverNetworks.forEach(ServerNetwork::fullUpdate);
+                    forEachServerNetwork(ServerNetwork::fullUpdate);
                     break;
-                case NotificationsMessages.PLACE_DIE:
-                case NotificationsMessages.USE_TOOL_CARD:
-                    serverNetworks.forEach(ServerNetwork::fullUpdate);
-                    break;
-                case NotificationsMessages.GAME_OVER:
-                    serverNetworks.forEach(ServerNetwork::fullUpdate);
-                    serverNetworks.forEach(ServerNetwork::updateFinalScores);
-                    //serverNetworks.forEach(ServerNetwork::turnManagement);
+                case NotificationMessages.GAME_OVER:
+                    forEachServerNetwork(ServerNetwork::fullUpdate);
+                    forEachServerNetwork(ServerNetwork::updateFinalScores);
+                    closeServerNetworks();
                     SagradaServer.getInstance().getGameControllers().remove(this);
-
                     break;
+            }
+        } else if (o instanceof Player) {
+            if (game.arePlayersReady()) {
+                if (!getRoundTrack().isGameOver())
+                    this.game.getTurnManager().subscribeToTimer(this);
+                forEachServerNetwork(ServerNetwork::fullUpdate);
             }
         }
     }

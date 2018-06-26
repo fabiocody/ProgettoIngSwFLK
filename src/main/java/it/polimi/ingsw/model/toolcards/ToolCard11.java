@@ -9,7 +9,6 @@ import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
-import it.polimi.ingsw.shared.util.NotificationsMessages;
 
 
 /**
@@ -49,31 +48,27 @@ public class ToolCard11 extends ToolCard {
      * @throws InvalidEffectArgumentException thrown if <code>data</code> contains any invalid values.
      */
     public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
-        // TODO togliere switch
-        switch (state) {
-            case 0:
-                draftPoolIndex = data.get(JsonFields.DRAFT_POOL_INDEX).getAsInt();
-                if (draftPoolIndex < 0 || draftPoolIndex >= this.getGame().getDiceGenerator().getDraftPool().size())
-                    throw new InvalidEffectArgumentException("Invalid draftPoolIndex: " + draftPoolIndex);
-                this.exchangeDie(draftPoolIndex);
-                break;
-            case 1:
-                int newValue = data.get(JsonFields.NEW_VALUE).getAsInt();
-                if (newValue < 1 || newValue > 6)
-                    throw new InvalidEffectArgumentException("Invalid newValue: " + newValue);
-                this.chooseValue(draftPoolIndex, newValue);
-                String nickname = data.get(JsonFields.PLAYER).getAsString();
-                Player player = this.getGame().getPlayerForNickname(nickname);
-                int cellX = data.get(JsonFields.TO_CELL_X).getAsInt();
-                int cellY = data.get(JsonFields.TO_CELL_Y).getAsInt();
-                int cellIndex = this.linearizeIndex(cellX, cellY);
-                if (cellIndex < 0 || cellIndex >= player.getWindowPattern().getGrid().length)
-                    throw new InvalidEffectArgumentException("Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")");
-                this.placeDie(player, draftPoolIndex, cellX, cellY, cellIndex);
-                break;
+        if (state == 0) {
+            draftPoolIndex = data.get(JsonFields.DRAFT_POOL_INDEX).getAsInt();
+            if (draftPoolIndex < 0 || draftPoolIndex >= this.getGame().getDiceGenerator().getDraftPool().size())
+                throw new InvalidEffectArgumentException("Invalid draftPoolIndex: " + draftPoolIndex);
+            this.exchangeDie(draftPoolIndex);
+
+        } else if (state == 1) {
+            int newValue = data.get(JsonFields.NEW_VALUE).getAsInt();
+            if (newValue < 1 || newValue > 6)
+                throw new InvalidEffectArgumentException("Invalid newValue: " + newValue);
+            this.chooseValue(draftPoolIndex, newValue);
+            String nickname = data.get(JsonFields.PLAYER).getAsString();
+            Player player = this.getGame().getPlayerForNickname(nickname);
+            int cellX = data.get(JsonFields.TO_CELL_X).getAsInt();
+            int cellY = data.get(JsonFields.TO_CELL_Y).getAsInt();
+            int cellIndex = this.linearizeIndex(cellX, cellY);
+            if (cellIndex < 0 || cellIndex >= player.getWindowPattern().getGrid().length)
+                throw new InvalidEffectArgumentException("Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")");
+            this.placeDie(player, draftPoolIndex, cellX, cellY, cellIndex);
+
         }
-        setChanged();
-        notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
 
     /**

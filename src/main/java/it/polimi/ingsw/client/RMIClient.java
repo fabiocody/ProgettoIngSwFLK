@@ -24,10 +24,8 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     @Override
     void setup() throws IOException {
         try {
-            System.setProperty("java.rmi.server.hostname", getHost());
             Registry registry = LocateRegistry.getRegistry(getHost(), getPort());
             ServerAPI welcomeServer = (ServerAPI) registry.lookup(Constants.SERVER_RMI_NAME);
-            //ServerAPI welcomeServer = (ServerAPI) Naming.lookup("//" + getHost() + "/" + Constants.SERVER_RMI_NAME);
             ClientAPI clientRemote = (ClientAPI) UnicastRemoteObject.exportObject(this, 0);
             server = welcomeServer.connect(clientRemote);
             if (server == null)
@@ -36,14 +34,14 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
             Logger.error("Malformed URL");
             throw new IOException();
         } catch (NotBoundException e) {
-            Logger.error("Il riferimento passato non è associato a nulla!");
+            Logger.error(Constants.SERVER_RMI_NAME + " not bound");
             throw new IOException();
         }
     }
 
     @Override
     void teardown() {
-        // TODO
+        server = null;
     }
 
     @Override
@@ -51,7 +49,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             uuid = server.addPlayer(nickname);
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
         return uuid;
     }
@@ -61,7 +59,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             server.choosePattern(patternIndex);
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
     }
 
@@ -70,7 +68,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             return server.placeDie(draftPoolIndex, x, y);
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
             return false;
         }
     }
@@ -80,16 +78,16 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             server.nextTurn();
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
     }
 
     @Override
     JsonObject requiredData(int cardIndex) {
         try {
-            return server.requiredData(cardIndex);
+            return jsonParser.parse(server.requiredData(cardIndex)).getAsJsonObject();
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
             return null;
         }
     }
@@ -97,9 +95,9 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     @Override
     boolean useToolCard(int cardIndex, JsonObject requiredData) {
         try {
-            return server.useToolCard(cardIndex, requiredData);
+            return server.useToolCard(cardIndex, requiredData.toString());
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
             return false;
         }
     }
@@ -109,19 +107,18 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             server.probe();
         } catch (RemoteException e) {
-            connectionError(e);
+            connectionError();
         }
         this.rescheduleProbeTimer();
     }
 
-    private void connectionError(Throwable e) {
+    private void connectionError() {
         Logger.connectionLost(nickname);
-        e.printStackTrace();
         System.exit(Constants.EXIT_ERROR);
     }
 
     @Override
-    public void update(String jsonString) throws RemoteException {
+    public void update(String jsonString) {
         JsonObject payload = jsonParser.parse(jsonString).getAsJsonObject();
         this.setChanged();
         this.notifyObservers(payload);

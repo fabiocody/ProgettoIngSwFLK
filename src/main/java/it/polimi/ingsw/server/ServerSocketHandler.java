@@ -31,6 +31,17 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         Thread.currentThread().interrupt();
     }
 
+    @Override
+    void close() {
+        try {
+            if (this.in != null) this.in.close();
+            if (this.out != null) this.out.close();
+            if (this.clientSocket != null) this.clientSocket.close();
+        } catch (IOException e) {
+            Logger.error("Error closing ServerNetwork");
+        }
+    }
+
     // REQUESTS HANDLER
 
     @Override
@@ -245,6 +256,12 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         if ((payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.TO_CELL_X)) &&
                 (!(payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.FROM_CELL_X))) && (this.gameController.getPlayer(id).isDiePlacedInThisTurn()) && (!payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.SECOND_DIE_PLACEMENT))) {
             payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.DIE);
+        }
+        if(payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX) && this.gameController.getDraftPool().isEmpty()){
+            payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.DRAFT_POOL_INDEX);
+        }
+        if(payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.FROM_CELL_X) && this.gameController.getWindowPatternOf(this.nickname).isGridEmpty()){
+            payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.WINDOW_PATTERNS);
         }
         Logger.debugPayload(payload);
         out.println(payload.toString());

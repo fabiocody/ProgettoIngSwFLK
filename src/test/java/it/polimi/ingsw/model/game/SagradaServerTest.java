@@ -1,8 +1,6 @@
-package it.polimi.ingsw.server;
+package it.polimi.ingsw.model.game;
 
-import it.polimi.ingsw.model.game.LoginFailedException;
-import it.polimi.ingsw.model.game.NicknameAlreadyUsedInGameException;
-import it.polimi.ingsw.model.game.WaitingRoom;
+import it.polimi.ingsw.server.SagradaServer;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,7 +9,7 @@ public class SagradaServerTest {
 
     @Test
     void isNicknameUsedTest() {
-        assertFalse(SagradaServer.getInstance().isNicknameUsed("ABC"));
+        Assertions.assertFalse(SagradaServer.getInstance().isNicknameUsed("ABC"));
         try{
             WaitingRoom.getInstance().addPlayer("ABC");
             assertTrue(SagradaServer.getInstance().isNicknameUsed("ABC"));

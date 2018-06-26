@@ -13,13 +13,14 @@ import java.util.*;
 
 public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
-    ClientAPI client;
+    private ClientAPI client;
+    private JsonParser jsonParser;
 
     private ServerRMIHandler(ClientAPI client) {
-        System.setProperty("java.rmi.server.useCodebaseOnly", String.valueOf(false));
+        System.setProperty("java.rmi.game.useCodebaseOnly", String.valueOf(false));
         this.client = client;
+        this.jsonParser = new JsonParser();
         if (this.client != null) WaitingRoomController.getInstance().addServerNetwork(this);
-        //if (clientHostname != null) System.setProperty("java.rmi.server.hostname", clientHostname);
     }
 
     ServerRMIHandler() {
@@ -35,7 +36,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
             return (ServerAPI) UnicastRemoteObject.exportObject((ServerAPI) remoteServer, 0);
         } catch (RemoteException e) {
             Logger.error("Cannot export new ServerAPI");
-            e.printStackTrace();
+            if (Logger.isDebugActive()) e.printStackTrace();
             return null;
         }
     }
@@ -80,6 +81,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
             return true;
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
             Logger.log(this.nickname + "'s die placement attempt was refused");
+            if (Logger.isDebugActive()) e.printStackTrace();
             return false;
         }
     }
@@ -91,7 +93,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     }
 
     @Override
-    public JsonObject requiredData(int cardIndex) {
+    public String requiredData(int cardIndex) {
         JsonObject payload = this.gameController.requiredData(cardIndex);
         Player player = this.gameController.getPlayer(uuid);
         if ((player.getFavorTokens()<2 && gameController.getToolCards().get(cardIndex).isUsed()) ||
@@ -105,20 +107,29 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
                 (!(payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.FROM_CELL_X))) && (player.isDiePlacedInThisTurn()) && (!payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.SECOND_DIE_PLACEMENT))) {
             payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.DIE);
         }
-        return payload;
+        return payload.toString();
     }
 
     @Override
-    public boolean useToolCard(int cardIndex, JsonObject requiredData) {
+    public boolean useToolCard(int cardIndex, String requiredDataString) {
+        JsonObject requiredData = jsonParser.parse(requiredDataString).getAsJsonObject();
         requiredData.addProperty(JsonFields.PLAYER_ID, uuid.toString());
         try {
             this.gameController.useToolCard(uuid, cardIndex, requiredData);
             Logger.log(this.nickname + " used a tool card");
             return true;
         } catch (InvalidEffectArgumentException | InvalidEffectResultException e) {
-            //e.printStackTrace();
+            if (Logger.isDebugActive()) e.printStackTrace();
             Logger.log(this.nickname + " usage of tool card was refused");
             return false;
+        }
+    }
+
+    private void clientUpdate(String payload) {
+        try {
+            client.update(payload);
+        } catch (RemoteException e) {
+            connectionError(e);
         }
     }
 
@@ -127,132 +138,84 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     JsonObject updatePlayersList() {
         JsonObject payload = super.updatePlayersList();
         Logger.debug("PAYLOAD " + payload.toString());
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError(e);
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject updateToolCards() {
         JsonObject payload = super.updateToolCards();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError(e);
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject sendPublicObjectiveCards() {
         JsonObject payload = super.sendPublicObjectiveCards();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError(e);
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject updateWindowPatterns() {
         JsonObject payload = super.updateWindowPatterns();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError(e);
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject updateFavorTokens() {
         JsonObject payload = super.updateFavorTokens();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError(e);
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject updateDraftPool() {
         JsonObject payload = super.updateDraftPool();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError(e);
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject updateRoundTrack() {
         JsonObject payload = super.updateRoundTrack();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError(e);
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject turnManagement() {
         JsonObject payload = super.turnManagement();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError(e);
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject updateFinalScores() {
         JsonObject payload = super.updateFinalScores();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError(e);
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject updateTimerTick(Methods method, String tick) {
         JsonObject payload = super.updateTimerTick(method, tick);
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError(e);
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject updateWaitingPlayers() {
         JsonObject payload = super.updateWaitingPlayers();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError(e);
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
     @Override
     JsonObject setupGame() {
         JsonObject payload = super.setupGame();
-        try {
-            client.update(payload.toString());
-        } catch (RemoteException e) {
-            connectionError(e);
-        }
+        clientUpdate(payload.toString());
         return payload;
     }
 
@@ -271,10 +234,17 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         Thread.currentThread().interrupt();
     }
 
+    @Override
+    void close() {
+        client = null;
+    }
+
     private void connectionError(Throwable e) {
         Logger.connectionLost(nickname);
-        e.printStackTrace();
+        if (Logger.isDebugActive())
+            e.printStackTrace();
         this.onUserDisconnection();
+        this.close();
     }
 
 }

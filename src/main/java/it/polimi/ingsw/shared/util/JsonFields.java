@@ -45,7 +45,6 @@ public class JsonFields {
     public static final String TO_CELL_X = "toCellX";
     public static final String TO_CELL_Y = "toCellY";
     public static final String PLAYER = "player";
-    public static final String PUT_AWAY = "putAway";
     public static final String CONTINUE = "continue";
     public static final String IMPOSSIBLE_TO_USE_TOOL_CARD = "impossibleToUseToolCard";
     public static final String STOP = "stop";
@@ -53,6 +52,7 @@ public class JsonFields {
     public static final String SUSPENDED_PLAYERS = "suspendedPlayers";
     public static final String NO_FAVOR_TOKENS = "noFavorTokens";
     public static final String SECOND_DIE_PLACEMENT = "secondDiePlacement";
+    public static final String WINNER = "WINNER";
 
     private JsonFields() throws IllegalAccessException {
         throw new IllegalAccessException("Cannot instantiate");

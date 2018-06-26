@@ -2,7 +2,7 @@ package it.polimi.ingsw.model.game;
 
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.shared.util.Constants;
-import it.polimi.ingsw.shared.util.NotificationsMessages;
+import it.polimi.ingsw.shared.util.NotificationMessages;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -86,14 +86,14 @@ public class RoundTrack extends Observable implements Observer {
         synchronized (currentRoundLock) {
             synchronized (gameOverLock) {
                 this.currentRound++;
-                if (this.currentRound >= Constants.NUMBER_OF_ROUNDS && !gameOver) {
+                if (this.currentRound > Constants.NUMBER_OF_ROUNDS && !gameOver) {
                     this.gameOver = true;
                     this.setChanged();
-                    this.notifyObservers(NotificationsMessages.GAME_OVER);
+                    this.notifyObservers(NotificationMessages.GAME_OVER);
                 }
                 if (!gameOver) {
                     this.setChanged();
-                    this.notifyObservers(NotificationsMessages.ROUND_INCREMENTED);
+                    this.notifyObservers(NotificationMessages.ROUND_INCREMENTED);
                 }
             }
         }
@@ -157,12 +157,12 @@ public class RoundTrack extends Observable implements Observer {
     public void update(Observable o, Object arg) {
         if (o instanceof TurnManager) {
             String stringArg = String.valueOf(arg);
-            if (stringArg.equals(NotificationsMessages.ROUND_INCREMENTED)) {
+            if (stringArg.equals(NotificationMessages.ROUND_INCREMENTED)) {
                 this.incrementRound();
-            } else if (stringArg.equals(NotificationsMessages.GAME_OVER)) {
+            } else if (stringArg.equals(NotificationMessages.GAME_OVER)) {
                 this.gameOver = true;
                 this.setChanged();
-                this.notifyObservers(NotificationsMessages.GAME_OVER);
+                this.notifyObservers(NotificationMessages.GAME_OVER);
             }
         }
     }

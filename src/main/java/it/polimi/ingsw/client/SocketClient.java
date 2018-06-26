@@ -22,15 +22,12 @@ public class SocketClient extends ClientNetwork {
     private Queue<JsonObject> responseBuffer;
     private final Object responseBufferLock = new Object();
     private Thread recvThread;
-    private boolean toBeKilled = false;
-
-    // FLAGS
 
     /**
      * This is the constructor of the client
      *
-     * @param host the IP address of the server you want to connect to
-     * @param port the port of the server to which it is listening
+     * @param host the IP address of the game you want to connect to
+     * @param port the port of the game to which it is listening
      * @param debug debug messages will be shown if true
      */
     SocketClient(String host, int port, boolean debug) {
@@ -50,7 +47,6 @@ public class SocketClient extends ClientNetwork {
 
     @Override
     public void teardown() throws IOException {
-        this.toBeKilled = true;
         recvThread.interrupt();
         if (this.in != null) this.in.close();
         if (this.out != null) this.out.close();
@@ -58,7 +54,7 @@ public class SocketClient extends ClientNetwork {
     }
 
     /**
-     * This method waits for responses from the server
+     * This method waits for responses from the game
      *
      * @return a JsonObject containing the responses
      */

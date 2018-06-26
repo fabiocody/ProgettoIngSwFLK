@@ -7,7 +7,6 @@ import it.polimi.ingsw.model.placementconstraints.*;
 import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
-import it.polimi.ingsw.shared.util.NotificationsMessages;
 
 
 /**
@@ -44,6 +43,7 @@ public class ToolCard2 extends ToolCard {
      * @throws InvalidEffectArgumentException thrown if <code>data</code> contains any invalid values.
      */
     public void effect(JsonObject data) throws InvalidEffectArgumentException, InvalidEffectResultException {
+        PlacementConstraint constraint;
         String nickname = data.get(JsonFields.PLAYER).getAsString();
         Player player = this.getGame().getPlayerForNickname(nickname);
         int fromCellX = data.get(JsonFields.FROM_CELL_X).getAsInt();
@@ -56,10 +56,9 @@ public class ToolCard2 extends ToolCard {
         int toIndex = this.linearizeIndex(toCellX, toCellY);
         if (toIndex < 0 || toIndex >= player.getWindowPattern().getGrid().length)
             throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
-        PlacementConstraint constraint = new PositionConstraint(new ValueConstraint(new OrthogonalConstraint(new EmptyConstraint())));
+        constraint = (player.getWindowPattern().checkIfOnlyOneDie()) ?
+                new BorderConstraint(new ValueConstraint(new EmptyConstraint())) : new PositionConstraint(new ValueConstraint(new OrthogonalConstraint(new EmptyConstraint())));
         this.moveDie(player, fromIndex, toIndex, constraint);
-        setChanged();
-        notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
 
     /**

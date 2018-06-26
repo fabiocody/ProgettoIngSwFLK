@@ -6,7 +6,6 @@ import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
-import it.polimi.ingsw.shared.util.NotificationsMessages;
 
 
 /**
@@ -54,8 +53,6 @@ public class ToolCard5 extends ToolCard {
         } catch (Exception e) {
             throw new InvalidEffectResultException();
         }
-        setChanged();
-        notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
 
     /**
