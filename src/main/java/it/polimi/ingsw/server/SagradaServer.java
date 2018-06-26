@@ -128,7 +128,7 @@ public class SagradaServer extends Observable implements Observer {
                 .anyMatch(Player::isSuspended);
     }
 
-    public synchronized boolean isNicknameNotValid(String nickname){
+    public synchronized boolean isNicknameNotValid(String nickname) {
         return nickname.contains(" ") || nickname.equals("") || nickname.length() > Constants.MAX_NICKNAME_LENGTH;
     }
 

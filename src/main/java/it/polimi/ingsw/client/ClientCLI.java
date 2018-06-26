@@ -454,14 +454,16 @@ public class ClientCLI extends Client {
         this.setNickname(nickname);
         setUUID(ClientNetwork.getInstance().addPlayer(this.getNickname()));
         setLogged(this.getUUID() != null);
-        //if (isLogged()) Logger.println("Login riuscito!");
         if (!isLogged()) {
-            if(nickname.equals(""))
+            if (nickname.equals("")) {
                 Logger.println("Login fallito! I nickname non possono essere vuoti");
-            else if(nickname.contains(" "))
+            } else if (nickname.contains(" ")) {
                 Logger.println("Login fallito! I nickname non possono contenere spazi");
-            else if(nickname.length() > MAX_NICKNAME_LENGTH)
-                Logger.println("Login fallito! I nickname non possono essere più lunghi di 20 caratteri");
+            } else if (nickname.length() > MAX_NICKNAME_LENGTH) {
+                Logger.println("Login fallito! I nickname non possono essere più lunghi di " + MAX_NICKNAME_LENGTH + " caratteri");
+            } else {
+                Logger.println("Login fallito! Questo nickname è già in uso");
+            }
         }
     }
 
@@ -599,7 +601,7 @@ public class ClientCLI extends Client {
                     .map(JsonElement::getAsString)
                     .reduce((s, r) -> s + ", " + r)
                     .orElse(null);
-            Logger.print(waitingRoomMessage());
+            if (isLogged()) Logger.print(waitingRoomMessage());
         }
     }
 
