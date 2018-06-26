@@ -308,19 +308,20 @@ public class Game extends Observable implements Observer {
             }
         } else if (o instanceof Player) {
             if (arg != null && (arg.equals(NotificationMessages.PLACE_DIE) || arg.equals(NotificationMessages.SUSPENDED))) {
-                if (arg.equals(NotificationMessages.PLACE_DIE))
-                setChanged();
-                notifyObservers(arg);
+                if (arg.equals(NotificationMessages.PLACE_DIE)) {
+                    setChanged();
+                    notifyObservers(arg);
+                }
             } else if (this.arePlayersReady()) {
                 setChanged();
                 notifyObservers(NotificationMessages.TURN_MANAGEMENT);
             }
-        } else if (o instanceof ToolCard) {
+        } /*else if (o instanceof ToolCard) {
             if (arg.equals(NotificationMessages.USE_TOOL_CARD)) {
                 setChanged();
                 notifyObservers(arg);
             }
-        }
+        }*/
     }
 
 }

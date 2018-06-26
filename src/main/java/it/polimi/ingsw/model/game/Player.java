@@ -154,8 +154,8 @@ public class Player extends Observable {
         if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException("");
         this.getWindowPattern().placeDie(d, Constants.NUMBER_OF_PATTERN_COLUMNS * y + x);
         setDiePlacedInThisTurn(true);
-        this.setChanged();
-        this.notifyObservers(NotificationMessages.PLACE_DIE);
+        //this.setChanged();
+        //this.notifyObservers(NotificationMessages.PLACE_DIE);
     }
 
     public /*synchronized*/ void placeDie(Die d, int position, PlacementConstraint constraint){

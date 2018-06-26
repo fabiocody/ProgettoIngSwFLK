@@ -85,7 +85,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     @Override
     JsonObject requiredData(int cardIndex) {
         try {
-            return server.requiredData(cardIndex);
+            return jsonParser.parse(server.requiredData(cardIndex)).getAsJsonObject();
         } catch (RemoteException e) {
             connectionError();
             return null;
@@ -95,7 +95,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     @Override
     boolean useToolCard(int cardIndex, JsonObject requiredData) {
         try {
-            return server.useToolCard(cardIndex, requiredData);
+            return server.useToolCard(cardIndex, requiredData.toString());
         } catch (RemoteException e) {
             connectionError();
             return false;

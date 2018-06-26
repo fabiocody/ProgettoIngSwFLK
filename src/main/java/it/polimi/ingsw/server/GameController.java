@@ -115,8 +115,9 @@ public class GameController extends BaseController implements Observer {
 
     void placeDie(UUID id, int draftPoolIndex, int x, int y) {
         Die d = this.getDraftPool().get(draftPoolIndex);
-        getPlayer(id).placeDie(d,x,y);
+        getPlayer(id).placeDie(d, x, y);
         this.game.removeDieFromDraftPool(draftPoolIndex);
+        forEachServerNetwork(ServerNetwork::fullUpdate);
     }
 
     void useToolCard(UUID uuid, int cardIndex, JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
@@ -133,6 +134,7 @@ public class GameController extends BaseController implements Observer {
             }
             toolCard.setUsed();
         }
+        forEachServerNetwork(ServerNetwork::fullUpdate);
     }
 
     JsonObject requiredData(int toolCardsIndex){
@@ -159,10 +161,10 @@ public class GameController extends BaseController implements Observer {
                         this.game.getTurnManager().subscribeToTimer(this);
                     forEachServerNetwork(ServerNetwork::fullUpdate);
                     break;
-                case NotificationMessages.PLACE_DIE:
-                case NotificationMessages.USE_TOOL_CARD:
+                //case NotificationMessages.PLACE_DIE:
+                /*case NotificationMessages.USE_TOOL_CARD:
                     forEachServerNetwork(ServerNetwork::fullUpdate);
-                    break;
+                    break;*/
                 case NotificationMessages.GAME_OVER:
                     forEachServerNetwork(ServerNetwork::fullUpdate);
                     forEachServerNetwork(ServerNetwork::updateFinalScores);

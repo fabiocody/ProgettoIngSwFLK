@@ -25,7 +25,6 @@ public class ClientCLI extends Client {
     private String wrTimeout;
     private String wrPlayers;
     private String gameTimeout = "00";
-
     private int draftPoolLength;
     private long roundTrackLength = 0;
 
@@ -137,6 +136,7 @@ public class ClientCLI extends Client {
                 try {
                     patternIndex = Integer.valueOf(input);
                 } catch (NumberFormatException e) {
+                    if (Logger.isDebugActive()) e.printStackTrace();
                     continue;
                 }
             } while (patternIndex <= 0 || patternIndex > 4);
@@ -145,6 +145,7 @@ public class ClientCLI extends Client {
             Logger.println("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
             while (!this.isGameStarted()) Thread.sleep(10);
         } catch (IOException | InterruptedException e){
+            if (Logger.isDebugActive()) e.printStackTrace();
             throw e;
         }
     }
