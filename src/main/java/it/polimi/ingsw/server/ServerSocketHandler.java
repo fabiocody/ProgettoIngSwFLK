@@ -257,6 +257,12 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
                 (!(payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.FROM_CELL_X))) && (this.gameController.getPlayer(id).isDiePlacedInThisTurn()) && (!payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.SECOND_DIE_PLACEMENT))) {
             payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.DIE);
         }
+        if(payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX) && this.gameController.getDraftPool().isEmpty()){
+            payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.DRAFT_POOL_INDEX);
+        }
+        if(payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.FROM_CELL_X) && this.gameController.getWindowPatternOf(this.nickname).isGridEmpty()){
+            payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.WINDOW_PATTERNS);
+        }
         Logger.debugPayload(payload);
         out.println(payload.toString());
     }
