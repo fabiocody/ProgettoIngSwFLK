@@ -34,7 +34,7 @@ This game is written in Java, so you need to have Java Runtime Environment 8 or 
 
 ### Playing under Linux
 
-Before playing under Linux, we suggest to have a look at your `/etc/hosts` file. On certain distros (e.g. Debian, Ubuntu, ...), it can contain a line such as
+Before playing under Linux, we suggest to have a look at your `/etc/hosts` file. On certain distros (we tested on Debian and Ubuntu), it can contain a line such as
 
 ```
 127.0.1.1   <hostname>
