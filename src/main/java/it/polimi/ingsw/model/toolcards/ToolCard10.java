@@ -6,7 +6,6 @@ import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
-import it.polimi.ingsw.shared.util.NotificationsMessages;
 
 
 /**
@@ -44,8 +43,6 @@ public class ToolCard10 extends ToolCard {
         Die die = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
         int value = die.getValue();
         die.setValue(7 - value);
-        setChanged();
-        notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
 
     /**

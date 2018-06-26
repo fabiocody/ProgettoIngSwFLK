@@ -1,16 +1,13 @@
 package it.polimi.ingsw.server;
 
-import it.polimi.ingsw.model.game.Game;
-import it.polimi.ingsw.model.game.Player;
-import it.polimi.ingsw.model.game.WaitingRoom;
+import it.polimi.ingsw.model.game.*;
 import it.polimi.ingsw.shared.rmi.ServerAPI;
 import it.polimi.ingsw.shared.util.*;
 import joptsimple.*;
 import java.io.IOException;
 import java.net.*;
-import java.rmi.Naming;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
+import java.rmi.*;
+import java.rmi.registry.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.*;
@@ -27,9 +24,10 @@ public class SagradaServer extends Observable implements Observer {
     private static SagradaServer instance;
 
     private int port;
-    private boolean run = true;
     private List<GameController> gameControllers;
     private int gameTimeout = 60;
+
+    private ServerAPI welcomeRMIServer;
 
     /**
      * this method is the constructor that sets the port and adds an observer to the waiting room
@@ -47,22 +45,23 @@ public class SagradaServer extends Observable implements Observer {
         return instance;
     }
 
-    private void start(int port, int wrTimeout, int gameTimeout, boolean debugActive) {
+    private void start(String host, int port, int wrTimeout, int gameTimeout, boolean debugActive) {
         this.port = port;
         this.gameTimeout = gameTimeout;
         Logger.setDebugActive(debugActive);
         WaitingRoom.getInstance().setTimeout(wrTimeout);
         new Thread(this::startSocketServer).start();
-        this.startRMI();
+        this.startRMI(host);
     }
 
     /**
      *
      */
     private void startSocketServer() {
+        boolean run = true;
         ExecutorService executor = Executors.newCachedThreadPool();
         try (ServerSocket serverSocket = new ServerSocket(this.port)){
-            System.out.println("Socket server up and running");
+            Logger.log("Socket server up and running");
             while (run) {
                 Socket socket = serverSocket.accept();
                 ServerSocketHandler serverSocketHandler = new ServerSocketHandler(socket);
@@ -76,19 +75,13 @@ public class SagradaServer extends Observable implements Observer {
         }
     }
 
-    private void startRMI() {
+    private void startRMI(String host) {
         try {
-            LocateRegistry.createRegistry(Constants.DEFAULT_RMI_PORT);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        try {
-            ServerAPI welcomeServer = (ServerAPI) UnicastRemoteObject.exportObject(new ServerRMIHandler(), 0);
-            Naming.rebind("//localhost/" + Constants.SERVER_RMI_NAME, welcomeServer);
-            Logger.println("RMI server up and running");
-        } catch (MalformedURLException e) {
-            Logger.error("Cannot register object");
-            Logger.error("RMI server couldn't be started");
+            System.setProperty("java.rmi.server.hostname", host);
+            Registry registry = LocateRegistry.createRegistry(Constants.DEFAULT_RMI_PORT);
+            welcomeRMIServer = (ServerAPI) UnicastRemoteObject.exportObject(new ServerRMIHandler(), 0);
+            registry.rebind(Constants.SERVER_RMI_NAME, welcomeRMIServer);
+            Logger.log("RMI server up and running");
         } catch (RemoteException e) {
             Logger.error("Connection error: " + e.getMessage());
             Logger.error("RMI server couldn't be started");
@@ -112,16 +105,9 @@ public class SagradaServer extends Observable implements Observer {
      */
     public synchronized boolean isNicknameUsed(String nickname) {
         return isNicknameUsedWR(nickname) || (isNicknameUsedGame(nickname) != null && !isNicknameSuspended(nickname));
-        /*Stream<String> gameStream = this.getGames().stream()
-                .flatMap(g -> g.getPlayers().stream())
-                .map(Player::getNickname);
-        Stream<String> waitingRoomStream = WaitingRoom.getInstance().getWaitingPlayers().stream()
-                .map(Player::getNickname);
-        return Stream.concat(gameStream, waitingRoomStream)
-                .anyMatch(n -> n.equals(nickname));*/
     }
 
-    public synchronized boolean isNicknameUsedWR(String nickname) {
+    private synchronized boolean isNicknameUsedWR(String nickname) {
         return WaitingRoom.getInstance().getWaitingPlayers().stream()
                 .map(Player::getNickname)
                 .anyMatch(n -> n.equals(nickname));
@@ -135,14 +121,14 @@ public class SagradaServer extends Observable implements Observer {
         return game.orElse(null);
     }
 
-    public synchronized boolean isNicknameSuspended(String nickname) {
+    private synchronized boolean isNicknameSuspended(String nickname) {
         return this.getGameControllers().stream()
                 .flatMap(controller -> controller.getGame().getPlayers().stream())
                 .filter(player -> player.getNickname().equals(nickname))
                 .anyMatch(Player::isSuspended);
     }
 
-    public synchronized boolean isNicknameNotValid(String nickname){
+    public synchronized boolean isNicknameNotValid(String nickname) {
         return nickname.contains(" ") || nickname.equals("") || nickname.length() > Constants.MAX_NICKNAME_LENGTH;
     }
 
@@ -170,13 +156,17 @@ public class SagradaServer extends Observable implements Observer {
 
     public static void main(String[] args) {
         OptionParser parser = new OptionParser();
+        OptionSpec<String> serverHostArgument = parser.nonOptions(CLIArguments.HOST);
         parser.accepts(CLIArguments.DEBUG);
-        parser.accepts(CLIArguments.WR_TIMEOUT).withRequiredArg().ofType(Integer.class).defaultsTo(30);
-        parser.accepts(CLIArguments.GAME_TIMEOUT).withRequiredArg().ofType(Integer.class).defaultsTo(90);
+        parser.accepts(CLIArguments.WR_TIMEOUT).withRequiredArg().ofType(Integer.class).defaultsTo(Constants.DEFAULT_WR_TIMEOUT);
+        parser.accepts(CLIArguments.GAME_TIMEOUT).withRequiredArg().ofType(Integer.class).defaultsTo(Constants.DEFAULT_GAME_TIMEOUT);
         parser.accepts(CLIArguments.PORT).withRequiredArg().ofType(Integer.class);
         try {
             OptionSet options = parser.parse(args);
-            int wrTimerout = (Integer) options.valueOf(CLIArguments.WR_TIMEOUT);
+            String host = options.valueOf(serverHostArgument);
+            if (host == null) throw new NullPointerException();
+            boolean debug = options.has(CLIArguments.DEBUG);
+            int wrTimeout = (Integer) options.valueOf(CLIArguments.WR_TIMEOUT);
             int gameTimeout = (Integer) options.valueOf(CLIArguments.GAME_TIMEOUT);
             int port;
             if (options.has(CLIArguments.PORT)) {
@@ -184,9 +174,9 @@ public class SagradaServer extends Observable implements Observer {
             } else {
                 port = Constants.DEFAULT_PORT;
             }
-            SagradaServer.getInstance().start(port, wrTimerout, gameTimeout, options.has(CLIArguments.DEBUG));
-        } catch (OptionException e) {
-            System.out.println("usage: sagradaserver [--debug] [--port PORT] [--wr-timeout Y] [--game-timeout Z]");
+            SagradaServer.getInstance().start(host, port, wrTimeout, gameTimeout, debug);
+        } catch (OptionException | NullPointerException e) {
+            Logger.println(Constants.SERVER_USAGE_STRING);
         }
     }
 

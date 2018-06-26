@@ -22,7 +22,6 @@ public class SocketClient extends ClientNetwork {
     private Queue<JsonObject> responseBuffer;
     private final Object responseBufferLock = new Object();
     private Thread recvThread;
-    private boolean toBeKilled = false;
 
     // FLAGS
 
@@ -50,7 +49,6 @@ public class SocketClient extends ClientNetwork {
 
     @Override
     public void teardown() throws IOException {
-        this.toBeKilled = true;
         recvThread.interrupt();
         if (this.in != null) this.in.close();
         if (this.out != null) this.out.close();

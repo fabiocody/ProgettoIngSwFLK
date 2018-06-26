@@ -4,7 +4,7 @@ import it.polimi.ingsw.model.dice.DiceGenerator;
 import it.polimi.ingsw.model.objectivecards.*;
 import it.polimi.ingsw.model.patterncards.PatternCardsGenerator;
 import it.polimi.ingsw.model.toolcards.*;
-import it.polimi.ingsw.shared.util.NotificationsMessages;
+import it.polimi.ingsw.shared.util.NotificationMessages;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -239,7 +239,7 @@ public class Game extends Observable implements Observer {
             // TODO Choose card
         }
         this.toolCards = ToolCardsGenerator.generate(this);
-        this.toolCards.forEach(card -> card.addObserver(this));
+        //this.toolCards.forEach(card -> card.addObserver(this));
         this.publicObjectiveCards = this.getObjectiveCardsGenerator().generatePublic();
         this.getDiceGenerator().generateDraftPool();
     }
@@ -247,14 +247,14 @@ public class Game extends Observable implements Observer {
     public void removeDieFromDraftPool(int draftPoolIndex){
         this.diceGenerator.drawDieFromDraftPool(draftPoolIndex);
         setChanged();
-        notifyObservers(NotificationsMessages.DRAFT_POOL);
+        notifyObservers(NotificationMessages.DRAFT_POOL);
     }
 
     public void nextTurn() {
         this.turnManager.nextTurn();
         if(!this.roundTrack.isGameOver()) {
             setChanged();
-            notifyObservers(NotificationsMessages.TURN_MANAGEMENT);
+            notifyObservers(NotificationMessages.TURN_MANAGEMENT);
         }
     }
 
@@ -295,32 +295,21 @@ public class Game extends Observable implements Observer {
      */
     public void update(Observable o, Object arg) {
         if (o instanceof RoundTrack) {
-            if (arg.equals(NotificationsMessages.ROUND_INCREMENTED)) {
+            if (arg.equals(NotificationMessages.ROUND_INCREMENTED)) {
                 this.getRoundTrack().putDice(this.getDiceGenerator().getDraftPool());
                 this.getDiceGenerator().generateDraftPool();
                 setChanged();
-                notifyObservers(NotificationsMessages.ROUND_TRACK);
-            } else if (arg.equals(NotificationsMessages.GAME_OVER)) {
+                notifyObservers(NotificationMessages.ROUND_TRACK);
+            } else if (arg.equals(NotificationMessages.GAME_OVER)) {
                 this.getTurnManager().cancelTimer();
                 this.endGame();
                 setChanged();
-                notifyObservers(NotificationsMessages.GAME_OVER);
+                notifyObservers(NotificationMessages.GAME_OVER);
             }
-        } else if (o instanceof Player) {
-            if (arg != null && (arg.equals(NotificationsMessages.PLACE_DIE) || arg.equals(NotificationsMessages.SUSPENDED))) {
-                if (arg.equals(NotificationsMessages.PLACE_DIE))
-                setChanged();
-                notifyObservers(arg);
-            } else if (this.arePlayersReady()) {
-                setChanged();
-                notifyObservers(NotificationsMessages.TURN_MANAGEMENT);
-            }
-        } else if (o instanceof ToolCard) {
-            if (arg.equals(NotificationsMessages.USE_TOOL_CARD)) {
-                setChanged();
-                notifyObservers(arg);
-            }
-        }
+        } /*else if (o instanceof Player && this.arePlayersReady()) {
+            setChanged();
+            notifyObservers(NotificationMessages.TURN_MANAGEMENT);
+        }*/
     }
 
 }

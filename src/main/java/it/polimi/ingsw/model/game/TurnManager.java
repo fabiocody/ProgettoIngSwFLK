@@ -2,7 +2,7 @@ package it.polimi.ingsw.model.game;
 
 import it.polimi.ingsw.server.SagradaServer;
 import it.polimi.ingsw.shared.util.Logger;
-import it.polimi.ingsw.shared.util.NotificationsMessages;
+import it.polimi.ingsw.shared.util.NotificationMessages;
 
 import java.util.*;
 import java.util.stream.*;
@@ -36,7 +36,7 @@ public class TurnManager extends Observable {
         Stream<Integer> backRange = IntStream.range(0, this.getNumberOfPlayers()).boxed().sorted(Collections.reverseOrder());
         this.playersOrder = Stream.concat(forwardRange, backRange).collect(Collectors.toList());
         this.index = 0;
-        this.timer = new CountdownTimer(NotificationsMessages.TURN_MANAGER);
+        this.timer = new CountdownTimer(NotificationMessages.TURN_MANAGER);
         this.roundOver = false;
         this.setActivePlayer(this.getCurrentPlayer());
     }
@@ -163,7 +163,7 @@ public class TurnManager extends Observable {
         this.timer.cancel(true);
         if (countUnsuspendedPlayers() == 1) {
             this.setChanged();
-            this.notifyObservers(NotificationsMessages.GAME_OVER);
+            this.notifyObservers(NotificationMessages.GAME_OVER);
         } else {
             this.previousPlayer = this.players.get(this.getCurrentPlayerIndex());
             do this.index++;
@@ -174,7 +174,7 @@ public class TurnManager extends Observable {
                 Collections.rotate(this.players, -1);   // shift starting player
                 this.roundOver = true;
                 this.setChanged();
-                this.notifyObservers(NotificationsMessages.ROUND_INCREMENTED);
+                this.notifyObservers(NotificationMessages.ROUND_INCREMENTED);
             }
             this.setActivePlayer(this.getCurrentPlayer());
         /*this.timer.schedule(() -> {

@@ -7,15 +7,13 @@ import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.shared.util.Constants;
 
-import java.util.Observable;
-
 
 /**
  * This class is the base class to all the Tool Cards.
  *
  * @author Fabio Codiglioni
  */
-public abstract class ToolCard extends Observable {
+public abstract class ToolCard {
 
     private String name;
     private String description;

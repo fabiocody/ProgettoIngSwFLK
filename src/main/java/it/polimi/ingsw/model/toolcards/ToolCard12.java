@@ -2,13 +2,11 @@ package it.polimi.ingsw.model.toolcards;
 
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
-import it.polimi.ingsw.model.game.Game;
-import it.polimi.ingsw.model.game.Player;
+import it.polimi.ingsw.model.game.*;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.model.Colors;
-import it.polimi.ingsw.shared.util.Constants;
-import it.polimi.ingsw.shared.util.JsonFields;
-import it.polimi.ingsw.shared.util.Methods;
+import it.polimi.ingsw.shared.util.*;
+
 
 
 /**
@@ -57,8 +55,6 @@ public class ToolCard12 extends ToolCard {
             this.firstMoveIndex = null;
             this.firstMoveColor = null;
         }
-        setChanged();
-        notifyObservers("$useToolCard$");
     }
 
     /**
@@ -68,7 +64,7 @@ public class ToolCard12 extends ToolCard {
      * @return JsonObject containing the required fields filled with momentary constants
      */
     @Override
-    public JsonObject requiredData() {   //TODO decidere colore tracciato round
+    public JsonObject requiredData() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
         JsonObject data = new JsonObject();

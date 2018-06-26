@@ -14,7 +14,7 @@ public interface ServerAPI extends Remote {
     void choosePattern(int patternIndex) throws RemoteException;
     boolean placeDie(int draftPoolIndex, int x, int y) throws RemoteException;
     void nextTurn() throws RemoteException;
-    JsonObject requiredData(int cardIndex) throws RemoteException;
-    boolean useToolCard(int cardIndex, JsonObject requiredData) throws RemoteException;
+    String requiredData(int cardIndex) throws RemoteException;
+    boolean useToolCard(int cardIndex, String requiredDataString) throws RemoteException;
 
 }

@@ -7,7 +7,6 @@ import it.polimi.ingsw.model.placementconstraints.*;
 import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
-import it.polimi.ingsw.shared.util.NotificationsMessages;
 
 
 /**
@@ -58,8 +57,6 @@ public class ToolCard3 extends ToolCard {
             throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
         PlacementConstraint constraint = new PositionConstraint(new ColorConstraint(new OrthogonalConstraint(new EmptyConstraint())));
         this.moveDie(player, fromIndex, toIndex, constraint);
-        setChanged();
-        notifyObservers(NotificationsMessages.USE_TOOL_CARD);
     }
 
     /**

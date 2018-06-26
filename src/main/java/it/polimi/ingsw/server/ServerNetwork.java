@@ -73,6 +73,7 @@ public abstract class ServerNetwork implements Observer {
     }
 
     void onUserDisconnection() {
+        SagradaServer.getInstance().deleteObserver(this);
         WaitingRoomController.getInstance().removePlayer(this.nickname);
         WaitingRoomController.getInstance().removeServerNetwork(this);
         if (gameController != null) {

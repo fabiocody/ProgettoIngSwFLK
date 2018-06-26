@@ -5,7 +5,7 @@ import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.shared.util.Constants;
-import it.polimi.ingsw.shared.util.NotificationsMessages;
+import it.polimi.ingsw.shared.util.NotificationMessages;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -154,8 +154,8 @@ public class Player extends Observable {
         if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException("");
         this.getWindowPattern().placeDie(d, Constants.NUMBER_OF_PATTERN_COLUMNS * y + x);
         setDiePlacedInThisTurn(true);
-        this.setChanged();
-        this.notifyObservers(NotificationsMessages.PLACE_DIE);
+        //this.setChanged();
+        //this.notifyObservers(NotificationMessages.PLACE_DIE);
     }
 
     public /*synchronized*/ void placeDie(Die d, int position, PlacementConstraint constraint){
@@ -283,7 +283,7 @@ public class Player extends Observable {
         this.suspended = suspended;
         if (suspended) {
             setChanged();
-            notifyObservers(NotificationsMessages.SUSPENDED);
+            notifyObservers(NotificationMessages.SUSPENDED);
         }
     }
 
