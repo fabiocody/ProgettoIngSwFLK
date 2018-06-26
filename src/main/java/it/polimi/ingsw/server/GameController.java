@@ -161,10 +161,6 @@ public class GameController extends BaseController implements Observer {
                         this.game.getTurnManager().subscribeToTimer(this);
                     forEachServerNetwork(ServerNetwork::fullUpdate);
                     break;
-                //case NotificationMessages.PLACE_DIE:
-                /*case NotificationMessages.USE_TOOL_CARD:
-                    forEachServerNetwork(ServerNetwork::fullUpdate);
-                    break;*/
                 case NotificationMessages.GAME_OVER:
                     forEachServerNetwork(ServerNetwork::fullUpdate);
                     forEachServerNetwork(ServerNetwork::updateFinalScores);
@@ -172,6 +168,12 @@ public class GameController extends BaseController implements Observer {
                     SagradaServer.getInstance().getGameControllers().remove(this);
 
                     break;
+            }
+        } else if (o instanceof Player) {
+            if (game.arePlayersReady()) {
+                if (!getRoundTrack().isGameOver())
+                    this.game.getTurnManager().subscribeToTimer(this);
+                forEachServerNetwork(ServerNetwork::fullUpdate);
             }
         }
     }

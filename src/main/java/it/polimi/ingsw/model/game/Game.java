@@ -239,7 +239,7 @@ public class Game extends Observable implements Observer {
             // TODO Choose card
         }
         this.toolCards = ToolCardsGenerator.generate(this);
-        this.toolCards.forEach(card -> card.addObserver(this));
+        //this.toolCards.forEach(card -> card.addObserver(this));
         this.publicObjectiveCards = this.getObjectiveCardsGenerator().generatePublic();
         this.getDiceGenerator().generateDraftPool();
     }
@@ -306,21 +306,9 @@ public class Game extends Observable implements Observer {
                 setChanged();
                 notifyObservers(NotificationMessages.GAME_OVER);
             }
-        } else if (o instanceof Player) {
-            if (arg != null && (arg.equals(NotificationMessages.PLACE_DIE) || arg.equals(NotificationMessages.SUSPENDED))) {
-                if (arg.equals(NotificationMessages.PLACE_DIE)) {
-                    setChanged();
-                    notifyObservers(arg);
-                }
-            } else if (this.arePlayersReady()) {
-                setChanged();
-                notifyObservers(NotificationMessages.TURN_MANAGEMENT);
-            }
-        } /*else if (o instanceof ToolCard) {
-            if (arg.equals(NotificationMessages.USE_TOOL_CARD)) {
-                setChanged();
-                notifyObservers(arg);
-            }
+        } /*else if (o instanceof Player && this.arePlayersReady()) {
+            setChanged();
+            notifyObservers(NotificationMessages.TURN_MANAGEMENT);
         }*/
     }
 

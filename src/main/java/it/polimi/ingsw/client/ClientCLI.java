@@ -142,8 +142,10 @@ public class ClientCLI extends Client {
             } while (patternIndex <= 0 || patternIndex > 4);
             ClientNetwork.getInstance().choosePattern(patternIndex - 1);
             this.setPatternChosen();
-            Logger.println("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
-            while (!this.isGameStarted()) Thread.sleep(10);
+            if (!isGameStarted()) {
+                Logger.println("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
+                while (!this.isGameStarted()) Thread.sleep(10);
+            }
         } catch (IOException | InterruptedException e){
             if (Logger.isDebugActive()) e.printStackTrace();
             throw e;

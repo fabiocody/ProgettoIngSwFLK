@@ -7,7 +7,6 @@ import it.polimi.ingsw.model.placementconstraints.*;
 import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
-import it.polimi.ingsw.shared.util.NotificationMessages;
 
 
 /**
@@ -66,8 +65,6 @@ public class ToolCard4 extends ToolCard {
         } else {
             secondMove(player, fromIndex, toIndex);
             this.firstMoveDone = false;
-            setChanged();
-            notifyObservers(NotificationMessages.USE_TOOL_CARD);
         }
     }
 

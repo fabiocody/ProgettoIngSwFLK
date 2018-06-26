@@ -5,7 +5,6 @@ import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
-import it.polimi.ingsw.shared.util.NotificationMessages;
 
 
 /**
@@ -13,7 +12,6 @@ import it.polimi.ingsw.shared.util.NotificationMessages;
  */
 public class ToolCard6 extends ToolCard {
 
-    private boolean dieRolled;
 
     /**
      * This constructor initializes the card with its name and description.
@@ -23,7 +21,6 @@ public class ToolCard6 extends ToolCard {
      */
     public ToolCard6(Game game) {
         super("Pennello per Pasta Salda", "Dopo aver scelto un dado, tira nuovamente quel dado\nSe non puoi piazzarlo, riponilo nella riserva", game);
-        this.dieRolled = false;
     }
 
     /**
@@ -48,13 +45,7 @@ public class ToolCard6 extends ToolCard {
         int draftPoolIndex = data.get(JsonFields.DRAFT_POOL_INDEX).getAsInt();
         if (draftPoolIndex < 0 || draftPoolIndex >= this.getGame().getDiceGenerator().getDraftPool().size())
             throw new InvalidEffectArgumentException("Invalid draftPoolIndex: " + draftPoolIndex);
-        //if (!dieRolled) {
         rollDie(draftPoolIndex);
-        /*} else {
-        placeDie(data, draftPoolIndex);
-        }*/
-        setChanged();
-        notifyObservers(NotificationMessages.USE_TOOL_CARD);
     }
 
     /**
@@ -69,9 +60,6 @@ public class ToolCard6 extends ToolCard {
         payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
         JsonObject data = new JsonObject();
         data.addProperty(JsonFields.DRAFT_POOL_INDEX, Constants.INDEX_CONSTANT);
-        /*data.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
-        data.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
-        data.addProperty(JsonFields.PUT_AWAY, Constants.INDEX_CONSTANT);*/
         payload.add(JsonFields.DATA, data);
         return payload;
     }
@@ -83,40 +71,6 @@ public class ToolCard6 extends ToolCard {
      */
     private void rollDie(int draftPoolIndex) {
         this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex).roll();
-        dieRolled = true;
     }
-
-    /**
-     * This method handles the placement of the previously rolled die.
-     *
-     * @author Fabio Codiglioni
-     * @param data the JSON data passed to the <code>effect</code> method.
-     * @param draftPoolIndex the index of the die from the Draft Pool you want to roll.
-     * @throws InvalidEffectResultException thrown when the placement if invalid.
-     * @throws InvalidEffectArgumentException thrown when a field of data has an invalid value.
-     */
-    /*private void placeDie(JsonObject data, int draftPoolIndex) throws InvalidEffectResultException, InvalidEffectArgumentException {
-        if (!data.get("putAway").getAsBoolean()) {
-            String nickname = data.get("player").getAsString();
-            Player player = this.getGame().getPlayerForNickname(nickname);
-            int cellX = data.get("cellX").getAsInt();
-            int cellY = data.get("cellY").getAsInt();
-            int cellIndex = this.linearizeIndex(cellX, cellY);
-            if (cellIndex < 0 || cellIndex >= player.getWindowPattern().getGrid().length)
-                throw new InvalidEffectArgumentException("Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")");
-            Die die = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
-            try {
-                player.getWindowPattern().placeDie(die, cellIndex);
-                this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
-                dieRolled = false;
-                this.setUsed();
-            } catch (InvalidPlacementException e) {
-                Cell cell = player.getWindowPattern().getCellAt(cellIndex);
-                throw new InvalidEffectResultException("Invalid placement on cell at index " + cellIndex + " (" + cell + ") of die " + die);
-            }
-        } else {
-            this.setUsed();
-        }
-    }*/
 
 }
