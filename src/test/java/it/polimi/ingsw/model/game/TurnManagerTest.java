@@ -1,7 +1,5 @@
-package it.polimi.ingsw.server;
+package it.polimi.ingsw.model.game;
 
-import it.polimi.ingsw.model.game.Game;
-import it.polimi.ingsw.model.game.Player;
 import org.junit.jupiter.api.Test;
 import java.util.stream.*;
 

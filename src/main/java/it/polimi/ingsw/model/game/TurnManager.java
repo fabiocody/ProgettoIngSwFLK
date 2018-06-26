@@ -166,6 +166,7 @@ public class TurnManager extends Observable {
             this.notifyObservers(NotificationMessages.GAME_OVER);
         } else {
             this.previousPlayer = this.players.get(this.getCurrentPlayerIndex());
+            // TODO This is not right
             do this.index++;
             while (this.index < this.playersOrder.size() && this.getCurrentPlayer().isSuspended());
             this.roundOver = false;

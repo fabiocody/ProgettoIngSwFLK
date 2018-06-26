@@ -8,7 +8,7 @@ import java.util.*;
 
 
 /**
- * This class represent the waiting room of the server.
+ * This class represent the waiting room of the game.
  *
  * @author Fabio Codiglioni
  */
@@ -70,9 +70,9 @@ public class WaitingRoom extends Observable {
      * This method adds a player to the Waiting Room, and triggers Game creation when timer expires or when 4 players are reached.
      *
      * @author Fabio Codiglioni
-     * @param nickname the nickname of the player who wants to login (must be unique server-wide).
-     * @return a random UUID the players has to use to authenticate with the server.
-     * @throws LoginFailedException thrown if the nickname is already present server-wide.
+     * @param nickname the nickname of the player who wants to login (must be unique game-wide).
+     * @return a random UUID the players has to use to authenticate with the game.
+     * @throws LoginFailedException thrown if the nickname is already present game-wide.
      */
     public synchronized UUID addPlayer(String nickname) throws LoginFailedException, NicknameAlreadyUsedInGameException {
         if (SagradaServer.getInstance().isNicknameNotValid(nickname) || SagradaServer.getInstance().isNicknameUsed(nickname))

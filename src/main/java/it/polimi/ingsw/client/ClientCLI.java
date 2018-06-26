@@ -751,12 +751,24 @@ public class ClientCLI extends Client {
     private void finalScoresUpdateHandle(JsonObject jsonArg) {
         StringBuilder finalScoresString = new StringBuilder("\nLa partita è finita!\nRisultati finali");
         Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FINAL_SCORES).getAsJsonObject().entrySet();
-        for (Map.Entry<String, JsonElement> entry : entrySet)
-            finalScoresString.append("\n").append(entry.getKey()).append(": ").append(entry.getValue().getAsInt());
+        for (Map.Entry<String, JsonElement> entry : entrySet) {
+            String name = entry.getKey();
+            if (name.equals(JsonFields.WINNER)) {
+                String value = entry.getValue().getAsString();
+                finalScoresString.append("\n").append(name).append(": ").append(value);
+            } else {
+                int value = entry.getValue().getAsInt();
+                finalScoresString.append("\n").append(name).append(": ").append(value);
+            }
+        }
         Logger.println(finalScoresString.toString());
-        Logger.println("");
-        AnsiConsole.systemUninstall();
-        System.exit(Constants.EXIT_STATUS);
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                AnsiConsole.systemUninstall();
+                System.exit(Constants.EXIT_STATUS);
+            }
+        }, 1000);
     }
 
 }

@@ -86,7 +86,7 @@ public class RoundTrack extends Observable implements Observer {
         synchronized (currentRoundLock) {
             synchronized (gameOverLock) {
                 this.currentRound++;
-                if (this.currentRound >= Constants.NUMBER_OF_ROUNDS && !gameOver) {
+                if (this.currentRound > Constants.NUMBER_OF_ROUNDS && !gameOver) {
                     this.gameOver = true;
                     this.setChanged();
                     this.notifyObservers(NotificationMessages.GAME_OVER);

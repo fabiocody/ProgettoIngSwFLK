@@ -1,6 +1,5 @@
-package it.polimi.ingsw.objectivecards;
+package it.polimi.ingsw.model.objectivecards;
 
-import it.polimi.ingsw.model.objectivecards.*;
 import org.junit.jupiter.api.*;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;

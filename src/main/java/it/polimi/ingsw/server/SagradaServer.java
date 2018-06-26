@@ -14,7 +14,7 @@ import java.util.concurrent.*;
 
 
 /**
- * Main server class
+ * Main game class
  *
  * @author Team
  */
@@ -37,7 +37,7 @@ public class SagradaServer extends Observable implements Observer {
     }
 
     /**
-     * @return the only instance of the server
+     * @return the only instance of the game
      */
     public static synchronized SagradaServer getInstance() {
         if (instance == null)
@@ -77,7 +77,7 @@ public class SagradaServer extends Observable implements Observer {
 
     private void startRMI(String host) {
         try {
-            System.setProperty("java.rmi.server.hostname", host);
+            System.setProperty("java.rmi.game.hostname", host);
             Registry registry = LocateRegistry.createRegistry(Constants.DEFAULT_RMI_PORT);
             welcomeRMIServer = (ServerAPI) UnicastRemoteObject.exportObject(new ServerRMIHandler(), 0);
             registry.rebind(Constants.SERVER_RMI_NAME, welcomeRMIServer);

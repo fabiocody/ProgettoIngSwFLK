@@ -4,7 +4,7 @@ import java.util.NoSuchElementException;
 
 
 /**
- * This Enum defines all the possible methods that can be called by the client to the server and vice versa.
+ * This Enum defines all the possible methods that can be called by the client to the game and vice versa.
  *
  * @author Team
  */

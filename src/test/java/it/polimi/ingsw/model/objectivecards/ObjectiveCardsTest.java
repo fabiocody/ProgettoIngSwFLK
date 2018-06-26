@@ -1,13 +1,12 @@
-package it.polimi.ingsw.objectivecards;
+package it.polimi.ingsw.model.objectivecards;
 
+import it.polimi.ingsw.model.Colors;
 import it.polimi.ingsw.model.dice.Die;
-import it.polimi.ingsw.model.objectivecards.*;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.placementconstraints.EmptyConstraint;
-import it.polimi.ingsw.model.Colors;
 import it.polimi.ingsw.shared.util.Constants;
 import org.junit.jupiter.api.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class ObjectiveCardsTest {
