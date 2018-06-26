@@ -48,7 +48,7 @@ public class ToolCard1 extends ToolCard {
             throw new InvalidEffectArgumentException("Invalid delta: " + delta);
         Die d = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
         int newValue = d.getValue() + delta;
-        if (d.getValue() == 1 && newValue == 6 || d.getValue() == 6 && newValue == 1)
+        if (newValue == 7 || newValue == 0)
             throw new InvalidEffectResultException("Cannot make a 1 into 6 or a 6 into 1");
         else d.setValue(newValue);
         setChanged();

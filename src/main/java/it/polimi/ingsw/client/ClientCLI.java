@@ -180,7 +180,7 @@ public class ClientCLI extends Client {
         }
     }
 
-    private boolean requireData (JsonObject requiredData, int cardIndex) throws CancelException, IOException{
+    private boolean useData(JsonObject requiredData, int cardIndex) throws CancelException, IOException{
 
         int draftPoolIndex;
         int roundTrackIndex;
@@ -257,13 +257,16 @@ public class ClientCLI extends Client {
                 if (requiredData.get("data").getAsJsonObject().has("impossibleToUseToolCard")) {
                     Logger.println("\nNon puoi utilizzare questa carta strumento: " + requiredData.get("data").getAsJsonObject().get("impossibleToUseToolCard").getAsString());
                 } else {
-                    valid = this.requireData(requiredData,cardIndex);
+                    valid = this.useData(requiredData,cardIndex);
                     if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE) && valid) {
-                        secondMove = this.getInputBool("\nVuoi continuare [Sì 1/No 0]? ");
+                        if(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP))
+                            secondMove = this.getInputBool("\nVuoi continuare [Sì 1/No 0]? ");
+                        else
+                            secondMove = true;
                         if(secondMove) {
                             requiredData = this.getNetwork().requiredData(cardIndex);
                             requiredData.remove("method");
-                            this.requireData(requiredData,cardIndex);
+                            this.useData(requiredData,cardIndex);
                         }
                     }
                 }
