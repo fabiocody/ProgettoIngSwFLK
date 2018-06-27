@@ -150,9 +150,14 @@ public class GameController extends BaseController {
     }
 
     void nextTurn() {
-        this.game.nextTurn();
+        game.getTurnManager().nextTurn();
+        if (!getRoundTrack().isGameOver()) {
+            game.getTurnManager().subscribeToTimer(this);
+            forEachServerNetwork(ServerNetwork::fullUpdate);
+        }
     }
 
+    @Override
     public void update(Observable o, Object arg) {
         String stringArg = String.valueOf(arg);
         if (o instanceof CountdownTimer) {
@@ -169,6 +174,7 @@ public class GameController extends BaseController {
                         this.game.getTurnManager().subscribeToTimer(this);
                     forEachServerNetwork(ServerNetwork::fullUpdate);
                     break;
+                case NotificationMessages.GAME_INTERRUPTED:
                 case NotificationMessages.GAME_OVER:
                     forEachServerNetwork(ServerNetwork::fullUpdate);
                     forEachServerNetwork(ServerNetwork::updateFinalScores);
@@ -182,6 +188,13 @@ public class GameController extends BaseController {
             if (!getRoundTrack().isGameOver())
                 this.game.getTurnManager().subscribeToTimer(this);
             forEachServerNetwork(ServerNetwork::fullUpdate);
+        } else if (o instanceof ServerNetwork) {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    nextTurn();
+                }
+            }, 1000);
         }
     }
 }

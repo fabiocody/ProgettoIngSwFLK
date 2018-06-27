@@ -10,6 +10,8 @@ import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
+import static org.fusesource.jansi.Ansi.ansi;
+
 
 public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
@@ -133,7 +135,8 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     private void clientUpdate(String payload) {
         try {
-            client.update(payload);
+            if (client != null)
+                client.update(payload);
         } catch (RemoteException e) {
             connectionError(e);
         }
@@ -248,7 +251,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     private void connectionError(Throwable e) {
         Logger.connectionLost(nickname);
         if (Logger.isDebugActive())
-            e.printStackTrace();
+            Logger.error(e.getMessage());
         this.onUserDisconnection();
         this.close();
     }

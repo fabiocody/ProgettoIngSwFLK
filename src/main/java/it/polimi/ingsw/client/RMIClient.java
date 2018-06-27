@@ -106,10 +106,10 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     public void probe() {
         try {
             server.probe();
-        } catch (RemoteException e) {
+            this.rescheduleProbeTimer();
+        } catch (RemoteException | NullPointerException e) {
             connectionError();
         }
-        this.rescheduleProbeTimer();
     }
 
     private void connectionError() {

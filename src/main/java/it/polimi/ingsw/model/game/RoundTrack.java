@@ -156,13 +156,17 @@ public class RoundTrack extends Observable implements Observer {
      */
     public void update(Observable o, Object arg) {
         if (o instanceof TurnManager) {
-            String stringArg = String.valueOf(arg);
-            if (stringArg.equals(NotificationMessages.ROUND_INCREMENTED)) {
+            if (arg.equals(NotificationMessages.ROUND_INCREMENTED)) {
                 this.incrementRound();
-            } else if (stringArg.equals(NotificationMessages.GAME_OVER)) {
+            } /*else if (arg.equals(NotificationMessages.GAME_OVER)) {
+                currentRound++;
                 this.gameOver = true;
                 this.setChanged();
-                this.notifyObservers(NotificationMessages.GAME_OVER);
+                this.notifyObservers(arg);
+            }*/ else if (arg.equals(NotificationMessages.GAME_INTERRUPTED)) {
+                this.gameOver = true;
+                this.setChanged();
+                this.notifyObservers(arg);
             }
         }
     }

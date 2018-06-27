@@ -238,8 +238,10 @@ public class Player extends Observable {
     public void setSuspended(boolean suspended) {
         this.suspended = suspended;
         if (suspended) {
-            setChanged();
-            notifyObservers(NotificationMessages.SUSPENDED);
+            new Thread(() -> {
+                setChanged();
+                notifyObservers(NotificationMessages.SUSPENDED);
+            }).start();
         }
     }
 

@@ -10,7 +10,7 @@ import it.polimi.ingsw.shared.util.*;
 import java.util.*;
 
 
-public abstract class ServerNetwork implements Observer {
+public abstract class ServerNetwork extends Observable implements Observer {
 
     String nickname;
     UUID uuid;
@@ -59,21 +59,24 @@ public abstract class ServerNetwork implements Observer {
                 Thread.sleep(Constants.PROBE_TIMEOUT * 1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                break;
+                return;
             }
             Logger.debug("Checking probe for " + nickname);
-            if (!probed) {
-                Logger.error("Probe error");
-                this.onUserDisconnection();
-                Thread.currentThread().interrupt();
-            } else {
-                probed = false;
-                this.sendProbe();
+            if (!Thread.currentThread().isInterrupted()) {
+                if (!probed) {
+                    Logger.error("Probe error");
+                    this.onUserDisconnection();
+                    Thread.currentThread().interrupt();
+                } else {
+                    probed = false;
+                    this.sendProbe();
+                }
             }
         }
     }
 
     void onUserDisconnection() {
+        if (probeThread != null) probeThread.interrupt();
         SagradaServer.getInstance().deleteObserver(this);
         WaitingRoomController.getInstance().removePlayer(this.nickname);
         WaitingRoomController.getInstance().removeServerNetwork(this);
@@ -81,6 +84,8 @@ public abstract class ServerNetwork implements Observer {
             gameController.suspendPlayer(this.uuid);
             gameController.removeServerNetwork(this);
         }
+        setChanged();
+        notifyObservers();
         this.showDisconnectedUserMessage();
     }
 

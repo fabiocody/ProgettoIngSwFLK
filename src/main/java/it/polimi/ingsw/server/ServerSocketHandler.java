@@ -101,8 +101,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             }
         } catch (Exception e) {
             Logger.error("run");
+            if (Logger.isDebugActive())
+                e.printStackTrace();
             this.onUserDisconnection();
-            this.probeThread.interrupt();
             Thread.currentThread().interrupt();
         }
     }
@@ -111,7 +112,6 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         String line = in.readLine();
         if (line == null) {
             this.onUserDisconnection();
-            this.probeThread.interrupt();
             Thread.currentThread().interrupt();
         }
         return line;

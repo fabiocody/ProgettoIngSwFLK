@@ -18,6 +18,7 @@ abstract class BaseController implements Observer {
         new Thread(() -> {
             synchronized (serverNetworksLock) {
                 serverNetworks.add(network);
+                network.addObserver(this);
             }
         }).start();
     }
@@ -31,7 +32,6 @@ abstract class BaseController implements Observer {
     }
 
     void closeServerNetworks() {
-
         serverNetworks.clear();
     }
 
@@ -40,6 +40,7 @@ abstract class BaseController implements Observer {
             for (ServerNetwork serverNetwork : serverNetworks) {
                 action.accept(serverNetwork);
             }
+            serverNetworksLock.notifyAll();
         }
     }
 
