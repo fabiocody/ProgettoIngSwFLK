@@ -1,6 +1,8 @@
 package it.polimi.ingsw.client;
 
 
+import com.google.gson.JsonObject;
+import it.polimi.ingsw.model.patterncards.WindowPattern;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
@@ -108,11 +110,11 @@ public class ClientGUIApplication extends Application implements Observer {
         toolcard.getChildren().addAll(toolCard1, toolCard2, toolCard3);
 
         Label favorTokensLabel = new Label("segnalini favore: ");
-        TextField favorTokensText = new TextField("");
-        favorTokens.getChildren().addAll(favorTokensLabel, favorTokensText);
+        Label favorTokensNumber = new Label("");
+        favorTokens.getChildren().addAll(favorTokensLabel, favorTokensNumber);
 
         Label commentLabel = new Label("commenti: ");
-        TextField commentText = new TextField("");
+        Label commentText = new Label("");
         comment.getChildren().addAll(commentLabel, commentText);
 
         windowPattern.add(new StackPane(), 0 ,0);
@@ -199,7 +201,7 @@ public class ClientGUIApplication extends Application implements Observer {
         HBox windowPatterns = new HBox();
 
         GridPane windowPattern1 = new GridPane();
-        windowPattern1.add(createGridCellCanvas(), 0 ,0);
+        /*windowPattern1.add(createGridCellCanvas(arg), 0 ,0);
         windowPattern1.add(createGridCellCanvas(), 1 ,0);
         windowPattern1.add(createGridCellCanvas(), 2 ,0);
         windowPattern1.add(createGridCellCanvas(), 3 ,0);
@@ -218,7 +220,7 @@ public class ClientGUIApplication extends Application implements Observer {
         windowPattern1.add(createGridCellCanvas(), 1 ,3);
         windowPattern1.add(createGridCellCanvas(), 2 ,3);
         windowPattern1.add(createGridCellCanvas(), 3 ,3);
-        windowPattern1.add(createGridCellCanvas(), 4 ,3);
+        windowPattern1.add(createGridCellCanvas(), 4 ,3);*/
         windowPattern1.setGridLinesVisible(true);
         windowPatterns.getChildren().add(windowPattern1);
 
@@ -276,11 +278,51 @@ public class ClientGUIApplication extends Application implements Observer {
         return windowPatterns;
     }
 
-    private Canvas createGridCellCanvas(){
-        Canvas cellCanvas = new Canvas(20, 20);
-        GraphicsContext gc = cellCanvas.getGraphicsContext2D();
-        gc.setFill(Color.RED);
-        return cellCanvas;
+    private Canvas createGridCellCanvas(JsonObject jsonARG){
+        Canvas canvas = new Canvas(60, 60);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.setFill(Color.BLUE);  //background color
+        gc.fillRect(0,0,60,60);
+        gc.setFill(Color.WHITE);
+        //canvas.setOnMouseClicked(event -> );
+        return canvas;
+    }
+
+    private Canvas createDieCanvas(int value, Color color){
+        Canvas canvas = new Canvas(60,60);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.setFill(color);
+        gc.fillRoundRect(0,0, 60, 60, 10, 10);
+        gc.setFill(Color.WHITE);
+        if (value == 1){
+            gc.fillOval(25,25,10,10);
+        }else if (value == 2){
+            gc.fillOval(10,10,10,10);
+            gc.fillOval(40,40,10,10);
+        }else if (value == 3){
+            gc.fillOval(10,10,10,10);
+            gc.fillOval(40,40,10,10);
+            gc.fillOval(25,25,10,10);
+        }else if (value == 4){
+            gc.fillOval(10,10,10,10);
+            gc.fillOval(40,40,10,10);
+            gc.fillOval(10,40,10,10);
+            gc.fillOval(40,10,10,10);
+        }else if (value == 5){
+            gc.fillOval(10,10,10,10);
+            gc.fillOval(40,40,10,10);
+            gc.fillOval(10,40,10,10);
+            gc.fillOval(40,10,10,10);
+            gc.fillOval(25,25,10,10);
+        }else if (value == 6){
+            gc.fillOval(10,10,10,10);
+            gc.fillOval(40,40,10,10);
+            gc.fillOval(10,40,10,10);
+            gc.fillOval(40,10,10,10);
+            gc.fillOval(10,25,10,10);
+            gc.fillOval(40,25,10,10);
+        }
+        return canvas;
     }
 
     @Override
