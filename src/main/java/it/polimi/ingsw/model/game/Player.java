@@ -31,15 +31,7 @@ public class Player extends Observable {
     private boolean privateObjectiveCardSet;    // True iff this player has already been assigned a Private Objective Card (to prevent alterations)
     private boolean windowPatternChosen;
     private boolean diePlacedInThisTurn;
-    private boolean toolCardUsedInThisTurn;
     private boolean secondTurnToBeSkipped;
-
-    // Locks
-    private final Object favorTokensLock = new Object();
-    private final Object windowPatternLock = new Object();
-    private final Object privateObjectiveCardLock = new Object();
-    private final Object activeLock = new Object();
-
 
     /**
      * This methods creates a Player object with a given nickname and computes a random UUID of it.
@@ -73,9 +65,7 @@ public class Player extends Observable {
      * @return the remaining Favor Tokens of the Player.
      */
     public int getFavorTokens() {
-        synchronized (favorTokensLock) {
-            return this.favorTokens;
-        }
+        return this.favorTokens;
     }
 
     /**
@@ -83,9 +73,7 @@ public class Player extends Observable {
      * @param favorTokens the new value of the Favor Tokens.
      */
     public void setFavorTokens(int favorTokens) {
-        synchronized (favorTokensLock) {
-            this.favorTokens = favorTokens;
-        }
+        this.favorTokens = favorTokens;
     }
 
     /**
@@ -93,25 +81,21 @@ public class Player extends Observable {
      * @return the list of the Window Patterns amongst which the Player has to choose.
      */
     public List<WindowPattern> getWindowPatternList() {
-        synchronized (windowPatternLock) {
-            if (this.windowPatternList == null)
-                throw new IllegalStateException("Window Pattern not assigned yet");
-            return new Vector<>(this.windowPatternList);
-        }
+        if (this.windowPatternList == null)
+            throw new IllegalStateException("Window Pattern not assigned yet");
+        return new Vector<>(this.windowPatternList);
     }
 
     /**
      * @author Team
-     * @param windowPatternList the list of the Window Patterns amongst which the Player has to choose.
+     * @param windowPatterns the list of the Window Patterns amongst which the Player has to choose.
      */
-    public void setWindowPatternList(List<WindowPattern> windowPatternList) {
-        synchronized (windowPatternLock) {
-            if (!windowPatternListSet) {
-                this.windowPatternList = windowPatternList;
-                this.windowPatternListSet = true;
-            } else {
-                throw new IllegalStateException("Cannot set another list of Window Patterns");
-            }
+    public void setWindowPatternList(List<WindowPattern> windowPatterns) {
+        if (!windowPatternListSet) {
+            this.windowPatternList = windowPatterns;
+            this.windowPatternListSet = true;
+        } else {
+            throw new IllegalStateException("Cannot set another list of Window Patterns");
         }
     }
 
@@ -120,9 +104,7 @@ public class Player extends Observable {
      * @return the chosen Window Pattern
      */
     public WindowPattern getWindowPattern() {
-        synchronized (windowPatternLock) {
-            return this.windowPatternList.get(0);
-        }
+        return this.windowPatternList.get(0);
     }
 
     /**
@@ -132,40 +114,34 @@ public class Player extends Observable {
      * @param index the index of the list from which the player has to choose.
      */
     public void chooseWindowPattern(int index) {
-        synchronized (windowPatternLock) {
-            if (!windowPatternChosen) {
-                WindowPattern chosen = this.windowPatternList.get(index);
-                this.windowPatternList = this.windowPatternList.stream()
-                        .filter(p -> p == chosen)
-                        .collect(Collectors.toList());
-                this.windowPatternChosen = true;
-                synchronized (favorTokensLock) {
-                    this.setFavorTokens(this.getWindowPattern().getDifficulty());
-                }
-                setChanged();
-                notifyObservers();
-            } else {
-                throw new IllegalStateException("Cannot choose another Window Pattern");
-            }
+        if (!windowPatternChosen) {
+            WindowPattern chosen = this.windowPatternList.get(index);
+            this.windowPatternList = this.windowPatternList.stream()
+                    .filter(p -> p == chosen)
+                    .collect(Collectors.toList());
+            this.windowPatternChosen = true;
+            this.setFavorTokens(this.getWindowPattern().getDifficulty());
+            setChanged();
+            notifyObservers();
+        } else {
+            throw new IllegalStateException("Cannot choose another Window Pattern");
         }
     }
 
     public void placeDie(Die d, int x, int y) {
-        if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException("");
+        if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException();
         this.getWindowPattern().placeDie(d, Constants.NUMBER_OF_PATTERN_COLUMNS * y + x);
         setDiePlacedInThisTurn(true);
-        //this.setChanged();
-        //this.notifyObservers(NotificationMessages.PLACE_DIE);
     }
 
-    public /*synchronized*/ void placeDie(Die d, int position, PlacementConstraint constraint){
-        if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException("you already placed a die this turn");
+    public void placeDie(Die d, int position, PlacementConstraint constraint){
+        if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException();
         this.getWindowPattern().placeDie(d, position, constraint);
         setDiePlacedInThisTurn(true);
     }
 
 
-    public boolean isWindowPatternChosen() {
+    boolean isWindowPatternChosen() {
         return windowPatternChosen;
     }
 
@@ -174,28 +150,24 @@ public class Player extends Observable {
      * @return the Private Objective Card of the Player.
      */
     public ObjectiveCard getPrivateObjectiveCard() {
-        synchronized (privateObjectiveCardLock) {
-            if (this.privateObjectiveCard == null)
-                throw new IllegalStateException("Private Objective Card not assigned yet");
-            return this.privateObjectiveCard;
-        }
+        if (this.privateObjectiveCard == null)
+            throw new IllegalStateException("Private Objective Card not assigned yet");
+        return this.privateObjectiveCard;
     }
 
     /**
      * This method is designed to allow only one assignment of a Private Objective Card.
      *
      * @author Fabio Codiglioni
-     * @param privateObjectiveCard the Private Objective Card of the Player.
+     * @param card the Private Objective Card of the Player.
      * @throws IllegalStateException thrown when calling this method more than once.
      */
-    public void setPrivateObjectiveCard(ObjectiveCard privateObjectiveCard) {
-        synchronized (privateObjectiveCardLock) {
-            if (!privateObjectiveCardSet) {
-                this.privateObjectiveCard = privateObjectiveCard;
-                this.privateObjectiveCardSet = true;
-            } else {
-                throw new IllegalStateException("Cannot set another Private Objective Card");
-            }
+    void setPrivateObjectiveCard(ObjectiveCard card) {
+        if (!privateObjectiveCardSet) {
+            this.privateObjectiveCard = card;
+            this.privateObjectiveCardSet = true;
+        } else {
+            throw new IllegalStateException("Cannot set another Private Objective Card");
         }
     }
 
@@ -209,26 +181,10 @@ public class Player extends Observable {
 
     /**
      * @author Fabio Codiglioni
-     * @param diePlacedInThisTurn whether or not the Player has placed a Die in the current turn.
+     * @param value whether or not the Player has placed a Die in the current turn.
      */
-    public void setDiePlacedInThisTurn(boolean diePlacedInThisTurn) {
-        this.diePlacedInThisTurn = diePlacedInThisTurn;
-    }
-
-    /**
-     * @author Fabio Codiglioni
-     * @return true if the Player has already used a Tool Card in the current turn.
-     */
-    public boolean isToolCardUsedInThisTurn() {
-        return toolCardUsedInThisTurn;
-    }
-
-    /**
-     * @author Fabio Codiglioni
-     * @param toolCardUsedInThisTurn whether or not the Player has already used a Tool Card in the current turn.
-     */
-    public void setToolCardUsedInThisTurn(boolean toolCardUsedInThisTurn) {
-        this.toolCardUsedInThisTurn = toolCardUsedInThisTurn;
+    void setDiePlacedInThisTurn(boolean value) {
+        this.diePlacedInThisTurn = value;
     }
 
     /**
@@ -241,10 +197,10 @@ public class Player extends Observable {
 
     /**
      * @author Fabio Codiglioni
-     * @param secondTurnToBeSkipped whether or not the Player has to skip the second turn.
+     * @param value whether or not the Player has to skip the second turn.
      */
-    public void setSecondTurnToBeSkipped(boolean secondTurnToBeSkipped) {
-        this.secondTurnToBeSkipped = secondTurnToBeSkipped;
+    public void setSecondTurnToBeSkipped(boolean value) {
+        this.secondTurnToBeSkipped = value;
     }
 
     /**
@@ -252,19 +208,15 @@ public class Player extends Observable {
      * @return true if this Player is the active Player, i.e. the one actually playing.
      */
     public boolean isActive() {
-        synchronized (activeLock) {
-            return active;
-        }
+        return active;
     }
 
     /**
      * @author Fabio Codiglioni
      * @param active whether or not the Player is active.
      */
-    public void setActive(boolean active) {
-        synchronized (activeLock) {
-            this.active = active;
-        }
+    void setActive(boolean active) {
+        this.active = active;
     }
 
     /**

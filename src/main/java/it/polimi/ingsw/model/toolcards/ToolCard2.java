@@ -45,7 +45,7 @@ public class ToolCard2 extends ToolCard {
     public void effect(JsonObject data) throws InvalidEffectArgumentException, InvalidEffectResultException {
         PlacementConstraint constraint;
         String nickname = data.get(JsonFields.PLAYER).getAsString();
-        Player player = this.getGame().getPlayerForNickname(nickname);
+        Player player = this.getGame().getPlayer(nickname);
         int fromCellX = data.get(JsonFields.FROM_CELL_X).getAsInt();
         int fromCellY = data.get(JsonFields.FROM_CELL_Y).getAsInt();
         int fromIndex = this.linearizeIndex(fromCellX, fromCellY);

@@ -7,7 +7,9 @@ package it.polimi.ingsw.model.game;
  */
 
 public class DieAlreadyPlacedException extends RuntimeException{
-    public DieAlreadyPlacedException(String message) {
-        super(message);
+
+    DieAlreadyPlacedException() {
+        super();
     }
+
 }

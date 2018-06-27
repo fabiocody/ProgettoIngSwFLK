@@ -28,7 +28,7 @@ class ToolCardsTest {
                 .collect(Collectors.toList())
         , false);
         game.getDiceGenerator().generateDraftPool();
-        player = game.getPlayerForNickname("Fabio");
+        player = game.getPlayer("Fabio");
     }
 
     @Test

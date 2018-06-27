@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class WaitingRoomController extends BaseController implements Observer {
+public class WaitingRoomController extends BaseController {
 
     private static WaitingRoomController instance;
 

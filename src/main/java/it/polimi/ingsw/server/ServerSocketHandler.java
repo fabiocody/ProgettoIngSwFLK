@@ -157,7 +157,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
                     .findFirst();
             this.gameController = optionalGameController.orElse(null);
             this.nickname = tempNickname;
-            Player player = game.getPlayerForNickname(this.nickname);
+            Player player = game.getPlayer(this.nickname);
             this.uuid = player.getId();
             Logger.log(this.nickname + " logged back in (" + this.uuid + ")");
             //game.addObserver(this);

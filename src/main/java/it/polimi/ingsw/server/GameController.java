@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class GameController extends BaseController implements Observer {
+public class GameController extends BaseController {
 
     private Game game;
 
@@ -112,7 +112,7 @@ public class GameController extends BaseController implements Observer {
     void placeDie(UUID id, int draftPoolIndex, int x, int y) {
         Die d = this.getDraftPool().get(draftPoolIndex);
         getPlayer(id).placeDie(d, x, y);
-        this.game.removeDieFromDraftPool(draftPoolIndex);
+        this.game.getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
         forEachServerNetwork(ServerNetwork::fullUpdate);
     }
 
@@ -163,13 +163,13 @@ public class GameController extends BaseController implements Observer {
                     closeServerNetworks();
                     SagradaServer.getInstance().getGameControllers().remove(this);
                     break;
+                default:
+                    break;
             }
-        } else if (o instanceof Player) {
-            if (game.arePlayersReady()) {
-                if (!getRoundTrack().isGameOver())
-                    this.game.getTurnManager().subscribeToTimer(this);
-                forEachServerNetwork(ServerNetwork::fullUpdate);
-            }
+        } else if (o instanceof Player && game.arePlayersReady()) {
+            if (!getRoundTrack().isGameOver())
+                this.game.getTurnManager().subscribeToTimer(this);
+            forEachServerNetwork(ServerNetwork::fullUpdate);
         }
     }
 }

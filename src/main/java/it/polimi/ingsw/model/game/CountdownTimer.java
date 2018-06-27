@@ -20,16 +20,8 @@ public class CountdownTimer extends Observable implements Runnable {
      * @author Fabio Codiglioni
      * @param id the id used in the observers notifications.
      */
-    public CountdownTimer(String id) {
+    CountdownTimer(String id) {
         this.id = id;
-    }
-
-    /**
-     * @author Fabio Codiglioni
-     * @return the amount of seconds left before the method invocation
-     */
-    public int getRemainingTime() {
-        return this.remainingTime;
     }
 
     /**
@@ -40,7 +32,7 @@ public class CountdownTimer extends Observable implements Runnable {
      * @param task the task to execute when the countdown expires.
      * @param remainingTime the amount of time after which the task's <code>run</code> method is invoked.
      */
-    public void schedule(Runnable task, int remainingTime) {
+    void schedule(Runnable task, int remainingTime) {
         this.cancel();
         this.remainingTime = remainingTime;
         this.task = task;
@@ -55,7 +47,7 @@ public class CountdownTimer extends Observable implements Runnable {
      *
      * @author Fabio Codiglioni
      */
-    public void cancel(boolean withUpdate) {
+    void cancel(boolean withUpdate) {
         if (this.timerThread != null) this.timerThread.interrupt();
         this.remainingTime = 0;
         this.task = null;
@@ -66,7 +58,7 @@ public class CountdownTimer extends Observable implements Runnable {
         }
     }
 
-    public void cancel() {
+    void cancel() {
         cancel(false);
     }
 
@@ -75,7 +67,7 @@ public class CountdownTimer extends Observable implements Runnable {
      *
      * @author Fabio Codiglioni
      */
-    public void start() {
+    private void start() {
         this.timerThread.start();
     }
 
@@ -94,7 +86,6 @@ public class CountdownTimer extends Observable implements Runnable {
             }
             if (this.task != null) this.task.run();
         } catch (InterruptedException e) {
-            //System.out.println("Timer interrupted");
             Thread.currentThread().interrupt();
         }
     }

@@ -34,17 +34,6 @@ public class Game extends Observable implements Observer {
     private List<ObjectiveCard> publicObjectiveCards;
     private List<ToolCard> toolCards;
 
-    // Locks
-    private final Object playersLock = new Object();
-    private final Object turnManagerLock = new Object();
-    private final Object roundTrackLock = new Object();
-    private final Object finalScoresLock = new Object();
-    private final Object objectiveCardsGeneratorLock = new Object();
-    private final Object diceGeneratorLock = new Object();
-    private final Object patternCardsGeneratorLock = new Object();
-    private final Object publicObjectiveCardsLock = new Object();
-    private final Object toolCardsLock = new Object();
-
     /**
      * @author Fabio Codiglioni
      * @param players the list of players taking part in the game.
@@ -90,7 +79,7 @@ public class Game extends Observable implements Observer {
      * @param nickname the nickname to look for.
      * @return the Player object having the specified nickname.
      */
-    public Player getPlayerForNickname(String nickname) {
+    public Player getPlayer(String nickname) {
         Optional<Player> result = this.players.stream()
                 .filter(p -> p.getNickname().equals(nickname))
                 .findFirst();
@@ -102,10 +91,8 @@ public class Game extends Observable implements Observer {
      * @author Fabio Codiglioni
      * @return the number of players taking part in the Game.
      */
-    public int getNumberOfPlayers() {
-        synchronized (playersLock) {
-            return this.players.size();
-        }
+    private int getNumberOfPlayers() {
+        return this.players.size();
     }
 
     public boolean arePlayersReady() {
@@ -125,13 +112,11 @@ public class Game extends Observable implements Observer {
      * @return the Turn Manager instance associated with the Game.
      */
     public TurnManager getTurnManager() {
-        synchronized (turnManagerLock) {
-            if (this.turnManager == null) {
-                this.turnManager = new TurnManager(this.players);
-                this.turnManager.addObserver(this.getRoundTrack());
-            }
-            return this.turnManager;
+        if (this.turnManager == null) {
+            this.turnManager = new TurnManager(this.players);
+            this.turnManager.addObserver(this.getRoundTrack());
         }
+        return this.turnManager;
     }
 
     /**
@@ -139,13 +124,11 @@ public class Game extends Observable implements Observer {
      * @return the Round Track instance associated with the Game.
      */
     public RoundTrack getRoundTrack() {
-        synchronized (roundTrackLock) {
-            if (this.roundTrack == null) {
-                this.roundTrack = new RoundTrack();
-                this.roundTrack.addObserver(this);
-            }
-            return this.roundTrack;
+        if (this.roundTrack == null) {
+            this.roundTrack = new RoundTrack();
+            this.roundTrack.addObserver(this);
         }
+        return this.roundTrack;
     }
 
     /**
@@ -154,13 +137,11 @@ public class Game extends Observable implements Observer {
      * @throws IllegalStateException thrown when this method is called before the Game is over.
      */
     public Map<String, Scores> getFinalScores() {
-        synchronized (finalScoresLock) {
-            if (!this.getRoundTrack().isGameOver())
-                throw new IllegalStateException("Cannot get final scores before game over");
-            else if (this.finalScores == null)
-                this.finalScores = new ConcurrentHashMap<>();
-            return this.finalScores;
-        }
+        if (!this.getRoundTrack().isGameOver())
+            throw new IllegalStateException("Cannot get final scores before game over");
+        else if (this.finalScores == null)
+            this.finalScores = new ConcurrentHashMap<>();
+        return this.finalScores;
     }
 
     /**
@@ -168,11 +149,9 @@ public class Game extends Observable implements Observer {
      * @return the Objective Card Generator associated with the Game.
      */
     private ObjectiveCardsGenerator getObjectiveCardsGenerator() {
-        synchronized (objectiveCardsGeneratorLock) {
-            if (this.objectiveCardsGenerator == null)
-                this.objectiveCardsGenerator = new ObjectiveCardsGenerator(this.getNumberOfPlayers());
-            return this.objectiveCardsGenerator;
-        }
+        if (this.objectiveCardsGenerator == null)
+            this.objectiveCardsGenerator = new ObjectiveCardsGenerator(this.getNumberOfPlayers());
+        return this.objectiveCardsGenerator;
     }
 
     /**
@@ -180,11 +159,9 @@ public class Game extends Observable implements Observer {
      * @return the Pattern Cards Generator associated with the Game.
      */
     private PatternCardsGenerator getPatternCardsGenerator() {
-        synchronized (patternCardsGeneratorLock) {
-            if (this.patternCardsGenerator == null)
-                this.patternCardsGenerator = new PatternCardsGenerator(this.getNumberOfPlayers());
-            return this.patternCardsGenerator;
-        }
+        if (this.patternCardsGenerator == null)
+            this.patternCardsGenerator = new PatternCardsGenerator(this.getNumberOfPlayers());
+        return this.patternCardsGenerator;
     }
 
     /**
@@ -192,11 +169,9 @@ public class Game extends Observable implements Observer {
      * @return the Dice Generator associated with the Game.
      */
     public DiceGenerator getDiceGenerator() {
-        synchronized (diceGeneratorLock) {
-            if (this.diceGenerator == null)
-                this.diceGenerator = new DiceGenerator(this.getNumberOfPlayers());
-            return this.diceGenerator;
-        }
+        if (this.diceGenerator == null)
+            this.diceGenerator = new DiceGenerator(this.getNumberOfPlayers());
+        return this.diceGenerator;
     }
 
     /**
@@ -205,11 +180,9 @@ public class Game extends Observable implements Observer {
      * @throws IllegalStateException thrown when this method is called but the Public Objective Cards hasn't been generated yet.
      */
     public List<ObjectiveCard> getPublicObjectiveCards() {
-        synchronized (publicObjectiveCardsLock) {
-            if (this.publicObjectiveCards == null)
-                throw new IllegalStateException("Cannot get Public Objective Cards before they are generated");
-            return new Vector<>(this.publicObjectiveCards);
-        }
+        if (this.publicObjectiveCards == null)
+            throw new IllegalStateException("Cannot get Public Objective Cards before they are generated");
+        return new Vector<>(this.publicObjectiveCards);
     }
 
     /**
@@ -217,12 +190,10 @@ public class Game extends Observable implements Observer {
      * @return the list of Tool Cards associated with the Game
      * @throws IllegalStateException thrown when this method is called but the Tool Cards hasn't been generated yet.
      */
-    public synchronized List<ToolCard> getToolCards() {
-        synchronized (toolCardsLock) {
-            if (this.toolCards == null)
-                throw new IllegalStateException("Cannot get Public Tool Cards before they are generated");
-            return new Vector<>(this.toolCards);
-        }
+    public List<ToolCard> getToolCards() {
+        if (this.toolCards == null)
+            throw new IllegalStateException("Cannot get Public Tool Cards before they are generated");
+        return new Vector<>(this.toolCards);
     }
 
     /**
@@ -239,12 +210,6 @@ public class Game extends Observable implements Observer {
         this.toolCards = ToolCardsGenerator.generate(this);
         this.publicObjectiveCards = this.getObjectiveCardsGenerator().generatePublic();
         this.getDiceGenerator().generateDraftPool();
-    }
-
-    public void removeDieFromDraftPool(int draftPoolIndex){
-        this.diceGenerator.drawDieFromDraftPool(draftPoolIndex);
-        setChanged();
-        notifyObservers(NotificationMessages.DRAFT_POOL);
     }
 
     public void nextTurn() {
@@ -265,7 +230,7 @@ public class Game extends Observable implements Observer {
         this.turnManager.cancelTimer();
         List<Scores> scores = new ArrayList<>();
         List<String> nicknames = this.players.stream().map(Player::getNickname).sorted().collect(Collectors.toList());
-        this.players.forEach(player -> scores.add(calcScoreForPlayer(player)));
+        this.players.forEach(player -> scores.add(calcScores(player)));
         assert scores.stream()
                 .map(Scores::getNickname)
                 .collect(Collectors.toList())
@@ -286,7 +251,7 @@ public class Game extends Observable implements Observer {
      * @author Fabio Codiglioni
      * @param player the player to consider for the computing of VPs.
      */
-    private Scores calcScoreForPlayer(Player player) {
+    private Scores calcScores(Player player) {
         Scores scores = new Scores(player.getNickname());
 
         // Public Objective Cards

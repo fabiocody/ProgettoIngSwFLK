@@ -48,7 +48,7 @@ public class ToolCard4 extends ToolCard {
      */
     public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         String nickname = data.get(JsonFields.PLAYER).getAsString();
-        Player player = this.getGame().getPlayerForNickname(nickname);
+        Player player = this.getGame().getPlayer(nickname);
         int fromCellX = data.get(JsonFields.FROM_CELL_X).getAsInt();
         int fromCellY = data.get(JsonFields.FROM_CELL_Y).getAsInt();
         int fromIndex = this.linearizeIndex(fromCellX, fromCellY);

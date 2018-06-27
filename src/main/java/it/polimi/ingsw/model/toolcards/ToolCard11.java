@@ -60,7 +60,7 @@ public class ToolCard11 extends ToolCard {
                 throw new InvalidEffectArgumentException("Invalid newValue: " + newValue);
             this.chooseValue(draftPoolIndex, newValue);
             String nickname = data.get(JsonFields.PLAYER).getAsString();
-            Player player = this.getGame().getPlayerForNickname(nickname);
+            Player player = this.getGame().getPlayer(nickname);
             int cellX = data.get(JsonFields.TO_CELL_X).getAsInt();
             int cellY = data.get(JsonFields.TO_CELL_Y).getAsInt();
             int cellIndex = this.linearizeIndex(cellX, cellY);

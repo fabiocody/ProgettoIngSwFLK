@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 
-class BaseController {
+abstract class BaseController implements Observer {
 
     private List<ServerNetwork> serverNetworks;
     private final Object serverNetworksLock;

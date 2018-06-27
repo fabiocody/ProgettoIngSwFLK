@@ -1,13 +1,9 @@
 package it.polimi.ingsw.model.game;
 
 import it.polimi.ingsw.server.SagradaServer;
-import it.polimi.ingsw.shared.util.Logger;
-import it.polimi.ingsw.shared.util.NotificationMessages;
-
+import it.polimi.ingsw.shared.util.*;
 import java.util.*;
 import java.util.stream.*;
-
-import static org.fusesource.jansi.Ansi.ansi;
 
 
 /**
@@ -23,8 +19,8 @@ public class TurnManager extends Observable {
     private int index;
     private CountdownTimer timer;
     private int timeout = 30;
-    private boolean roundOver;
-    private Player previousPlayer;
+    //private boolean roundOver;
+    //private Player previousPlayer;
 
     /**
      * @param players the list of players taking part in the Game.
@@ -37,7 +33,7 @@ public class TurnManager extends Observable {
         this.playersOrder = Stream.concat(forwardRange, backRange).collect(Collectors.toList());
         this.index = 0;
         this.timer = new CountdownTimer(NotificationMessages.TURN_MANAGER);
-        this.roundOver = false;
+        //this.roundOver = false;
         this.setActivePlayer(this.getCurrentPlayer());
     }
 
@@ -61,12 +57,8 @@ public class TurnManager extends Observable {
      * @author Fabio Codiglioni
      * @return the current Player.
      */
-    public Player getCurrentPlayer() {
+    Player getCurrentPlayer() {
         return this.players.get(this.getCurrentPlayerIndex());
-    }
-
-    public Player getPreviousPlayer() {
-        return this.previousPlayer;
     }
 
     public void subscribeToTimer(Observer observer) {
@@ -76,17 +68,6 @@ public class TurnManager extends Observable {
             this.nextTurn();
         }, this.timeout);
     }
-
-    public void unsubscribeFromTimer(Observer observer) {
-        this.timer.deleteObserver(observer);
-    }
-
-    /**
-     * @author Luca dell'Oglio
-     * @return if the round is over.
-     */
-
-    public boolean isRoundOver(){return this.roundOver;}
 
     /**
      * This method set the specified Player as active, and all the other players as inactive.
@@ -116,13 +97,8 @@ public class TurnManager extends Observable {
      * @author Fabio Codiglioni
      * @param nickname the nickname of the Player that has to be suspended.
      */
-    void suspendPlayer(String nickname) {
+    private void suspendPlayer(String nickname) {
         this.setSuspendedPlayer(nickname, true);
-    }
-
-    void cancelTimer() {
-        if (timer != null) timer.cancel();
-        Logger.debug("TurnManager timer canceled");
     }
 
     /**
@@ -133,12 +109,9 @@ public class TurnManager extends Observable {
         this.setSuspendedPlayer(nickname, false);
     }
 
-    /**
-     * @author Fabio Codiglioni
-     * @return true if the round is still in its first half.
-     */
-    public boolean isFirstHalfOfRound() {
-        return this.index < this.playersOrder.size() / 2;
+    void cancelTimer() {
+        if (timer != null) timer.cancel();
+        Logger.debug("TurnManager timer canceled");
     }
 
     /**
@@ -148,8 +121,8 @@ public class TurnManager extends Observable {
         return this.index >= this.playersOrder.size() / 2;
     }
 
-    private long countUnsuspendedPlayers() {
-        return players.stream()
+    private int countNotSuspendedPlayers() {
+        return (int) players.stream()
                 .filter(player -> !player.isSuspended())
                 .count();
     }
@@ -161,27 +134,23 @@ public class TurnManager extends Observable {
      */
     public void nextTurn() {
         this.timer.cancel(true);
-        if (countUnsuspendedPlayers() == 1) {
+        if (countNotSuspendedPlayers() == 1) {
             this.setChanged();
             this.notifyObservers(NotificationMessages.GAME_OVER);
         } else {
-            this.previousPlayer = this.players.get(this.getCurrentPlayerIndex());
+            //this.previousPlayer = this.players.get(this.getCurrentPlayerIndex());
             // TODO This is not right
             do this.index++;
             while (this.index < this.playersOrder.size() && this.getCurrentPlayer().isSuspended());
-            this.roundOver = false;
+            //this.roundOver = false;
             if (this.index == this.playersOrder.size()) {
                 this.index = 0;
                 Collections.rotate(this.players, -1);   // shift starting player
-                this.roundOver = true;
+                //this.roundOver = true;
                 this.setChanged();
                 this.notifyObservers(NotificationMessages.ROUND_INCREMENTED);
             }
             this.setActivePlayer(this.getCurrentPlayer());
-        /*this.timer.schedule(() -> {
-            this.nextTurn();
-            suspendPlayer(this.getPreviousPlayer().getNickname());
-        }, this.timeout);*/
         }
     }
 

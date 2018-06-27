@@ -40,7 +40,7 @@ public class ToolCard8 extends ToolCard {
      */
     public void effect(JsonObject data) throws InvalidEffectArgumentException, InvalidEffectResultException  {
         // TODO definire come viene detto al client di piazzare un altro dado
-        Player player = this.getGame().getPlayerForNickname(data.get(JsonFields.PLAYER).getAsString());
+        Player player = this.getGame().getPlayer(data.get(JsonFields.PLAYER).getAsString());
         player.setSecondTurnToBeSkipped(true);
         int draftPoolIndex = data.get(JsonFields.DRAFT_POOL_INDEX).getAsInt();
         int cellX= data.get(JsonFields.TO_CELL_X).getAsInt();

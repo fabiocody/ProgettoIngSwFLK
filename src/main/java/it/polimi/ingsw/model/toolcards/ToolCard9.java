@@ -46,7 +46,7 @@ public class ToolCard9 extends ToolCard {
      */
     public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         String nickname = data.get(JsonFields.PLAYER).getAsString();
-        Player player = this.getGame().getPlayerForNickname(nickname);
+        Player player = this.getGame().getPlayer(nickname);
         int draftPoolIndex = data.get(JsonFields.DRAFT_POOL_INDEX).getAsInt();
         if (draftPoolIndex < 0 || draftPoolIndex >= this.getGame().getDiceGenerator().getDraftPool().size())
             throw new InvalidEffectArgumentException("Invalid draftPoolIndex: " + draftPoolIndex);
