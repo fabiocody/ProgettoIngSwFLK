@@ -74,27 +74,24 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     }
 
     @Override
-    public boolean placeDie(int draftPoolIndex, int x, int y) {
+    public String placeDie(int draftPoolIndex, int x, int y) {
+        JsonObject payload = new JsonObject();
         try {
             this.gameController.placeDie(this.uuid, draftPoolIndex, x, y);
             Logger.log(this.nickname + " placed a die");
-            return true;
+            payload.addProperty(JsonFields.RESULT, true);
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
             Logger.log(this.nickname + "'s die placement attempt was refused");
             if (Logger.isDebugActive()) e.printStackTrace();
-            return false;
+            payload.addProperty(JsonFields.RESULT, false);
+            payload.addProperty(JsonFields.ERROR_MESSAGE,e.getMessage());
         }
-    }
-
-    @Override
-    public void nextTurn() {
-        gameController.nextTurn();
-        Logger.log(this.nickname + " has ended his turn");
+        return payload.toString();
     }
 
     @Override
     public String requiredData(int cardIndex) {
-        JsonObject payload = this.gameController.requiredData(cardIndex);
+        JsonObject payload = this.gameController.requiredData(cardIndex,uuid);
         Player player = this.gameController.getPlayer(uuid);
         if ((player.getFavorTokens()<2 && gameController.getToolCards().get(cardIndex).isUsed()) ||
                 (player.getFavorTokens()<1 && !gameController.getToolCards().get(cardIndex).isUsed())){
@@ -111,18 +108,27 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     }
 
     @Override
-    public boolean useToolCard(int cardIndex, String requiredDataString) {
+    public String useToolCard(int cardIndex, String requiredDataString) {
         JsonObject requiredData = jsonParser.parse(requiredDataString).getAsJsonObject();
         requiredData.addProperty(JsonFields.PLAYER_ID, uuid.toString());
+        JsonObject payload = new JsonObject();
         try {
             this.gameController.useToolCard(uuid, cardIndex, requiredData);
             Logger.log(this.nickname + " used a tool card");
-            return true;
+            payload.addProperty(JsonFields.RESULT, true);
         } catch (InvalidEffectArgumentException | InvalidEffectResultException e) {
             if (Logger.isDebugActive()) e.printStackTrace();
             Logger.log(this.nickname + " usage of tool card was refused");
-            return false;
+            payload.addProperty(JsonFields.RESULT, false);
+            payload.addProperty(JsonFields.ERROR_MESSAGE,e.getMessage());
         }
+        return payload.toString();
+    }
+
+    @Override
+    public void nextTurn() {
+        gameController.nextTurn();
+        Logger.log(this.nickname + " has ended his turn");
     }
 
     private void clientUpdate(String payload) {

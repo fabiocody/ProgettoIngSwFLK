@@ -47,6 +47,7 @@ public class JsonFields {
     public static final String PLAYER = "player";
     public static final String PUT_AWAY = "putAway";
     public static final String CONTINUE = "continue";
+    public static final String ERROR_MESSAGE = "errorMessage";
     public static final String IMPOSSIBLE_TO_USE_TOOL_CARD = "impossibleToUseToolCard";
     public static final String STOP = "stop";
     public static final String RECONNECTED = "reconnected";

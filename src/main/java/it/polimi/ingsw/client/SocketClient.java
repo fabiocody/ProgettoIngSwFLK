@@ -215,10 +215,10 @@ public class SocketClient extends ClientNetwork {
      * @param draftPoolIndex the index of the draft pool which contains the die
      * @param x the column index in which the user wants to place the die
      * @param y the row index in which the user wants to place the die
-     * @return boolean true if the die place was successful, false otherwise
+     * @return input the result message of the placement
      */
     @Override
-    boolean placeDie(int draftPoolIndex, int x, int y){
+    JsonObject placeDie(int draftPoolIndex, int x, int y){
         JsonObject payload = new JsonObject();
         JsonObject arg = new JsonObject();
         arg.addProperty(JsonFields.DRAFT_POOL_INDEX, draftPoolIndex);
@@ -228,7 +228,7 @@ public class SocketClient extends ClientNetwork {
         this.sendMessage(payload,Methods.PLACE_DIE.getString());
         JsonObject input = this.pollResponseBuffer();
         Logger.debug("INPUT " + input);
-        return input.get(JsonFields.RESULT).getAsBoolean();
+        return input;
     }
 
     /**
@@ -239,7 +239,7 @@ public class SocketClient extends ClientNetwork {
      * @return
      */
     @Override
-    boolean useToolCard(int cardIndex, JsonObject data){
+    JsonObject useToolCard(int cardIndex, JsonObject data){
         JsonObject payload = new JsonObject();
         JsonObject arg = new JsonObject();
         arg.addProperty(JsonFields.CARD_INDEX, cardIndex);
@@ -248,7 +248,7 @@ public class SocketClient extends ClientNetwork {
         this.sendMessage(payload,Methods.USE_TOOL_CARD.getString());
         JsonObject input = this.pollResponseBuffer();
         Logger.debug("INPUT " + input);
-        return input.get(JsonFields.RESULT).getAsBoolean();
+        return input;
     }
 
     /**

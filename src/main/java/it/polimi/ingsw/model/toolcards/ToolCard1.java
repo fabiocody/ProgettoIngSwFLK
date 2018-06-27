@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.shared.util.Constants;
+import it.polimi.ingsw.shared.util.InterfaceMessages;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
 
@@ -47,8 +48,10 @@ public class ToolCard1 extends ToolCard {
             throw new InvalidEffectArgumentException("Invalid delta: " + delta);
         Die d = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
         int newValue = d.getValue() + delta;
-        if (newValue == 7 || newValue == 0)
-            throw new InvalidEffectResultException("Cannot make a 1 into 6 or a 6 into 1");
+        if(newValue == 7)
+            throw new InvalidEffectResultException(InterfaceMessages.DIE_UPPER_BOUND);
+        else if(newValue == 0)
+            throw new InvalidEffectResultException(InterfaceMessages.DIE_LOWER_BOUND);
         else d.setValue(newValue);
     }
 

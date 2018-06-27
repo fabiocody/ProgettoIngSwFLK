@@ -189,43 +189,8 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             out.println(payload.toString());
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
             payload.addProperty(JsonFields.RESULT, false);
+            payload.addProperty(JsonFields.ERROR_MESSAGE,e.getMessage());
             Logger.log(this.nickname + " die placement was refused");
-            Logger.debugPayload(payload);
-            out.println(payload.toString());
-        }
-    }
-
-    private void useToolCard(JsonObject input) {
-        int cardIndex = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.CARD_INDEX).getAsInt();
-        JsonObject data = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DATA).getAsJsonObject();
-        UUID id = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
-        boolean tax;
-        tax = !(input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE));
-        data.addProperty(JsonFields.PLAYER_ID, id.toString());
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, JsonFields.USE_TOOL_CARD);
-        try {
-            this.gameController.useToolCard(id, cardIndex, data);
-            payload.addProperty(JsonFields.RESULT, true);
-            Logger.log(this.nickname + " used a tool card");
-            if (tax) {      //TODO spostare nel gameController
-                if (!gameController.getToolCards().get(cardIndex).isUsed()) {
-                    this.gameController.getPlayer(id).setFavorTokens(this.gameController.getPlayer(id).getFavorTokens() - 1);
-                    Logger.debug("removed 1 favor token");
-                } else {
-                    this.gameController.getPlayer(id).setFavorTokens(this.gameController.getPlayer(id).getFavorTokens() - 2);
-                    Logger.debug("removed 2 favor tokens");
-                }
-            }
-            if (!(input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE))) {
-                this.gameController.getToolCards().get(cardIndex).setUsed();
-            }
-            Logger.debugPayload(payload);
-            out.println(payload.toString());
-        } catch (InvalidEffectArgumentException | InvalidEffectResultException e) {
-            e.printStackTrace();        // TODO Remove
-            payload.addProperty(JsonFields.RESULT, false);
-            Logger.log(this.nickname + " usage of tool card was refused");
             Logger.debugPayload(payload);
             out.println(payload.toString());
         }
@@ -234,8 +199,8 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
     private void requiredData(JsonObject input) {
         int cardIndex = input.get(JsonFields.CARD_INDEX).getAsInt();
         UUID id = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
-        JsonObject payload = this.gameController.requiredData(cardIndex);
-        if ((this.gameController.getPlayer(id).getFavorTokens()<2 && gameController.getToolCards().get(cardIndex).isUsed()) ||
+        JsonObject payload = this.gameController.requiredData(cardIndex,id);
+        /*if ((this.gameController.getPlayer(id).getFavorTokens()<2 && gameController.getToolCards().get(cardIndex).isUsed()) ||
                 (this.gameController.getPlayer(id).getFavorTokens()<1 && !gameController.getToolCards().get(cardIndex).isUsed())){
             payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.NO_FAVOR_TOKENS, Constants.INDEX_CONSTANT);
         }
@@ -251,9 +216,54 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         }
         if(payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.FROM_CELL_X) && this.gameController.getWindowPatternOf(this.nickname).isGridEmpty()){
             payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.WINDOW_PATTERNS);
-        }
+        }*/
         Logger.debugPayload(payload);
         out.println(payload.toString());
+    }
+
+    private void useToolCard(JsonObject input) {
+        /*int cardIndex = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.CARD_INDEX).getAsInt();
+        JsonObject data = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DATA).getAsJsonObject();
+        UUID id = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
+        boolean tax;
+        tax = !(input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE));
+        data.addProperty(JsonFields.PLAYER_ID, id.toString());
+        JsonObject payload = new JsonObject();
+        payload.addProperty(JsonFields.METHOD, JsonFields.USE_TOOL_CARD);*/
+
+        JsonObject payload = new JsonObject();
+        payload.addProperty(JsonFields.METHOD, JsonFields.USE_TOOL_CARD);
+
+        int cardIndex = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.CARD_INDEX).getAsInt();
+        JsonObject data = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DATA).getAsJsonObject();
+        UUID id = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
+        data.addProperty(JsonFields.PLAYER_ID, id.toString());
+
+        try {
+            this.gameController.useToolCard(id, cardIndex, data);
+            payload.addProperty(JsonFields.RESULT, true);
+            Logger.log(this.nickname + " used a tool card");
+            /*if (tax) {      //TODO spostare nel gameController
+                if (!gameController.getToolCards().get(cardIndex).isUsed()) {
+                    this.gameController.getPlayer(id).setFavorTokens(this.gameController.getPlayer(id).getFavorTokens() - 1);
+                    Logger.debug("removed 1 favor token");
+                } else {
+                    this.gameController.getPlayer(id).setFavorTokens(this.gameController.getPlayer(id).getFavorTokens() - 2);
+                    Logger.debug("removed 2 favor tokens");
+                }
+            }
+            if (!(input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE))) {
+                this.gameController.getToolCards().get(cardIndex).setUsed();
+            }
+            Logger.debugPayload(payload);
+            out.println(payload.toString());*/
+        } catch (InvalidEffectArgumentException | InvalidEffectResultException e) {
+            payload.addProperty(JsonFields.RESULT, false);
+            payload.addProperty(JsonFields.ERROR_MESSAGE, e.getMessage());
+            Logger.log(this.nickname + " usage of tool card was refused");
+            Logger.debugPayload(payload);
+            out.println(payload.toString());
+        }
     }
 
     private void nextTurn() {
