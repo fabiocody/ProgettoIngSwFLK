@@ -4,7 +4,10 @@ import com.google.gson.*;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.model.Colors;
+import it.polimi.ingsw.shared.util.InterfaceMessages;
 import it.polimi.ingsw.shared.util.JsonFields;
+import it.polimi.ingsw.shared.util.Logger;
+
 import static it.polimi.ingsw.shared.util.Constants.*;
 
 import java.util.Arrays;
@@ -145,15 +148,18 @@ public class WindowPattern {
      * @param   d the die to place
      * @param   position the index that identifies the cell where to put the die on
      * @param   withConstraint the <code>placementConstraint</code> to comply
+     * @throws  InvalidPlacementException when placement is invalid
      * @see     PlacementConstraint
      * @author  Luca dell'Oglio
      */
 
-    public synchronized void placeDie(Die d, int position, PlacementConstraint withConstraint) {
+    public synchronized void placeDie(Die d, int position, PlacementConstraint withConstraint){
         if (withConstraint.checkConstraint(this.grid, position, d))
             this.grid[position].setPlacedDie(d);
-        else
-            throw new InvalidPlacementException("Die " + d + " cannot be placed in position " + position);
+        else {
+            Logger.error("Die " + d + " cannot be placed in position " + position);
+            throw new InvalidPlacementException(InterfaceMessages.DIE_INVALID_POSITION);
+        }
     }
 
     /**
@@ -161,11 +167,12 @@ public class WindowPattern {
      * <code>PlacementConstraint</code>: the placement is done with a <code>standardConstraint</code>
      * @param   d the die to place
      * @param   position the index that identifies the cell where to put the die on
+     * @throws  InvalidPlacementException when placement is invalid
      * @see     PlacementConstraint
      * @author  Luca dell'Oglio
      */
 
-    public synchronized void placeDie(Die d, int position) {
+    public synchronized void placeDie(Die d, int position){
         if (this.isGridEmpty())
             this.placeDie(d, position, PlacementConstraint.initialConstraint());
         else

@@ -64,12 +64,12 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     }
 
     @Override
-    boolean placeDie(int draftPoolIndex, int x, int y) {
+    JsonObject placeDie(int draftPoolIndex, int x, int y) {
         try {
-            return server.placeDie(draftPoolIndex, x, y);
+            return jsonParser.parse(server.placeDie(draftPoolIndex, x, y)).getAsJsonObject();
         } catch (RemoteException e) {
             connectionError();
-            return false;
+            return null;
         }
     }
 
@@ -93,12 +93,12 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     }
 
     @Override
-    boolean useToolCard(int cardIndex, JsonObject requiredData) {
+    JsonObject useToolCard(int cardIndex, JsonObject requiredData) {
         try {
-            return server.useToolCard(cardIndex, requiredData.toString());
+            return jsonParser.parse(server.useToolCard(cardIndex, requiredData.toString())).getAsJsonObject();
         } catch (RemoteException e) {
             connectionError();
-            return false;
+            return null;
         }
     }
 

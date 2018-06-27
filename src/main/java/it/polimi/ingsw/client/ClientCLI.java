@@ -31,8 +31,6 @@ public class ClientCLI extends Client {
     private String input = "";
     private String privateObjectiveCard;
 
-    private boolean dieAlreadyPlaced = false;
-    private boolean toolCardAlreadyUsed = false;
     private boolean turnOver = false;
 
     ClientCLI(boolean debugActive) {
@@ -75,8 +73,6 @@ public class ClientCLI extends Client {
                 if (!isGameOver()) {
                     Logger.println("È il tuo turno!");
                     this.turnOver = false;
-                    this.dieAlreadyPlaced = false;
-                    this.toolCardAlreadyUsed = false;
                     do {
                         try {
                             this.chooseActionMessage();
@@ -85,12 +81,10 @@ public class ClientCLI extends Client {
 
                                 switch (instructionIndex){
                                     case 1: //Place Die
-                                        if (this.dieAlreadyPlaced) Logger.println("\nHai già piazzato un dado questo turno!");
-                                        else this.placeDieMove();
+                                        this.placeDieMove();
                                         break;
                                     case 2:
-                                        if (toolCardAlreadyUsed) Logger.println("\nHai già usato una carta strumento questo turno!");
-                                        else this.useToolCardMove();
+                                        this.useToolCardMove();
                                         break;
                                     case 3:
                                         this.setActive(false);
@@ -164,23 +158,15 @@ public class ClientCLI extends Client {
     }
 
     private void placeDieMove() throws IOException, CancelException {
-        int draftPoolIndex;
-        int x;
-        int y;
-        try {
-            draftPoolIndex = this.getInputIndex("\nQuale dado vuoi piazzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE,0,draftPoolLength,true);
-            x = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_COLUMNS,true);
-            y = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_ROWS,true);
-        } catch (IOException | CancelException e){
-            throw e;
-        }
-        if (ClientNetwork.getInstance().placeDie(draftPoolIndex,x,y)) {
-            Logger.println("Dado piazzato\n");
-            this.dieAlreadyPlaced = true;
-        } else {
-            Logger.println("Posizionamento invalido\n");
-            this.dieAlreadyPlaced = false;
-        }
+        int draftPoolIndex,x,y;
+        draftPoolIndex = this.getInputIndex("\nQuale dado vuoi piazzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE,0,draftPoolLength,true);
+        x = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_COLUMNS,true);
+        y = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_ROWS,true);
+        JsonObject result = ClientNetwork.getInstance().placeDie(draftPoolIndex,x,y);
+        if(result.get(JsonFields.RESULT).getAsBoolean())
+            Logger.println(InterfaceMessages.SUCCESSFUL_DIE_PLACEMENT);
+        else
+            Logger.println(InterfaceMessages.UNSUCCESSFUL_DIE_PLACEMENT + result.get(JsonFields.ERROR_MESSAGE).getAsString());
     }
 
     private boolean useData(JsonObject requiredData, int cardIndex) throws CancelException, IOException{
@@ -228,24 +214,22 @@ public class ClientCLI extends Client {
                 requiredData.get("data").getAsJsonObject().addProperty("toCellY",toCellY);
             }
 
-            if(ClientNetwork.getInstance().useToolCard(cardIndex,requiredData.get("data").getAsJsonObject())) {
-                Logger.println("\nCarta strumento usata con successo\n");
-                this.toolCardAlreadyUsed = true;
+            JsonObject result = ClientNetwork.getInstance().useToolCard(cardIndex,requiredData.get("data").getAsJsonObject());
+
+            if(result.get(JsonFields.RESULT).getAsBoolean()){
+                Logger.println("\nCarta strumento usata con successo!");
                 return true;
             }
             else {
-                Logger.println("\nCarta strumento non usata\n");
-                this.toolCardAlreadyUsed = false;
+                Logger.println("\nCarta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString());
                 return false;
             }
-
         } catch (IOException | CancelException e) {
             throw e;
         }
     }
 
     private void useToolCardMove() throws IOException, CancelException {
-
         int cardIndex;
         boolean secondMove;
         JsonObject requiredData;
@@ -254,23 +238,19 @@ public class ClientCLI extends Client {
             cardIndex = this.getInputIndex("\nQuale carta strumento vuoi usare [1-3]? " + EXIT_MESSAGE, 0, 3,true);
             requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
             requiredData.remove("method");
-            if (requiredData.get("data").getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS)) {
-                Logger.println("\nNon hai abbastanza segnalini favore per utilizzare questa carta strumento");
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS) || requiredData.get("data").getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {
+                Logger.println("\n" + requiredData.get("data").getAsJsonObject().get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString());
             } else {
-                if (requiredData.get("data").getAsJsonObject().has("impossibleToUseToolCard")) {
-                    Logger.println("\nNon puoi utilizzare questa carta strumento: " + requiredData.get("data").getAsJsonObject().get("impossibleToUseToolCard").getAsString());
-                } else {
-                    valid = this.useData(requiredData,cardIndex);
-                    if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE) && valid) {
-                        if(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP))
-                            secondMove = this.getInputBool("\nVuoi continuare [Sì 1/No 0]? ");
-                        else
-                            secondMove = true;
-                        if(secondMove) {
-                            requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
-                            requiredData.remove("method");
-                            this.useData(requiredData,cardIndex);
-                        }
+                valid = this.useData(requiredData,cardIndex);
+                if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE) && valid) {
+                    if(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP))
+                        secondMove = this.getInputBool("\nVuoi continuare [Sì 1/No 0]? ");
+                    else
+                        secondMove = true;
+                    if(secondMove) {
+                        requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
+                        requiredData.remove("method");
+                        this.useData(requiredData,cardIndex);
                     }
                 }
             }

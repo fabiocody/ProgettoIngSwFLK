@@ -11,7 +11,7 @@ import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
  * @see     WindowPattern#moveDie(int, int, PlacementConstraint)
  */
 
-public class InvalidPlacementException extends RuntimeException {
+public class InvalidPlacementException extends RuntimeException{
 
     public InvalidPlacementException() {
         super();

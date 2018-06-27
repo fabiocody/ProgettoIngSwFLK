@@ -2,9 +2,12 @@ package it.polimi.ingsw.model.game;
 
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
+import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
 import it.polimi.ingsw.model.patterncards.WindowPattern;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.shared.util.Constants;
+import it.polimi.ingsw.shared.util.InterfaceMessages;
+import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.NotificationMessages;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -128,14 +131,15 @@ public class Player extends Observable {
         }
     }
 
-    public void placeDie(Die d, int x, int y) {
-        if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException();
+    //throws InvalidPlacementException, DieAlreadyPlacedException
+    public void placeDie(Die d, int x, int y) throws DieAlreadyPlacedException,InvalidPlacementException{
+        if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException(InterfaceMessages.DIE_ALREADY_PLACED_IN_THIS_TURN);
         this.getWindowPattern().placeDie(d, Constants.NUMBER_OF_PATTERN_COLUMNS * y + x);
         setDiePlacedInThisTurn(true);
     }
 
-    public void placeDie(Die d, int position, PlacementConstraint constraint){
-        if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException();
+    public /*synchronized*/ void placeDie(Die d, int position, PlacementConstraint constraint) throws DieAlreadyPlacedException{
+        if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException("you already placed a die this turn");
         this.getWindowPattern().placeDie(d, position, constraint);
         setDiePlacedInThisTurn(true);
     }

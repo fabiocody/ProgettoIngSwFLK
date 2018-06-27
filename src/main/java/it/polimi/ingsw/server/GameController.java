@@ -91,9 +91,7 @@ public class GameController extends BaseController {
         else throw new NoSuchElementException("Cannot retrieve WindowPattern because no Player object with specified nickname has been found");
     }
 
-    void choosePattern(UUID id, int patternIndex){
-        getPlayer(id).chooseWindowPattern(patternIndex);
-    }
+
 
     int getCurrentRound() {
         return this.game.getRoundTrack().getCurrentRound();
@@ -109,11 +107,29 @@ public class GameController extends BaseController {
         return this.game.getDiceGenerator().getDraftPool();
     }
 
-    void placeDie(UUID id, int draftPoolIndex, int x, int y) {
+    void choosePattern(UUID id, int patternIndex){
+        getPlayer(id).chooseWindowPattern(patternIndex);
+    }
+
+    void placeDie(UUID id, int draftPoolIndex, int x, int y) throws DieAlreadyPlacedException, InvalidPlacementException {
         Die d = this.getDraftPool().get(draftPoolIndex);
         getPlayer(id).placeDie(d, x, y);
         this.game.getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
         forEachServerNetwork(ServerNetwork::fullUpdate);
+    }
+
+    JsonObject requiredData(int toolCardIndex, UUID id){
+        JsonObject data = this.game.getToolCards().get(toolCardIndex).requiredData();
+        if(this.getPlayer(id).getFavorTokens() < 2 && this.getToolCards().get(toolCardIndex).isUsed() ||
+                (this.getPlayer(id).getFavorTokens() < 1 && !this.getToolCards().get(toolCardIndex).isUsed())){
+            data.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.NO_FAVOR_TOKENS,InterfaceMessages.NO_FAVOR_TOKENS_MESSAGE);
+        }
+        else{
+            if(data.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX) && this.getDraftPool().isEmpty()){
+                data.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, InterfaceMessages.EMPTY_DRAFT_POOL_MESSAGE);
+            }
+        }
+        return data;
     }
 
     void useToolCard(UUID uuid, int cardIndex, JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
@@ -123,18 +139,14 @@ public class GameController extends BaseController {
         if (!data.has(JsonFields.CONTINUE)) {
             if (!toolCard.isUsed()) {
                 getPlayer(uuid).setFavorTokens(getPlayer(uuid).getFavorTokens() - 1);
-                Logger.debug("removed 1 favor token");
+                Logger.debug("Removed 1 favor token");
             } else {
                 getPlayer(uuid).setFavorTokens(getPlayer(uuid).getFavorTokens() - 2);
-                Logger.debug("removed 2 favor tokens");
+                Logger.debug("Removed 2 favor tokens");
             }
             toolCard.setUsed();
         }
         forEachServerNetwork(ServerNetwork::fullUpdate);
-    }
-
-    JsonObject requiredData(int toolCardsIndex){
-        return this.game.getToolCards().get(toolCardsIndex).requiredData();
     }
 
     void nextTurn() {
