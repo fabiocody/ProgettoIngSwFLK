@@ -748,7 +748,7 @@ public class ClientCLI extends Client {
                 AnsiConsole.systemUninstall();
                 System.exit(Constants.EXIT_STATUS);
             }
-        }, 1000);
+        }, 500);
     }
 
 }

@@ -189,12 +189,13 @@ public class GameController extends BaseController {
                 this.game.getTurnManager().subscribeToTimer(this);
             forEachServerNetwork(ServerNetwork::fullUpdate);
         } else if (o instanceof ServerNetwork) {
-            new Timer().schedule(new TimerTask() {
+            new Thread(this::nextTurn).start();
+            /*new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
                     nextTurn();
                 }
-            }, 1000);
+            }, 100);*/
         }
     }
 }

@@ -49,7 +49,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             uuid = server.addPlayer(nickname);
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
         return uuid;
     }
@@ -59,7 +59,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             server.choosePattern(patternIndex);
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
     }
 
@@ -68,7 +68,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             return jsonParser.parse(server.placeDie(draftPoolIndex, x, y)).getAsJsonObject();
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
             return null;
         }
     }
@@ -78,7 +78,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             server.nextTurn();
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
         }
     }
 
@@ -87,7 +87,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             return jsonParser.parse(server.requiredData(cardIndex)).getAsJsonObject();
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
             return null;
         }
     }
@@ -97,7 +97,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         try {
             return jsonParser.parse(server.useToolCard(cardIndex, requiredData.toString())).getAsJsonObject();
         } catch (RemoteException e) {
-            connectionError();
+            connectionError(e);
             return null;
         }
     }
@@ -108,18 +108,15 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
             server.probe();
             this.rescheduleProbeTimer();
         } catch (RemoteException | NullPointerException e) {
-            connectionError();
+            connectionError(e);
         }
-    }
-
-    private void connectionError() {
-        Logger.connectionLost(nickname);
-        System.exit(Constants.EXIT_ERROR);
     }
 
     @Override
     public void update(String jsonString) {
         JsonObject payload = jsonParser.parse(jsonString).getAsJsonObject();
+        if (payload.get(JsonFields.METHOD).getAsString().equals(Methods.FINAL_SCORES.getString()))
+            gameEnding = true;
         this.setChanged();
         this.notifyObservers(payload);
     }

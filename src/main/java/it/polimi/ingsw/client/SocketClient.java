@@ -85,8 +85,7 @@ public class SocketClient extends ClientNetwork {
                 inputJson = this.jsonParser.parse(this.readLine()).getAsJsonObject();
                 Logger.debug(inputJson.toString());
             } catch (IOException | NullPointerException e) {
-                Logger.connectionLost();
-                System.exit(Constants.EXIT_ERROR);
+                connectionError(e);
             }
             Methods recvMethod;
             try {
@@ -119,12 +118,15 @@ public class SocketClient extends ClientNetwork {
                 case DRAFT_POOL:
                 case ROUND_TRACK:
                 case FAVOR_TOKENS:
-                case FINAL_SCORES:
                 case TOOL_CARDS:
                 case WINDOW_PATTERNS:
                     this.setChanged();
                     this.notifyObservers(inputJson);
                     break;
+                case FINAL_SCORES:
+                    gameEnding = true;
+                    setChanged();
+                    notifyObservers(inputJson);
                 case PROBE:
                     this.probe();
                     break;
@@ -143,8 +145,7 @@ public class SocketClient extends ClientNetwork {
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         String line = in.readLine();
         if (line == null) {
-            Logger.connectionLost();
-            System.exit(Constants.EXIT_ERROR);
+            connectionError();
         }
         return line;
     }
