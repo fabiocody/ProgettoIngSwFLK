@@ -23,8 +23,6 @@ public class SocketClient extends ClientNetwork {
     private final Object responseBufferLock = new Object();
     private Thread recvThread;
 
-    // FLAGS
-
     /**
      * This is the constructor of the client
      *

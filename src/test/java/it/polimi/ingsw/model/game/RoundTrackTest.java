@@ -1,7 +1,6 @@
-package it.polimi.ingsw.server;
+package it.polimi.ingsw.model.game;
 
 import it.polimi.ingsw.model.dice.*;
-import it.polimi.ingsw.model.game.RoundTrack;
 import it.polimi.ingsw.shared.util.Constants;
 import org.junit.jupiter.api.*;
 import java.util.*;

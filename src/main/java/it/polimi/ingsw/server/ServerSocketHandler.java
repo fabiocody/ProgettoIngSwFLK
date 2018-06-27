@@ -31,6 +31,17 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         Thread.currentThread().interrupt();
     }
 
+    @Override
+    void close() {
+        try {
+            if (this.in != null) this.in.close();
+            if (this.out != null) this.out.close();
+            if (this.clientSocket != null) this.clientSocket.close();
+        } catch (IOException e) {
+            Logger.error("Error closing ServerNetwork");
+        }
+    }
+
     // REQUESTS HANDLER
 
     @Override

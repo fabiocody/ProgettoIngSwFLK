@@ -1,17 +1,14 @@
-package it.polimi.ingsw.placementconstraints;
+package it.polimi.ingsw.model.placementconstraints;
 
-import it.polimi.ingsw.model.dice.Die;
-import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
-import it.polimi.ingsw.model.patterncards.WindowPattern;
-import it.polimi.ingsw.model.placementconstraints.*;
-import it.polimi.ingsw.model.Colors;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-
+import it.polimi.ingsw.model.Colors;
+import it.polimi.ingsw.model.dice.Die;
+import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.shared.util.Constants;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 class PlacementConstraintTest {
 

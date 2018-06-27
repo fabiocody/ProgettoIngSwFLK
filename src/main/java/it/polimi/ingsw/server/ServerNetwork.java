@@ -21,6 +21,7 @@ public abstract class ServerNetwork implements Observer {
 
     abstract void sendProbe();
     abstract void showDisconnectedUserMessage();
+    abstract void close();
 
     private JsonObject createWindowPatternJSON(WindowPattern wp) {
         JsonObject wpJSON = new JsonObject();
@@ -197,7 +198,10 @@ public abstract class ServerNetwork implements Observer {
         payload.addProperty(JsonFields.METHOD, Methods.FINAL_SCORES.getString());
         JsonObject finalScores = new JsonObject();
         for (String player : this.gameController.getFinalScores().keySet()) {
-            finalScores.addProperty(player, this.gameController.getFinalScores().get(player));
+            if (player.equals(JsonFields.WINNER))
+                finalScores.addProperty(player, gameController.getFinalScores().get(player).getNickname());
+            else
+                finalScores.addProperty(player, gameController.getFinalScores().get(player).getFinalScore());
         }
         payload.add(JsonFields.FINAL_SCORES, finalScores);
         Logger.debugPayload(payload);

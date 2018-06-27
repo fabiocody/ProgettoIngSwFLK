@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * This class represents a player logged in the server.
+ * This class represents a player logged in the game.
  *
  * @author Fabio Codiglioni
  */

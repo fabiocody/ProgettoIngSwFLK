@@ -1,13 +1,11 @@
-package it.polimi.ingsw.toolcards;
+package it.polimi.ingsw.model.toolcards;
 
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.Colors;
-import it.polimi.ingsw.model.game.Game;
-import it.polimi.ingsw.model.game.Player;
-import it.polimi.ingsw.model.patterncards.WindowPattern;
-import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
-import it.polimi.ingsw.model.toolcards.*;
+import it.polimi.ingsw.model.dice.*;
+import it.polimi.ingsw.model.game.*;
+import it.polimi.ingsw.model.patterncards.*;
+import it.polimi.ingsw.model.placementconstraints.*;
 import it.polimi.ingsw.shared.util.*;
 import org.junit.jupiter.api.*;
 import java.util.*;

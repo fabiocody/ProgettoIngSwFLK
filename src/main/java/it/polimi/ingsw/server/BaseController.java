@@ -30,6 +30,11 @@ class BaseController {
         }).start();
     }
 
+    void closeServerNetworks() {
+
+        serverNetworks.clear();
+    }
+
     void forEachServerNetwork(Consumer<? super ServerNetwork> action) {
         synchronized (serverNetworksLock) {
             for (ServerNetwork serverNetwork : serverNetworks) {

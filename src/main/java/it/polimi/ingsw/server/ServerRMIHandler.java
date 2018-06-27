@@ -17,7 +17,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     private JsonParser jsonParser;
 
     private ServerRMIHandler(ClientAPI client) {
-        System.setProperty("java.rmi.server.useCodebaseOnly", String.valueOf(false));
+        System.setProperty("java.rmi.game.useCodebaseOnly", String.valueOf(false));
         this.client = client;
         this.jsonParser = new JsonParser();
         if (this.client != null) WaitingRoomController.getInstance().addServerNetwork(this);
@@ -240,11 +240,17 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         Thread.currentThread().interrupt();
     }
 
+    @Override
+    void close() {
+        client = null;
+    }
+
     private void connectionError(Throwable e) {
         Logger.connectionLost(nickname);
         if (Logger.isDebugActive())
             e.printStackTrace();
         this.onUserDisconnection();
+        this.close();
     }
 
 }

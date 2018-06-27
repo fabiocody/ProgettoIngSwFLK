@@ -41,7 +41,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
 
     @Override
     void teardown() {
-        // TODO
+        server = null;
     }
 
     @Override

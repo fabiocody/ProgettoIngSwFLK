@@ -4,8 +4,7 @@ import it.polimi.ingsw.model.dice.DiceGenerator;
 import it.polimi.ingsw.model.objectivecards.*;
 import it.polimi.ingsw.model.patterncards.PatternCardsGenerator;
 import it.polimi.ingsw.model.toolcards.*;
-import it.polimi.ingsw.shared.util.NotificationMessages;
-
+import it.polimi.ingsw.shared.util.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -24,7 +23,7 @@ public class Game extends Observable implements Observer {
     private List<Player> players;
     private TurnManager turnManager;
     private RoundTrack roundTrack;
-    private Map<Player, Integer> finalScores;
+    private Map<String, Scores> finalScores;
 
     // Generators
     private ObjectiveCardsGenerator objectiveCardsGenerator;
@@ -154,7 +153,7 @@ public class Game extends Observable implements Observer {
      * @return the map if the final scores of the players.
      * @throws IllegalStateException thrown when this method is called before the Game is over.
      */
-    public Map<Player, Integer> getFinalScores() {
+    public Map<String, Scores> getFinalScores() {
         synchronized (finalScoresLock) {
             if (!this.getRoundTrack().isGameOver())
                 throw new IllegalStateException("Cannot get final scores before game over");
@@ -236,10 +235,8 @@ public class Game extends Observable implements Observer {
         for (Player player : this.players) {
             player.setPrivateObjectiveCard(this.getObjectiveCardsGenerator().dealPrivate());
             player.setWindowPatternList(this.getPatternCardsGenerator().getCardsForPlayer());
-            // TODO Choose card
         }
         this.toolCards = ToolCardsGenerator.generate(this);
-        //this.toolCards.forEach(card -> card.addObserver(this));
         this.publicObjectiveCards = this.getObjectiveCardsGenerator().generatePublic();
         this.getDiceGenerator().generateDraftPool();
     }
@@ -266,8 +263,21 @@ public class Game extends Observable implements Observer {
      */
     private void endGame() {
         this.turnManager.cancelTimer();
-        this.players.forEach(this::calcScoreForPlayer);
-        assert this.getFinalScores().keySet().containsAll(this.players);
+        List<Scores> scores = new ArrayList<>();
+        List<String> nicknames = this.players.stream().map(Player::getNickname).sorted().collect(Collectors.toList());
+        this.players.forEach(player -> scores.add(calcScoreForPlayer(player)));
+        assert scores.stream()
+                .map(Scores::getNickname)
+                .collect(Collectors.toList())
+                .equals(this.players.stream()
+                        .map(Player::getNickname)
+                        .collect(Collectors.toList()));
+        breakTies(scores, nicknames);
+        scores.forEach(score -> getFinalScores().put(score.getNickname(), score));
+        Scores winner = scores.get(0);
+        getFinalScores().put(JsonFields.WINNER, winner);
+        nicknames.add(JsonFields.WINNER);
+        assert getFinalScores().keySet().containsAll(nicknames);
     }
 
     /**
@@ -276,13 +286,45 @@ public class Game extends Observable implements Observer {
      * @author Fabio Codiglioni
      * @param player the player to consider for the computing of VPs.
      */
-    private void calcScoreForPlayer(Player player) {
-        int score = 0;
-        for (ObjectiveCard c : this.getPublicObjectiveCards()) score += c.calcScore(player.getWindowPattern().getGrid());
-        score += player.getPrivateObjectiveCard().calcScore(player.getWindowPattern().getGrid());
+    private Scores calcScoreForPlayer(Player player) {
+        Scores scores = new Scores(player.getNickname());
+
+        // Public Objective Cards
+        int score = this.getPublicObjectiveCards().stream()
+                .mapToInt(card -> card.calcScore(player.getWindowPattern().getGrid()))
+                .sum();
+
+        // Private Objective Card
+        int privateObjectiveCardScore = player.getPrivateObjectiveCard().calcScore(player.getWindowPattern().getGrid());
+        scores.setPrivateObjectiveCardScore(privateObjectiveCardScore);
+        score += privateObjectiveCardScore;
+
+        // Favor Tokens
+        scores.setFavorTokensScore(player.getFavorTokens());
         score += player.getFavorTokens();
-        score -= Arrays.stream(player.getWindowPattern().getGrid()).filter(c -> c.getPlacedDie() == null).count();
-        this.getFinalScores().put(player, score);
+
+        // Empty cells
+        score -= Arrays.stream(player.getWindowPattern().getGrid())
+                .filter(c -> c.getPlacedDie() == null)
+                .count();
+
+        scores.setFinalScore(score);
+        return scores;
+    }
+
+    static void breakTies(List<Scores> scores, List<String> nicknames) {
+        scores.sort(Comparator.comparingInt(Scores::getFinalScore)
+                .thenComparingInt(Scores::getPrivateObjectiveCardScore)
+                .thenComparingInt(Scores::getFavorTokensScore));
+        Collections.reverse(scores);
+        Scores first = scores.get(0);
+        Scores second = scores.get(1);
+        if (first.getFinalScore() == second.getFinalScore() &&
+                first.getPrivateObjectiveCardScore() == second.getPrivateObjectiveCardScore() &&
+                first.getFavorTokensScore() == second.getFavorTokensScore()) {
+            Collections.reverse(nicknames);
+            scores.sort(Comparator.comparing(item -> nicknames.indexOf(item.getNickname())));
+        }
     }
 
     /**
@@ -302,14 +344,12 @@ public class Game extends Observable implements Observer {
                 notifyObservers(NotificationMessages.ROUND_TRACK);
             } else if (arg.equals(NotificationMessages.GAME_OVER)) {
                 this.getTurnManager().cancelTimer();
+                this.getRoundTrack().putDice(this.getDiceGenerator().getDraftPool());
                 this.endGame();
                 setChanged();
                 notifyObservers(NotificationMessages.GAME_OVER);
             }
-        } /*else if (o instanceof Player && this.arePlayersReady()) {
-            setChanged();
-            notifyObservers(NotificationMessages.TURN_MANAGEMENT);
-        }*/
+        }
     }
 
 }

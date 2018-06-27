@@ -1,14 +1,11 @@
-package it.polimi.ingsw.server;
+package it.polimi.ingsw.model.game;
 
-import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCardsGenerator;
 import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.shared.util.Constants;
 import org.junit.jupiter.api.Test;
-
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 

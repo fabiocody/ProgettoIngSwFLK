@@ -33,12 +33,8 @@ public class GameController extends BaseController implements Observer {
                 .collect(Collectors.toList());
     }
 
-    Map<String, Integer> getFinalScores() {
-        return this.game.getFinalScores().entrySet().stream()
-                .collect(Collectors.toMap(
-                        e -> e.getKey().getNickname(),
-                        Map.Entry::getValue
-                ));
+    Map<String, Scores> getFinalScores() {
+        return this.game.getFinalScores();
     }
 
     List<ObjectiveCard> getPublicObjectiveCards() {
@@ -176,9 +172,8 @@ public class GameController extends BaseController implements Observer {
                 case NotificationMessages.GAME_OVER:
                     forEachServerNetwork(ServerNetwork::fullUpdate);
                     forEachServerNetwork(ServerNetwork::updateFinalScores);
-                    //forEachServerNetwork(ServerNetwork::turnManagement);
+                    closeServerNetworks();
                     SagradaServer.getInstance().getGameControllers().remove(this);
-
                     break;
             }
         } else if (o instanceof Player) {
