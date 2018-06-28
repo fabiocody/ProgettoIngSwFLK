@@ -7,6 +7,8 @@ import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.shared.util.Constants;
 
+import static it.polimi.ingsw.shared.util.InterfaceMessages.DIE_INVALID_POSITION;
+
 
 /**
  * This class is the base class to all the Tool Cards.
@@ -105,7 +107,8 @@ public abstract class ToolCard {
         } catch (InvalidPlacementException e) {
             Cell fromCell = player.getWindowPattern().getCellAt(fromIndex);
             Cell toCell = player.getWindowPattern().getCellAt(toIndex);
-            throw new InvalidEffectResultException("Invalid movement from cell at index " + fromIndex + " (with die " + fromCell.getPlacedDie() + ") to cell at index " + toIndex + " (" + toCell + ")");
+            //"Invalid movement from cell at index " + fromIndex + " (with die " + fromCell.getPlacedDie() + ") to cell at index " + toIndex + " (" + toCell + ")
+            throw new InvalidEffectResultException(DIE_INVALID_POSITION);
         }
     }
 

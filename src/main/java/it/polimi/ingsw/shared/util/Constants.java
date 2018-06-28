@@ -28,4 +28,18 @@ public class Constants {
     public static final String SERVER_RMI_NAME = "SagradaServer";
     public static final String SERVER_USAGE_STRING = "usage: sagradaserver host [--debug] [--port PORT] [--wr-timeout WR-TIMEOUT] [--game-timeout GAME-TIMEOUT]";
     public static final String CLIENT_USAGE_STRING = "usage: sagradaclient --host HOST [--debug] [--port PORT] [--connection socket|rmi] [--interface cli|gui]";
+    public static final String TOOL_CARD_1_NAME = "Pinza Sgrossatrice";
+    public static final String TOOL_CARD_2_NAME = "Pennello per Eglomise";
+    public static final String TOOL_CARD_3_NAME = "Alesatore per lamina di rame";
+    public static final String TOOL_CARD_4_NAME = "Lathekin";
+    public static final String TOOL_CARD_5_NAME = "Taglierina circolare";
+    public static final String TOOL_CARD_6_NAME = "Pennello per Pasta Salda";
+    public static final String TOOL_CARD_7_NAME = "Martelletto";
+    public static final String TOOL_CARD_8_NAME = "Tenaglia a Rotelle";
+    public static final String TOOL_CARD_9_NAME = "Riga in Sughero";
+    public static final String TOOL_CARD_10_NAME = "Tampone Diamantato";
+    public static final String TOOL_CARD_11_NAME = "Diluente per Pasta Salda";
+    public static final String TOOL_CARD_12_NAME = "Taglierina Manuale";
+    public static final String STRING_SEPARATOR = ", ";
+
 }

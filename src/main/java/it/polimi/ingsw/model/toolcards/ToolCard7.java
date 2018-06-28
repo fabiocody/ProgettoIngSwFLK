@@ -6,6 +6,9 @@ import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
 
+import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_7_NAME;
+import static it.polimi.ingsw.shared.util.InterfaceMessages.FIRST_HALF_OF_ROUND;
+
 
 /**
  * @author Fabio Codiglioni
@@ -19,7 +22,7 @@ public class ToolCard7 extends ToolCard {
      * @param game the game object this card is part of.
      */
     public ToolCard7(Game game) {
-        super("Martelletto", "Tira nuovamente tutti i dadi della riserva\nQuesta carta può essere usata solo durante il tuo secondo turno, prima di scegliere il secondo dado", game);
+        super(TOOL_CARD_7_NAME, "Tira nuovamente tutti i dadi della riserva\nQuesta carta può essere usata solo durante il tuo secondo turno, prima di scegliere il secondo dado", game);
     }
 
     /**
@@ -31,9 +34,8 @@ public class ToolCard7 extends ToolCard {
      * @throws InvalidEffectResultException thrown if the effect produces an invalid result.
      */
     public void effect(JsonObject data) throws InvalidEffectResultException {
-        // TODO Check sul fatto che non abbia ancora tirato il dado
         if (!this.getGame().getTurnManager().isSecondHalfOfRound())
-            throw new InvalidEffectResultException();
+            throw new InvalidEffectResultException(FIRST_HALF_OF_ROUND);
         this.getGame().getDiceGenerator().getDraftPool().forEach(Die::roll);
     }
 

@@ -235,26 +235,6 @@ public class SocketClient extends ClientNetwork {
     }
 
     /**
-     * This method handles the request from a user to use a tool card
-     *
-     * @param cardIndex index of the specified tool card
-     * @param data JsonObject containing all the necessary fields filled with information given by the user
-     * @return the response from the server formatted as a JsonObject
-     */
-    @Override
-    JsonObject useToolCard(int cardIndex, JsonObject data){
-        JsonObject payload = new JsonObject();
-        JsonObject arg = new JsonObject();
-        arg.addProperty(JsonFields.CARD_INDEX, cardIndex);
-        arg.add(JsonFields.DATA, data); //different data for each tool card
-        payload.add(JsonFields.ARG, arg);
-        this.sendMessage(payload,Methods.USE_TOOL_CARD.getString());
-        JsonObject input = this.pollResponseBuffer();
-        Logger.debugInput(input);
-        return input;
-    }
-
-    /**
      * This method is used to request the information needed to use the specified tool card
      *
      * @param cardIndex the index of the tool card that the user wants to use
@@ -265,6 +245,26 @@ public class SocketClient extends ClientNetwork {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.CARD_INDEX, cardIndex);
         this.sendMessage(payload, Methods.REQUIRED_DATA.getString());
+        JsonObject input = this.pollResponseBuffer();
+        Logger.debugInput(input);
+        return input;
+    }
+
+    /**
+     * This method handles the request from a user to use a tool card
+     *
+     * @param cardIndex index of the specified tool card
+     * @param data JsonObject containing all the necessary fields filled with information given by the user
+     * @return
+     */
+    @Override
+    JsonObject useToolCard(int cardIndex, JsonObject data){
+        JsonObject payload = new JsonObject();
+        JsonObject arg = new JsonObject();
+        arg.addProperty(JsonFields.CARD_INDEX, cardIndex);
+        arg.add(JsonFields.DATA, data); //different data for each tool card
+        payload.add(JsonFields.ARG, arg);
+        this.sendMessage(payload,Methods.USE_TOOL_CARD.getString());
         JsonObject input = this.pollResponseBuffer();
         Logger.debugInput(input);
         return input;

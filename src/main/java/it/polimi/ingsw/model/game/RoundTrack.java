@@ -49,6 +49,17 @@ public class RoundTrack extends Observable implements Observer {
         }
     }
 
+
+    /**
+     * @return true if the RoundTrack has no dices, false otherwise
+     * @author Luca dell'Oglio
+     */
+    public boolean isRoundTrackEmpty(){
+        synchronized (diceLock) {
+            return getAllDice().isEmpty() || getRoundTrackDice() == null;
+        }
+    }
+
     /**
      * This method returns the list of roundTrackDice placed on the Round Track, and also instantiate the underlying data structure.
      *

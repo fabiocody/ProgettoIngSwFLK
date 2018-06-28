@@ -7,6 +7,8 @@ import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.model.Colors;
 import it.polimi.ingsw.shared.util.*;
 
+import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_12_NAME;
+import static it.polimi.ingsw.shared.util.InterfaceMessages.NO_PROPER_COLOR_DIE_ON_ROUND_TRACK;
 
 
 /**
@@ -24,7 +26,7 @@ public class ToolCard12 extends ToolCard {
      * @param game the game object this card is part of.
      */
     public ToolCard12(Game game) {
-        super("Taglierina Manuale", "Muovi fino a due dadi dello stesso colore di un solo dado sul Tracciato dei Round\nDevi rispettare tutte le restrizioni di piazzamento", game);
+        super(TOOL_CARD_12_NAME, "Muovi fino a due dadi dello stesso colore di un solo dado sul Tracciato dei Round\nDevi rispettare tutte le restrizioni di piazzamento", game);
     }
 
     /**
@@ -74,6 +76,7 @@ public class ToolCard12 extends ToolCard {
         data.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
         if (this.firstMoveColor == null && this.firstMoveIndex == null) {
             data.addProperty(JsonFields.CONTINUE, Constants.INDEX_CONSTANT);
+            data.addProperty(JsonFields.STOP, Constants.INDEX_CONSTANT);
         } else data.addProperty(JsonFields.STOP, Constants.INDEX_CONSTANT);
         payload.add(JsonFields.DATA, data);
         return payload;
@@ -105,7 +108,7 @@ public class ToolCard12 extends ToolCard {
                 .filter(c -> c == dieColor)
                 .count();
         if (numberOfDiceOfTheSameColorOnRoundTrack == 0)
-            throw new InvalidEffectResultException("There are no dice of that color on the Round Track");
+            throw new InvalidEffectResultException(NO_PROPER_COLOR_DIE_ON_ROUND_TRACK);
         this.moveDie(player, fromIndex, toIndex, PlacementConstraint.standardConstraint());
         this.firstMoveColor = player.getWindowPattern().getCellAt(toIndex).getPlacedDie().getColor();
         this.firstMoveIndex = toIndex;

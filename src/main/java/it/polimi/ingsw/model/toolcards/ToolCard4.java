@@ -8,6 +8,8 @@ import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
 
+import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_4_NAME;
+
 
 /**
  * @author Fabio Codiglioni
@@ -24,7 +26,7 @@ public class ToolCard4 extends ToolCard {
      * @param game the game object this card is part of.
      */
     public ToolCard4(Game game) {
-        super("Lathekin", "Muovi esattamente due dadi, rispettando tutte le restrizioni di piazzamento", game);
+        super(TOOL_CARD_4_NAME, "Muovi esattamente due dadi, rispettando tutte le restrizioni di piazzamento", game);
         this.firstMoveDone = false;
     }
 

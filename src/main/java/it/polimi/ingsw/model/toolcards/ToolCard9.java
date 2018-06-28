@@ -11,6 +11,9 @@ import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
 
+import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_9_NAME;
+import static it.polimi.ingsw.shared.util.InterfaceMessages.DIE_INVALID_POSITION;
+
 
 /**
  * @author Fabio Codiglioni
@@ -24,7 +27,7 @@ public class ToolCard9 extends ToolCard {
      * @param game the game object this card is part of.
      */
     public ToolCard9(Game game) {
-        super("Riga in Sughero", "Dopo aver scelto un dado, piazzalo in una casella che non sia adiacente a un altro dado\nDevi rispettare tutte le restrizioni di piazzamento", game);
+        super(TOOL_CARD_9_NAME, "Dopo aver scelto un dado, piazzalo in una casella che non sia adiacente a un altro dado\nDevi rispettare tutte le restrizioni di piazzamento", game);
     }
 
     /**
@@ -57,16 +60,16 @@ public class ToolCard9 extends ToolCard {
             throw new InvalidEffectArgumentException("Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")");
         PlacementConstraint constraint;
         if (player.getWindowPattern().isGridEmpty()) {
-            constraint = new BorderConstraint(new ColorConstraint(new ValueConstraint(new OrthogonalConstraint(new EmptyConstraint()))));
+            constraint = new BorderConstraint(new ColorConstraint(new ValueConstraint(new EmptyConstraint())));
         } else {
-            constraint = new ColorConstraint(new ValueConstraint(new OrthogonalConstraint(new EmptyConstraint())));
+            constraint = new ColorConstraint(new ValueConstraint(new EmptyConstraint()));
         }
         Die d = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
         try {
                 player.placeDie(d, cellIndex, constraint);
                 this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
-            throw new InvalidEffectResultException();
+            throw new InvalidEffectResultException(DIE_INVALID_POSITION);
         }
     }
 

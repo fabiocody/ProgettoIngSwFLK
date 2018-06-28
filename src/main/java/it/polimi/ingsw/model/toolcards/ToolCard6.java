@@ -6,6 +6,8 @@ import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
 
+import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_6_NAME;
+
 
 /**
  * @author Fabio Codiglioni
@@ -20,7 +22,7 @@ public class ToolCard6 extends ToolCard {
      * @param game the game object this card is part of.
      */
     public ToolCard6(Game game) {
-        super("Pennello per Pasta Salda", "Dopo aver scelto un dado, tira nuovamente quel dado\nSe non puoi piazzarlo, riponilo nella riserva", game);
+        super(TOOL_CARD_6_NAME, "Dopo aver scelto un dado, tira nuovamente quel dado\nSe non puoi piazzarlo, riponilo nella riserva", game);
     }
 
     /**
