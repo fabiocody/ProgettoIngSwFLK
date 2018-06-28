@@ -2,15 +2,15 @@ package it.polimi.ingsw.model.patterncards;
 
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.Colors;
-
 import static org.fusesource.jansi.Ansi.*;
+
 
 /**
  * This class describes a pattern cell.
  * @author  Luca dell'Oglio
  */
-
 public class Cell {
+
     private final Colors cellColor;
     private final Integer cellValue;
     private Die placedDie;
@@ -20,7 +20,6 @@ public class Cell {
      * @param   cellValue the value of the cell (can be null)
      * @author  Luca dell'Oglio
      */
-
     public Cell(Colors cellColor, Integer cellValue){
         this.cellColor = cellColor;
         this.cellValue = cellValue;
@@ -30,7 +29,6 @@ public class Cell {
      * @return  the color of the cell
      * @author  Luca dell'Oglio
      */
-
     public Colors getCellColor(){
         return this.cellColor;
     }
@@ -39,7 +37,6 @@ public class Cell {
      * @return  the value of the cell
      * @author  Luca dell'Oglio
      */
-
     public Integer getCellValue(){
         return this.cellValue;
     }
@@ -49,8 +46,7 @@ public class Cell {
      * @see     WindowPattern
      * @author  Luca dell'Oglio
      */
-
-    public synchronized Die getPlacedDie() {
+    public Die getPlacedDie() {
         return placedDie;
     }
 
@@ -59,8 +55,7 @@ public class Cell {
      * @see     WindowPattern
      * @author  Luca dell'Oglio
      */
-
-    synchronized void setPlacedDie(Die placedDie) {
+    void setPlacedDie(Die placedDie) {
         this.placedDie = placedDie;
     }
 
@@ -69,9 +64,8 @@ public class Cell {
      *          printed will be 0, if the cell has null color its value will be printed in white.
      * @author  Luca dell'Oglio
      */
-
     @Override
-    public synchronized String toString() {
+    public String toString() {
         if (this.cellColor != null && this.cellValue != null)
             return ansi().fg(this.cellColor.getJAnsiColor()).a(" " + this.cellValue + " ").toString();
         else if (this.cellColor == null && this.cellValue != null)
@@ -80,10 +74,6 @@ public class Cell {
             return ansi().bg(this.cellColor.getJAnsiColor()).a("   ").reset().toString();
         else
             return "   ";
-    }
-
-    public void dump(){
-        System.out.println(this.toString());
     }
 
 }

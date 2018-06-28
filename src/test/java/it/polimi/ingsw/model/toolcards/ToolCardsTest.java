@@ -61,10 +61,10 @@ class ToolCardsTest {
         player.setWindowPatternList(Arrays.asList(new WindowPattern(Constants.INDEX_CONSTANT)));
         Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
         player.getWindowPattern().placeDie(die, 2, PlacementConstraint.initialConstraint());
-        assertNotNull(player.getWindowPattern().getCellAt(2).getPlacedDie());
+        assertNotNull(player.getWindowPattern().getCell(2).getPlacedDie());
         die = game.getDiceGenerator().drawDieFromDraftPool(0);
         player.getWindowPattern().placeDie(die, 8);
-        assertNotNull(player.getWindowPattern().getCellAt(8).getPlacedDie());
+        assertNotNull(player.getWindowPattern().getCell(8).getPlacedDie());
         JsonObject data = new JsonObject();
         data.addProperty(PLAYER, player.getNickname());
         data.addProperty(FROM_CELL_X, 2);
@@ -73,8 +73,8 @@ class ToolCardsTest {
         data.addProperty(TO_CELL_Y, 2);
         try {
             toolCard.effect(data);
-            assertNull(player.getWindowPattern().getCellAt(2).getPlacedDie());
-            assertNotNull(player.getWindowPattern().getCellAt(2, 4).getPlacedDie());
+            assertNull(player.getWindowPattern().getCell(2).getPlacedDie());
+            assertNotNull(player.getWindowPattern().getCell(2, 4).getPlacedDie());
             //assertTrue(toolCard.isUsed());
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
@@ -87,10 +87,10 @@ class ToolCardsTest {
         player.setWindowPatternList(Arrays.asList(new WindowPattern(Constants.INDEX_CONSTANT)));
         Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
         player.getWindowPattern().placeDie(die, 17, PlacementConstraint.initialConstraint());
-        assertNotNull(player.getWindowPattern().getCellAt(17).getPlacedDie());
+        assertNotNull(player.getWindowPattern().getCell(17).getPlacedDie());
         die = game.getDiceGenerator().drawDieFromDraftPool(0);
         player.getWindowPattern().placeDie(die, 11);
-        assertNotNull(player.getWindowPattern().getCellAt(11).getPlacedDie());
+        assertNotNull(player.getWindowPattern().getCell(11).getPlacedDie());
         JsonObject data = new JsonObject();
         data.addProperty(PLAYER, player.getNickname());
         data.addProperty(FROM_CELL_X, 2);
@@ -99,8 +99,8 @@ class ToolCardsTest {
         data.addProperty(TO_CELL_Y, 1);
         try {
             toolCard.effect(data);
-            assertNull(player.getWindowPattern().getCellAt(3, 2).getPlacedDie());
-            assertNotNull(player.getWindowPattern().getCellAt(1, 2).getPlacedDie());
+            assertNull(player.getWindowPattern().getCell(3, 2).getPlacedDie());
+            assertNotNull(player.getWindowPattern().getCell(1, 2).getPlacedDie());
             //assertTrue(toolCard.isUsed());
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
@@ -113,10 +113,10 @@ class ToolCardsTest {
         player.setWindowPatternList(Arrays.asList(new WindowPattern(2)));
         Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
         player.getWindowPattern().placeDie(die, 17, PlacementConstraint.initialConstraint());
-        assertNotNull(player.getWindowPattern().getCellAt(17).getPlacedDie());
+        assertNotNull(player.getWindowPattern().getCell(17).getPlacedDie());
         die = game.getDiceGenerator().drawDieFromDraftPool(0);
         player.getWindowPattern().placeDie(die, 11);
-        assertNotNull(player.getWindowPattern().getCellAt(11).getPlacedDie());
+        assertNotNull(player.getWindowPattern().getCell(11).getPlacedDie());
         JsonObject data = new JsonObject();
         data.addProperty(PLAYER, player.getNickname());
         data.addProperty(FROM_CELL_X, 2);
@@ -125,8 +125,8 @@ class ToolCardsTest {
         data.addProperty(TO_CELL_Y, 1);
         try {
             toolCard.effect(data);
-            assertNull(player.getWindowPattern().getCellAt(3, 2).getPlacedDie());
-            assertNotNull(player.getWindowPattern().getCellAt(1, 2).getPlacedDie());
+            assertNull(player.getWindowPattern().getCell(3, 2).getPlacedDie());
+            assertNotNull(player.getWindowPattern().getCell(1, 2).getPlacedDie());
             assertFalse(toolCard.isUsed());
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
@@ -139,8 +139,8 @@ class ToolCardsTest {
         data.addProperty(TO_CELL_Y, 2);
         try {
             toolCard.effect(data);
-            assertNull(player.getWindowPattern().getCellAt(2, 1).getPlacedDie());
-            assertNotNull(player.getWindowPattern().getCellAt(2, 3).getPlacedDie());
+            assertNull(player.getWindowPattern().getCell(2, 1).getPlacedDie());
+            assertNotNull(player.getWindowPattern().getCell(2, 3).getPlacedDie());
             //assertTrue(toolCard.isUsed());
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
@@ -192,7 +192,7 @@ class ToolCardsTest {
         data.addProperty("putAway", false);
         try {
             toolCard.effect(data);
-            assertEquals(die, player.getWindowPattern().getCellAt(2, 1).getPlacedDie());
+            assertEquals(die, player.getWindowPattern().getCell(2, 1).getPlacedDie());
             assertTrue(toolCard.isUsed());
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
@@ -275,7 +275,7 @@ class ToolCardsTest {
         player.setWindowPatternList(Arrays.asList(new WindowPattern(Constants.INDEX_CONSTANT)));
         Die die = game.getDiceGenerator().drawDieFromDraftPool(0);
         player.getWindowPattern().placeDie(die, 17, PlacementConstraint.initialConstraint());
-        assertNotNull(player.getWindowPattern().getCellAt(17).getPlacedDie());
+        assertNotNull(player.getWindowPattern().getCell(17).getPlacedDie());
         JsonObject data = new JsonObject();
         data.addProperty(PLAYER, player.getNickname());
         data.addProperty(DRAFT_POOL_INDEX, 0);
@@ -283,7 +283,7 @@ class ToolCardsTest {
         data.addProperty(TO_CELL_Y, 0);
         try {
             toolCard.effect(data);
-            assertNotNull(player.getWindowPattern().getCellAt(0, 2).getPlacedDie());
+            assertNotNull(player.getWindowPattern().getCell(0, 2).getPlacedDie());
             //assertTrue(toolCard.isUsed());
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
@@ -331,7 +331,7 @@ class ToolCardsTest {
         data.addProperty(TO_CELL_Y, 0);
         try {
             toolCard.effect(data);
-            assertEquals(die, player.getWindowPattern().getCellAt(0, 3).getPlacedDie());
+            assertEquals(die, player.getWindowPattern().getCell(0, 3).getPlacedDie());
             //assertTrue(toolCard.isUsed());
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
@@ -358,8 +358,8 @@ class ToolCardsTest {
         data.addProperty(TO_CELL_Y, 2);
         try {
             toolCard.effect(data);
-            assertNull(player.getWindowPattern().getCellAt(0, 2 ).getPlacedDie());
-            assertNotNull(player.getWindowPattern().getCellAt(2, 2).getPlacedDie());
+            assertNull(player.getWindowPattern().getCell(0, 2 ).getPlacedDie());
+            assertNotNull(player.getWindowPattern().getCell(2, 2).getPlacedDie());
             //assertFalse(toolCard.isUsed());
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
@@ -373,8 +373,8 @@ class ToolCardsTest {
         data.addProperty(STOP, false);
         try {
             toolCard.effect(data);
-            assertNull(player.getWindowPattern().getCellAt(1, 3 ).getPlacedDie());
-            assertNotNull(player.getWindowPattern().getCellAt(3, 1).getPlacedDie());
+            assertNull(player.getWindowPattern().getCell(1, 3 ).getPlacedDie());
+            assertNotNull(player.getWindowPattern().getCell(3, 1).getPlacedDie());
             //assertTrue(toolCard.isUsed());
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();
@@ -401,8 +401,8 @@ class ToolCardsTest {
         data.addProperty(TO_CELL_Y, 2);
         try {
             toolCard.effect(data);
-            assertNull(player.getWindowPattern().getCellAt(0, 2 ).getPlacedDie());
-            assertNotNull(player.getWindowPattern().getCellAt(2, 2).getPlacedDie());
+            assertNull(player.getWindowPattern().getCell(0, 2 ).getPlacedDie());
+            assertNotNull(player.getWindowPattern().getCell(2, 2).getPlacedDie());
             //assertFalse(toolCard.isUsed());
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {
             e.printStackTrace();

@@ -102,7 +102,7 @@ public class ToolCard12 extends ToolCard {
         int toIndex = this.linearizeIndex(toCellX, toCellY);
         if (toIndex < 0 || toIndex >= player.getWindowPattern().getGrid().length)
             throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
-        Colors dieColor = player.getWindowPattern().getCellAt(fromIndex).getPlacedDie().getColor();
+        Colors dieColor = player.getWindowPattern().getCell(fromIndex).getPlacedDie().getColor();
         long numberOfDiceOfTheSameColorOnRoundTrack = this.getGame().getRoundTrack().getAllDice().stream()
                 .map(Die::getColor)
                 .filter(c -> c == dieColor)
@@ -110,7 +110,7 @@ public class ToolCard12 extends ToolCard {
         if (numberOfDiceOfTheSameColorOnRoundTrack == 0)
             throw new InvalidEffectResultException(NO_PROPER_COLOR_DIE_ON_ROUND_TRACK);
         this.moveDie(player, fromIndex, toIndex, PlacementConstraint.standardConstraint());
-        this.firstMoveColor = player.getWindowPattern().getCellAt(toIndex).getPlacedDie().getColor();
+        this.firstMoveColor = player.getWindowPattern().getCell(toIndex).getPlacedDie().getColor();
         this.firstMoveIndex = toIndex;
     }
 
@@ -134,7 +134,7 @@ public class ToolCard12 extends ToolCard {
         int toIndex = this.linearizeIndex(toCellX, toCellY);
         if (toIndex < 0 || toIndex >= player.getWindowPattern().getGrid().length)
             throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
-        if (player.getWindowPattern().getCellAt(fromIndex).getPlacedDie().getColor() != this.firstMoveColor)
+        if (player.getWindowPattern().getCell(fromIndex).getPlacedDie().getColor() != this.firstMoveColor)
             throw new InvalidEffectResultException("Colors don't match");
         if (fromIndex == this.firstMoveIndex) throw new InvalidEffectResultException("Cannot move the same die twice");
         this.moveDie(player, fromIndex, toIndex, PlacementConstraint.standardConstraint());

@@ -6,6 +6,7 @@ import static org.fusesource.jansi.Ansi.ansi;
 
 
 public class Die {
+
     private int value;
     private final Colors color;
 
@@ -23,7 +24,7 @@ public class Die {
      * @author Kai de Gast
      * @return the value of the die
      */
-    public synchronized int getValue() {
+    public int getValue() {
             return this.value;
     }
 
@@ -41,7 +42,7 @@ public class Die {
      * @author Kai de Gast
      * @param newVal the new value of the die
      */
-    public synchronized void setValue(int newVal) {
+    public void setValue(int newVal) {
             this.value = newVal;
     }
 
@@ -50,7 +51,7 @@ public class Die {
      *
      * @author Kai de Gast
      */
-    public synchronized void roll() {
+    public void roll() {
             this.setValue(ThreadLocalRandom.current().nextInt(1, 7));
     }
 
@@ -60,7 +61,7 @@ public class Die {
      * @author Kai de Gast
      * @return "[x]" colored as the die, where x is the value
      */
-    public synchronized String toString() {
+    public String toString() {
         return ansi().fg(this.color.getJAnsiColor()).a("[" + this.value + "]").reset().toString();
     }
 }

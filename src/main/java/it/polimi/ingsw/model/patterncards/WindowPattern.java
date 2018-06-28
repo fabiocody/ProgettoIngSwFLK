@@ -82,7 +82,7 @@ public class WindowPattern {
      * @throws  IndexOutOfBoundsException
      * @author  Luca dell'Oglio
      */
-    public Cell getCellAt(int i){
+    public Cell getCell(int i) {
         if (!(i >= 0 && i < NUMBER_OF_PATTERN_COLUMNS *NUMBER_OF_PATTERN_ROWS))
             throw new IndexOutOfBoundsException();
         return this.grid[i];
@@ -96,10 +96,10 @@ public class WindowPattern {
      * @throws  IndexOutOfBoundsException
      * @author  Luca dell'Oglio
      */
-    public Cell getCellAt(int i, int j){
-        if(!(i >= 0 && i < NUMBER_OF_PATTERN_ROWS && j >= 0 && j < NUMBER_OF_PATTERN_COLUMNS))
+    public Cell getCell(int i, int j) {
+        if (!(i >= 0 && i < NUMBER_OF_PATTERN_ROWS && j >= 0 && j < NUMBER_OF_PATTERN_COLUMNS))
             throw new IndexOutOfBoundsException();
-        return this.getCellAt(NUMBER_OF_PATTERN_COLUMNS *i + j);
+        return this.getCell(NUMBER_OF_PATTERN_COLUMNS *i + j);
     }
 
     /**
@@ -130,18 +130,16 @@ public class WindowPattern {
     /**
      * @param   d the die to place
      * @param   position the index that identifies the cell where to put the die on
-     * @param   withConstraint the <code>placementConstraint</code> to comply
+     * @param   constraint the <code>placementConstraint</code> to comply
      * @throws  InvalidPlacementException when placement is invalid
      * @see     PlacementConstraint
      * @author  Luca dell'Oglio
      */
-    public void placeDie(Die d, int position, PlacementConstraint withConstraint){
-        if (withConstraint.checkConstraint(this.grid, position, d))
+    public void placeDie(Die d, int position, PlacementConstraint constraint) {
+        if (constraint.checkConstraint(this.grid, position, d))
             this.grid[position].setPlacedDie(d);
-        else {
-            //Logger.error("Die " + d + " cannot be placed in position " + position);
+        else
             throw new InvalidPlacementException(InterfaceMessages.DIE_INVALID_POSITION);
-        }
     }
 
     /**
@@ -153,7 +151,7 @@ public class WindowPattern {
      * @see     PlacementConstraint
      * @author  Luca dell'Oglio
      */
-    public void placeDie(Die d, int position){
+    public void placeDie(Die d, int position) {
         if (this.isGridEmpty())
             this.placeDie(d, position, PlacementConstraint.initialConstraint());
         else
@@ -165,17 +163,17 @@ public class WindowPattern {
      * original cell
      * @param   position the index that identifies the cell where to move the die to
      * @param   destination the index that identifies the cell where the die is located
-     * @param   withConstraint the <code>placementConstraint</code> to comply
+     * @param   constraint the <code>placementConstraint</code> to comply
      * @see     PlacementConstraint
      * @author  Luca dell'Oglio
      */
-    public void moveDie(int position, int destination, PlacementConstraint withConstraint){
+    public void moveDie(int position, int destination, PlacementConstraint constraint) {
         Die d = this.grid[position].getPlacedDie();
         this.grid[position].setPlacedDie(null);
         try {
-            this.placeDie(d, destination, withConstraint);
+            this.placeDie(d, destination, constraint);
         } catch (InvalidPlacementException e) {
-            this.grid[position].setPlacedDie(d);
+            this.grid[position].setPlacedDie(d);        // TODO I don't think this is necessary @fabiocody
             throw e;
         }
     }
@@ -193,7 +191,7 @@ public class WindowPattern {
         for (int i = 0; i < NUMBER_OF_PATTERN_ROWS; i++) {
             for (int j = 0; j < NUMBER_OF_PATTERN_COLUMNS; j++) {
                 if (j == 0) builder.append("|");
-                Cell cell = this.getCellAt(i, j);
+                Cell cell = this.getCell(i, j);
                 if (cell.getPlacedDie() != null) {
                     builder.append(cell.getPlacedDie().toString());
                 } else {
@@ -212,9 +210,4 @@ public class WindowPattern {
         return builder.toString();
     }
 
-    public void dump(){
-        Logger.println("Carta numero " + this.getPatternNumber());
-        Logger.println("Difficoltà " + this.getDifficulty());
-        Logger.println(this.toString());
-    }
 }

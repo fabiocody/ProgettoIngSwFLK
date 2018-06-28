@@ -20,7 +20,7 @@ class PlacementConstraintTest {
         Die d2 = new Die(Colors.getRandomColor(),ThreadLocalRandom.current().nextInt(1,7));
         int index = ThreadLocalRandom.current().nextInt(0,Constants.NUMBER_OF_PATTERN_COLUMNS *Constants.NUMBER_OF_PATTERN_ROWS);
         pattern.placeDie(d1,index,con);
-        assertTrue(pattern.getCellAt(index).getPlacedDie() == d1);
+        assertTrue(pattern.getCell(index).getPlacedDie() == d1);
         assertThrows(InvalidPlacementException.class,
                 ()-> pattern.placeDie(d2,index,con));
     }
@@ -36,8 +36,8 @@ class PlacementConstraintTest {
             int index2 = 5*ThreadLocalRandom.current().nextInt(0,4) + 4*i;
             pattern.placeDie(d,index,con);
             pattern2.placeDie(d,index2,con);
-            assertTrue(pattern.getCellAt(index).getPlacedDie() != null);
-            assertTrue(pattern2.getCellAt(index2).getPlacedDie() != null);
+            assertTrue(pattern.getCell(index).getPlacedDie() != null);
+            assertTrue(pattern2.getCell(index2).getPlacedDie() != null);
         }
     }
 
@@ -48,10 +48,10 @@ class PlacementConstraintTest {
         int j;
         do{
             j = ThreadLocalRandom.current().nextInt(0,Constants.NUMBER_OF_PATTERN_COLUMNS *Constants.NUMBER_OF_PATTERN_ROWS);
-        } while (pattern.getCellAt(j).getCellColor() == null);
-        Die d = new Die(pattern.getCellAt(j).getCellColor(),ThreadLocalRandom.current().nextInt(1,7));
+        } while (pattern.getCell(j).getCellColor() == null);
+        Die d = new Die(pattern.getCell(j).getCellColor(),ThreadLocalRandom.current().nextInt(1,7));
         pattern.placeDie(d,j,con);
-        assertTrue(pattern.getCellAt(j).getCellColor() == d.getColor());
+        assertTrue(pattern.getCell(j).getCellColor() == d.getColor());
     }
 
     @Test
@@ -61,10 +61,10 @@ class PlacementConstraintTest {
         int j;
         do{
             j = ThreadLocalRandom.current().nextInt(0,Constants.NUMBER_OF_PATTERN_COLUMNS *Constants.NUMBER_OF_PATTERN_ROWS);
-        } while (pattern.getCellAt(j).getCellValue() == null);
-        Die d = new Die(Colors.getRandomColor(),pattern.getCellAt(j).getCellValue());
+        } while (pattern.getCell(j).getCellValue() == null);
+        Die d = new Die(Colors.getRandomColor(),pattern.getCell(j).getCellValue());
         pattern.placeDie(d,j,con);
-        assertTrue(pattern.getCellAt(j).getCellValue() == d.getValue());
+        assertTrue(pattern.getCell(j).getCellValue() == d.getValue());
     }
 
     @Test
@@ -79,7 +79,7 @@ class PlacementConstraintTest {
             WindowPattern pattern = new WindowPattern(Constants.INDEX_CONSTANT);
             pattern.placeDie(d1, index,con1);
             pattern.placeDie(d2,i,con2);
-            assertTrue(pattern.getCellAt(i).getPlacedDie() == d2);
+            assertTrue(pattern.getCell(i).getPlacedDie() == d2);
         }
     }
 

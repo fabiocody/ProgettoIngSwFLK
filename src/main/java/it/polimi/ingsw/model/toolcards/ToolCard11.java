@@ -136,7 +136,7 @@ public class ToolCard11 extends ToolCard {
             this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex); //TODO placeDie method removes die from draftpool in gameEndPoint
             this.state = 0;
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
-            Cell cell = player.getWindowPattern().getCellAt(cellIndex);
+            Cell cell = player.getWindowPattern().getCell(cellIndex);
             throw new InvalidEffectResultException("Invalid placement on cell at index " + cellIndex + " (" + cell + ") of die " + die);
         }
     }

@@ -79,7 +79,7 @@ public class ToolCard8 extends ToolCard {
             player.getWindowPattern().placeDie(die, cellIndex);
             this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
         } catch (InvalidPlacementException e) {
-            Cell cell = player.getWindowPattern().getCellAt(cellIndex);
+            Cell cell = player.getWindowPattern().getCell(cellIndex);
             throw new InvalidEffectResultException("Invalid placement on cell at index " + cellIndex + " (" + cell + ") of die " + die);
         }
     }

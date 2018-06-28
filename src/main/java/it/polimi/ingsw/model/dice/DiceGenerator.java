@@ -6,7 +6,7 @@ import java.util.*;
 
 
 /**
- * this class is responsable of generating the dice of the dice bag and the draftpool
+ * This class is responsible of generating the dice of the dice bag and the Draft Pool
  */
 public class DiceGenerator {
 
@@ -16,7 +16,7 @@ public class DiceGenerator {
 
     /**
      * The constructor initiates the attributes of the class, getting as a parameter the number of players
-     * that will be used to generate the correct amount of dice for the draftpool, and then fills the
+     * that will be used to generate the correct amount of dice for the Draft Pool, and then fills the
      * ArrayList generatedDice (dice bag) with 18 dice of each color, shuffling it.
      *
      * @author Kai de Gast
@@ -27,24 +27,22 @@ public class DiceGenerator {
         numberOfPlayers = numOfStartingPlayers;
         generatedDice = new ArrayList<>();
         for (Colors c : Colors.values()) {
-            if (c != Colors.DEFAULT) {
-                for (int i = 0; i<Constants.MAX_NUMBER_OF_SAME_COLOR_DICE; i++) {
-                    Die d = new Die(c);
-                    d.roll();
-                    generatedDice.add(d);
-                }
+            for (int i = 0; i<Constants.MAX_NUMBER_OF_SAME_COLOR_DICE; i++) {
+                Die d = new Die(c);
+                d.roll();
+                generatedDice.add(d);
             }
         }
         Collections.shuffle(generatedDice);
     }
 
     /**
-     * This method returns the remaining dice in the draftpool
+     * This method returns the remaining dice in the Draft Pool
      *
      * @author Kai de Gast
-     * @return a list of the remaining dice in the draftpool
+     * @return a list of the remaining dice in the Draft Pool
      */
-    public synchronized List<Die> getDraftPool() {
+    public List<Die> getDraftPool() {
         return draftPool;
     }
 
@@ -56,7 +54,7 @@ public class DiceGenerator {
      * @throws NoMoreDiceException thrown when there are no more
      * dice left in the dice bag
      */
-    public synchronized Die draw() {
+    public Die draw() {
         if (generatedDice.isEmpty()) {
             throw new NoMoreDiceException("there are no more dice");
         }
@@ -64,12 +62,12 @@ public class DiceGenerator {
     }
 
     /**
-     * This method places a die in the dice bag from the draftpool
+     * This method places a die in the dice bag from the Draft Pool
      *
      * @author Kai de Gast
      * @param die is the die that will be put in the dice bag
      */
-    public synchronized void putAway (Die die) {
+    public void putAway(Die die) {
         int previousSize = generatedDice.size();
         generatedDice.add(die);
         Collections.shuffle(generatedDice);
@@ -77,12 +75,12 @@ public class DiceGenerator {
     }
 
     /**
-     * This method generates the draftpool, drawing the correct amount of dice from the bag based on the
+     * This method generates the Draft Pool, drawing the correct amount of dice from the bag based on the
      * number of players
      *
      * @author Kai de Gast
      */
-    public synchronized void generateDraftPool() {
+    public void generateDraftPool() {
         for (int i = 0; i < (2*numberOfPlayers)+1; i++) {
             Die die = draw();
             draftPool.add(die);
@@ -90,13 +88,13 @@ public class DiceGenerator {
     }
 
     /**
-     * This method is used to pick a die from the draftpool
+     * This method is used to pick a die from the Draft Pool
      *
      * @author Kai de Gast
-     * @param index is the index of the selected die we want to extract from the draftpool
+     * @param index is the index of the selected die we want to extract from the Draft Pool
      * @return the selected die
      */
-    public synchronized Die drawDieFromDraftPool(int index) {
+    public Die drawDieFromDraftPool(int index) {
         return draftPool.remove(index);
     }
 
@@ -106,7 +104,7 @@ public class DiceGenerator {
      * @author Kai de Gast
      * @return a String with the number of remaining dice in the dice bag
      */
-    public synchronized String toString() {
+    public String toString() {
         return "Remaining dice in bag: " + generatedDice.size();
     }
 }

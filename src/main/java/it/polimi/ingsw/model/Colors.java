@@ -12,21 +12,11 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public enum Colors {
 
-    RED("\u001B[31m"),
-    GREEN("\u001B[32m"),
-    YELLOW("\u001B[33m"),
-    BLUE("\u001B[34m"),
-    PURPLE("\u001B[35m"),
-    DEFAULT("\u001B[0m");
-
-    private String ansiEscape;
-
-    Colors(String ansiCode) {this.ansiEscape = ansiCode;}
-
-    /**
-     * @return the ANSI escape code of the color.
-     */
-    public String escape() {return this.ansiEscape;}
+    RED,
+    GREEN,
+    YELLOW,
+    BLUE,
+    PURPLE;
 
     public Ansi.Color getJAnsiColor() {
         try {

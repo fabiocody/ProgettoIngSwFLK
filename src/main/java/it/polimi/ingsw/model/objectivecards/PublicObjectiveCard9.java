@@ -21,7 +21,7 @@ public class PublicObjectiveCard9 extends ObjectiveCard {
     }
 
     /**
-     * This method is basically a copy of <code>WindowPattern.getCellAt(int, int)</code>, but we wrote it because we
+     * This method is basically a copy of <code>WindowPattern.getCell(int, int)</code>, but we wrote it because we
      * didn't want to involve the whole WindowPattern class just for this.
      *
      * @author Fabio Codiglioni
@@ -29,7 +29,7 @@ public class PublicObjectiveCard9 extends ObjectiveCard {
      * @param i the row coordinate of the cell
      * @param j the column coordinate of the cell
      * @return the die placed at grid[i][j]
-     * @see it.polimi.ingsw.model.patterncards.WindowPattern#getCellAt(int, int)
+     * @see it.polimi.ingsw.model.patterncards.WindowPattern#getCell(int, int)
      */
     private Die getDie(Cell[] grid, int i, int j) {
         return grid[i*5 + j].getPlacedDie();

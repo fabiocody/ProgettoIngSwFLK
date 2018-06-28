@@ -6,7 +6,7 @@ package it.polimi.ingsw.model.dice;
  *
  * @author Kai de Gast
  */
-public class NoMoreDiceException extends RuntimeException {
+class NoMoreDiceException extends RuntimeException {
 
     NoMoreDiceException(String message) {
         super(message);
