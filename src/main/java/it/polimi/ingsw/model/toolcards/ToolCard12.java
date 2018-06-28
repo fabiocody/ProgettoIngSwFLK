@@ -103,7 +103,7 @@ public class ToolCard12 extends ToolCard {
         if (toIndex < 0 || toIndex >= player.getWindowPattern().getGrid().length)
             throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
         Colors dieColor = player.getWindowPattern().getCell(fromIndex).getPlacedDie().getColor();
-        long numberOfDiceOfTheSameColorOnRoundTrack = this.getGame().getRoundTrack().getAllDice().stream()
+        long numberOfDiceOfTheSameColorOnRoundTrack = this.getGame().getRoundTrack().getFlattenedDice().stream()
                 .map(Die::getColor)
                 .filter(c -> c == dieColor)
                 .count();

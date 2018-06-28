@@ -154,15 +154,15 @@ class ToolCardsTest {
         game.getRoundTrack().putDice(game.getDiceGenerator().getDraftPool());
         game.getDiceGenerator().generateDraftPool();
         int draftPoolIndex = ThreadLocalRandom.current().nextInt(0, game.getDiceGenerator().getDraftPool().size());
-        int roundTrackIndex = ThreadLocalRandom.current().nextInt(0, game.getRoundTrack().getAllDice().size());
+        int roundTrackIndex = ThreadLocalRandom.current().nextInt(0, game.getRoundTrack().getFlattenedDice().size());
         Die fromDraftPool = game.getDiceGenerator().getDraftPool().get(draftPoolIndex);
-        Die fromRoundTrack = game.getRoundTrack().getRoundTrackDice().get(game.getRoundTrack().getCurrentRoundDiceIndex()).get(roundTrackIndex);
+        Die fromRoundTrack = game.getRoundTrack().getDice().get(game.getRoundTrack().getCurrentRoundDiceIndex()).get(roundTrackIndex);
         JsonObject data = new JsonObject();
         data.addProperty(DRAFT_POOL_INDEX, draftPoolIndex);
         data.addProperty(ROUND_TRACK_INDEX, roundTrackIndex);
         try {
             toolCard.effect(data);
-            assertEquals(fromDraftPool, game.getRoundTrack().getAllDice().get(roundTrackIndex));
+            assertEquals(fromDraftPool, game.getRoundTrack().getFlattenedDice().get(roundTrackIndex));
             assertEquals(fromRoundTrack, game.getDiceGenerator().getDraftPool().get(draftPoolIndex));
             //assertTrue(toolCard.isUsed());
         } catch (InvalidEffectResultException | InvalidEffectArgumentException e) {

@@ -46,13 +46,13 @@ public class ToolCard5 extends ToolCard {
         if (draftPoolIndex < 0 || draftPoolIndex >= this.getGame().getDiceGenerator().getDraftPool().size())
             throw new InvalidEffectArgumentException("Invalid draftPoolIndex: " + draftPoolIndex);
         int roundTrackIndex = data.get(JsonFields.ROUND_TRACK_INDEX).getAsInt();
-        if (roundTrackIndex < 0 || roundTrackIndex >= this.getGame().getRoundTrack().getAllDice().size())
+        if (roundTrackIndex < 0 || roundTrackIndex >= this.getGame().getRoundTrack().getFlattenedDice().size())
             throw new InvalidEffectArgumentException("Invalid roundTrackIndex: " + roundTrackIndex);
         try {
             Die fromDraftPool = this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
-            Die fromRoundTrack = this.getGame().getRoundTrack().getRoundTrackDice().get(this.getGame().getRoundTrack().getCurrentRoundDiceIndex()).remove(roundTrackIndex);
+            Die fromRoundTrack = this.getGame().getRoundTrack().getDice().get(this.getGame().getRoundTrack().getCurrentRoundDiceIndex()).remove(roundTrackIndex);
             this.getGame().getDiceGenerator().getDraftPool().add(draftPoolIndex, fromRoundTrack);
-            this.getGame().getRoundTrack().getRoundTrackDice().get(this.getGame().getRoundTrack().getCurrentRoundDiceIndex()).add(roundTrackIndex, fromDraftPool);
+            this.getGame().getRoundTrack().getDice().get(this.getGame().getRoundTrack().getCurrentRoundDiceIndex()).add(roundTrackIndex, fromDraftPool);
         } catch (Exception e) {
             throw new InvalidEffectResultException(INVALID_MOVE);
         }

@@ -8,7 +8,7 @@ public class NicknameAlreadyUsedInGameException extends Exception {
     private final Game game;
     private GameController controller;
 
-    public NicknameAlreadyUsedInGameException(String message, Game game) {
+    NicknameAlreadyUsedInGameException(String message, Game game) {
         super(message);
         this.game = game;
     }
@@ -21,7 +21,7 @@ public class NicknameAlreadyUsedInGameException extends Exception {
         return controller;
     }
 
-    public void setGameController(GameController controller) {
+    public void setController(GameController controller) {
         this.controller = controller;
     }
 }

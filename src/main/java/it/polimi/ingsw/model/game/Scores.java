@@ -7,7 +7,7 @@ public class Scores {
     private int favorTokensScore = 0;
     private int finalScore = 0;
 
-    public Scores(String nickname) {
+    Scores(String nickname) {
         this.nickname = nickname;
     }
 
@@ -15,32 +15,28 @@ public class Scores {
         return nickname;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public int getPrivateObjectiveCardScore() {
+    int getPrivateObjectiveCardScore() {
         return privateObjectiveCardScore;
     }
 
-    public void setPrivateObjectiveCardScore(int privateObjectiveCardScore) {
-        this.privateObjectiveCardScore = privateObjectiveCardScore;
+    void setPrivateObjectiveCardScore(int score) {
+        privateObjectiveCardScore = score;
     }
 
-    public int getFavorTokensScore() {
+    int getFavorTokensScore() {
         return favorTokensScore;
     }
 
-    public void setFavorTokensScore(int favorTokensScore) {
-        this.favorTokensScore = favorTokensScore;
+    void setFavorTokensScore(int score) {
+        favorTokensScore = score;
     }
 
     public int getFinalScore() {
         return finalScore;
     }
 
-    public void setFinalScore(int finalScore) {
-        this.finalScore = finalScore;
+    void setFinalScore(int score) {
+        finalScore = score;
     }
 
     @Override

@@ -103,7 +103,9 @@ public class WaitingRoom extends Observable {
      * @param nickname the nickname of the Player that wants to be removed.
      */
     public synchronized void removePlayer(String nickname) {
-        Optional<Player> player = this.getWaitingPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst();
+        Optional<Player> player = this.getWaitingPlayers().stream()
+                .filter(p -> p.getNickname().equals(nickname))
+                .findFirst();
         if (player.isPresent()) {
             this.getWaitingPlayers().remove(player.get());
             if (this.getWaitingPlayers().size() < 2)
@@ -130,7 +132,7 @@ public class WaitingRoom extends Observable {
         }
         playerAdded = false;
         this.timer.cancel();
-        this.setChanged();      // Needed to make notifyObservers work
+        this.setChanged();
         this.notifyObservers(new Game(this.getWaitingPlayers()));
         this.getWaitingPlayers().clear();
     }

@@ -20,14 +20,9 @@ public class RoundTrack extends Observable implements Observer {
     // Is observed by Game
 
     // Attributes
-    private List<List<Die>> roundTrackDice;
+    private List<List<Die>> dice;
     private int currentRound;
     private boolean gameOver;
-
-    // Locks
-    private final Object diceLock = new Object();
-    private final Object currentRoundLock = new Object();
-    private final Object gameOverLock = new Object();
 
     /**
      * @author Fabio Codiglioni
@@ -35,18 +30,16 @@ public class RoundTrack extends Observable implements Observer {
     RoundTrack() {
         this.currentRound = 1;
         this.gameOver = false;
-        if (this.roundTrackDice == null){
-            this.roundTrackDice = new Vector<>(NUMBER_OF_ROUNDS);
+        if (this.dice == null){
+            this.dice = new Vector<>(NUMBER_OF_ROUNDS);
             for (int i = 0; i < NUMBER_OF_ROUNDS; i++) {
-                roundTrackDice.add(new Vector<>(MAX_NUMBER_OF_PLAYERS + 1));
+                dice.add(new Vector<>(MAX_NUMBER_OF_PLAYERS + 1));
             }
         }
     }
 
-    public List<List<Die>> getRoundTrackDice(){
-        synchronized (diceLock) {
-            return roundTrackDice;
-        }
+    public List<List<Die>> getDice(){
+        return dice;
     }
 
 
@@ -55,37 +48,29 @@ public class RoundTrack extends Observable implements Observer {
      * @author Luca dell'Oglio
      */
     public boolean isRoundTrackEmpty(){
-        synchronized (diceLock) {
-            return getAllDice().isEmpty() || getRoundTrackDice() == null;
-        }
+        return getFlattenedDice().isEmpty() || getDice() == null;
     }
 
     /**
-     * This method returns the list of roundTrackDice placed on the Round Track, and also instantiate the underlying data structure.
+     * This method returns the list of dice placed on the Round Track, and also instantiate the underlying data structure.
      *
      * @author Fabio Codiglioni
-     * @return the list of roundTrackDice placed on the Round Track.
+     * @return the list of dice placed on the Round Track.
      */
-    public List<Die> getAllDice() {
-        synchronized (diceLock) {
-            return roundTrackDice.stream().flatMap(Collection::stream).collect(Collectors.toList());
-        }
+    public List<Die> getFlattenedDice() {
+        return dice.stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     /**
      * @author Fabio Codiglioni
      * @return the number of the current round.
      */
-    public synchronized int getCurrentRound() {
-        synchronized (currentRoundLock) {
-            return currentRound;
-        }
+    public int getCurrentRound() {
+        return currentRound;
     }
 
-    public synchronized int getCurrentRoundDiceIndex() {
-        synchronized (currentRoundLock) {
-            return currentRound - 2;
-        }
+    public int getCurrentRoundDiceIndex() {
+        return currentRound - 2;
     }
 
     /**
@@ -94,19 +79,15 @@ public class RoundTrack extends Observable implements Observer {
      * @author Fabio Codiglioni
      */
     public void incrementRound() {
-        synchronized (currentRoundLock) {
-            synchronized (gameOverLock) {
-                this.currentRound++;
-                if (this.currentRound > Constants.NUMBER_OF_ROUNDS && !gameOver) {
-                    this.gameOver = true;
-                    this.setChanged();
-                    this.notifyObservers(NotificationMessages.GAME_OVER);
-                }
-                if (!gameOver) {
-                    this.setChanged();
-                    this.notifyObservers(NotificationMessages.ROUND_INCREMENTED);
-                }
-            }
+        this.currentRound++;
+        if (this.currentRound > Constants.NUMBER_OF_ROUNDS && !gameOver) {
+            this.gameOver = true;
+            this.setChanged();
+            this.notifyObservers(NotificationMessages.GAME_OVER);
+        }
+        if (!gameOver) {
+            this.setChanged();
+            this.notifyObservers(NotificationMessages.ROUND_INCREMENTED);
         }
     }
 
@@ -114,49 +95,43 @@ public class RoundTrack extends Observable implements Observer {
      * @author Fabio Codiglioni
      * @return true if the game is over.
      */
-    public synchronized boolean isGameOver() {
-        synchronized (gameOverLock) {
-            return gameOver;
-        }
+    public boolean isGameOver() {
+        return gameOver;
     }
 
     /**
-     * This method transfers all the roundTrackDice from the Draft Pool to the Round Track. The Draft Pool is left empty when this method returns.
+     * This method transfers all the dice from the Draft Pool to the Round Track. The Draft Pool is left empty when this method returns.
      *
      * @author Fabio Codiglioni
-     * @param fromDraftPool the Draft Pool from which transferring the roundTrackDice.
+     * @param draftPool the Draft Pool from which transferring the dice.
      */
-    public void putDice(List<Die> fromDraftPool) {
-        synchronized (diceLock) {
-            this.roundTrackDice.get(this.getCurrentRoundDiceIndex()).addAll(fromDraftPool);
-            fromDraftPool.clear();
-        }
+    public void putDice(List<Die> draftPool) {
+        this.dice.get(this.getCurrentRoundDiceIndex()).addAll(draftPool);
+        draftPool.clear();
     }
 
     public String toString() {
-        synchronized (diceLock) {
-            StringBuilder roundTrackCli = new StringBuilder();
-            Optional<Integer> maxDiceInRound = getRoundTrackDice().stream()
-                    .map(List::size)
-                    .max(Comparator.naturalOrder());
-            maxDiceInRound.ifPresent(max -> {
-                for (int i = 1; i <= NUMBER_OF_ROUNDS; i++)
-                    roundTrackCli.append(' ')
-                            .append(i == currentRound ? ansi().fgBrightGreen().a(i).reset() : i)
-                            .append("  ");
-                roundTrackCli.append('\n');
-                for (int i = 0; i < max; i++) {
-                    for (int j = 0; j < NUMBER_OF_ROUNDS; j++) {
-                        if (i < this.roundTrackDice.get(j).size() && this.roundTrackDice.get(j).get(i) != null)
-                            roundTrackCli.append(this.roundTrackDice.get(j).get(i)).append(" ");
-                        else
-                            roundTrackCli.append("    ");
-                    }
-                    roundTrackCli.append("\n");
+        StringBuilder roundTrackCli = new StringBuilder();
+        Optional<Integer> maxDiceInRound = getDice().stream()
+                .map(List::size)
+                .max(Comparator.naturalOrder());
+        maxDiceInRound.ifPresent(max -> {
+            for (int i = 1; i <= NUMBER_OF_ROUNDS; i++)
+                roundTrackCli.append(' ')
+                        .append(i == currentRound ? ansi().fgBrightGreen().a(i).reset() : i)
+                        .append("  ");
+            roundTrackCli.append('\n');
+            for (int i = 0; i < max; i++) {
+                for (int j = 0; j < NUMBER_OF_ROUNDS; j++) {
+                    if (i < this.dice.get(j).size() && this.dice.get(j).get(i) != null)
+                        roundTrackCli.append(this.dice.get(j).get(i)).append(" ");
+                    else
+                        roundTrackCli.append("    ");
                 }
-            });
-            return roundTrackCli.toString();
-        }
+                roundTrackCli.append("\n");
+            }
+        });
+        return roundTrackCli.toString();
     }
 
     /**

@@ -8,7 +8,6 @@ import it.polimi.ingsw.shared.util.Constants;
  * This class describes the constraint of having to place the die on the border of the grid when the grid is empty
  * @author  Team
  */
-
 public class BorderConstraint extends Constraint {
 
     public BorderConstraint(PlacementConstraint p) {

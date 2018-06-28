@@ -2,27 +2,23 @@ package it.polimi.ingsw.model.placementconstraints;
 
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.patterncards.Cell;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * This class describes the structure and implements the methods of a Constraint.
  * @author  Luca dell'Oglio
  */
-
 public class Constraint implements PlacementConstraint {
 
     private PlacementConstraint addedConstraint;
 
     /**
-     * @param   p the constraint to be added
+     * @param   constraint the constraint to be added
      * @author  Team
      */
-
-    public Constraint(PlacementConstraint p){
-        this.addedConstraint = p;
+    Constraint(PlacementConstraint constraint){
+        this.addedConstraint = constraint;
     }
 
     @Override
@@ -35,10 +31,8 @@ public class Constraint implements PlacementConstraint {
      * @return  the valid placement indexes for <code>position</code>
      * @author  Team
      */
-
-    public static List<Integer> validPositions(int position){
-        List<Integer> list = new ArrayList<>();
-        list.addAll(Arrays.asList(  position - 6, position - 5, position - 4,
+    static List<Integer> validPlacementPositions(int position) {
+        List<Integer> list = new ArrayList<>(Arrays.asList(  position - 6, position - 5, position - 4,
                                     position - 1,               position + 1,
                                     position + 4, position + 5, position + 6));
         if (position % 5 == 0) {                                                    //cell on the left border
@@ -69,9 +63,8 @@ public class Constraint implements PlacementConstraint {
      * @return  the indexes of the orthogonally adjacent cells to the cell in <code>position</code>
      * @author  Team
      */
-
-    public static List<Integer> validOrthogonalPositions(int position) {
-        List<Integer> list = validPositions(position);
+    static List<Integer> validOrthogonalPositions(int position) {
+        List<Integer> list = validPlacementPositions(position);
         list.remove(Integer.valueOf(position - 6));
         list.remove(Integer.valueOf(position - 4));
         list.remove(Integer.valueOf(position + 4));

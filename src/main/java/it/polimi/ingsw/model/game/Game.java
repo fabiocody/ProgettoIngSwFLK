@@ -47,7 +47,7 @@ public class Game extends Observable implements Observer {
         Collections.shuffle(this.players);
         if (doSetup) this.setup();
         this.turnManager = new TurnManager(this.players);
-        this.getRoundTrack().getAllDice();
+        this.getRoundTrack().getFlattenedDice();
         this.turnManager.addObserver(this.getRoundTrack());
     }
 

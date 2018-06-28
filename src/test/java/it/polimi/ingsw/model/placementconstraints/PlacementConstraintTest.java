@@ -72,7 +72,7 @@ class PlacementConstraintTest {
         PlacementConstraint con1 = new EmptyConstraint();
         PlacementConstraint con2 = new PositionConstraint(con1);
         int index = ThreadLocalRandom.current().nextInt(0,Constants.NUMBER_OF_PATTERN_COLUMNS *Constants.NUMBER_OF_PATTERN_ROWS);
-        List<Integer> list = Constraint.validPositions(index);
+        List<Integer> list = Constraint.validPlacementPositions(index);
         Die d1 = new Die(Colors.getRandomColor(),ThreadLocalRandom.current().nextInt(1,7));
         Die d2 = new Die(Colors.getRandomColor(),ThreadLocalRandom.current().nextInt(1,7));
         for(int i: list){

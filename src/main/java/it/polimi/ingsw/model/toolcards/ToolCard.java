@@ -105,9 +105,6 @@ public abstract class ToolCard {
         try {
             player.getWindowPattern().moveDie(fromIndex, toIndex, constraint);
         } catch (InvalidPlacementException e) {
-            Cell fromCell = player.getWindowPattern().getCell(fromIndex);
-            Cell toCell = player.getWindowPattern().getCell(toIndex);
-            //"Invalid movement from cell at index " + fromIndex + " (with die " + fromCell.getPlacedDie() + ") to cell at index " + toIndex + " (" + toCell + ")
             throw new InvalidEffectResultException(DIE_INVALID_POSITION);
         }
     }

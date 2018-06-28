@@ -127,6 +127,10 @@ public class Player extends Observable {
         }
     }
 
+    boolean isWindowPatternChosen() {
+        return windowPatternChosen;
+    }
+
     //throws InvalidPlacementException, DieAlreadyPlacedException
     public void placeDie(Die d, int x, int y) {
         if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException(InterfaceMessages.DIE_ALREADY_PLACED_IN_THIS_TURN);
@@ -138,11 +142,6 @@ public class Player extends Observable {
         if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException("you already placed a die this turn");
         this.getWindowPattern().placeDie(d, position, constraint);
         setDiePlacedInThisTurn(true);
-    }
-
-
-    boolean isWindowPatternChosen() {
-        return windowPatternChosen;
     }
 
     /**

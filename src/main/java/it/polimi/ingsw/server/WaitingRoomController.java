@@ -31,7 +31,7 @@ public class WaitingRoomController extends BaseController {
             Game game = e.getGame();
             try {
                 GameController controller = SagradaServer.getInstance().getGameController(game);
-                e.setGameController(controller);
+                e.setController(controller);
                 throw e;
             } catch (NoSuchElementException f) {
                 throw new LoginFailedException(nickname);

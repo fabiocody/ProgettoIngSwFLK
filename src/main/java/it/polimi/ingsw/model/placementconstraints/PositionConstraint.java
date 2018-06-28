@@ -8,7 +8,6 @@ import java.util.List;
  * This class describes the constraint of having to place a die adjacent to an already placed die.
  * @author  Team
  */
-
 public class PositionConstraint extends Constraint {
 
     public PositionConstraint(PlacementConstraint p) {
@@ -17,7 +16,7 @@ public class PositionConstraint extends Constraint {
 
     @Override
     public boolean checkConstraint(Cell[] grid, int position, Die d) {
-        List<Integer> validPositions = validPositions(position);
+        List<Integer> validPositions = validPlacementPositions(position);
         Long result = validPositions.stream()
                 .filter(c -> grid[c].getPlacedDie() != null)
                 .count();

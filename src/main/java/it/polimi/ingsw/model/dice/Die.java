@@ -40,10 +40,10 @@ public class Die {
      * This method sets a specified value as the value of the die
      *
      * @author Kai de Gast
-     * @param newVal the new value of the die
+     * @param value the new value of the die
      */
-    public void setValue(int newVal) {
-            this.value = newVal;
+    public void setValue(int value) {
+            this.value = value;
     }
 
     /**

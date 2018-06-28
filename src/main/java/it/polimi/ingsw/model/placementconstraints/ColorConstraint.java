@@ -7,7 +7,6 @@ import it.polimi.ingsw.model.patterncards.Cell;
  * This class describes the constraint of having to place the die on a cell of the same color or with no color.
  * @author  Team
  */
-
 public class ColorConstraint extends Constraint {
 
     public ColorConstraint(PlacementConstraint p) {
