@@ -11,7 +11,7 @@ import static it.polimi.ingsw.shared.util.Constants.*;
 import static org.fusesource.jansi.Ansi.*;
 
 
-public class ClientCLI extends Client {
+public class ClientCLI extends Client implements Observer {
 
     private String ttyConfig;
     private static final String TIMER_PROMPT = "timerPrompt";
@@ -36,6 +36,7 @@ public class ClientCLI extends Client {
 
     ClientCLI(boolean debugActive) {
         super(debugActive);
+        ClientNetwork.getInstance().addObserver(this);
     }
 
     void start() {

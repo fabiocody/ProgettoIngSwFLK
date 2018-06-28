@@ -18,13 +18,24 @@ import java.util.*;
 
 public class ClientGUIApplication extends Application implements Observer {
 
-    private Client client;
+    private static Client client;
+    private static boolean clientSet = false;
+
     private Label loginComment = new Label("");
     private final TextField nicknameText = new TextField();
     private ChoiceBox<String> connectionType;
     private ImageView sagradaIntro;
     private Label waitingPlayers = new Label("mark, kai, json");
     private Label remainingTime = new Label("59");
+
+    static void setClient(Client c) {
+        if (clientSet) {
+            throw new IllegalStateException("Cannot set client more than once");
+        } else {
+            client = c;
+            clientSet = true;
+        }
+    }
 
     @Override
     public void start(Stage primaryStage) {

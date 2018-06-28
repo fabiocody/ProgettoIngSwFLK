@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.*;
 
 
-public abstract class Client implements Observer {
+public class Client {
 
     private String nickname;
     private UUID uuid;
@@ -22,7 +22,6 @@ public abstract class Client implements Observer {
 
     Client(boolean debugActive) {
         Logger.setDebugActive(debugActive);
-        ClientNetwork.getInstance().addObserver(this);
         try {
             ClientNetwork.getInstance().setup();
             Logger.println("Connection established");
@@ -178,6 +177,8 @@ public abstract class Client implements Observer {
                     new ClientCLI(debug).start();
                     break;
                 case CLIArguments.GUI:
+                    Client client = new Client(debug);
+                    ClientGUIApplication.setClient(client);
                     Application.launch(ClientGUIApplication.class);
                     break;
                 default:
