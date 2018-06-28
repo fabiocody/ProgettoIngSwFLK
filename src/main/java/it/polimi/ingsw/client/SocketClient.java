@@ -68,7 +68,8 @@ public class SocketClient extends ClientNetwork {
                     Logger.debug("Waiting on pollResponseBuffer");
                     responseBufferLock.wait();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Logger.printStackTrace(e);
+                    Thread.currentThread().interrupt();
                 }
             }
             Logger.debug("Returning from pollResponsesBuffer");
@@ -162,7 +163,7 @@ public class SocketClient extends ClientNetwork {
         if (uuid != null)
             payload.addProperty(JsonFields.PLAYER_ID, uuid.toString());
         payload.addProperty(JsonFields.METHOD, method);
-        Logger.debug("PAYLOAD " + payload);
+        Logger.debugPayload(payload);
         out.println(payload.toString());
     }
 
@@ -174,12 +175,12 @@ public class SocketClient extends ClientNetwork {
         this.nickname = nickname;
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.NICKNAME, nickname);
-        Logger.debug("PAYLOAD " + payload.toString());
+        Logger.debugPayload(payload);
         this.sendMessage(payload, Methods.ADD_PLAYER.getString());
         JsonObject input = this.pollResponseBuffer();
         if (input.get(JsonFields.LOGGED).getAsBoolean()) {
             uuid = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
-            Logger.debug("INPUT " + input);
+            Logger.debugInput(input);
             if (input.get(JsonFields.RECONNECTED).getAsBoolean()) {
                 new Timer(true).schedule(new TimerTask() {
                     @Override
@@ -229,7 +230,7 @@ public class SocketClient extends ClientNetwork {
         payload.add(JsonFields.ARG, arg);
         this.sendMessage(payload,Methods.PLACE_DIE.getString());
         JsonObject input = this.pollResponseBuffer();
-        Logger.debug("INPUT " + input);
+        Logger.debugInput(input);
         return input;
     }
 
@@ -238,7 +239,7 @@ public class SocketClient extends ClientNetwork {
      *
      * @param cardIndex index of the specified tool card
      * @param data JsonObject containing all the necessary fields filled with information given by the user
-     * @return
+     * @return the response from the server formatted as a JsonObject
      */
     @Override
     JsonObject useToolCard(int cardIndex, JsonObject data){
@@ -249,7 +250,7 @@ public class SocketClient extends ClientNetwork {
         payload.add(JsonFields.ARG, arg);
         this.sendMessage(payload,Methods.USE_TOOL_CARD.getString());
         JsonObject input = this.pollResponseBuffer();
-        Logger.debug("INPUT " + input);
+        Logger.debugInput(input);
         return input;
     }
 
@@ -265,7 +266,7 @@ public class SocketClient extends ClientNetwork {
         payload.addProperty(JsonFields.CARD_INDEX, cardIndex);
         this.sendMessage(payload, Methods.REQUIRED_DATA.getString());
         JsonObject input = this.pollResponseBuffer();
-        Logger.debug("INPUT " + input);
+        Logger.debugInput(input);
         return input;
     }
 

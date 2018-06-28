@@ -100,9 +100,7 @@ public class ClientCLI extends Client {
                             Logger.println("\nMossa annullata.");
                         }
                     } while (!turnOver);
-                } /*else {
-                    Logger.println("\nLa partita è finita!");
-                }*/
+                }
             }
         } catch (IOException | InterruptedException e) {
             Logger.println("");
@@ -114,7 +112,7 @@ public class ClientCLI extends Client {
                 AnsiConsole.systemUninstall();
             } catch (IOException e) {
                 Logger.error("Exception raised while tearing down");
-                e.printStackTrace();
+                Logger.printStackTrace(e);
             }
         }
     }
@@ -128,7 +126,7 @@ public class ClientCLI extends Client {
                 try {
                     patternIndex = Integer.valueOf(input);
                 } catch (NumberFormatException e) {
-                    if (Logger.isDebugActive()) e.printStackTrace();
+                    Logger.printStackTraceConditionally(e);
                 }
             } while (patternIndex <= 0 || patternIndex > 4);
             ClientNetwork.getInstance().choosePattern(patternIndex - 1);
@@ -138,7 +136,7 @@ public class ClientCLI extends Client {
                 while (!this.isGameStarted()) Thread.sleep(10);
             }
         } catch (IOException | InterruptedException e){
-            if (Logger.isDebugActive()) e.printStackTrace();
+            Logger.printStackTraceConditionally(e);
             throw e;
         }
     }
@@ -151,7 +149,9 @@ public class ClientCLI extends Client {
     }
 
     private void placeDieMove() throws IOException, CancelException {
-        int draftPoolIndex,x,y;
+        int draftPoolIndex;
+        int x;
+        int y;
         draftPoolIndex = this.getInputIndex("\nQuale dado vuoi piazzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE,0,draftPoolLength,true);
         x = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_COLUMNS,true);
         y = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_ROWS,true);
@@ -291,7 +291,7 @@ public class ClientCLI extends Client {
                 Thread.sleep(10);
             }
         } catch (InterruptedException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            Logger.printStackTrace(e);
         } finally {
             try {
                 stty(ttyConfig.trim());
@@ -305,7 +305,7 @@ public class ClientCLI extends Client {
                 Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
                 Logger.print(method.invoke(this).toString());
             } catch (NoSuchMethodException | ClassNotFoundException | InvocationTargetException | IllegalAccessException e) {
-                e.printStackTrace();
+                Logger.printStackTrace(e);
             }
         }
         return bufferString;
@@ -381,7 +381,7 @@ public class ClientCLI extends Client {
             try {
                 stty(ttyConfig.trim());
             } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
+                Logger.printStackTrace(e);
             }
         }));
         stty("-icanon min 1");      // set the console to be character-buffered instead of line-buffered
@@ -702,8 +702,6 @@ public class ClientCLI extends Client {
         StringBuilder favorTokenString = new StringBuilder("\nSegnalini Favore");
         Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FAVOR_TOKENS).getAsJsonObject().entrySet();
         for (Map.Entry<String, JsonElement> entry : entrySet) {
-            if (entry.getKey().equals(this.getNickname()))
-                this.setFavorTokens(entry.getValue().getAsInt());
             favorTokenString.append("\n").append(entry.getKey()).append(": ").append(entry.getValue().getAsInt());
         }
         Logger.println(favorTokenString.toString());
@@ -729,7 +727,7 @@ public class ClientCLI extends Client {
                 try {
                     ClientNetwork.getInstance().teardown();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Logger.printStackTrace(e);
                 }
                 AnsiConsole.systemUninstall();
                 System.exit(Constants.EXIT_STATUS);

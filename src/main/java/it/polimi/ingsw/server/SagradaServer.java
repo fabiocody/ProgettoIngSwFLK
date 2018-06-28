@@ -71,7 +71,7 @@ public class SagradaServer extends Observable implements Observer {
             }
             executor.shutdown();
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.printStackTrace(e);
         }
     }
 

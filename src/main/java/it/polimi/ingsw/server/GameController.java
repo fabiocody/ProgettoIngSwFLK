@@ -188,12 +188,6 @@ public class GameController extends BaseController {
             String nickname = String.valueOf(arg);
             if (nickname.equals(getActivePlayer()))
                 new Thread(this::nextTurn).start();
-            /*new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    nextTurn();
-                }
-            }, 100);*/
         }
     }
 }

@@ -10,8 +10,6 @@ import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
-import static org.fusesource.jansi.Ansi.ansi;
-
 
 public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
@@ -38,7 +36,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
             return (ServerAPI) UnicastRemoteObject.exportObject((ServerAPI) remoteServer, 0);
         } catch (RemoteException e) {
             Logger.error("Cannot export new ServerAPI");
-            if (Logger.isDebugActive()) e.printStackTrace();
+            Logger.printStackTraceConditionally(e);
             return null;
         }
     }
@@ -101,7 +99,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
             payload.addProperty(JsonFields.RESULT, true);
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
             Logger.log(this.nickname + "'s die placement attempt was refused");
-            if (Logger.isDebugActive()) e.printStackTrace();
+            Logger.printStackTraceConditionally(e);
             payload.addProperty(JsonFields.RESULT, false);
             payload.addProperty(JsonFields.ERROR_MESSAGE,e.getMessage());
         }
@@ -136,7 +134,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
             Logger.log(this.nickname + " used a tool card");
             payload.addProperty(JsonFields.RESULT, true);
         } catch (InvalidEffectArgumentException | InvalidEffectResultException e) {
-            if (Logger.isDebugActive()) e.printStackTrace();
+            Logger.printStackTraceConditionally(e);
             Logger.log(this.nickname + " usage of tool card was refused");
             payload.addProperty(JsonFields.RESULT, false);
             payload.addProperty(JsonFields.ERROR_MESSAGE,e.getMessage());
@@ -163,7 +161,6 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     @Override
     JsonObject updatePlayersList() {
         JsonObject payload = super.updatePlayersList();
-        Logger.debug("PAYLOAD " + payload.toString());
         clientUpdate(payload.toString());
         return payload;
     }
@@ -267,8 +264,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     private void connectionError(Throwable e) {
         Logger.connectionLost(nickname);
-        if (Logger.isDebugActive())
-            Logger.error(e.getMessage());
+        Logger.printStackTraceConditionally(e);
         this.onUserDisconnection();
         this.close();
     }

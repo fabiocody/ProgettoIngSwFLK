@@ -9,8 +9,8 @@ public class Logger {
 
     private static boolean debugActive = false;
 
-    public static boolean isDebugActive() {
-        return debugActive;
+    private Logger() {
+        throw new IllegalStateException("Cannot instantiate");
     }
 
     public static void setDebugActive(boolean debugActive) {
@@ -34,7 +34,11 @@ public class Logger {
     }
 
     public static void debug(String message) {
-        if (isDebugActive()) println("[DEBUG " + LocalDateTime.now() + "] " + message);
+        if (debugActive) println("[DEBUG " + LocalDateTime.now() + "] " + message);
+    }
+
+    public static void debugInput(JsonObject input) {
+        debug("INPUT " + input.toString());
     }
 
     public static void debugPayload(JsonObject payload) {
@@ -43,10 +47,8 @@ public class Logger {
 
     public static void error(String message) {
         String output;
-        if (isDebugActive())
-            output = "[ERROR " + LocalDateTime.now() + "] " + message;
-        else
-            output = "[ERROR] " + message;
+        if (debugActive) output = "[ERROR " + LocalDateTime.now() + "] " + message;
+        else output = "[ERROR] " + message;
         System.err.println(ansi().fgRed().a(output).reset());
     }
 
@@ -56,6 +58,14 @@ public class Logger {
 
     public static void connectionLost() {
         error("Connection lost");
+    }
+
+    public static void printStackTrace(Throwable e) {
+        e.printStackTrace();
+    }
+
+    public static void printStackTraceConditionally(Throwable e) {
+        if (debugActive && e != null) e.printStackTrace();
     }
 
 }

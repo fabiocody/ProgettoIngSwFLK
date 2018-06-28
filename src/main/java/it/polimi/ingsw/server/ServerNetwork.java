@@ -54,7 +54,7 @@ public abstract class ServerNetwork extends Observable implements Observer {
     }
 
     void probeCheck() {
-        while (Constants.INDEX_CONSTANT == Constants.INDEX_CONSTANT) {
+        while (true) {
             try {
                 Thread.sleep(Constants.PROBE_TIMEOUT * 1000);
             } catch (InterruptedException e) {
@@ -67,6 +67,7 @@ public abstract class ServerNetwork extends Observable implements Observer {
                     Logger.error("Probe error");
                     this.onUserDisconnection();
                     Thread.currentThread().interrupt();
+                    return;
                 } else {
                     probed = false;
                     this.sendProbe();

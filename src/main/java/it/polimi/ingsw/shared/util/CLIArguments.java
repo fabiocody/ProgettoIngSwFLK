@@ -14,4 +14,8 @@ public class CLIArguments {
     public static final String CLI = "cli";
     public static final String GUI = "gui";
 
+    private CLIArguments() {
+        throw new IllegalStateException("Cannot instantiate");
+    }
+
 }

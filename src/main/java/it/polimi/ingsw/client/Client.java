@@ -18,7 +18,6 @@ public abstract class Client implements Observer {
     private boolean suspended = false;
     private boolean gameOver = false;
     private String activeNickname = null;
-    private int favorTokens = 0;
     private List<String> suspendedPlayers = new ArrayList<>();
 
     Client(boolean debugActive) {
@@ -29,7 +28,7 @@ public abstract class Client implements Observer {
             Logger.println("Connection established");
         } catch (IOException e) {
             Logger.error("Connection failed");
-            //e.printStackTrace();
+            Logger.printStackTraceConditionally(e);
             System.exit(Constants.EXIT_ERROR);
         }
     }
@@ -74,9 +73,9 @@ public abstract class Client implements Observer {
         this.active = active;
     }
 
-    void setActive(String activeNickname){
-       this.active = activeNickname.equals(nickname);
-       this.activeNickname = activeNickname;
+    void setActive(String activeNickname) {
+        setActive(activeNickname.equals(nickname));
+        this.activeNickname = activeNickname;
     }
 
     boolean isPatternChosen() {
@@ -115,22 +114,12 @@ public abstract class Client implements Observer {
     String getActiveNickname() {
         return activeNickname;
     }
-      
-    public int getFavorTokens() {
-        return favorTokens;
-    }
-
-    void setFavorTokens(int favorTokens) {
-        this.favorTokens = favorTokens;
-    }
 
     private static boolean isValidHost(String host){
         String ipRegex= "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
         String urlRegex = "^[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
         return host.matches(ipRegex) || host.matches(urlRegex);
     }
-
-    abstract void start();
 
     private static void exitError() {
         Logger.println(Constants.CLIENT_USAGE_STRING);
@@ -198,7 +187,7 @@ public abstract class Client implements Observer {
             }
 
         } catch (OptionException e) {
-            //e.printStackTrace();
+            Logger.printStackTraceConditionally(e);
             exitError();
         }
     }

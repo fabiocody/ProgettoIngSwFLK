@@ -31,7 +31,7 @@ public class ToolCardsGenerator {
      * @throws NoSuchToolCardException this indicates that a card could not be found.
      */
     public static List<ToolCard> generate(Game game) {
-        List<ToolCard> cards = new Vector<>();
+        List<ToolCard> cards = new ArrayList<>();
         for (int i = 0; i < Constants.TOOL_CARD_NUMBER; i++) {
             ToolCard newCard;
             do {

@@ -5,7 +5,6 @@ import it.polimi.ingsw.model.objectivecards.*;
 import it.polimi.ingsw.model.patterncards.PatternCardsGenerator;
 import it.polimi.ingsw.model.toolcards.*;
 import it.polimi.ingsw.shared.util.*;
-import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -208,8 +207,8 @@ public class Game extends Observable implements Observer {
             player.setPrivateObjectiveCard(this.getObjectiveCardsGenerator().dealPrivate());
             player.setWindowPatternList(this.getPatternCardsGenerator().getCardsForPlayer());
         }
-        this.toolCards = ToolCardsGenerator.generate(this);
-        this.publicObjectiveCards = this.getObjectiveCardsGenerator().generatePublic();
+        this.toolCards = new Vector<>(ToolCardsGenerator.generate(this));
+        this.publicObjectiveCards = new Vector<>(getObjectiveCardsGenerator().generatePublic());
         this.getDiceGenerator().generateDraftPool();
     }
 

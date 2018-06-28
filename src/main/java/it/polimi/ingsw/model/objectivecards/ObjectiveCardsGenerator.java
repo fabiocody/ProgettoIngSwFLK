@@ -35,7 +35,7 @@ public class ObjectiveCardsGenerator {
      */
     public synchronized List<ObjectiveCard> generatePublic() {
         if (publicCardsAlreadyGenerated) throw new NoMoreCardsException();
-        List<ObjectiveCard> generatedPublics = new Vector<>();
+        List<ObjectiveCard> generatedPublics = new ArrayList<>();
         for (int i = 0; i < Constants.NUMBER_OF_PUB_OBJ_CARDS; i++) {
             ObjectiveCard newCard;
             do {

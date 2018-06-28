@@ -55,8 +55,6 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
                 try {
                     input = this.parseJson(this.readLine());
                 } catch (NullPointerException e) {
-                    /*Logger.debug("JSON parsing failed");
-                    continue;*/
                     onUserDisconnection();
                     return;
                 }
@@ -103,20 +101,14 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             }
         } catch (Exception e) {
             Logger.error("run");
-            if (Logger.isDebugActive())
-                e.printStackTrace();
+            Logger.printStackTraceConditionally(e);
             this.onUserDisconnection();
             Thread.currentThread().interrupt();
         }
     }
 
     private String readLine() throws IOException {
-        String line = in.readLine();
-        if (line == null) {
-            //this.onUserDisconnection();
-            //Thread.currentThread().interrupt();
-        }
-        return line;
+        return in.readLine();
     }
 
     private JsonObject parseJson(String string) {
@@ -126,7 +118,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
 
     private void addPlayer(JsonObject input) {
         Logger.debug("addPlayer called");
-        Logger.debug("INPUT " + input.toString());
+        Logger.debugInput(input);
         String tempNickname = input.get(JsonFields.NICKNAME).getAsString();
         try {
             this.uuid = WaitingRoomController.getInstance().addPlayer(tempNickname);

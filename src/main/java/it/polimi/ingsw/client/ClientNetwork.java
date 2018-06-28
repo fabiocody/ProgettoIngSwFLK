@@ -79,8 +79,7 @@ public abstract class ClientNetwork extends Observable {
 
     void connectionError(Throwable e) {
         Logger.connectionLost();
-        if (Logger.isDebugActive() && e != null)
-            e.printStackTrace();
+        Logger.printStackTraceConditionally(e);
         System.exit(Constants.EXIT_ERROR);
     }
 

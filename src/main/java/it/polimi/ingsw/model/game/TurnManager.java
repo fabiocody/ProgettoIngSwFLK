@@ -115,9 +115,6 @@ public class TurnManager extends Observable {
             this.setChanged();
             this.notifyObservers(NotificationMessages.GAME_INTERRUPTED);
         } else {
-            // TODO This is not right
-            /*do this.index++;
-            while (this.index < this.playersOrder.size() && this.getCurrentPlayer().isSuspended());*/
             index++;
             if (this.index == this.playersOrder.size()) {
                 this.index = 0;

@@ -1,9 +1,7 @@
 package it.polimi.ingsw.model.game;
 
 import it.polimi.ingsw.server.SagradaServer;
-import it.polimi.ingsw.shared.util.Constants;
-import it.polimi.ingsw.shared.util.NotificationMessages;
-
+import it.polimi.ingsw.shared.util.*;
 import java.util.*;
 
 
@@ -126,7 +124,8 @@ public class WaitingRoom extends Observable {
             try {
                 wait();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Logger.printStackTrace(e);
+                Thread.currentThread().interrupt();
             }
         }
         playerAdded = false;
