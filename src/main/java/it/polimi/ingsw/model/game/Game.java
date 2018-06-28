@@ -207,17 +207,9 @@ public class Game extends Observable implements Observer {
             player.setPrivateObjectiveCard(this.getObjectiveCardsGenerator().dealPrivate());
             player.setWindowPatternList(this.getPatternCardsGenerator().getCardsForPlayer());
         }
-        this.toolCards = ToolCardsGenerator.generate(this);
-        this.publicObjectiveCards = this.getObjectiveCardsGenerator().generatePublic();
+        this.toolCards = new Vector<>(ToolCardsGenerator.generate(this));
+        this.publicObjectiveCards = new Vector<>(getObjectiveCardsGenerator().generatePublic());
         this.getDiceGenerator().generateDraftPool();
-    }
-
-    public void nextTurn() {
-        this.turnManager.nextTurn();
-        if(!this.roundTrack.isGameOver()) {
-            setChanged();
-            notifyObservers(NotificationMessages.TURN_MANAGEMENT);
-        }
     }
 
     /**
@@ -303,16 +295,26 @@ public class Game extends Observable implements Observer {
     public void update(Observable o, Object arg) {
         if (o instanceof RoundTrack) {
             if (arg.equals(NotificationMessages.ROUND_INCREMENTED)) {
-                this.getRoundTrack().putDice(this.getDiceGenerator().getDraftPool());
-                this.getDiceGenerator().generateDraftPool();
+                getRoundTrack().putDice(this.getDiceGenerator().getDraftPool());
+                getDiceGenerator().generateDraftPool();
                 setChanged();
                 notifyObservers(NotificationMessages.ROUND_TRACK);
             } else if (arg.equals(NotificationMessages.GAME_OVER)) {
-                this.getTurnManager().cancelTimer();
-                this.getRoundTrack().putDice(this.getDiceGenerator().getDraftPool());
-                this.endGame();
+                getTurnManager().cancelTimer();
+                getRoundTrack().putDice(this.getDiceGenerator().getDraftPool());
+                endGame();
                 setChanged();
-                notifyObservers(NotificationMessages.GAME_OVER);
+                notifyObservers(arg);
+            } else if (arg.equals(NotificationMessages.GAME_INTERRUPTED)) {
+                getTurnManager().cancelTimer();
+                Optional<String> winner = players.stream()
+                        .filter(player -> !player.isSuspended())
+                        .map(Player::getNickname)
+                        .findFirst();
+                Scores winnerScores = new Scores(winner.orElse(null));
+                getFinalScores().put(JsonFields.WINNER, winnerScores);
+                setChanged();
+                notifyObservers(arg);
             }
         }
     }

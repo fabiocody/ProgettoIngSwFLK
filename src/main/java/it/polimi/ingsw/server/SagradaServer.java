@@ -71,7 +71,7 @@ public class SagradaServer extends Observable implements Observer {
             }
             executor.shutdown();
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.printStackTrace(e);
         }
     }
 
@@ -95,6 +95,15 @@ public class SagradaServer extends Observable implements Observer {
         if (this.gameControllers == null)
             this.gameControllers = new Vector<>();
         return this.gameControllers;
+    }
+
+    GameController getGameController(Game game) {
+        Optional<GameController> controller = getGameControllers().stream()
+                .filter(gc -> gc.getGame() == game)
+                .findFirst();
+        if (controller.isPresent())
+            return controller.get();
+        else throw new NoSuchElementException("Can't find GameController with specified Game");
     }
 
     /**

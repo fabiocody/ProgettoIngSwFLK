@@ -19,8 +19,6 @@ public class TurnManager extends Observable {
     private int index;
     private CountdownTimer timer;
     private int timeout = 30;
-    //private boolean roundOver;
-    //private Player previousPlayer;
 
     /**
      * @param players the list of players taking part in the Game.
@@ -33,7 +31,6 @@ public class TurnManager extends Observable {
         this.playersOrder = Stream.concat(forwardRange, backRange).collect(Collectors.toList());
         this.index = 0;
         this.timer = new CountdownTimer(NotificationMessages.TURN_MANAGER);
-        //this.roundOver = false;
         this.setActivePlayer(this.getCurrentPlayer());
     }
 
@@ -61,10 +58,14 @@ public class TurnManager extends Observable {
         return this.players.get(this.getCurrentPlayerIndex());
     }
 
+    public String getActivePlayer() {
+        return getCurrentPlayer().getNickname();
+    }
+
     public void subscribeToTimer(Observer observer) {
         this.timer.addObserver(observer);
         this.timer.schedule(() -> {
-            suspendPlayer(this.getCurrentPlayer().getNickname());
+            this.getCurrentPlayer().setSuspended(true);
             this.nextTurn();
         }, this.timeout);
     }
@@ -86,32 +87,8 @@ public class TurnManager extends Observable {
         }
     }
 
-    private void setSuspendedPlayer(String nickname, boolean suspended) {
-        Optional<Player> player = this.players.stream()
-                .filter(p -> p.getNickname().equals(nickname))
-                .findFirst();
-        player.ifPresent(p -> p.setSuspended(suspended));
-    }
-
-    /**
-     * @author Fabio Codiglioni
-     * @param nickname the nickname of the Player that has to be suspended.
-     */
-    private void suspendPlayer(String nickname) {
-        this.setSuspendedPlayer(nickname, true);
-    }
-
-    /**
-     * @author Fabio Codiglioni
-     * @param nickname the nickname of the Player that has to be set as not suspended.
-     */
-    void unsuspendPlayer(String nickname) {
-        this.setSuspendedPlayer(nickname, false);
-    }
-
     void cancelTimer() {
         if (timer != null) timer.cancel();
-        Logger.debug("TurnManager timer canceled");
     }
 
     /**
@@ -121,7 +98,7 @@ public class TurnManager extends Observable {
         return this.index >= this.playersOrder.size() / 2;
     }
 
-    private int countNotSuspendedPlayers() {
+    int countNotSuspendedPlayers() {
         return (int) players.stream()
                 .filter(player -> !player.isSuspended())
                 .count();
@@ -133,23 +110,20 @@ public class TurnManager extends Observable {
      * @author Fabio Codiglioni
      */
     public void nextTurn() {
-        this.timer.cancel(true);
-        if (countNotSuspendedPlayers() == 1) {
+        this.timer.cancel();
+        if (countNotSuspendedPlayers() <= 1) {
             this.setChanged();
-            this.notifyObservers(NotificationMessages.GAME_OVER);
+            this.notifyObservers(NotificationMessages.GAME_INTERRUPTED);
         } else {
-            //this.previousPlayer = this.players.get(this.getCurrentPlayerIndex());
-            // TODO This is not right
-            do this.index++;
-            while (this.index < this.playersOrder.size() && this.getCurrentPlayer().isSuspended());
-            //this.roundOver = false;
+            index++;
             if (this.index == this.playersOrder.size()) {
                 this.index = 0;
                 Collections.rotate(this.players, -1);   // shift starting player
-                //this.roundOver = true;
                 this.setChanged();
                 this.notifyObservers(NotificationMessages.ROUND_INCREMENTED);
             }
+            if (getCurrentPlayer().isSuspended())
+                nextTurn();
             this.setActivePlayer(this.getCurrentPlayer());
         }
     }

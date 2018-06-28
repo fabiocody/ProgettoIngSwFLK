@@ -19,6 +19,7 @@ public abstract class ClientNetwork extends Observable {
     UUID uuid;
 
     private Timer probeTimer;
+    boolean gameEnding = false;
 
     ClientNetwork(String host, int port, boolean debug) {
         this.host = host;
@@ -66,10 +67,20 @@ public abstract class ClientNetwork extends Observable {
         this.probeTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                Logger.connectionLost();
-                System.exit(Constants.EXIT_ERROR);
+                if (!gameEnding)
+                    connectionError();
             }
         }, Constants.PROBE_TIMEOUT * 2000);
+    }
+
+    void connectionError() {
+        connectionError(null);
+    }
+
+    void connectionError(Throwable e) {
+        Logger.connectionLost();
+        Logger.printStackTraceConditionally(e);
+        System.exit(Constants.EXIT_ERROR);
     }
 
 }

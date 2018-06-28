@@ -36,7 +36,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
             return (ServerAPI) UnicastRemoteObject.exportObject((ServerAPI) remoteServer, 0);
         } catch (RemoteException e) {
             Logger.error("Cannot export new ServerAPI");
-            if (Logger.isDebugActive()) e.printStackTrace();
+            Logger.printStackTraceConditionally(e);
             return null;
         }
     }
@@ -61,8 +61,25 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
             Logger.error(nickname + " log in failed");
         } catch (NicknameAlreadyUsedInGameException e) {
             Logger.log("Welcome back " + nickname);
+            gameController = e.getController();
+            gameController.addServerNetwork(this);
+            this.nickname = nickname;
+            Player player = gameController.getGame().getPlayer(nickname);
+            this.uuid = player.getId();
+            gameController.unsuspendPlayer(this.uuid);
             this.probeThread = new Thread(this::probeCheck);
             this.probeThread.start();
+            try {
+                client.reconnect();
+            } catch (RemoteException e1) {
+                connectionError(e1);
+            }
+            new Timer(true).schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    fullUpdate();
+                }
+            }, 500);
         }
         return uuid;
     }
@@ -82,7 +99,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
             payload.addProperty(JsonFields.RESULT, true);
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
             Logger.log(this.nickname + "'s die placement attempt was refused");
-            if (Logger.isDebugActive()) e.printStackTrace();
+            Logger.printStackTraceConditionally(e);
             payload.addProperty(JsonFields.RESULT, false);
             payload.addProperty(JsonFields.ERROR_MESSAGE,e.getMessage());
         }
@@ -117,7 +134,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
             Logger.log(this.nickname + " used a tool card");
             payload.addProperty(JsonFields.RESULT, true);
         } catch (InvalidEffectArgumentException | InvalidEffectResultException e) {
-            if (Logger.isDebugActive()) e.printStackTrace();
+            Logger.printStackTraceConditionally(e);
             Logger.log(this.nickname + " usage of tool card was refused");
             payload.addProperty(JsonFields.RESULT, false);
             payload.addProperty(JsonFields.ERROR_MESSAGE,e.getMessage());
@@ -133,7 +150,8 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     private void clientUpdate(String payload) {
         try {
-            client.update(payload);
+            if (client != null)
+                client.update(payload);
         } catch (RemoteException e) {
             connectionError(e);
         }
@@ -143,7 +161,6 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     @Override
     JsonObject updatePlayersList() {
         JsonObject payload = super.updatePlayersList();
-        Logger.debug("PAYLOAD " + payload.toString());
         clientUpdate(payload.toString());
         return payload;
     }
@@ -247,8 +264,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     private void connectionError(Throwable e) {
         Logger.connectionLost(nickname);
-        if (Logger.isDebugActive())
-            e.printStackTrace();
+        Logger.printStackTraceConditionally(e);
         this.onUserDisconnection();
         this.close();
     }

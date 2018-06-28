@@ -4,22 +4,16 @@ import com.google.gson.*;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.model.Colors;
-import it.polimi.ingsw.shared.util.InterfaceMessages;
-import it.polimi.ingsw.shared.util.JsonFields;
-import it.polimi.ingsw.shared.util.Logger;
-
+import it.polimi.ingsw.shared.util.*;
 import static it.polimi.ingsw.shared.util.Constants.*;
-
 import java.util.Arrays;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
+
 
 /**
  * This class describes the structure and implements the methods of a window pattern.
  * @author  Luca dell'Oglio
  */
-
 public class WindowPattern {
 
     private String name;
@@ -32,21 +26,14 @@ public class WindowPattern {
      *          default pattern (used for testing purposes) is created
      * @author  Luca dell'Oglio
      */
-
     public WindowPattern(int patternNumber) {
-
         String patternID = "windowPattern";
-
-        if(patternNumber < 0 || patternNumber >= NUMBER_OF_PATTERNS) {
+        if (patternNumber < 0 || patternNumber >= NUMBER_OF_PATTERNS)
             this.patternNumber = NUMBER_OF_PATTERNS;
-        }
-        else {
+        else
             this.patternNumber = patternNumber;
-        }
         patternID = patternID + this.patternNumber;
-
-        try(Reader reader = new InputStreamReader(getClass().getResourceAsStream("/WindowPatterns.json"),
-                "UTF-8")){
+        try (Reader reader = new InputStreamReader(getClass().getResourceAsStream("/WindowPatterns.json"), "UTF-8")) {
             JsonParser parser = new JsonParser();
             JsonObject pattern = parser.parse(reader).getAsJsonObject().get(patternID).getAsJsonObject();
             this.name = pattern.get(JsonFields.NAME).getAsString();
@@ -59,14 +46,15 @@ public class WindowPattern {
                 Integer cellValue = cell.get(JsonFields.VALUE) != JsonNull.INSTANCE ? cell.get(JsonFields.VALUE).getAsInt() : null;
                 this.grid[i] = new Cell(cellColor,cellValue);
             }
-        } catch (IOException e) {}
+        } catch (IOException e) {
+            Logger.printStackTrace(e);
+        }
     }
 
     /**
      * @return  the difficulty of the pattern
      * @author  Luca dell'Oglio
      */
-
     public int getDifficulty() {
         return this.difficulty;
     }
@@ -75,7 +63,6 @@ public class WindowPattern {
      * @return  the cells of the pattern
      * @author  Luca dell'Oglio
      */
-
     public Cell[] getGrid() {
         return this.grid;
     }
@@ -84,8 +71,9 @@ public class WindowPattern {
      * @return  the name of the pattern
      * @author  Luca dell'Oglio
      */
-
-    public String getPatternName(){return this.name;}
+    public String getPatternName() {
+        return this.name;
+    }
 
     /**
      * @param   i the array index
@@ -94,9 +82,8 @@ public class WindowPattern {
      * @throws  IndexOutOfBoundsException
      * @author  Luca dell'Oglio
      */
-
-    public synchronized Cell getCellAt(int i){
-        if(!(i >= 0 && i < NUMBER_OF_PATTERN_COLUMNS *NUMBER_OF_PATTERN_ROWS))
+    public Cell getCellAt(int i){
+        if (!(i >= 0 && i < NUMBER_OF_PATTERN_COLUMNS *NUMBER_OF_PATTERN_ROWS))
             throw new IndexOutOfBoundsException();
         return this.grid[i];
     }
@@ -109,8 +96,7 @@ public class WindowPattern {
      * @throws  IndexOutOfBoundsException
      * @author  Luca dell'Oglio
      */
-
-    public synchronized Cell getCellAt(int i, int j){
+    public Cell getCellAt(int i, int j){
         if(!(i >= 0 && i < NUMBER_OF_PATTERN_ROWS && j >= 0 && j < NUMBER_OF_PATTERN_COLUMNS))
             throw new IndexOutOfBoundsException();
         return this.getCellAt(NUMBER_OF_PATTERN_COLUMNS *i + j);
@@ -120,8 +106,7 @@ public class WindowPattern {
      * @return  the number of the pattern
      * @author  Luca dell'Oglio
      */
-
-    public int getPatternNumber(){
+    int getPatternNumber(){
         return this.patternNumber;
     }
 
@@ -129,7 +114,6 @@ public class WindowPattern {
      * @return  true if <code>grid</code> has no dice placed on it
      * @author  Luca dell'Oglio
      */
-
     public boolean isGridEmpty() {
         return Arrays.stream(this.grid).noneMatch(c -> c.getPlacedDie() != null);
     }
@@ -138,7 +122,6 @@ public class WindowPattern {
      * @return  true if <code>grid</code> contains only one die
      * @author  Luca dell'Oglio
      */
-
     public boolean checkIfOnlyOneDie() {
         return 1 == Arrays.stream(this.grid).filter(c -> c.getPlacedDie() != null).count();
     }
@@ -152,12 +135,11 @@ public class WindowPattern {
      * @see     PlacementConstraint
      * @author  Luca dell'Oglio
      */
-
-    public synchronized void placeDie(Die d, int position, PlacementConstraint withConstraint){
+    public void placeDie(Die d, int position, PlacementConstraint withConstraint){
         if (withConstraint.checkConstraint(this.grid, position, d))
             this.grid[position].setPlacedDie(d);
         else {
-            Logger.error("Die " + d + " cannot be placed in position " + position);
+            //Logger.error("Die " + d + " cannot be placed in position " + position);
             throw new InvalidPlacementException(InterfaceMessages.DIE_INVALID_POSITION);
         }
     }
@@ -171,8 +153,7 @@ public class WindowPattern {
      * @see     PlacementConstraint
      * @author  Luca dell'Oglio
      */
-
-    public synchronized void placeDie(Die d, int position){
+    public void placeDie(Die d, int position){
         if (this.isGridEmpty())
             this.placeDie(d, position, PlacementConstraint.initialConstraint());
         else
@@ -188,7 +169,6 @@ public class WindowPattern {
      * @see     PlacementConstraint
      * @author  Luca dell'Oglio
      */
-
     public void moveDie(int position, int destination, PlacementConstraint withConstraint){
         Die d = this.grid[position].getPlacedDie();
         this.grid[position].setPlacedDie(null);
@@ -205,9 +185,8 @@ public class WindowPattern {
      * @see     Cell#toString()
      * @author  Luca dell'Oglio
      */
-
     @Override
-    public synchronized String toString() {
+    public String toString() {
         StringBuilder builder = new StringBuilder();
         for (int k = 0; k <= NUMBER_OF_PATTERN_ROWS *NUMBER_OF_PATTERN_COLUMNS; k++) builder.append("-");
         builder.append("\n");
@@ -234,8 +213,8 @@ public class WindowPattern {
     }
 
     public void dump(){
-        System.out.println("Carta numero " + this.getPatternNumber());
-        System.out.println("Difficoltà " + this.getDifficulty());
-        System.out.println(this.toString());
+        Logger.println("Carta numero " + this.getPatternNumber());
+        Logger.println("Difficoltà " + this.getDifficulty());
+        Logger.println(this.toString());
     }
 }

@@ -1,29 +1,20 @@
 package it.polimi.ingsw.client;
 
-
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.model.patterncards.WindowPattern;
+import it.polimi.ingsw.shared.util.Logger;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.canvas.*;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.image.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
 import java.io.IOException;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 
-import static it.polimi.ingsw.shared.util.Constants.MAX_NICKNAME_LENGTH;
 
 public class ClientGUIApplication extends Application implements Observer {
 
@@ -31,12 +22,12 @@ public class ClientGUIApplication extends Application implements Observer {
     private Label loginComment = new Label("");
     private final TextField nicknameText = new TextField();
     private ChoiceBox<String> connectionType;
-    ImageView sagradaIntro;
+    private ImageView sagradaIntro;
     private Label waitingPlayers = new Label("mark, kai, json");
     private Label remainingTime = new Label("59");
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         primaryStage.setTitle("Sagrada");
 
         Button loginButton = new Button("login");
@@ -162,7 +153,7 @@ public class ClientGUIApplication extends Application implements Observer {
                     this.addPlayer();
                     primaryStage.setScene(waitingRoomScene);
                 } catch (IOException e1) {
-                    e1.printStackTrace();
+                    Logger.printStackTrace(e1);
                 }
             } else loginComment.setText("non hai riempito tutti i campi");
         });

@@ -20,7 +20,7 @@ public class RoundTrack extends Observable implements Observer {
     // Is observed by Game
 
     // Attributes
-    private List<Die>[] roundTrackDice;
+    private List<List<Die>> roundTrackDice;
     private int currentRound;
     private boolean gameOver;
 
@@ -32,18 +32,18 @@ public class RoundTrack extends Observable implements Observer {
     /**
      * @author Fabio Codiglioni
      */
-    public RoundTrack() {
+    RoundTrack() {
         this.currentRound = 1;
         this.gameOver = false;
         if (this.roundTrackDice == null){
-            this.roundTrackDice = new Vector[NUMBER_OF_ROUNDS];
-            for (int i = 0; i < NUMBER_OF_ROUNDS; i++){
-                roundTrackDice[i] = new Vector<>();
+            this.roundTrackDice = new Vector<>(NUMBER_OF_ROUNDS);
+            for (int i = 0; i < NUMBER_OF_ROUNDS; i++) {
+                roundTrackDice.add(new Vector<>(MAX_NUMBER_OF_PLAYERS + 1));
             }
         }
     }
 
-    public List<Die>[] getRoundTrackDice(){
+    public List<List<Die>> getRoundTrackDice(){
         synchronized (diceLock) {
             return roundTrackDice;
         }
@@ -68,7 +68,7 @@ public class RoundTrack extends Observable implements Observer {
      */
     public List<Die> getAllDice() {
         synchronized (diceLock) {
-            return Arrays.stream(this.roundTrackDice).flatMap(Collection::stream).collect(Collectors.toList());
+            return roundTrackDice.stream().flatMap(Collection::stream).collect(Collectors.toList());
         }
     }
 
@@ -128,7 +128,7 @@ public class RoundTrack extends Observable implements Observer {
      */
     public void putDice(List<Die> fromDraftPool) {
         synchronized (diceLock) {
-            this.roundTrackDice[this.getCurrentRoundDiceIndex()].addAll(fromDraftPool);
+            this.roundTrackDice.get(this.getCurrentRoundDiceIndex()).addAll(fromDraftPool);
             fromDraftPool.clear();
         }
     }
@@ -136,7 +136,7 @@ public class RoundTrack extends Observable implements Observer {
     public String toString() {
         synchronized (diceLock) {
             StringBuilder roundTrackCli = new StringBuilder();
-            Optional<Integer> maxDiceInRound = Arrays.stream(getRoundTrackDice())
+            Optional<Integer> maxDiceInRound = getRoundTrackDice().stream()
                     .map(List::size)
                     .max(Comparator.naturalOrder());
             maxDiceInRound.ifPresent(max -> {
@@ -147,8 +147,8 @@ public class RoundTrack extends Observable implements Observer {
                 roundTrackCli.append('\n');
                 for (int i = 0; i < max; i++) {
                     for (int j = 0; j < NUMBER_OF_ROUNDS; j++) {
-                        if (i < this.roundTrackDice[j].size() && this.roundTrackDice[j].get(i) != null)
-                            roundTrackCli.append(this.roundTrackDice[j].get(i)).append(" ");
+                        if (i < this.roundTrackDice.get(j).size() && this.roundTrackDice.get(j).get(i) != null)
+                            roundTrackCli.append(this.roundTrackDice.get(j).get(i)).append(" ");
                         else
                             roundTrackCli.append("    ");
                     }
@@ -167,13 +167,12 @@ public class RoundTrack extends Observable implements Observer {
      */
     public void update(Observable o, Object arg) {
         if (o instanceof TurnManager) {
-            String stringArg = String.valueOf(arg);
-            if (stringArg.equals(NotificationMessages.ROUND_INCREMENTED)) {
+            if (arg.equals(NotificationMessages.ROUND_INCREMENTED)) {
                 this.incrementRound();
-            } else if (stringArg.equals(NotificationMessages.GAME_OVER)) {
+            } else if (arg.equals(NotificationMessages.GAME_INTERRUPTED)) {
                 this.gameOver = true;
                 this.setChanged();
-                this.notifyObservers(NotificationMessages.GAME_OVER);
+                this.notifyObservers(arg);
             }
         }
     }

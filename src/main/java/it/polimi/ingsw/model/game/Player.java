@@ -2,13 +2,9 @@ package it.polimi.ingsw.model.game;
 
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.objectivecards.ObjectiveCard;
-import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
-import it.polimi.ingsw.model.patterncards.WindowPattern;
+import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
-import it.polimi.ingsw.shared.util.Constants;
-import it.polimi.ingsw.shared.util.InterfaceMessages;
-import it.polimi.ingsw.shared.util.JsonFields;
-import it.polimi.ingsw.shared.util.NotificationMessages;
+import it.polimi.ingsw.shared.util.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -95,7 +91,7 @@ public class Player extends Observable {
      */
     public void setWindowPatternList(List<WindowPattern> windowPatterns) {
         if (!windowPatternListSet) {
-            this.windowPatternList = windowPatterns;
+            this.windowPatternList = new Vector<>(windowPatterns);
             this.windowPatternListSet = true;
         } else {
             throw new IllegalStateException("Cannot set another list of Window Patterns");
@@ -132,13 +128,13 @@ public class Player extends Observable {
     }
 
     //throws InvalidPlacementException, DieAlreadyPlacedException
-    public void placeDie(Die d, int x, int y) throws DieAlreadyPlacedException,InvalidPlacementException{
+    public void placeDie(Die d, int x, int y) {
         if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException(InterfaceMessages.DIE_ALREADY_PLACED_IN_THIS_TURN);
         this.getWindowPattern().placeDie(d, Constants.NUMBER_OF_PATTERN_COLUMNS * y + x);
         setDiePlacedInThisTurn(true);
     }
 
-    public /*synchronized*/ void placeDie(Die d, int position, PlacementConstraint constraint) throws DieAlreadyPlacedException{
+    public void placeDie(Die d, int position, PlacementConstraint constraint) {
         if (this.isDiePlacedInThisTurn()) throw new DieAlreadyPlacedException("you already placed a die this turn");
         this.getWindowPattern().placeDie(d, position, constraint);
         setDiePlacedInThisTurn(true);
@@ -211,7 +207,7 @@ public class Player extends Observable {
      * @author Fabio Codiglioni
      * @return true if this Player is the active Player, i.e. the one actually playing.
      */
-    public boolean isActive() {
+    boolean isActive() {
         return active;
     }
 
@@ -238,8 +234,10 @@ public class Player extends Observable {
     public void setSuspended(boolean suspended) {
         this.suspended = suspended;
         if (suspended) {
-            setChanged();
-            notifyObservers(NotificationMessages.SUSPENDED);
+            new Thread(() -> {
+                setChanged();
+                notifyObservers(NotificationMessages.SUSPENDED);
+            }).start();
         }
     }
 

@@ -1,6 +1,5 @@
 package it.polimi.ingsw.shared.rmi;
 
-import com.google.gson.JsonObject;
 import java.rmi.*;
 import java.util.*;
 

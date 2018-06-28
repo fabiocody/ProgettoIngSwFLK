@@ -18,7 +18,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
     private JsonParser jsonParser;
     private boolean run = true;
 
-    public ServerSocketHandler(Socket socket) {
+    ServerSocketHandler(Socket socket) {
         this.clientSocket = socket;
         this.jsonParser = new JsonParser();
     }
@@ -55,8 +55,8 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
                 try {
                     input = this.parseJson(this.readLine());
                 } catch (NullPointerException e) {
-                    Logger.debug("JSON parsing failed");
-                    continue;
+                    onUserDisconnection();
+                    return;
                 }
                 Logger.debug("Received: " + input.toString());
                 // UUID validation
@@ -101,20 +101,14 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             }
         } catch (Exception e) {
             Logger.error("run");
+            Logger.printStackTraceConditionally(e);
             this.onUserDisconnection();
-            this.probeThread.interrupt();
             Thread.currentThread().interrupt();
         }
     }
 
     private String readLine() throws IOException {
-        String line = in.readLine();
-        if (line == null) {
-            this.onUserDisconnection();
-            this.probeThread.interrupt();
-            Thread.currentThread().interrupt();
-        }
-        return line;
+        return in.readLine();
     }
 
     private JsonObject parseJson(String string) {
@@ -124,7 +118,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
 
     private void addPlayer(JsonObject input) {
         Logger.debug("addPlayer called");
-        Logger.debug("INPUT " + input.toString());
+        Logger.debugInput(input);
         String tempNickname = input.get(JsonFields.NICKNAME).getAsString();
         try {
             this.uuid = WaitingRoomController.getInstance().addPlayer(tempNickname);
@@ -151,16 +145,13 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             Logger.debugPayload(payload);
             out.println(payload.toString());
         } catch (NicknameAlreadyUsedInGameException e) {
-            Game game = e.getGame();
-            Optional<GameController> optionalGameController = SagradaServer.getInstance().getGameControllers().stream()
-                    .filter(controller -> controller.getGame() == game)
-                    .findFirst();
-            this.gameController = optionalGameController.orElse(null);
+            this.gameController = e.getController();
+            this.gameController.addServerNetwork(this);
             this.nickname = tempNickname;
-            Player player = game.getPlayer(this.nickname);
+            Player player = gameController.getGame().getPlayer(this.nickname);
             this.uuid = player.getId();
+            gameController.unsuspendPlayer(this.uuid);
             Logger.log(this.nickname + " logged back in (" + this.uuid + ")");
-            //game.addObserver(this);
             JsonObject payload = new JsonObject();
             payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
             payload.addProperty(JsonFields.LOGGED, true);
@@ -170,7 +161,6 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             out.println(payload.toString());
             this.probeThread = new Thread(this::probeCheck);
             this.probeThread.start();
-            gameController.unsuspendPlayer(this.uuid);
             new Timer(true).schedule(new TimerTask() {
                 @Override
                 public void run() {

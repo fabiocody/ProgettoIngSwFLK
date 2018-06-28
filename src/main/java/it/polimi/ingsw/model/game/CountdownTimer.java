@@ -15,6 +15,7 @@ public class CountdownTimer extends Observable implements Runnable {
     private int remainingTime;
     private Runnable task;
     private Thread timerThread;
+    private boolean timerRun = false;
 
     /**
      * @author Fabio Codiglioni
@@ -49,6 +50,7 @@ public class CountdownTimer extends Observable implements Runnable {
      */
     void cancel(boolean withUpdate) {
         if (this.timerThread != null) this.timerThread.interrupt();
+        this.timerRun = false;
         this.remainingTime = 0;
         this.task = null;
         this.timerThread = null;
@@ -68,6 +70,7 @@ public class CountdownTimer extends Observable implements Runnable {
      * @author Fabio Codiglioni
      */
     private void start() {
+        this.timerRun = true;
         this.timerThread.start();
     }
 
@@ -78,13 +81,13 @@ public class CountdownTimer extends Observable implements Runnable {
      */
     public void run() {
         try {
-            while (this.remainingTime > 0) {
+            while (this.remainingTime > 0 && timerRun) {
                 Thread.sleep(1000);
                 this.remainingTime -= 1;
                 this.setChanged();
                 this.notifyObservers(this.id + " " + this.remainingTime);
             }
-            if (this.task != null) this.task.run();
+            if (this.task != null && timerRun) this.task.run();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

@@ -50,9 +50,9 @@ public class ToolCard5 extends ToolCard {
             throw new InvalidEffectArgumentException("Invalid roundTrackIndex: " + roundTrackIndex);
         try {
             Die fromDraftPool = this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
-            Die fromRoundTrack = this.getGame().getRoundTrack().getRoundTrackDice()[this.getGame().getRoundTrack().getCurrentRoundDiceIndex()].remove(roundTrackIndex);
+            Die fromRoundTrack = this.getGame().getRoundTrack().getRoundTrackDice().get(this.getGame().getRoundTrack().getCurrentRoundDiceIndex()).remove(roundTrackIndex);
             this.getGame().getDiceGenerator().getDraftPool().add(draftPoolIndex, fromRoundTrack);
-            this.getGame().getRoundTrack().getRoundTrackDice()[this.getGame().getRoundTrack().getCurrentRoundDiceIndex()].add(roundTrackIndex, fromDraftPool);
+            this.getGame().getRoundTrack().getRoundTrackDice().get(this.getGame().getRoundTrack().getCurrentRoundDiceIndex()).add(roundTrackIndex, fromDraftPool);
         } catch (Exception e) {
             throw new InvalidEffectResultException(INVALID_MOVE);
         }

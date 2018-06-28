@@ -22,6 +22,7 @@ public class SocketClient extends ClientNetwork {
     private Queue<JsonObject> responseBuffer;
     private final Object responseBufferLock = new Object();
     private Thread recvThread;
+    private boolean recvRun = true;
 
     /**
      * This is the constructor of the client
@@ -47,6 +48,7 @@ public class SocketClient extends ClientNetwork {
 
     @Override
     public void teardown() throws IOException {
+        recvRun = false;
         recvThread.interrupt();
         if (this.in != null) this.in.close();
         if (this.out != null) this.out.close();
@@ -66,7 +68,8 @@ public class SocketClient extends ClientNetwork {
                     Logger.debug("Waiting on pollResponseBuffer");
                     responseBufferLock.wait();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Logger.printStackTrace(e);
+                    Thread.currentThread().interrupt();
                 }
             }
             Logger.debug("Returning from pollResponsesBuffer");
@@ -78,15 +81,14 @@ public class SocketClient extends ClientNetwork {
      * This method, which is executed on a separate thread, waits for the client to execute a valid method
      */
     private void recv() {
-        boolean run = true;
-        while (run) {
-            JsonObject inputJson = null;
+        while (recvRun) {
+            JsonObject inputJson;
             try {
                 inputJson = this.jsonParser.parse(this.readLine()).getAsJsonObject();
                 Logger.debug(inputJson.toString());
             } catch (IOException | NullPointerException e) {
-                Logger.connectionLost();
-                System.exit(Constants.EXIT_ERROR);
+                if (recvRun) connectionError(e);
+                return;
             }
             Methods recvMethod;
             try {
@@ -119,11 +121,15 @@ public class SocketClient extends ClientNetwork {
                 case DRAFT_POOL:
                 case ROUND_TRACK:
                 case FAVOR_TOKENS:
-                case FINAL_SCORES:
                 case TOOL_CARDS:
                 case WINDOW_PATTERNS:
                     this.setChanged();
                     this.notifyObservers(inputJson);
+                    break;
+                case FINAL_SCORES:
+                    gameEnding = true;
+                    setChanged();
+                    notifyObservers(inputJson);
                     break;
                 case PROBE:
                     this.probe();
@@ -143,8 +149,7 @@ public class SocketClient extends ClientNetwork {
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         String line = in.readLine();
         if (line == null) {
-            Logger.connectionLost();
-            System.exit(Constants.EXIT_ERROR);
+            connectionError();
         }
         return line;
     }
@@ -158,7 +163,7 @@ public class SocketClient extends ClientNetwork {
         if (uuid != null)
             payload.addProperty(JsonFields.PLAYER_ID, uuid.toString());
         payload.addProperty(JsonFields.METHOD, method);
-        Logger.debug("PAYLOAD " + payload);
+        Logger.debugPayload(payload);
         out.println(payload.toString());
     }
 
@@ -170,12 +175,12 @@ public class SocketClient extends ClientNetwork {
         this.nickname = nickname;
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.NICKNAME, nickname);
-        Logger.debug("PAYLOAD " + payload.toString());
+        Logger.debugPayload(payload);
         this.sendMessage(payload, Methods.ADD_PLAYER.getString());
         JsonObject input = this.pollResponseBuffer();
         if (input.get(JsonFields.LOGGED).getAsBoolean()) {
             uuid = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
-            Logger.debug("INPUT " + input);
+            Logger.debugInput(input);
             if (input.get(JsonFields.RECONNECTED).getAsBoolean()) {
                 new Timer(true).schedule(new TimerTask() {
                     @Override
@@ -225,7 +230,7 @@ public class SocketClient extends ClientNetwork {
         payload.add(JsonFields.ARG, arg);
         this.sendMessage(payload,Methods.PLACE_DIE.getString());
         JsonObject input = this.pollResponseBuffer();
-        Logger.debug("INPUT " + input);
+        Logger.debugInput(input);
         return input;
     }
 
@@ -241,7 +246,7 @@ public class SocketClient extends ClientNetwork {
         payload.addProperty(JsonFields.CARD_INDEX, cardIndex);
         this.sendMessage(payload, Methods.REQUIRED_DATA.getString());
         JsonObject input = this.pollResponseBuffer();
-        Logger.debug("INPUT " + input);
+        Logger.debugInput(input);
         return input;
     }
 
@@ -261,7 +266,7 @@ public class SocketClient extends ClientNetwork {
         payload.add(JsonFields.ARG, arg);
         this.sendMessage(payload,Methods.USE_TOOL_CARD.getString());
         JsonObject input = this.pollResponseBuffer();
-        Logger.debug("INPUT " + input);
+        Logger.debugInput(input);
         return input;
     }
 

@@ -1,6 +1,11 @@
 package it.polimi.ingsw.model.game;
 
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -72,6 +77,21 @@ class TurnManagerTest {
         assertEquals(game.getPlayers().get(0), game.getTurnManager().getCurrentPlayer());
         game.getTurnManager().nextTurn();
         assertEquals(nextRoundStartingPlayer, game.getTurnManager().getCurrentPlayer());
+    }
+
+    @Test
+    void countSuspendedPlayersTest() {
+        List<String> nicknames = Arrays.asList("aaa", "bbb", "ccc");
+        List<Player> players = nicknames.stream()
+                .map(Player::new)
+                .collect(Collectors.toList());
+        TurnManager turnManager = new TurnManager(players);
+        players.get(ThreadLocalRandom.current().nextInt(0, players.size())).setSuspended(true);
+        assertEquals(2, turnManager.countNotSuspendedPlayers());
+        players.forEach(player -> player.setSuspended(true));
+        assertEquals(0, turnManager.countNotSuspendedPlayers());
+        players.forEach(player -> player.setSuspended(false));
+        assertEquals(3, turnManager.countNotSuspendedPlayers());
     }
 
 }
