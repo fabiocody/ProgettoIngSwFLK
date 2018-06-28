@@ -7,6 +7,8 @@ import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
 
+import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_10_NAME;
+
 
 /**
  * @author Fabio Codiglioni
@@ -20,7 +22,7 @@ public class ToolCard10 extends ToolCard {
      * @param game the game object this card is part of.
      */
     public ToolCard10(Game game) {
-        super("Tampone Diamantato", "Dopo aver scelto un dado, giralo sulla faccia opposta\n6 diventa 1, 5 diventa 2, 4 diventa 3 ecc.", game);
+        super(TOOL_CARD_10_NAME, "Dopo aver scelto un dado, giralo sulla faccia opposta\n6 diventa 1, 5 diventa 2, 4 diventa 3 ecc.", game);
     }
 
     /**

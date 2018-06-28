@@ -8,6 +8,8 @@ import it.polimi.ingsw.shared.util.InterfaceMessages;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
 
+import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_1_NAME;
+
 
 /**
  * @author Fabio Codiglioni
@@ -21,7 +23,7 @@ public class ToolCard1 extends ToolCard {
      * @param game the game object this card is part of.
      */
     public ToolCard1(Game game) {
-        super("Pinza Sgrossatrice", "Dopo aver scelto un dado, aumenta o diminuisci il valore del dado scelto di 1\nNon puoi cambiare un 6 in 1 o un 1 in 6", game);
+        super(TOOL_CARD_1_NAME, "Dopo aver scelto un dado, aumenta o diminuisci il valore del dado scelto di 1\nNon puoi cambiare un 6 in 1 o un 1 in 6", game);
     }
 
     /**

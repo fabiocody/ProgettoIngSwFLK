@@ -10,6 +10,9 @@ import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
 
+import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_11_NAME;
+import static it.polimi.ingsw.shared.util.InterfaceMessages.DIE_INVALID_POSITION;
+
 
 /**
  * @author Fabio Codiglioni
@@ -26,7 +29,7 @@ public class ToolCard11 extends ToolCard {
      * @param game the game object this card is part of.
      */
     public ToolCard11(Game game) {
-        super("Diluente per Pasta Salda", "Dopo aver scelto un dado, riponilo nel Sacchetto, poi pescane uno dal Sacchetto\nScegli il valore del nuovo dado e piazzalo, rispettando tutte le restrizioni di piazzamento", game);
+        super(TOOL_CARD_11_NAME, "Dopo aver scelto un dado, riponilo nel Sacchetto, poi pescane uno dal Sacchetto\nScegli il valore del nuovo dado e piazzalo, rispettando tutte le restrizioni di piazzamento", game);
     }
 
     /**
@@ -65,7 +68,8 @@ public class ToolCard11 extends ToolCard {
             int cellY = data.get(JsonFields.TO_CELL_Y).getAsInt();
             int cellIndex = this.linearizeIndex(cellX, cellY);
             if (cellIndex < 0 || cellIndex >= player.getWindowPattern().getGrid().length)
-                throw new InvalidEffectArgumentException("Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")");
+                //"Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")"
+                throw new InvalidEffectArgumentException(DIE_INVALID_POSITION);
             this.placeDie(player, draftPoolIndex, cellX, cellY, cellIndex);
 
         }

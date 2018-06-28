@@ -230,6 +230,22 @@ public class SocketClient extends ClientNetwork {
     }
 
     /**
+     * This method is used to request the information needed to use the specified tool card
+     *
+     * @param cardIndex the index of the tool card that the user wants to use
+     * @return JsonObject containing the required fields for the specified tool card
+     */
+    @Override
+    JsonObject requiredData(int cardIndex){
+        JsonObject payload = new JsonObject();
+        payload.addProperty(JsonFields.CARD_INDEX, cardIndex);
+        this.sendMessage(payload, Methods.REQUIRED_DATA.getString());
+        JsonObject input = this.pollResponseBuffer();
+        Logger.debug("INPUT " + input);
+        return input;
+    }
+
+    /**
      * This method handles the request from a user to use a tool card
      *
      * @param cardIndex index of the specified tool card
@@ -244,22 +260,6 @@ public class SocketClient extends ClientNetwork {
         arg.add(JsonFields.DATA, data); //different data for each tool card
         payload.add(JsonFields.ARG, arg);
         this.sendMessage(payload,Methods.USE_TOOL_CARD.getString());
-        JsonObject input = this.pollResponseBuffer();
-        Logger.debug("INPUT " + input);
-        return input;
-    }
-
-    /**
-     * This method is used to request the information needed to use the specified tool card
-     *
-     * @param cardIndex the index of the tool card that the user wants to use
-     * @return JsonObject containing the required fields for the specified tool card
-     */
-    @Override
-    JsonObject requiredData(int cardIndex){
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.CARD_INDEX, cardIndex);
-        this.sendMessage(payload, Methods.REQUIRED_DATA.getString());
         JsonObject input = this.pollResponseBuffer();
         Logger.debug("INPUT " + input);
         return input;

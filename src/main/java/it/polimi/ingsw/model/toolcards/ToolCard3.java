@@ -8,6 +8,8 @@ import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
 
+import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_3_NAME;
+
 
 /**
  * @author Fabio Codiglioni
@@ -21,7 +23,7 @@ public class ToolCard3 extends ToolCard {
      * @param game the game object this card is part of.
      */
     public ToolCard3(Game game) {
-        super("Alesatore per lamina di rame", "Muovi un qualsiasi dado nella tua vetrata ignorando le restrizioni di valore\nDevi rispettare tutte le altre restrizioni di piazzamento", game);
+        super(TOOL_CARD_3_NAME, "Muovi un qualsiasi dado nella tua vetrata ignorando le restrizioni di valore\nDevi rispettare tutte le altre restrizioni di piazzamento", game);
     }
 
     /**

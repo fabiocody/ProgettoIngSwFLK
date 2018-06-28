@@ -10,6 +10,9 @@ import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
 
+import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_8_NAME;
+import static it.polimi.ingsw.shared.util.InterfaceMessages.DIE_INVALID_POSITION;
+
 
 /**
  * @author Fabio Codiglioni
@@ -23,7 +26,7 @@ public class ToolCard8 extends ToolCard {
      * @param game the game object this card is part of.
      */
     public ToolCard8(Game game) {
-        super("Tenaglia a Rotelle", "Dopo il tuo primo turno scegli immediatamente un altro dado\nSalta il tuo secondo turno in questo round", game);
+        super(TOOL_CARD_8_NAME, "Dopo il tuo primo turno scegli immediatamente un altro dado\nSalta il tuo secondo turno in questo round", game);
     }
 
     /**
@@ -39,7 +42,6 @@ public class ToolCard8 extends ToolCard {
      * @param data the data the effect needs.
      */
     public void effect(JsonObject data) throws InvalidEffectArgumentException, InvalidEffectResultException  {
-        // TODO definire come viene detto al client di piazzare un altro dado
         Player player = this.getGame().getPlayer(data.get(JsonFields.PLAYER).getAsString());
         player.setSecondTurnToBeSkipped(true);
         int draftPoolIndex = data.get(JsonFields.DRAFT_POOL_INDEX).getAsInt();
@@ -47,7 +49,8 @@ public class ToolCard8 extends ToolCard {
         int cellY= data.get(JsonFields.TO_CELL_Y).getAsInt();
         int cellIndex = this.linearizeIndex(cellX, cellY);
         if (cellIndex < 0 || cellIndex >= player.getWindowPattern().getGrid().length)
-            throw new InvalidEffectArgumentException("Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")");
+            //"Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")"
+            throw new InvalidEffectArgumentException(DIE_INVALID_POSITION);
         this.placeDie(player, draftPoolIndex, cellIndex);
     }
 

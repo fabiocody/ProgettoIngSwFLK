@@ -7,6 +7,9 @@ import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
 
+import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_5_NAME;
+import static it.polimi.ingsw.shared.util.InterfaceMessages.INVALID_MOVE;
+
 
 /**
  * @author Fabio Codiglioni
@@ -20,7 +23,7 @@ public class ToolCard5 extends ToolCard {
      * @param game the game object this card is part of.
      */
     public ToolCard5(Game game) {
-        super("Taglierina circolare", "Dopo aver scelto un dado, scambia quel dado con un dado sul Tracciato dei Round", game);
+        super(TOOL_CARD_5_NAME, "Dopo aver scelto un dado, scambia quel dado con un dado sul Tracciato dei Round", game);
     }
 
     /**
@@ -51,7 +54,7 @@ public class ToolCard5 extends ToolCard {
             this.getGame().getDiceGenerator().getDraftPool().add(draftPoolIndex, fromRoundTrack);
             this.getGame().getRoundTrack().getRoundTrackDice()[this.getGame().getRoundTrack().getCurrentRoundDiceIndex()].add(roundTrackIndex, fromDraftPool);
         } catch (Exception e) {
-            throw new InvalidEffectResultException();
+            throw new InvalidEffectResultException(INVALID_MOVE);
         }
     }
 
