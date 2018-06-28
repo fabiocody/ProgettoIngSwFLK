@@ -5,6 +5,7 @@ import it.polimi.ingsw.model.objectivecards.*;
 import it.polimi.ingsw.model.patterncards.PatternCardsGenerator;
 import it.polimi.ingsw.model.toolcards.*;
 import it.polimi.ingsw.shared.util.*;
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;

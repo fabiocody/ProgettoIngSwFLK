@@ -18,7 +18,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
     private JsonParser jsonParser;
     private boolean run = true;
 
-    public ServerSocketHandler(Socket socket) {
+    ServerSocketHandler(Socket socket) {
         this.clientSocket = socket;
         this.jsonParser = new JsonParser();
     }
@@ -153,16 +153,13 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             Logger.debugPayload(payload);
             out.println(payload.toString());
         } catch (NicknameAlreadyUsedInGameException e) {
-            Game game = e.getGame();
-            Optional<GameController> optionalGameController = SagradaServer.getInstance().getGameControllers().stream()
-                    .filter(controller -> controller.getGame() == game)
-                    .findFirst();
-            this.gameController = optionalGameController.orElse(null);
+            this.gameController = e.getController();
+            this.gameController.addServerNetwork(this);
             this.nickname = tempNickname;
-            Player player = game.getPlayer(this.nickname);
+            Player player = gameController.getGame().getPlayer(this.nickname);
             this.uuid = player.getId();
+            gameController.unsuspendPlayer(this.uuid);
             Logger.log(this.nickname + " logged back in (" + this.uuid + ")");
-            //game.addObserver(this);
             JsonObject payload = new JsonObject();
             payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
             payload.addProperty(JsonFields.LOGGED, true);
@@ -172,7 +169,6 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             out.println(payload.toString());
             this.probeThread = new Thread(this::probeCheck);
             this.probeThread.start();
-            gameController.unsuspendPlayer(this.uuid);
             new Timer(true).schedule(new TimerTask() {
                 @Override
                 public void run() {

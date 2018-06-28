@@ -121,4 +121,13 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         this.notifyObservers(payload);
     }
 
+    @Override
+    public void reconnect() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
+        payload.addProperty(JsonFields.RECONNECTED, true);
+        setChanged();
+        notifyObservers(payload);
+    }
+
 }

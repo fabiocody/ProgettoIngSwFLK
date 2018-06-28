@@ -23,7 +23,20 @@ public class WaitingRoomController extends BaseController {
     }
 
     UUID addPlayer(String nickname) throws LoginFailedException, NicknameAlreadyUsedInGameException {
-        return WaitingRoom.getInstance().addPlayer(nickname);
+        try {
+            return WaitingRoom.getInstance().addPlayer(nickname);
+        } catch (LoginFailedException e) {
+            throw e;
+        } catch (NicknameAlreadyUsedInGameException e) {
+            Game game = e.getGame();
+            try {
+                GameController controller = SagradaServer.getInstance().getGameController(game);
+                e.setGameController(controller);
+                throw e;
+            } catch (NoSuchElementException f) {
+                throw new LoginFailedException(nickname);
+            }
+        }
     }
 
     void removePlayer(String nickname){

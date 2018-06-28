@@ -85,7 +85,7 @@ public abstract class ServerNetwork extends Observable implements Observer {
             gameController.removeServerNetwork(this);
         }
         setChanged();
-        notifyObservers();
+        notifyObservers(nickname);
         this.showDisconnectedUserMessage();
     }
 

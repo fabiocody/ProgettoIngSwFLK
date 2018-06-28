@@ -97,6 +97,15 @@ public class SagradaServer extends Observable implements Observer {
         return this.gameControllers;
     }
 
+    GameController getGameController(Game game) {
+        Optional<GameController> controller = getGameControllers().stream()
+                .filter(gc -> gc.getGame() == game)
+                .findFirst();
+        if (controller.isPresent())
+            return controller.get();
+        else throw new NoSuchElementException("Can't find GameController with specified Game");
+    }
+
     /**
      * this method checks if a nickname is already used in an active game
      *

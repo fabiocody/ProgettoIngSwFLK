@@ -13,6 +13,9 @@ import static org.fusesource.jansi.Ansi.*;
 public class ClientCLI extends Client {
 
     private String ttyConfig;
+    private static final String TIMER_PROMPT = "timerPrompt";
+    private static final String WAITING_ROOM_PROMPT = "waitingRoomPrompt";
+    private static final String RECONNECTION_PROMPT = "reconnectionPrompt";
 
     private BufferedReader stdin;
     private StringBuilder stdinBuffer = new StringBuilder();
@@ -20,7 +23,6 @@ public class ClientCLI extends Client {
 
     private boolean stopAsyncInput = false;
     private boolean bypassWaitingRoom = false;
-    private int instructionIndex = INDEX_CONSTANT;
 
     private String wrTimeout;
     private String wrPlayers;
@@ -30,8 +32,6 @@ public class ClientCLI extends Client {
 
     private String input = "";
     private String privateObjectiveCard;
-
-    private boolean turnOver = false;
 
     ClientCLI(boolean debugActive) {
         super(debugActive);
@@ -46,7 +46,7 @@ public class ClientCLI extends Client {
 
             if (!bypassWaitingRoom) {
                 do {
-                    input = asyncInput("waitingRoomMessage");
+                    input = asyncInput(WAITING_ROOM_PROMPT);
                     if (input.equalsIgnoreCase("exit")) throw new InterruptedException();
                 } while (!stopAsyncInput && !bypassWaitingRoom);
             }
@@ -54,14 +54,12 @@ public class ClientCLI extends Client {
             if (!this.isPatternChosen()) this.choosePatternMessage();
 
             while (!this.isGameOver()) {
+
                 if (!isGameOver()) {
-                    this.getSuspendedPlayers().stream()
-                            .reduce((s, r) -> s + ", " + r)
-                            .ifPresent(sp -> Logger.println("Giocatori sospesi: " + sp + "\n"));
 
                     input = "";
                     while (isSuspended() && !input.equals(getNickname())) {
-                        input = asyncInput("reconnectionPrompt");
+                        input = asyncInput(RECONNECTION_PROMPT);
                         if (input.equals(getNickname())) {
                             ClientNetwork.getInstance().addPlayer(getNickname());
                         }
@@ -72,12 +70,12 @@ public class ClientCLI extends Client {
 
                 if (!isGameOver()) {
                     Logger.println("È il tuo turno!");
-                    this.turnOver = false;
+                    boolean turnOver = false;
                     do {
                         try {
                             this.chooseActionMessage();
                             try {
-                                this.instructionIndex = Integer.valueOf(input);
+                                int instructionIndex = Integer.parseInt(input);
 
                                 switch (instructionIndex){
                                     case 1: //Place Die
@@ -89,7 +87,7 @@ public class ClientCLI extends Client {
                                     case 3:
                                         this.setActive(false);
                                         ClientNetwork.getInstance().nextTurn();
-                                        this.turnOver = true;
+                                        turnOver = true;
                                         break;
                                     default:
                                         Logger.println("\nMossa invalida.");
@@ -131,7 +129,6 @@ public class ClientCLI extends Client {
                     patternIndex = Integer.valueOf(input);
                 } catch (NumberFormatException e) {
                     if (Logger.isDebugActive()) e.printStackTrace();
-                    continue;
                 }
             } while (patternIndex <= 0 || patternIndex > 4);
             ClientNetwork.getInstance().choosePattern(patternIndex - 1);
@@ -147,14 +144,10 @@ public class ClientCLI extends Client {
     }
 
     private void chooseActionMessage() throws IOException{
-        try {
-            Logger.println("\nPremi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
-                    "passare il turno.");
-            Logger.println("Scegli cosa fare [1-3]");
-            input = asyncInput("timerPrompt");
-        } catch (IOException e){
-            throw e;
-        }
+        Logger.println("\nPremi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
+                "passare il turno.");
+        Logger.println("Scegli cosa fare [1-3]");
+        input = asyncInput(TIMER_PROMPT);
     }
 
     private void placeDieMove() throws IOException, CancelException {
@@ -180,52 +173,48 @@ public class ClientCLI extends Client {
         int toCellX;
         int toCellY;
 
-        try{
-            if (requiredData.get("data").getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) {
-                draftPoolIndex = this.getInputIndex("\nQuale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE, 0, draftPoolLength,true);
-                requiredData.get("data").getAsJsonObject().addProperty("draftPoolIndex", draftPoolIndex);
-            }
-            if (requiredData.get("data").getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX)) {
-                roundTrackIndex = this.getInputIndex("\nQuale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]? " + EXIT_MESSAGE, 0, (int) roundTrackLength,true);
-                requiredData.get("data").getAsJsonObject().addProperty("roundTrackIndex", roundTrackIndex);
-            }
-            if (requiredData.get("data").getAsJsonObject().has(JsonFields.DELTA)) {
-                delta = this.getInputIndex("\nVuoi aumentare[1] o diminuire[-1] il valore del dado? " + EXIT_MESSAGE);
-                requiredData.get("data").getAsJsonObject().addProperty("delta", delta);
-            }
-            if (requiredData.get("data").getAsJsonObject().has(JsonFields.NEW_VALUE)){
-                newValue = this.getInputIndex("\nQuale valore vuoi assegnare al dado[1-6]? " + EXIT_MESSAGE,1,7,false);
-                requiredData.get("data").getAsJsonObject().addProperty("newValue",newValue);
-            }
-            if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_X)) {
-                fromCellX = this.getInputIndex("\nDa quale colonna vuoi muoverlo [1-5]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_COLUMNS,true);
-                requiredData.get("data").getAsJsonObject().addProperty("fromCellX",fromCellX);
-            }
-            if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_Y)) {
-                fromCellY = this.getInputIndex("\nDa quale riga vuoi muoverlo [1-4]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_ROWS,true);
-                requiredData.get("data").getAsJsonObject().addProperty("fromCellY",fromCellY);
-            }
-            if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_X)) {
-                toCellX = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_COLUMNS,true);
-                requiredData.get("data").getAsJsonObject().addProperty("toCellX",toCellX);
-            }
-            if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_Y)) {
-                toCellY = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_ROWS,true);
-                requiredData.get("data").getAsJsonObject().addProperty("toCellY",toCellY);
-            }
+        if (requiredData.get("data").getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) {
+            draftPoolIndex = this.getInputIndex("\nQuale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE, 0, draftPoolLength,true);
+            requiredData.get("data").getAsJsonObject().addProperty("draftPoolIndex", draftPoolIndex);
+        }
+        if (requiredData.get("data").getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX)) {
+            roundTrackIndex = this.getInputIndex("\nQuale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]? " + EXIT_MESSAGE, 0, (int) roundTrackLength,true);
+            requiredData.get("data").getAsJsonObject().addProperty("roundTrackIndex", roundTrackIndex);
+        }
+        if (requiredData.get("data").getAsJsonObject().has(JsonFields.DELTA)) {
+            delta = this.getInputIndex("\nVuoi aumentare[1] o diminuire[-1] il valore del dado? " + EXIT_MESSAGE);
+            requiredData.get("data").getAsJsonObject().addProperty("delta", delta);
+        }
+        if (requiredData.get("data").getAsJsonObject().has(JsonFields.NEW_VALUE)){
+            newValue = this.getInputIndex("\nQuale valore vuoi assegnare al dado[1-6]? " + EXIT_MESSAGE,1,7,false);
+            requiredData.get("data").getAsJsonObject().addProperty("newValue",newValue);
+        }
+        if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_X)) {
+            fromCellX = this.getInputIndex("\nDa quale colonna vuoi muoverlo [1-5]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_COLUMNS,true);
+            requiredData.get("data").getAsJsonObject().addProperty("fromCellX",fromCellX);
+        }
+        if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_Y)) {
+            fromCellY = this.getInputIndex("\nDa quale riga vuoi muoverlo [1-4]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_ROWS,true);
+            requiredData.get("data").getAsJsonObject().addProperty("fromCellY",fromCellY);
+        }
+        if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_X)) {
+            toCellX = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_COLUMNS,true);
+            requiredData.get("data").getAsJsonObject().addProperty("toCellX",toCellX);
+        }
+        if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_Y)) {
+            toCellY = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_ROWS,true);
+            requiredData.get("data").getAsJsonObject().addProperty("toCellY",toCellY);
+        }
 
-            JsonObject result = ClientNetwork.getInstance().useToolCard(cardIndex,requiredData.get("data").getAsJsonObject());
+        JsonObject result = ClientNetwork.getInstance().useToolCard(cardIndex,requiredData.get("data").getAsJsonObject());
 
-            if(result.get(JsonFields.RESULT).getAsBoolean()){
-                Logger.println("\nCarta strumento usata con successo!");
-                return true;
-            }
-            else {
-                Logger.println("\nCarta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString());
-                return false;
-            }
-        } catch (IOException | CancelException e) {
-            throw e;
+        if(result.get(JsonFields.RESULT).getAsBoolean()){
+            Logger.println("\nCarta strumento usata con successo!");
+            return true;
+        }
+        else {
+            Logger.println("\nCarta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString());
+            return false;
         }
     }
 
@@ -234,29 +223,24 @@ public class ClientCLI extends Client {
         boolean secondMove;
         JsonObject requiredData;
         boolean valid;
-        try {
-            cardIndex = this.getInputIndex("\nQuale carta strumento vuoi usare [1-3]? " + EXIT_MESSAGE, 0, 3,true);
-            requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
-            requiredData.remove("method");
-            if (requiredData.get("data").getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS) || requiredData.get("data").getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {
-                Logger.println("\n" + requiredData.get("data").getAsJsonObject().get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString());
-            } else {
-                valid = this.useData(requiredData,cardIndex);
-                if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE) && valid) {
-                    if(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP))
-                        secondMove = this.getInputBool("\nVuoi continuare [Sì 1/No 0]? ");
-                    else
-                        secondMove = true;
-                    if(secondMove) {
-                        requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
-                        requiredData.remove("method");
-                        this.useData(requiredData,cardIndex);
-                    }
+        cardIndex = this.getInputIndex("\nQuale carta strumento vuoi usare [1-3]? " + EXIT_MESSAGE, 0, 3,true);
+        requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
+        requiredData.remove("method");
+        if (requiredData.get("data").getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS) || requiredData.get("data").getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {
+            Logger.println("\n" + requiredData.get("data").getAsJsonObject().get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString());
+        } else {
+            valid = this.useData(requiredData,cardIndex);
+            if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE) && valid) {
+                if(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP))
+                    secondMove = this.getInputBool("\nVuoi continuare [Sì 1/No 0]? ");
+                else
+                    secondMove = true;
+                if(secondMove) {
+                    requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
+                    requiredData.remove("method");
+                    this.useData(requiredData,cardIndex);
                 }
             }
-        }
-        catch (IOException | CancelException e) {
-            throw e;
         }
     }
 
@@ -269,8 +253,7 @@ public class ClientCLI extends Client {
      */
     private String input(String prompt) throws IOException {
         Logger.print(prompt + " ");
-        String line = stdin.readLine();
-        return line;
+        return stdin.readLine();
     }
 
     private String asyncInput(String methodName) throws IOException {
@@ -317,7 +300,7 @@ public class ClientCLI extends Client {
                 Logger.error("Exception restoring tty config");
             }
         }
-        if (!stopAsyncInput && !methodName.equals("timerPrompt")) {
+        if (!stopAsyncInput && !methodName.equals(TIMER_PROMPT)) {
             try {
                 Method method = Class.forName(ClientCLI.class.getName()).getDeclaredMethod(methodName);
                 Logger.print(method.invoke(this).toString());
@@ -328,14 +311,14 @@ public class ClientCLI extends Client {
         return bufferString;
     }
 
-    private int getInputIndex (String cliMessage, int lowerBound, int higherBound, boolean scale) throws CancelException, IOException {
+    private int getInputIndex(String cliMessage, int lowerBound, int higherBound, boolean scale) throws CancelException, IOException {
         int index = Constants.INDEX_CONSTANT;
         int cancelValue = 0;
         String userInput;
         do {
             try {
                 Logger.println(cliMessage);
-                userInput = asyncInput("timerPrompt");
+                userInput = asyncInput(TIMER_PROMPT);
                 index = Integer.valueOf(userInput);
                 if (scale){
                     index -= 1;
@@ -351,13 +334,13 @@ public class ClientCLI extends Client {
         return index;
     }
 
-    private int getInputIndex (String cliMessage) throws CancelException, IOException{
+    private int getInputIndex(String cliMessage) throws CancelException, IOException {
         int index = Constants.INDEX_CONSTANT;
         String userInput;
         do {
             try {
                 Logger.println(cliMessage);
-                userInput = asyncInput("timerPrompt");
+                userInput = asyncInput(TIMER_PROMPT);
                 index = Integer.valueOf(userInput);
                 if (index == 0) throw new CancelException();
             } catch (NumberFormatException e) {
@@ -369,13 +352,13 @@ public class ClientCLI extends Client {
         return index;
     }
 
-    private boolean getInputBool (String cliMessage) throws IOException {
+    private boolean getInputBool(String cliMessage) throws IOException {
         int index = Constants.INDEX_CONSTANT;
         String userInput;
         do {
             try {
                 Logger.println(cliMessage);
-                userInput = asyncInput("timerPrompt");
+                userInput = asyncInput(TIMER_PROMPT);
                 index = Integer.valueOf(userInput);
             } catch (NumberFormatException e) {
                 Logger.println("Indice non valido\n");
@@ -474,7 +457,7 @@ public class ClientCLI extends Client {
         return message;
     }
 
-    private String waitingRoomMessage() {
+    private String waitingRoomPrompt() {
         synchronized (stdinBufferLock) {
             return ansi().eraseLine().cursorUpLine().eraseLine().cursorUpLine().eraseLine()
                     .a("Giocatori in attesa: ")
@@ -525,7 +508,7 @@ public class ClientCLI extends Client {
                     break;
                 case WR_TIMER_TICK:
                     this.wrTimeout = jsonArg.get(JsonFields.TICK).getAsString();
-                    if (isLogged()) Logger.print(waitingRoomMessage());
+                    if (isLogged()) Logger.print(waitingRoomPrompt());
                     break;
                 case GAME_TIMER_TICK:
                     gameTimerTickUpdateHandle(jsonArg);
@@ -574,9 +557,7 @@ public class ClientCLI extends Client {
             bypassWaitingRoom = true;
             stopAsyncInput = true;
             this.setPatternChosen();
-            this.setSuspended(this.getSuspendedPlayers().stream()
-                    .filter(s -> !s.equals(this.getNickname()))
-                    .collect(Collectors.toList()));
+            this.setSuspended(false);
         }
     }
 
@@ -587,7 +568,7 @@ public class ClientCLI extends Client {
                     .map(JsonElement::getAsString)
                     .reduce((s, r) -> s + ", " + r)
                     .orElse(null);
-            if (isLogged()) Logger.print(waitingRoomMessage());
+            if (isLogged()) Logger.print(waitingRoomPrompt());
         }
     }
 
@@ -708,12 +689,12 @@ public class ClientCLI extends Client {
         List<String> suspendedPlayers = StreamSupport.stream(jsonArg.getAsJsonArray(JsonFields.SUSPENDED_PLAYERS).spliterator(), false)
                 .map(JsonElement::getAsString)
                 .collect(Collectors.toList());
-                    /*if (suspendedPlayers.size() == 1 && suspendedPlayers.get(0).equals(""))
-                        suspendedPlayers = new ArrayList<>();*/
-        this.setSuspended(suspendedPlayers);
+        this.setSuspendedPlayers(suspendedPlayers);
+        this.getSuspendedPlayers().stream()
+                .reduce((s, r) -> s + ", " + r)
+                .ifPresent(sp -> Logger.println("Giocatori sospesi: " + sp + "\n"));
         this.setActive(jsonArg.get(JsonFields.ACTIVE_PLAYER).getAsString());
         if (!isActive() && !isSuspended() && !isGameOver()) Logger.println("Aspetta il tuo turno.");
-        //Logger.println("Suspended: " + argAsList.get(3));
         stopAsyncInput = true;
     }
 

@@ -32,7 +32,11 @@ abstract class BaseController implements Observer {
     }
 
     void closeServerNetworks() {
-        serverNetworks.clear();
+        new Thread(() -> {
+            synchronized (serverNetworksLock) {
+                serverNetworks.clear();
+            }
+        }).start();
     }
 
     void forEachServerNetwork(Consumer<? super ServerNetwork> action) {

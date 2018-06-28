@@ -18,8 +18,8 @@ public abstract class Client implements Observer {
     private boolean suspended = false;
     private boolean gameOver = false;
     private String activeNickname = null;
-    private List<String> suspendedPlayers = new ArrayList<>();
     private int favorTokens = 0;
+    private List<String> suspendedPlayers = new ArrayList<>();
 
     Client(boolean debugActive) {
         Logger.setDebugActive(debugActive);
@@ -91,9 +91,17 @@ public abstract class Client implements Observer {
         return suspended;
     }
 
-    void setSuspended(List<String> suspendedPlayers) {
-        this.suspended = suspendedPlayers.contains(this.getNickname());
-        this.suspendedPlayers = suspendedPlayers;
+    void setSuspended(boolean suspended) {
+        this.suspended = suspended;
+    }
+
+    List<String> getSuspendedPlayers() {
+        return suspendedPlayers;
+    }
+
+    void setSuspendedPlayers(List<String> players) {
+        suspendedPlayers = players;
+        setSuspended(suspendedPlayers.contains(getNickname()));
     }
 
     boolean isGameOver() {
@@ -114,10 +122,6 @@ public abstract class Client implements Observer {
 
     void setFavorTokens(int favorTokens) {
         this.favorTokens = favorTokens;
-    }
-
-    List<String> getSuspendedPlayers() {
-        return suspendedPlayers;
     }
 
     private static boolean isValidHost(String host){

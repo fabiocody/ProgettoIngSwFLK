@@ -63,8 +63,25 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
             Logger.error(nickname + " log in failed");
         } catch (NicknameAlreadyUsedInGameException e) {
             Logger.log("Welcome back " + nickname);
+            gameController = e.getController();
+            gameController.addServerNetwork(this);
+            this.nickname = nickname;
+            Player player = gameController.getGame().getPlayer(nickname);
+            this.uuid = player.getId();
+            gameController.unsuspendPlayer(this.uuid);
             this.probeThread = new Thread(this::probeCheck);
             this.probeThread.start();
+            try {
+                client.reconnect();
+            } catch (RemoteException e1) {
+                connectionError(e1);
+            }
+            new Timer(true).schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    fullUpdate();
+                }
+            }, 500);
         }
         return uuid;
     }

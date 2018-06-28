@@ -1,9 +1,12 @@
 package it.polimi.ingsw.model.game;
 
+import it.polimi.ingsw.server.GameController;
+
 
 public class NicknameAlreadyUsedInGameException extends Exception {
 
     private final Game game;
+    private GameController controller;
 
     public NicknameAlreadyUsedInGameException(String message, Game game) {
         super(message);
@@ -14,4 +17,11 @@ public class NicknameAlreadyUsedInGameException extends Exception {
         return game;
     }
 
+    public GameController getController() {
+        return controller;
+    }
+
+    public void setGameController(GameController controller) {
+        this.controller = controller;
+    }
 }

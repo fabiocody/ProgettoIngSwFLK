@@ -53,12 +53,8 @@ public class GameController extends BaseController {
         else throw new NoSuchElementException("No Player object for uuid " + id);
     }
 
-    String getActivePlayer(){
-        Optional<Player> result = this.game.getPlayers().stream()
-                .filter(Player::isActive)
-                .findFirst();
-        if (result.isPresent()) return result.get().getNickname();
-        else throw new NoSuchElementException("No Active Player found");
+    String getActivePlayer() {
+        return game.getTurnManager().getActivePlayer();
     }
 
     void suspendPlayer(UUID id) {
@@ -169,7 +165,6 @@ public class GameController extends BaseController {
         } else if (o instanceof Game) {
             switch (stringArg) {
                 case NotificationMessages.TURN_MANAGEMENT:
-                case NotificationMessages.SUSPENDED:
                     if (!getRoundTrack().isGameOver())
                         this.game.getTurnManager().subscribeToTimer(this);
                     forEachServerNetwork(ServerNetwork::fullUpdate);
@@ -178,11 +173,6 @@ public class GameController extends BaseController {
                 case NotificationMessages.GAME_OVER:
                     forEachServerNetwork(ServerNetwork::fullUpdate);
                     forEachServerNetwork(ServerNetwork::updateFinalScores);
-                    /*try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }*/
                     closeServerNetworks();
                     SagradaServer.getInstance().getGameControllers().remove(this);
                     break;
@@ -190,11 +180,14 @@ public class GameController extends BaseController {
                     break;
             }
         } else if (o instanceof Player && game.arePlayersReady()) {
-            if (!getRoundTrack().isGameOver())
+            if (!getRoundTrack().isGameOver()) {
                 this.game.getTurnManager().subscribeToTimer(this);
-            forEachServerNetwork(ServerNetwork::fullUpdate);
+                forEachServerNetwork(ServerNetwork::fullUpdate);
+            }
         } else if (o instanceof ServerNetwork) {
-            new Thread(this::nextTurn).start();
+            String nickname = String.valueOf(arg);
+            if (nickname.equals(getActivePlayer()))
+                new Thread(this::nextTurn).start();
             /*new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {

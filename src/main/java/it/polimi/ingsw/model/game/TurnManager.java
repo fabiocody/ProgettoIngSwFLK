@@ -58,6 +58,10 @@ public class TurnManager extends Observable {
         return this.players.get(this.getCurrentPlayerIndex());
     }
 
+    public String getActivePlayer() {
+        return getCurrentPlayer().getNickname();
+    }
+
     public void subscribeToTimer(Observer observer) {
         this.timer.addObserver(observer);
         this.timer.schedule(() -> {
