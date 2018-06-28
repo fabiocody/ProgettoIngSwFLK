@@ -178,6 +178,11 @@ public class GameController extends BaseController {
                 case NotificationMessages.GAME_OVER:
                     forEachServerNetwork(ServerNetwork::fullUpdate);
                     forEachServerNetwork(ServerNetwork::updateFinalScores);
+                    /*try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }*/
                     closeServerNetworks();
                     SagradaServer.getInstance().getGameControllers().remove(this);
                     break;

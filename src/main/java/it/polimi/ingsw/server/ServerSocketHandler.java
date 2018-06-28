@@ -55,8 +55,10 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
                 try {
                     input = this.parseJson(this.readLine());
                 } catch (NullPointerException e) {
-                    Logger.debug("JSON parsing failed");
-                    continue;
+                    /*Logger.debug("JSON parsing failed");
+                    continue;*/
+                    onUserDisconnection();
+                    return;
                 }
                 Logger.debug("Received: " + input.toString());
                 // UUID validation
@@ -111,8 +113,8 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
     private String readLine() throws IOException {
         String line = in.readLine();
         if (line == null) {
-            this.onUserDisconnection();
-            Thread.currentThread().interrupt();
+            //this.onUserDisconnection();
+            //Thread.currentThread().interrupt();
         }
         return line;
     }

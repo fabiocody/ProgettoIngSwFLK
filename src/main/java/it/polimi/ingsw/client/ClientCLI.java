@@ -525,7 +525,7 @@ public class ClientCLI extends Client {
                     break;
                 case WR_TIMER_TICK:
                     this.wrTimeout = jsonArg.get(JsonFields.TICK).getAsString();
-                    Logger.print(waitingRoomMessage());
+                    if (isLogged()) Logger.print(waitingRoomMessage());
                     break;
                 case GAME_TIMER_TICK:
                     gameTimerTickUpdateHandle(jsonArg);
@@ -745,10 +745,15 @@ public class ClientCLI extends Client {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
+                try {
+                    ClientNetwork.getInstance().teardown();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 AnsiConsole.systemUninstall();
                 System.exit(Constants.EXIT_STATUS);
             }
-        }, 500);
+        }, 100);
     }
 
 }

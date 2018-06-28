@@ -22,6 +22,7 @@ public class SocketClient extends ClientNetwork {
     private Queue<JsonObject> responseBuffer;
     private final Object responseBufferLock = new Object();
     private Thread recvThread;
+    private boolean recvRun = true;
 
     /**
      * This is the constructor of the client
@@ -47,6 +48,7 @@ public class SocketClient extends ClientNetwork {
 
     @Override
     public void teardown() throws IOException {
+        recvRun = false;
         recvThread.interrupt();
         if (this.in != null) this.in.close();
         if (this.out != null) this.out.close();
@@ -78,14 +80,14 @@ public class SocketClient extends ClientNetwork {
      * This method, which is executed on a separate thread, waits for the client to execute a valid method
      */
     private void recv() {
-        boolean run = true;
-        while (run) {
-            JsonObject inputJson = null;
+        while (recvRun) {
+            JsonObject inputJson;
             try {
                 inputJson = this.jsonParser.parse(this.readLine()).getAsJsonObject();
                 Logger.debug(inputJson.toString());
             } catch (IOException | NullPointerException e) {
-                connectionError(e);
+                if (recvRun) connectionError(e);
+                return;
             }
             Methods recvMethod;
             try {
@@ -127,6 +129,7 @@ public class SocketClient extends ClientNetwork {
                     gameEnding = true;
                     setChanged();
                     notifyObservers(inputJson);
+                    break;
                 case PROBE:
                     this.probe();
                     break;

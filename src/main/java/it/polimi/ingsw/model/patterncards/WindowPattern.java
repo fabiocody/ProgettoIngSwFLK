@@ -157,7 +157,7 @@ public class WindowPattern {
         if (withConstraint.checkConstraint(this.grid, position, d))
             this.grid[position].setPlacedDie(d);
         else {
-            Logger.error("Die " + d + " cannot be placed in position " + position);
+            //Logger.error("Die " + d + " cannot be placed in position " + position);
             throw new InvalidPlacementException(InterfaceMessages.DIE_INVALID_POSITION);
         }
     }
