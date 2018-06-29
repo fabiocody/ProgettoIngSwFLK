@@ -17,13 +17,13 @@ class ObjectiveCardsGeneratorTest {
 
     @Test
     void publicGeneratorTest() {
-        List<ObjectiveCard> cards = generator.generatePublic();
+        List<ObjectiveCard> cards = generator.generatePublicCards();
         assertEquals(3, cards.size());
         for (int i = 0; i < 3; i++)
             assertNotNull(cards.get(i));
         Set<ObjectiveCard> set = new HashSet<>(cards);
         assertEquals(cards.size(), set.size());
-        assertThrows(NoMoreCardsException.class, () -> generator.generatePublic());
+        assertThrows(NoMoreCardsException.class, () -> generator.generatePublicCards());
     }
 
     @Test

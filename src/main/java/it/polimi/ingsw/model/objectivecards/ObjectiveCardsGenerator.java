@@ -33,7 +33,7 @@ public class ObjectiveCardsGenerator {
      * @return a list of Public Objective Cards only
      * @throws NoSuchObjectiveCardException this indicates that a card could not be found
      */
-    public synchronized List<ObjectiveCard> generatePublic() {
+    public synchronized List<ObjectiveCard> generatePublicCards() {
         if (publicCardsAlreadyGenerated) throw new NoMoreCardsException();
         List<ObjectiveCard> generatedPublics = new ArrayList<>();
         for (int i = 0; i < Constants.NUMBER_OF_PUB_OBJ_CARDS; i++) {
@@ -57,7 +57,7 @@ public class ObjectiveCardsGenerator {
      *
      * @author Fabio Codiglioni
      */
-    private synchronized void generatePrivates() {
+    private synchronized void generatePrivateCards() {
         if (generatedPrivates == null) {
             generatedPrivates = new Vector<>();
             for (int i = 0; i < this.numberOfPlayers; i++) {
@@ -80,11 +80,11 @@ public class ObjectiveCardsGenerator {
      *
      * @author Fabio Codiglioni
      * @return a Private Objective Card from the generated ones.
-     * @see #generatePrivates()
+     * @see #generatePrivateCards()
      * @exception NoMoreCardsException this indicates that all the cards have been dealt.
      */
     public synchronized ObjectiveCard dealPrivate() {
-        this.generatePrivates();
+        this.generatePrivateCards();
         if (generatedPrivates.isEmpty())
             throw new NoMoreCardsException();
         else

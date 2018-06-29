@@ -15,7 +15,7 @@ public class PublicObjectiveCard1 extends ObjectiveCard {
      *
      * @author Fabio Codiglioni
      */
-    public PublicObjectiveCard1() {
+    PublicObjectiveCard1() {
         super("Colori diversi - Riga",
                 "Righe senza colori ripetuti",
                 6);

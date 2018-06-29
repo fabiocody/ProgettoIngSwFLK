@@ -15,7 +15,7 @@ public class PublicObjectiveCard8 extends ObjectiveCard {
      *
      * @author Fabio Codiglioni
      */
-    public PublicObjectiveCard8() {
+    PublicObjectiveCard8() {
         super("Sfumature Diverse",
                 "Set di dadi di ogni valore ovunque",
                 5);
