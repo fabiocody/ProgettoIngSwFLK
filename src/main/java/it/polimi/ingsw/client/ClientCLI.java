@@ -257,6 +257,7 @@ public class ClientCLI extends Client implements Observer {
 
     private String asyncInput(String methodName) throws IOException {
         stopAsyncInput = false;
+        int escape = 0;
         String bufferString = "";
         try {
             setTerminalToCBreak();
@@ -279,6 +280,12 @@ public class ClientCLI extends Client implements Observer {
                         synchronized (stdinBufferLock) {
                             if (stdinBuffer.length() > 0) stdinBuffer.deleteCharAt(stdinBuffer.length() - 1);
                         }
+                    } else if (c == 0x1B) {
+                        escape = 1;
+                    } else if (escape == 1 && c == 0x5B) {
+                        escape = 2;
+                    } else if (escape == 2 && c >= 0x41 && c <= 0x44) {
+                        escape = 0;
                     } else {
                         synchronized (stdinBufferLock) {
                             stdinBuffer.append((char) c);
@@ -478,8 +485,8 @@ public class ClientCLI extends Client implements Observer {
     }
 
     private String updateLine(String line) {
-        return ansi().cursorToColumn(0)
-                .eraseLine(Erase.FORWARD)
+        return ansi().eraseLine()
+                .a('\r')
                 .a(line)
                 .toString();
     }
