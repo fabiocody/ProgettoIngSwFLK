@@ -16,13 +16,13 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     private ServerAPI server;
     private JsonParser jsonParser;
 
-    RMIClient(String host, int port, boolean debug) {
+    public RMIClient(String host, int port, boolean debug) {
         super(host, port, debug);
         this.jsonParser = new JsonParser();
     }
 
     @Override
-    void setup() throws IOException {
+    public void setup() throws IOException {
         try {
             Registry registry = LocateRegistry.getRegistry(getHost(), getPort());
             ServerAPI welcomeServer = (ServerAPI) registry.lookup(Constants.SERVER_RMI_NAME);
@@ -40,12 +40,12 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     }
 
     @Override
-    void teardown() {
+    public void teardown() {
         server = null;
     }
 
     @Override
-    UUID addPlayer(String nickname) {
+    public UUID addPlayer(String nickname) {
         try {
             uuid = server.addPlayer(nickname);
         } catch (RemoteException e) {
@@ -55,7 +55,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     }
 
     @Override
-    void choosePattern(int patternIndex) {
+    public void choosePattern(int patternIndex) {
         try {
             server.choosePattern(patternIndex);
         } catch (RemoteException e) {
@@ -64,7 +64,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     }
 
     @Override
-    JsonObject placeDie(int draftPoolIndex, int x, int y) {
+    public JsonObject placeDie(int draftPoolIndex, int x, int y) {
         try {
             return jsonParser.parse(server.placeDie(draftPoolIndex, x, y)).getAsJsonObject();
         } catch (RemoteException e) {
@@ -74,7 +74,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     }
 
     @Override
-    void nextTurn() {
+    public void nextTurn() {
         try {
             server.nextTurn();
         } catch (RemoteException e) {
@@ -83,7 +83,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     }
 
     @Override
-    JsonObject requiredData(int cardIndex) {
+    public JsonObject requiredData(int cardIndex) {
         try {
             return jsonParser.parse(server.requiredData(cardIndex)).getAsJsonObject();
         } catch (RemoteException e) {
@@ -93,7 +93,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     }
 
     @Override
-    JsonObject useToolCard(int cardIndex, JsonObject requiredData) {
+    public JsonObject useToolCard(int cardIndex, JsonObject requiredData) {
         try {
             return jsonParser.parse(server.useToolCard(cardIndex, requiredData.toString())).getAsJsonObject();
         } catch (RemoteException e) {

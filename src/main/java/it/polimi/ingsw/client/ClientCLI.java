@@ -426,18 +426,18 @@ public class ClientCLI extends Client implements Observer {
      */
     private void addPlayer() throws IOException {
         String nickname = this.input("Nickname >>>");
-        this.setNickname(nickname);
-        setUUID(ClientNetwork.getInstance().addPlayer(this.getNickname()));
-        setLogged(this.getUUID() != null);
-        if (!isLogged()) {
-            if (nickname.equals("")) {
-                Logger.println("Login fallito! I nickname non possono essere vuoti");
-            } else if (nickname.contains(" ")) {
-                Logger.println("Login fallito! I nickname non possono contenere spazi");
-            } else if (nickname.length() > MAX_NICKNAME_LENGTH) {
-                Logger.println("Login fallito! I nickname non possono essere più lunghi di " + MAX_NICKNAME_LENGTH + " caratteri");
-            } else {
-                Logger.println("Login fallito! Questo nickname è già in uso");
+        if (nickname.equals("")) {
+            Logger.println(InterfaceMessages.LOGIN_FAILED_EMPTY);
+        } else if (nickname.contains(" ")) {
+            Logger.println(InterfaceMessages.LOGIN_FAILED_SPACES);
+        } else if (nickname.length() > MAX_NICKNAME_LENGTH) {
+            Logger.println(InterfaceMessages.LOGIN_FAILED_LENGTH);
+        } else {
+            this.setNickname(nickname);
+            setUUID(ClientNetwork.getInstance().addPlayer(this.getNickname()));
+            setLogged(this.getUUID() != null);
+            if (!isLogged()) {
+                Logger.println(InterfaceMessages.LOGIN_FAILED_USED);
             }
         }
     }

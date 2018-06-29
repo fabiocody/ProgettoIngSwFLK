@@ -1,5 +1,6 @@
 package it.polimi.ingsw.client;
 
+import it.polimi.ingsw.client.gui.ClientGUIApplication;
 import it.polimi.ingsw.shared.util.*;
 import javafx.application.Application;
 import joptsimple.*;
@@ -21,100 +22,106 @@ public class Client {
     private List<String> suspendedPlayers = new ArrayList<>();
 
     Client(boolean debugActive) {
+        this(debugActive, true);
+    }
+
+    Client(boolean debugActive, boolean doNetworkSetup) {
         Logger.setDebugActive(debugActive);
-        try {
-            ClientNetwork.getInstance().setup();
-            Logger.println("Connection established");
-        } catch (IOException e) {
-            Logger.error("Connection failed");
-            Logger.printStackTraceConditionally(e);
-            System.exit(Constants.EXIT_ERROR);
+        if (doNetworkSetup) {
+            try {
+                ClientNetwork.getInstance().setup();
+                Logger.println("Connection established");
+            } catch (IOException e) {
+                Logger.error("Connection failed");
+                Logger.printStackTraceConditionally(e);
+                System.exit(Constants.EXIT_ERROR);
+            }
         }
     }
 
-    String getNickname() {
+    public String getNickname() {
         return nickname;
     }
 
-    void setNickname(String nickname) {
+    public void setNickname(String nickname) {
         this.nickname = nickname;
     }
 
-    UUID getUUID() {
+    public UUID getUUID() {
         return uuid;
     }
 
-    void setUUID(UUID uuid) {
+    public void setUUID(UUID uuid) {
         this.uuid = uuid;
     }
 
-    boolean isLogged() {
+    public boolean isLogged() {
         return logged;
     }
 
-    void setLogged(boolean logged) {
+    public void setLogged(boolean logged) {
         this.logged = logged;
     }
 
-    boolean isGameStarted() {
+    public boolean isGameStarted() {
         return gameStarted;
     }
 
-    void setGameStarted() {
+    public void setGameStarted() {
         this.gameStarted = true;
     }
 
-    boolean isActive() {
+    public boolean isActive() {
         return active;
     }
 
-    void setActive(Boolean active){
+    public void setActive(Boolean active){
         this.active = active;
     }
 
-    void setActive(String activeNickname) {
+    public void setActive(String activeNickname) {
         setActive(activeNickname.equals(nickname));
         this.activeNickname = activeNickname;
     }
 
-    boolean isPatternChosen() {
+    public boolean isPatternChosen() {
         return patternChosen;
     }
 
-    void setPatternChosen() {
+    public void setPatternChosen() {
         this.patternChosen = true;
     }
 
-    boolean isSuspended() {
+    public boolean isSuspended() {
         return suspended;
     }
 
-    void setSuspended(boolean suspended) {
+    public void setSuspended(boolean suspended) {
         this.suspended = suspended;
     }
 
-    List<String> getSuspendedPlayers() {
+    public List<String> getSuspendedPlayers() {
         return suspendedPlayers;
     }
 
-    void setSuspendedPlayers(List<String> players) {
+    public void setSuspendedPlayers(List<String> players) {
         suspendedPlayers = players;
         setSuspended(suspendedPlayers.contains(getNickname()));
     }
 
-    boolean isGameOver() {
+    public boolean isGameOver() {
         return gameOver;
     }
 
-    void setGameOver(boolean gameOver) {
+    public void setGameOver(boolean gameOver) {
         this.gameOver = gameOver;
     }
 
-    String getActiveNickname() {
+    public String getActiveNickname() {
         return activeNickname;
     }
 
-    private static boolean isValidHost(String host){
+    public static boolean isValidHost(String host){
         String ipRegex= "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
         String urlRegex = "^[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
         return host.matches(ipRegex) || host.matches(urlRegex);
@@ -128,7 +135,7 @@ public class Client {
     public static void main(String[] args) {
         OptionParser parser = new OptionParser();
         parser.accepts(CLIArguments.DEBUG);
-        parser.accepts(CLIArguments.HOST).withRequiredArg().required();
+        parser.accepts(CLIArguments.HOST).withRequiredArg();
         parser.accepts(CLIArguments.PORT).withRequiredArg().ofType(Integer.class).defaultsTo(Constants.DEFAULT_PORT);
         parser.accepts(CLIArguments.CONNECTION).withRequiredArg().ofType(String.class).defaultsTo(CLIArguments.SOCKET);
         parser.accepts(CLIArguments.INTERFACE).withRequiredArg().ofType(String.class).defaultsTo(CLIArguments.CLI);
@@ -138,47 +145,40 @@ public class Client {
 
             boolean debug = options.has(CLIArguments.DEBUG);
 
-            String host;
-            if (options.has(CLIArguments.HOST)) {
-                host = (String) options.valueOf(CLIArguments.HOST);
-                if (!isValidHost(host)) {
-                    Logger.println("Invalid Host");
-                    exitError();
-                }
-            } else {
-                Scanner stdin = new Scanner(System.in);
-                do {
-                    Logger.print("Inserisci un host valido\nHost >>> ");
-                    host = stdin.nextLine();
-                } while (!isValidHost(host));
-                stdin.close();
-            }
-
-            int port = (int) options.valueOf(CLIArguments.PORT);
-
-            String connection = (String) options.valueOf(CLIArguments.CONNECTION);
-            switch (connection) {
-                case CLIArguments.SOCKET:
-                    ClientNetwork.setInstance(new SocketClient(host, port, debug));
-                    break;
-                case CLIArguments.RMI:
-                    port = Constants.DEFAULT_RMI_PORT;
-                    ClientNetwork.setInstance(new RMIClient(host, port, debug));
-                    break;
-                default:
-                    Logger.println("Invalid type of connection");
-                    exitError();
-                    break;
-            }
-
             String iface = (String) options.valueOf(CLIArguments.INTERFACE);
             switch (iface) {
                 case CLIArguments.CLI:
+                    String host = null;
+                    if (options.has(CLIArguments.HOST)) {
+                        host = (String) options.valueOf(CLIArguments.HOST);
+                        if (!isValidHost(host)) {
+                            Logger.println("Invalid Host");
+                            exitError();
+                        }
+                    } else {
+                        exitError();
+                    }
+                    int port = (int) options.valueOf(CLIArguments.PORT);
+                    String connection = (String) options.valueOf(CLIArguments.CONNECTION);
+                    switch (connection) {
+                        case CLIArguments.SOCKET:
+                            ClientNetwork.setInstance(new SocketClient(host, port, debug));
+                            break;
+                        case CLIArguments.RMI:
+                            port = Constants.DEFAULT_RMI_PORT;
+                            ClientNetwork.setInstance(new RMIClient(host, port, debug));
+                            break;
+                        default:
+                            Logger.println("Invalid type of connection");
+                            exitError();
+                            break;
+                    }
                     new ClientCLI(debug).start();
                     break;
                 case CLIArguments.GUI:
-                    Client client = new Client(debug);
+                    Client client = new Client(debug, false);
                     ClientGUIApplication.setClient(client);
+                    ClientGUIApplication.setDebug(debug);
                     Application.launch(ClientGUIApplication.class);
                     break;
                 default:

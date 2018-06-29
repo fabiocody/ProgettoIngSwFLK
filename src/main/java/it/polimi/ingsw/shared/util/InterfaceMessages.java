@@ -1,5 +1,8 @@
 package it.polimi.ingsw.shared.util;
 
+import static it.polimi.ingsw.shared.util.Constants.*;
+
+
 public class InterfaceMessages {
 
     private InterfaceMessages() { throw new IllegalStateException("Cannot instantiate"); }
@@ -20,5 +23,24 @@ public class InterfaceMessages {
     public static final String FIRST_HALF_OF_ROUND = "non è il tuo secondo turno";
     public static final String DIE_NOT_YET_PLACED_IN_THIS_TURN = "non hai ancora piazzato un dado questo turno";
     public static final String NO_PROPER_COLOR_DIE_ON_ROUND_TRACK = "non ci sono dadi di questo colore nel tracciato del round";
+
+    public static final String WINDOW_TITLE = "Sagrada";
+    public static final String LOGIN_FAILED_EMPTY = "Login fallito! I nickname non possono essere vuoti";
+    public static final String LOGIN_FAILED_SPACES = "Login fallito! I nickname non possono contenere spazi";
+    public static final String LOGIN_FAILED_LENGTH = "Login fallito! I nickname non possono essere più lunghi di " + MAX_NICKNAME_LENGTH + " caratteri";
+    public static final String LOGIN_FAILED_USED = "Login fallito! Questo nickname è già in uso";
+
+    public static final String EXIT_MESSAGE = "Sei sicuro di voler uscire?";
+    public static final String HOST_PROMPT = "Host: ";
+    public static final String PORT_PROMPT = "Porta: ";
+    public static final String NICKNAME_PROMPT = "Nickname: ";
+    public static final String HOST_PLACEHOLDER = "Inserisci l'indirizzo del server";
+    public static final String PORT_PLACEHOLDER = "Inserisci la porta per la socket";
+    public static final String NICKNAME_PLACEHOLDER = "Inserisci il tuo nickname";
+    public static final String SOCKET = "Socket";
+    public static final String RMI = "RMI";
+    public static final String CONNECTION_FAILED = "Impossibile connettersi";
+    public static final String INVALID_HOST = "Inserisci un host valido";
+    public static final String MISSING_DATA = "Dati mancanti e/o non validi";
 
 }

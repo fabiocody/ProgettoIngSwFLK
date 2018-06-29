@@ -10,7 +10,6 @@ import java.util.*;
 public abstract class ClientNetwork extends Observable {
 
     private static ClientNetwork instance;
-    private static boolean instanceSet = false;
 
     private String host;
     private int port;
@@ -32,12 +31,7 @@ public abstract class ClientNetwork extends Observable {
     }
 
     public static void setInstance(ClientNetwork clientNetwork) {
-        if (!instanceSet) {
-            instance = clientNetwork;
-            instanceSet = true;
-        } else {
-            throw new IllegalStateException("Cannot set this instance more than one time");
-        }
+        instance = clientNetwork;
     }
 
     String getHost() {
@@ -48,15 +42,15 @@ public abstract class ClientNetwork extends Observable {
         return port;
     }
 
-    abstract void setup() throws IOException;
-    abstract void teardown() throws IOException;
+    public abstract void setup() throws IOException;
+    public abstract void teardown() throws IOException;
 
-    abstract UUID addPlayer(String nickname);
-    abstract void choosePattern(int patternIndex);
-    abstract JsonObject placeDie(int draftPoolIndex, int x, int y);
-    abstract void nextTurn();
-    abstract JsonObject requiredData(int cardIndex);
-    abstract JsonObject useToolCard(int cardIndex, JsonObject requiredData);
+    public abstract UUID addPlayer(String nickname);
+    public abstract void choosePattern(int patternIndex);
+    public abstract JsonObject placeDie(int draftPoolIndex, int x, int y);
+    public abstract void nextTurn();
+    public abstract JsonObject requiredData(int cardIndex);
+    public abstract JsonObject useToolCard(int cardIndex, JsonObject requiredData);
 
     void rescheduleProbeTimer() {
         if (this.probeTimer != null) {
