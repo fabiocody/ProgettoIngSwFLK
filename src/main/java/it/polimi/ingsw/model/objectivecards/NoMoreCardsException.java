@@ -7,7 +7,7 @@ package it.polimi.ingsw.model.objectivecards;
  * @author Fabio Codiglioni
  * @see ObjectiveCardsGenerator
  */
-public class NoMoreCardsException extends RuntimeException {
+class NoMoreCardsException extends RuntimeException {
 
     NoMoreCardsException() {
         super();

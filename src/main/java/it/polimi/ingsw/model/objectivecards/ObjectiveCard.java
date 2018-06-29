@@ -20,7 +20,7 @@ public abstract class ObjectiveCard {
      * @param description the description of the Objective Card.
      * @param victoryPoints the Victory Points awarded for fulfilling the requirements of the card.
      */
-    public ObjectiveCard(String name, String description, Integer victoryPoints) {
+    ObjectiveCard(String name, String description, Integer victoryPoints) {
         this.name = name;
         this.description = description;
         this.victoryPoints = victoryPoints;
@@ -35,7 +35,7 @@ public abstract class ObjectiveCard {
      * @param description the description of Objective Card.
      * @see #ObjectiveCard(String, String, Integer)
      */
-    public ObjectiveCard(String name, String description) {
+    ObjectiveCard(String name, String description) {
         this(name, description, null);
     }
 

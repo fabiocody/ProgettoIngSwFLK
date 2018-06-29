@@ -240,7 +240,7 @@ public class GameController extends BaseController {
             }
         } else if (o instanceof ServerNetwork) {
             String nickname = String.valueOf(arg);
-            if (nickname.equals(getActivePlayer()))
+            if (nickname.equals(getActivePlayer()) || game.getTurnManager().countNotSuspendedPlayers() <= 1)
                 new Thread(this::nextTurn).start();
         }
     }

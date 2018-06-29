@@ -98,7 +98,7 @@ public class TurnManager extends Observable {
         return this.index >= this.playersOrder.size() / 2;
     }
 
-    int countNotSuspendedPlayers() {
+    public int countNotSuspendedPlayers() {
         return (int) players.stream()
                 .filter(player -> !player.isSuspended())
                 .count();

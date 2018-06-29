@@ -712,7 +712,7 @@ public class ClientCLI extends Client implements Observer {
         for (Map.Entry<String, JsonElement> entry : entrySet) {
             String name = entry.getKey();
             if (name.equals(JsonFields.WINNER)) {
-                String value = entry.getValue().getAsString();
+                String value = entry.getValue().isJsonNull() ? null : entry.getValue().getAsString();
                 finalScoresString.append("\n").append(name).append(": ").append(value);
             } else {
                 int value = entry.getValue().getAsInt();
