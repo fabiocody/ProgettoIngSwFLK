@@ -661,7 +661,7 @@ public class ClientCLI extends Client implements Observer {
                     .append("\nDescrizione: ")
                     .append(obj.get(JsonFields.DESCRIPTION).getAsString())
                     .append("\nPunti Vittoria (PV) per ogni set completo di questo tipo: ")
-                    .append(obj.get(JsonFields.VICTORY_POINTS).isJsonNull() ? '#' : obj.get(JsonFields.VICTORY_POINTS).getAsInt())
+                    .append(obj.get(JsonFields.VICTORY_POINTS).isJsonNull() ? "#" : obj.get(JsonFields.VICTORY_POINTS).getAsInt())
                     .append("\n\n");
         }
         objectiveCardsString.append(privateObjectiveCard).append("\n\n");
