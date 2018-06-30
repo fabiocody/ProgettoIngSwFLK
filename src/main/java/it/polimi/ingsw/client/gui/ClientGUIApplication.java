@@ -77,7 +77,7 @@ public class ClientGUIApplication extends Application implements Observer {
     public void start(Stage primaryStage) {
         primaryStage.setOnCloseRequest(e -> {
             e.consume();
-            boolean answer = ConfirmBox.display("", EXIT_MESSAGE);
+            boolean answer = new ConfirmBox().display(WINDOW_TITLE, EXIT_MESSAGE);
             if (answer) primaryStage.close();
         });
         this.primaryStage = primaryStage;
@@ -623,6 +623,7 @@ public class ClientGUIApplication extends Application implements Observer {
                 imageView.setFitHeight(CARD_SIZE);
                 imageView.setPreserveRatio(true);
                 boardPane.add(imageView, i, 1);
+                // TODO Favor tokens
             }
         }
     }

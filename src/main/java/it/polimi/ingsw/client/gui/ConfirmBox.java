@@ -1,5 +1,6 @@
 package it.polimi.ingsw.client.gui;
 
+import javafx.scene.input.KeyCode;
 import javafx.stage.*;
 import javafx.scene.*;
 import javafx.scene.layout.*;
@@ -8,10 +9,11 @@ import javafx.geometry.*;
 
 class ConfirmBox {
 
-    static boolean answer;
+    private boolean answer;
+    private Stage window;
 
-    public static boolean display(String title, String message) {
-        Stage window = new Stage();
+    boolean display(String title, String message) {
+        window = new Stage();
         window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle(title);
         window.setMinWidth(250);
@@ -23,14 +25,13 @@ class ConfirmBox {
         yesButton.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         noButton.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
-        //Clicking will set answer and close window
-        yesButton.setOnAction(e -> {
-            answer = true;
-            window.close();
+        yesButton.setOnAction(e -> onYes());
+        yesButton.setOnKeyPressed(e -> {
+            if (e.getCode().equals(KeyCode.ENTER)) onYes();
         });
-        noButton.setOnAction(e -> {
-            answer = false;
-            window.close();
+        noButton.setOnAction(e -> onNo());
+        noButton.setOnKeyPressed(e -> {
+            if (e.getCode().equals(KeyCode.ENTER)) onNo();
         });
 
         GridPane gridPane = new GridPane();
@@ -57,6 +58,14 @@ class ConfirmBox {
 
     }
 
+    private void onYes() {
+        answer = true;
+        window.close();
+    }
 
+    private void onNo() {
+        answer = false;
+        window.close();
+    }
 
 }
