@@ -32,10 +32,10 @@ public class ToolCardsGenerator {
      */
     public static List<ToolCard> generate(Game game) {
         List<ToolCard> cards = new ArrayList<>();
-        for (int i = 0; i < Constants.TOOL_CARD_NUMBER; i++) {
+        for (int i = 0; i < Constants.NUMBER_OF_TOOL_CARDS_PER_GAME; i++) {
             ToolCard newCard;
             do {
-                String className = "it.polimi.ingsw.model.toolcards.ToolCard" + ThreadLocalRandom.current().nextInt(1, 13);
+                String className = "it.polimi.ingsw.model.toolcards.ToolCard" + ThreadLocalRandom.current().nextInt(1, Constants.NUMBER_OF_TOOL_CARDS + 1);
                 try {
                     newCard = (ToolCard) Class.forName(className).getConstructor(Game.class).newInstance(game);
                 } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {

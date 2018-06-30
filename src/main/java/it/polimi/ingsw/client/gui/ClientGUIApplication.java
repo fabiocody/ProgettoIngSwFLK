@@ -24,8 +24,10 @@ import static it.polimi.ingsw.shared.util.InterfaceMessages.*;
 
 public class ClientGUIApplication extends Application implements Observer {
 
-    private static final int WINDOW_WIDTH = 1000;
-    private static final int WINDOW_HEIGHT = 700;
+    private static final int LOGIN_WINDOW_WIDTH = 700;
+    private static final int LOGIN_WINDOW_HEIGHT = 500;
+    private static final int SELECTABLE_WP_WINDOW_WIDTH = 1000;
+    private static final int SELECTABLE_WP_WINDOW_HEIGHT = 700;
     private static final int CELL_SIZE = 60;
     private static final int DOT_SIZE = 10;
     private static final double RESIZE_WP = 0.6;
@@ -127,7 +129,7 @@ public class ClientGUIApplication extends Application implements Observer {
         loginPane.add(loginErrorLabel, 0, 4, 3, 1);
         loginPane.add(sagradaLogoImage, 0, 5, 3, 1);
 
-        Scene loginScene = new Scene(loginPane, WINDOW_WIDTH, WINDOW_HEIGHT);
+        Scene loginScene = new Scene(loginPane, LOGIN_WINDOW_WIDTH, LOGIN_WINDOW_HEIGHT);
         primaryStage.setScene(loginScene);
         primaryStage.show();
     }
@@ -144,7 +146,7 @@ public class ClientGUIApplication extends Application implements Observer {
         pane.add(waitingPlayersBox, 0, 0);
         pane.add(wrTimerLabel, 1, 0);
 
-        Scene scene = new Scene(pane, WINDOW_WIDTH, WINDOW_HEIGHT);
+        Scene scene = new Scene(pane, LOGIN_WINDOW_WIDTH, LOGIN_WINDOW_HEIGHT);
         primaryStage.setScene(scene);
     }
 
@@ -171,7 +173,7 @@ public class ClientGUIApplication extends Application implements Observer {
             pane.add(button, column, row+1);
             GridPane.setHalignment(button, HPos.CENTER);
         }
-        Scene scene = new Scene(pane, WINDOW_WIDTH, WINDOW_HEIGHT);
+        Scene scene = new Scene(pane, SELECTABLE_WP_WINDOW_WIDTH, SELECTABLE_WP_WINDOW_HEIGHT);
         primaryStage.setScene(scene);
     }
 
@@ -182,7 +184,7 @@ public class ClientGUIApplication extends Application implements Observer {
         boardPane.setVgap(10);
         boardPane.setPadding(new Insets(25, 25, 25, 25));
         privateObjectiveCard.setFitHeight(CARD_SIZE);
-        boardPane.add(privateObjectiveCard, 4, 4);
+        boardPane.add(privateObjectiveCard, 3, 4);
         Scene scene = new Scene(boardPane);
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true);
@@ -236,7 +238,7 @@ public class ClientGUIApplication extends Application implements Observer {
             Label label = new Label(patternSelected(index + 1));
             label.setFont(new Font(20));
             pane.setCenter(label);
-            Scene scene = new Scene(pane, WINDOW_WIDTH, WINDOW_HEIGHT);
+            Scene scene = new Scene(pane, SELECTABLE_WP_WINDOW_WIDTH, SELECTABLE_WP_WINDOW_HEIGHT);
             primaryStage.setScene(scene);
         }
     }
@@ -454,19 +456,26 @@ public class ClientGUIApplication extends Application implements Observer {
     private StackPane createCellStack(JsonObject jsonCell, Double resize) {
         if (resize == null) resize = 1.0;
         StackPane pane = new StackPane();
-        Canvas canvas = new Canvas(CELL_SIZE * resize, CELL_SIZE * resize);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
+        Canvas canvas;
         Colors color = jsonCell.get(JsonFields.COLOR).isJsonNull() ? null : Colors.valueOf(jsonCell.get(JsonFields.COLOR).getAsString());
         Integer value = jsonCell.get(JsonFields.VALUE).isJsonNull() ? null : jsonCell.get(JsonFields.VALUE).getAsInt();
         if (value == null) {
+            canvas = new Canvas(CELL_SIZE * resize, CELL_SIZE * resize);
+            GraphicsContext gc = canvas.getGraphicsContext2D();
             if (color != null)
                 gc.setFill(color.getJavaFXColor());
             else
                 gc.setFill(Color.WHITE);
             gc.fillRect(0, 0, CELL_SIZE * resize, CELL_SIZE * resize);
-            pane.getChildren().add(canvas);
         } else {
-            pane.getChildren().add(createNumberedCell(value, Color.SILVER, resize));
+            canvas = createNumberedCell(value, Color.SILVER, resize);
+        }
+        pane.getChildren().add(canvas);
+        if (!jsonCell.get(JsonFields.DIE).isJsonNull()) {
+            JsonObject jsonDie = jsonCell.getAsJsonObject(JsonFields.DIE);
+            Colors dieColor = Colors.valueOf(jsonDie.get(JsonFields.COLOR).getAsString());
+            int dieValue = jsonDie.get(JsonFields.VALUE).getAsInt();
+            pane.getChildren().add(createNumberedCell(dieValue, dieColor.getJavaFXColor(), resize));
         }
         return pane;
     }
@@ -619,7 +628,7 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void publicObjectiveCardsUpdateHandle(JsonObject jsonArg) {
-        if (publicObjectiveCards.size() < Constants.NUMBER_OF_PUB_OBJ_CARDS) {
+        if (publicObjectiveCards.size() < Constants.NUMBER_OF_PUB_OBJ_CARDS_PER_GAME) {
             JsonArray array = jsonArg.getAsJsonArray(JsonFields.PUBLIC_OBJECTIVE_CARDS);
             for (int i = 0; i < array.size(); i++) {
                 JsonObject card = array.get(i).getAsJsonObject();
@@ -628,13 +637,24 @@ public class ClientGUIApplication extends Application implements Observer {
                 publicObjectiveCards.add(imageView);
                 imageView.setFitHeight(CARD_SIZE);
                 imageView.setPreserveRatio(true);
-                boardPane.add(imageView, i, 3);
+                boardPane.add(imageView, i, 4);
             }
         }
     }
 
     private void draftPoolUpdateHandle(JsonObject jsonArg) {
-
+        draftPool = new GridPane();
+        draftPool = new GridPane();
+        draftPool.setAlignment(Pos.CENTER);
+        draftPool.setHgap(10);
+        JsonArray array = jsonArg.getAsJsonArray(JsonFields.DICE);
+        for (int i = 0; i < array.size(); i++) {
+            JsonObject jsonDie = array.get(i).getAsJsonObject();
+            Colors color = Colors.valueOf(jsonDie.get(JsonFields.COLOR).getAsString());
+            int value = jsonDie.get(JsonFields.VALUE).getAsInt();
+            draftPool.add(createNumberedCell(value, color.getJavaFXColor(), 1.0), i, 0);
+        }
+        boardPane.add(draftPool, 4, 3, 3, 1);
     }
 
     private void turnManagementUpdateHandle(JsonObject jsonArg) {

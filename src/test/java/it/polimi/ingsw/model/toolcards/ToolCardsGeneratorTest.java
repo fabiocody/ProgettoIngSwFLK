@@ -24,7 +24,7 @@ class ToolCardsGeneratorTest {
     @Test
     void generatorTest() {
         List<ToolCard> cards = ToolCardsGenerator.generate(game);
-        assertEquals(Constants.TOOL_CARD_NUMBER, cards.size());
+        assertEquals(Constants.NUMBER_OF_TOOL_CARDS_PER_GAME, cards.size());
         assertNotEquals(cards.get(0), cards.get(1));
         assertNotEquals(cards.get(0), cards.get(2));
         assertNotEquals(cards.get(1), cards.get(2));

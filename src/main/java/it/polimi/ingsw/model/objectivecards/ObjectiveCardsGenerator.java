@@ -36,10 +36,10 @@ public class ObjectiveCardsGenerator {
     public synchronized List<ObjectiveCard> generatePublicCards() {
         if (publicCardsAlreadyGenerated) throw new NoMoreCardsException();
         List<ObjectiveCard> generatedPublics = new ArrayList<>();
-        for (int i = 0; i < Constants.NUMBER_OF_PUB_OBJ_CARDS; i++) {
+        for (int i = 0; i < Constants.NUMBER_OF_PUB_OBJ_CARDS_PER_GAME; i++) {
             ObjectiveCard newCard;
             do {
-                String className = "it.polimi.ingsw.model.objectivecards.PublicObjectiveCard" + ThreadLocalRandom.current().nextInt(1, 11);
+                String className = "it.polimi.ingsw.model.objectivecards.PublicObjectiveCard" + ThreadLocalRandom.current().nextInt(1, Constants.NUMBER_OF_PUB_OBJ_CARDS + 1);
                 try {
                     newCard = (ObjectiveCard)Class.forName(className).newInstance();
                 } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
@@ -63,7 +63,7 @@ public class ObjectiveCardsGenerator {
             for (int i = 0; i < this.numberOfPlayers; i++) {
                 ObjectiveCard newCard;
                 do {
-                    String className = "it.polimi.ingsw.model.objectivecards.PrivateObjectiveCard" + ThreadLocalRandom.current().nextInt(1, 6);
+                    String className = "it.polimi.ingsw.model.objectivecards.PrivateObjectiveCard" + ThreadLocalRandom.current().nextInt(1, Constants.NUMBER_OF_PRI_OBJ_CARDS + 1);
                     try {
                         newCard = (ObjectiveCard) Class.forName(className).newInstance();
                     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
@@ -97,7 +97,7 @@ public class ObjectiveCardsGenerator {
      */
     public String toString() {
         return super.toString() + "\nRemaining public objective cards: " +
-                (publicCardsAlreadyGenerated ? 0 : Constants.NUMBER_OF_PUB_OBJ_CARDS) + "\nRemaining private objective cards: " +
+                (publicCardsAlreadyGenerated ? 0 : Constants.NUMBER_OF_PUB_OBJ_CARDS_PER_GAME) + "\nRemaining private objective cards: " +
                 (generatedPrivates == null ? 4 : generatedPrivates.size());
     }
 
