@@ -143,7 +143,8 @@
     }
     "windowPatterns": [     // 4 patterns
         {
-            "difficulty": <int>,
+            "name": <string>,
+	    "difficulty": <int>,
             "grid": [
                 {
                     "color": <string>,
@@ -330,7 +331,8 @@ After this request, the server will send to each client the following informatio
     "method": "windowPatterns",
     "windowPatterns": {
         <nickname: string>: {
-            "difficulty": <int>,
+            "name": <string>,
+	    "difficulty": <int>,
             "grid": [
                 {
                     "color": <string>,
