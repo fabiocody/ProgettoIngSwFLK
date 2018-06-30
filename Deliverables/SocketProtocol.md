@@ -359,11 +359,14 @@ After this request, the server will send to each client the following informatio
 {
     "method": "roundTrack",
     "dice": [
-        {
-            "color": <string>,
-            "value": <int>,
-            "cliString": <string>
-        },
+        [
+            {
+                "color": <string>,
+                "value": <int>,
+                "cliString": <string>
+            },
+            ...
+        ],
         ...
     ],
     "cliString": <string>

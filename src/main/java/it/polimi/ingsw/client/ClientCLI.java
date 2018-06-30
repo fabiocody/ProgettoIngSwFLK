@@ -507,36 +507,36 @@ public class ClientCLI extends Client implements Observer {
             Methods method = Methods.getAsMethods(jsonArg.get(JsonFields.METHOD).getAsString());
             switch (method) {
                 case ADD_PLAYER:
-                    addPlayerUpdateHandle(jsonArg);
+                    addPlayerUpdateHandler(jsonArg);
                     break;
                 case UPDATE_WAITING_PLAYERS:
-                    updateWaitingPlayersUpdateHandle(jsonArg);
+                    updateWaitingPlayersUpdateHandler(jsonArg);
                     break;
                 case WR_TIMER_TICK:
                     this.wrTimeout = jsonArg.get(JsonFields.TICK).getAsString();
                     if (isLogged()) Logger.print(waitingRoomPrompt());
                     break;
                 case GAME_TIMER_TICK:
-                    gameTimerTickUpdateHandle(jsonArg);
+                    gameTimerTickUpdateHandler(jsonArg);
                     break;
                 case GAME_SETUP:
-                    privateObjectiveCardUpdateHandle(jsonArg);
-                    selectableWindowPatternsUpdateHandle(jsonArg);
+                    privateObjectiveCardUpdateHandler(jsonArg);
+                    selectableWindowPatternsUpdateHandler(jsonArg);
                     break;
                 case WINDOW_PATTERNS:
-                    windowPatternsUpdateHandle(jsonArg);
+                    windowPatternsUpdateHandler(jsonArg);
                     break;
                 case TOOL_CARDS:
-                    toolCardsUpdateHandle(jsonArg);
+                    toolCardsUpdateHandler(jsonArg);
                     break;
                 case PUBLIC_OBJECTIVE_CARDS:
-                    publicObjectiveCardsUpdateHandle(jsonArg);
+                    publicObjectiveCardsUpdateHandler(jsonArg);
                     break;
                 case DRAFT_POOL:
-                    draftPoolUpdateHandle(jsonArg);
+                    draftPoolUpdateHandler(jsonArg);
                     break;
                 case TURN_MANAGEMENT:
-                    turnManagementUpdateHandle(jsonArg);
+                    turnManagementUpdateHandler(jsonArg);
                     break;
                 case ROUND_TRACK:
                     String roundTrack = jsonArg.get(JsonFields.CLI_STRING).getAsString();
@@ -547,10 +547,10 @@ public class ClientCLI extends Client implements Observer {
                     Logger.print(ansi().eraseScreen().cursor(0, 0).toString());
                     break;
                 case FAVOR_TOKENS:
-                    favorTokensUpdateHandle(jsonArg);
+                    favorTokensUpdateHandler(jsonArg);
                     break;
                 case FINAL_SCORES:
-                    finalScoresUpdateHandle(jsonArg);
+                    finalScoresUpdateHandler(jsonArg);
                     break;
                 default:
                     throw new IllegalStateException("This was not supposed to happen! " + method.toString());
@@ -558,7 +558,7 @@ public class ClientCLI extends Client implements Observer {
         }
     }
 
-    private void addPlayerUpdateHandle(JsonObject jsonArg) {
+    private void addPlayerUpdateHandler(JsonObject jsonArg) {
         if (jsonArg.get(JsonFields.RECONNECTED).getAsBoolean()) {
             bypassWaitingRoom = true;
             stopAsyncInput = true;
@@ -567,7 +567,7 @@ public class ClientCLI extends Client implements Observer {
         }
     }
 
-    private void updateWaitingPlayersUpdateHandle(JsonObject jsonArg) {
+    private void updateWaitingPlayersUpdateHandler(JsonObject jsonArg) {
         if (!this.isPatternChosen()) {
             JsonArray playersArray = jsonArg.get(JsonFields.PLAYERS).getAsJsonArray();
             this.wrPlayers = StreamSupport.stream(playersArray.spliterator(), false)
@@ -578,7 +578,7 @@ public class ClientCLI extends Client implements Observer {
         }
     }
 
-    private void gameTimerTickUpdateHandle(JsonObject jsonArg) {
+    private void gameTimerTickUpdateHandler(JsonObject jsonArg) {
         this.gameTimeout = jsonArg.get(JsonFields.TICK).getAsString();
         if (isActive())
             Logger.print(timerPrompt());
@@ -600,7 +600,7 @@ public class ClientCLI extends Client implements Observer {
         }
     }
 
-    private void selectableWindowPatternsUpdateHandle(JsonObject jsonArg) {
+    private void selectableWindowPatternsUpdateHandler(JsonObject jsonArg) {
         stopAsyncInput = true;
         JsonArray windowPatternsArray = jsonArg.getAsJsonArray(JsonFields.WINDOW_PATTERNS);
         List<String> windowPatterns = new ArrayList<>();
@@ -615,7 +615,7 @@ public class ClientCLI extends Client implements Observer {
         Logger.println(windowPatternsMessage(windowPatterns));
     }
 
-    private void windowPatternsUpdateHandle(JsonObject jsonArg) {
+    private void windowPatternsUpdateHandler(JsonObject jsonArg) {
         JsonObject windowPatternsJson = jsonArg.getAsJsonObject(JsonFields.WINDOW_PATTERNS);
         List<String> windowPatterns = new ArrayList<>();
         for (Map.Entry<String, JsonElement> entry : windowPatternsJson.entrySet()) {
@@ -629,7 +629,7 @@ public class ClientCLI extends Client implements Observer {
         Logger.println(windowPatternsMessage(windowPatterns));
     }
 
-    private void toolCardsUpdateHandle(JsonObject jsonArg) {
+    private void toolCardsUpdateHandler(JsonObject jsonArg) {
         JsonArray toolCards = jsonArg.getAsJsonArray(JsonFields.TOOL_CARDS);
         StringBuilder toolCardsString = new StringBuilder();
         for (int i = 0; i < toolCards.size(); i++) {
@@ -650,7 +650,7 @@ public class ClientCLI extends Client implements Observer {
         Logger.println(toolCardsString.toString());
     }
 
-    private void publicObjectiveCardsUpdateHandle(JsonObject jsonArg) {
+    private void publicObjectiveCardsUpdateHandler(JsonObject jsonArg) {
         JsonArray publicObjectiveCards = jsonArg.getAsJsonArray(JsonFields.PUBLIC_OBJECTIVE_CARDS);
         StringBuilder objectiveCardsString = new StringBuilder();
         for (JsonElement element : publicObjectiveCards){
@@ -668,7 +668,7 @@ public class ClientCLI extends Client implements Observer {
         Logger.println(objectiveCardsString.toString());
     }
 
-    private void privateObjectiveCardUpdateHandle(JsonObject jsonArg) {
+    private void privateObjectiveCardUpdateHandler(JsonObject jsonArg) {
         Logger.print(ansi().eraseScreen().cursor(0, 0).toString());
         JsonObject cardJson = jsonArg.getAsJsonObject(JsonFields.PRIVATE_OBJECTIVE_CARD);
         privateObjectiveCard = "Obiettivo privato: " +
@@ -678,7 +678,7 @@ public class ClientCLI extends Client implements Observer {
         Logger.println(privateObjectiveCard);
     }
 
-    private void draftPoolUpdateHandle(JsonObject jsonArg) {
+    private void draftPoolUpdateHandler(JsonObject jsonArg) {
         JsonArray draftPoolDice = jsonArg.getAsJsonArray(JsonFields.DICE);
         StringBuilder draftPoolString = new StringBuilder("Riserva: ");
         this.draftPoolLength = 0;
@@ -689,7 +689,7 @@ public class ClientCLI extends Client implements Observer {
         Logger.println("\n" + draftPoolString.toString() + "\n");
     }
 
-    private void turnManagementUpdateHandle(JsonObject jsonArg) {
+    private void turnManagementUpdateHandler(JsonObject jsonArg) {
         if (!this.isGameStarted()) this.setGameStarted();
         this.setGameOver(jsonArg.get(JsonFields.GAME_OVER).getAsBoolean());
         List<String> suspendedPlayers = StreamSupport.stream(jsonArg.getAsJsonArray(JsonFields.SUSPENDED_PLAYERS).spliterator(), false)
@@ -704,7 +704,7 @@ public class ClientCLI extends Client implements Observer {
         stopAsyncInput = true;
     }
 
-    private void favorTokensUpdateHandle(JsonObject jsonArg) {
+    private void favorTokensUpdateHandler(JsonObject jsonArg) {
         StringBuilder favorTokenString = new StringBuilder("\nSegnalini Favore");
         Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FAVOR_TOKENS).getAsJsonObject().entrySet();
         for (Map.Entry<String, JsonElement> entry : entrySet) {
@@ -713,7 +713,7 @@ public class ClientCLI extends Client implements Observer {
         Logger.println(favorTokenString.toString());
     }
 
-    private void finalScoresUpdateHandle(JsonObject jsonArg) {
+    private void finalScoresUpdateHandler(JsonObject jsonArg) {
         StringBuilder finalScoresString = new StringBuilder("\nLa partita è finita!\nRisultati finali");
         Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FINAL_SCORES).getAsJsonObject().entrySet();
         for (Map.Entry<String, JsonElement> entry : entrySet) {

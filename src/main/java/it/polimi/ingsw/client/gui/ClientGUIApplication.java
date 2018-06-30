@@ -142,6 +142,7 @@ public class ClientGUIApplication extends Application implements Observer {
         pane.setPadding(new Insets(25, 25, 25, 25));
 
         waitingPlayersBox.setSpacing(10);
+        waitingPlayersBox.setAlignment(Pos.CENTER);
         wrTimerLabel.setFont(new Font(30));
         pane.add(waitingPlayersBox, 0, 0);
         pane.add(wrTimerLabel, 1, 0);
@@ -181,10 +182,27 @@ public class ClientGUIApplication extends Application implements Observer {
         boardPane = new GridPane();
         boardPane.setAlignment(Pos.CENTER);
         boardPane.setHgap(20);
-        boardPane.setVgap(10);
+        boardPane.setVgap(20);
         boardPane.setPadding(new Insets(25, 25, 25, 25));
         privateObjectiveCard.setFitHeight(CARD_SIZE);
         boardPane.add(privateObjectiveCard, 3, 4);
+
+        roundTrack = new GridPane();
+        roundTrack.setAlignment(Pos.CENTER);
+        for (int i = 1; i <= Constants.NUMBER_OF_ROUNDS; i++) {
+            StackPane stackPane = new StackPane();
+            Label label = new Label(String.valueOf(i));
+            label.setFont(new Font(20));
+            label.setAlignment(Pos.CENTER);
+            label.setPrefWidth(CELL_SIZE);
+            label.setPrefHeight(CELL_SIZE);
+            stackPane.getChildren().add(label);
+            roundTrack.add(stackPane, i-1, 0);
+        }
+        roundTrack.setGridLinesVisible(true);
+        boardPane.add(roundTrack, 0, 0, 7, 1);
+        GridPane.setHalignment(roundTrack, HPos.CENTER);
+
         Scene scene = new Scene(boardPane);
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true);
@@ -534,49 +552,47 @@ public class ClientGUIApplication extends Application implements Observer {
             Methods method = Methods.getAsMethods(jsonArg.get(JsonFields.METHOD).getAsString());
             switch (method) {
                 case ADD_PLAYER:
-                    Platform.runLater(() -> addPlayerUpdateHandle(jsonArg));
+                    Platform.runLater(() -> addPlayerUpdateHandler(jsonArg));
                     break;
                 case UPDATE_WAITING_PLAYERS:
-                    Platform.runLater(() -> updateWaitingPlayersUpdateHandle(jsonArg));
+                    Platform.runLater(() -> updateWaitingPlayersUpdateHandler(jsonArg));
                     break;
                 case WR_TIMER_TICK:
-                    Platform.runLater(() -> wrTimerTickUpdateHandle(jsonArg));
+                    Platform.runLater(() -> wrTimerTickUpdateHandler(jsonArg));
                     break;
                 case GAME_TIMER_TICK:
-                    Platform.runLater(() -> gameTimerTickUpdateHandle(jsonArg));
+                    Platform.runLater(() -> gameTimerTickUpdateHandler(jsonArg));
                     break;
                 case GAME_SETUP:
                     Platform.runLater(() -> showSelectableWindowPatterns(jsonArg));
                     break;
                 case WINDOW_PATTERNS:
-                    Platform.runLater(() -> windowPatternsUpdateHandle(jsonArg));
+                    Platform.runLater(() -> windowPatternsUpdateHandler(jsonArg));
                     break;
                 case TOOL_CARDS:
-                    Platform.runLater(() -> toolCardsUpdateHandle(jsonArg));
+                    Platform.runLater(() -> toolCardsUpdateHandler(jsonArg));
                     break;
                 case PUBLIC_OBJECTIVE_CARDS:
-                    Platform.runLater(() -> publicObjectiveCardsUpdateHandle(jsonArg));
+                    Platform.runLater(() -> publicObjectiveCardsUpdateHandler(jsonArg));
                     break;
                 case DRAFT_POOL:
-                    Platform.runLater(() -> draftPoolUpdateHandle(jsonArg));
+                    Platform.runLater(() -> draftPoolUpdateHandler(jsonArg));
                     break;
                 case TURN_MANAGEMENT:
-                    Platform.runLater(() -> turnManagementUpdateHandle(jsonArg));
+                    Platform.runLater(() -> turnManagementUpdateHandler(jsonArg));
                     break;
                 case ROUND_TRACK:
-                    //String roundTrack = jsonArg.get(JsonFields.CLI_STRING).getAsString();
-                    //long roundTrackLength = roundTrack.chars().filter(ch -> ch == ']').count();
-                    //Logger.println("Tracciato del Round\n" + roundTrack + "\n");
+                    Platform.runLater(() -> roundTrackUpdateHandler(jsonArg));
                     break;
                 case PLAYERS:
                     if (!boardShown)
                         Platform.runLater(this::showBoard);
                     break;
                 case FAVOR_TOKENS:
-                    Platform.runLater(() -> favorTokensUpdateHandle(jsonArg));
+                    Platform.runLater(() -> favorTokensUpdateHandler(jsonArg));
                     break;
                 case FINAL_SCORES:
-                    Platform.runLater(() -> finalScoresUpdateHandle(jsonArg));
+                    Platform.runLater(() -> finalScoresUpdateHandler(jsonArg));
                     break;
                 default:
                     throw new IllegalStateException("This was not supposed to happen! " + method.toString());
@@ -584,11 +600,11 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
-    private void addPlayerUpdateHandle(JsonObject jsonArg) {
+    private void addPlayerUpdateHandler(JsonObject jsonArg) {
 
     }
 
-    private void updateWaitingPlayersUpdateHandle(JsonObject jsonArg) {
+    private void updateWaitingPlayersUpdateHandler(JsonObject jsonArg) {
         if (!client.isPatternChosen()) {
             waitingPlayersBox.getChildren().clear();
             JsonArray playersArray = jsonArg.get(JsonFields.PLAYERS).getAsJsonArray();
@@ -600,19 +616,19 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
-    private void wrTimerTickUpdateHandle(JsonObject jsonArg) {
+    private void wrTimerTickUpdateHandler(JsonObject jsonArg) {
         wrTimerLabel.setText(jsonArg.get(JsonFields.TICK).getAsString());
     }
 
-    private void gameTimerTickUpdateHandle(JsonObject jsonArg) {
+    private void gameTimerTickUpdateHandler(JsonObject jsonArg) {
         gameTimerLabel.setText(jsonArg.get(JsonFields.TICK).getAsString());
     }
 
-    private void windowPatternsUpdateHandle(JsonObject jsonArg) {
+    private void windowPatternsUpdateHandler(JsonObject jsonArg) {
 
     }
 
-    private void toolCardsUpdateHandle(JsonObject jsonArg) {
+    private void toolCardsUpdateHandler(JsonObject jsonArg) {
         JsonArray array = jsonArg.getAsJsonArray(JsonFields.TOOL_CARDS);
         for (int i = 0; i < array.size(); i++) {
             JsonObject card = array.get(i).getAsJsonObject();
@@ -628,7 +644,7 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
-    private void publicObjectiveCardsUpdateHandle(JsonObject jsonArg) {
+    private void publicObjectiveCardsUpdateHandler(JsonObject jsonArg) {
         if (publicObjectiveCards.size() < Constants.NUMBER_OF_PUB_OBJ_CARDS_PER_GAME) {
             JsonArray array = jsonArg.getAsJsonArray(JsonFields.PUBLIC_OBJECTIVE_CARDS);
             for (int i = 0; i < array.size(); i++) {
@@ -643,11 +659,14 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
-    private void draftPoolUpdateHandle(JsonObject jsonArg) {
-        draftPool = new GridPane();
-        draftPool = new GridPane();
-        draftPool.setAlignment(Pos.CENTER);
-        draftPool.setHgap(10);
+    private void draftPoolUpdateHandler(JsonObject jsonArg) {
+        if (draftPool == null) {
+            draftPool = new GridPane();
+            draftPool.setAlignment(Pos.CENTER);
+            draftPool.setHgap(10);
+        } else {
+            draftPool.getChildren().clear();
+        }
         JsonArray array = jsonArg.getAsJsonArray(JsonFields.DICE);
         for (int i = 0; i < array.size(); i++) {
             JsonObject jsonDie = array.get(i).getAsJsonObject();
@@ -658,15 +677,20 @@ public class ClientGUIApplication extends Application implements Observer {
         boardPane.add(draftPool, 4, 3, 3, 1);
     }
 
-    private void turnManagementUpdateHandle(JsonObject jsonArg) {
+    private void turnManagementUpdateHandler(JsonObject jsonArg) {
+        if (!client.isGameStarted()) client.setGameStarted();
+        client.setGameOver(jsonArg.get(JsonFields.GAME_OVER).getAsBoolean());
+    }
+
+    private void roundTrackUpdateHandler(JsonObject jsonArg) {
 
     }
 
-    private void favorTokensUpdateHandle(JsonObject jsonArg) {
+    private void favorTokensUpdateHandler(JsonObject jsonArg) {
 
     }
 
-    private void finalScoresUpdateHandle(JsonObject jsonArg) {
+    private void finalScoresUpdateHandler(JsonObject jsonArg) {
 
     }
 
