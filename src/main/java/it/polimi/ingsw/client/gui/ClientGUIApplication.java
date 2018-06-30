@@ -1,13 +1,10 @@
 package it.polimi.ingsw.client.gui;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import it.polimi.ingsw.client.*;
 import it.polimi.ingsw.model.Colors;
 import it.polimi.ingsw.shared.util.*;
-import javafx.application.Application;
-import javafx.application.Platform;
+import javafx.application.*;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.geometry.*;
@@ -16,16 +13,13 @@ import javafx.scene.canvas.*;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.*;
-
 import static it.polimi.ingsw.shared.util.InterfaceMessages.*;
-import static org.fusesource.jansi.Ansi.ansi;
 
 
 public class ClientGUIApplication extends Application implements Observer {
@@ -187,7 +181,6 @@ public class ClientGUIApplication extends Application implements Observer {
         boardPane.setHgap(20);
         boardPane.setVgap(10);
         boardPane.setPadding(new Insets(25, 25, 25, 25));
-        // TODO
         privateObjectiveCard.setFitHeight(CARD_SIZE);
         boardPane.add(privateObjectiveCard, 4, 4);
         Scene scene = new Scene(boardPane);
@@ -430,7 +423,7 @@ public class ClientGUIApplication extends Application implements Observer {
         if (resize == null) resize = 1.0;
         GridPane wpPane = new GridPane();
         JsonArray grid = wpJson.getAsJsonArray(JsonFields.GRID);
-        for (int i = 0; i < Constants.NUMBER_OF_PATTERN_ROWS * Constants.NUMBER_OF_PATTERN_COLUMNS; i++) {
+        for (int i = 0; i < grid.size(); i++) {
             JsonObject cell = grid.get(i).getAsJsonObject();
             int column = i % Constants.NUMBER_OF_PATTERN_COLUMNS;
             int row = i / Constants.NUMBER_OF_PATTERN_COLUMNS + 1;
@@ -614,7 +607,7 @@ public class ClientGUIApplication extends Application implements Observer {
         JsonArray array = jsonArg.getAsJsonArray(JsonFields.TOOL_CARDS);
         for (int i = 0; i < array.size(); i++) {
             JsonObject card = array.get(i).getAsJsonObject();
-            if (toolCards.size() < array.size()) {
+            if (toolCards.size() < array.size()) {      // TODO Doesn't handle future updates
                 Image image = new Image("images/toolCards/" + card.get(JsonFields.NAME).getAsString() + ".png");
                 ImageView imageView = new ImageView(image);
                 toolCards.add(imageView);
@@ -626,7 +619,18 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void publicObjectiveCardsUpdateHandle(JsonObject jsonArg) {
-
+        if (publicObjectiveCards.size() < Constants.NUMBER_OF_PUB_OBJ_CARDS) {
+            JsonArray array = jsonArg.getAsJsonArray(JsonFields.PUBLIC_OBJECTIVE_CARDS);
+            for (int i = 0; i < array.size(); i++) {
+                JsonObject card = array.get(i).getAsJsonObject();
+                Image image = new Image("images/publicObj/" + card.get(JsonFields.NAME).getAsString() + ".png");
+                ImageView imageView = new ImageView(image);
+                publicObjectiveCards.add(imageView);
+                imageView.setFitHeight(CARD_SIZE);
+                imageView.setPreserveRatio(true);
+                boardPane.add(imageView, i, 3);
+            }
+        }
     }
 
     private void draftPoolUpdateHandle(JsonObject jsonArg) {

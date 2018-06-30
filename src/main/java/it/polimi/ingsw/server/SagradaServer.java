@@ -77,7 +77,7 @@ public class SagradaServer extends Observable implements Observer {
 
     private void startRMI(String host) {
         try {
-            System.setProperty("java.rmi.game.hostname", host);
+            if (host != null) System.setProperty("java.rmi.game.hostname", host);
             Registry registry = LocateRegistry.createRegistry(Constants.DEFAULT_RMI_PORT);
             welcomeRMIServer = (ServerAPI) UnicastRemoteObject.exportObject(new ServerRMIHandler(), 0);
             registry.rebind(Constants.SERVER_RMI_NAME, welcomeRMIServer);
@@ -165,15 +165,14 @@ public class SagradaServer extends Observable implements Observer {
 
     public static void main(String[] args) {
         OptionParser parser = new OptionParser();
-        OptionSpec<String> serverHostArgument = parser.nonOptions(CLIArguments.HOST);
         parser.accepts(CLIArguments.DEBUG);
+        parser.accepts(CLIArguments.HOST).withRequiredArg();
         parser.accepts(CLIArguments.WR_TIMEOUT).withRequiredArg().ofType(Integer.class).defaultsTo(Constants.DEFAULT_WR_TIMEOUT);
         parser.accepts(CLIArguments.GAME_TIMEOUT).withRequiredArg().ofType(Integer.class).defaultsTo(Constants.DEFAULT_GAME_TIMEOUT);
         parser.accepts(CLIArguments.PORT).withRequiredArg().ofType(Integer.class);
         try {
             OptionSet options = parser.parse(args);
-            String host = options.valueOf(serverHostArgument);
-            if (host == null) throw new NullPointerException();
+            String host = options.has(CLIArguments.HOST) ? options.valueOf(CLIArguments.HOST).toString() : null;
             boolean debug = options.has(CLIArguments.DEBUG);
             int wrTimeout = (Integer) options.valueOf(CLIArguments.WR_TIMEOUT);
             int gameTimeout = (Integer) options.valueOf(CLIArguments.GAME_TIMEOUT);

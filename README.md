@@ -57,13 +57,12 @@ Everything should just work (pure Apple style).
 To start the server, simply locate its jar file and then type into a shell
 
 ```
-$ java -jar path/to/server.jar <host>
+$ java -jar path/to/server.jar
 ```
-
-where `host` must be the IP address of the machine running the server (needed to make RMI work flawlessly).
 
 Additional parameters include:
 
+- `--host HOST`: used to set `java.rmi.server.hostname` property.
 - `--port PORT`: the port to be used for socket connectivity (default to 42000).
 - `--wr-timeout`: the amount of seconds to wait before starting a new game (default to 30).
 - `--game-timeout`: the amount of seconds to wait before suspending a player (default to 90).

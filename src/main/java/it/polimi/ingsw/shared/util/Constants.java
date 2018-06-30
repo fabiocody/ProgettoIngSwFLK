@@ -24,10 +24,10 @@ public class Constants {
     public static final int DEFAULT_GAME_TIMEOUT = 90;
     public static final int EXIT_STATUS = 0;
     public static final int EXIT_ERROR = 1;
-    public static final long PROBE_TIMEOUT = 3000;
+    public static final long PROBE_TIMEOUT = 3;
     public static final String SERVER_RMI_NAME = "SagradaServer";
-    public static final String SERVER_USAGE_STRING = "usage: sagradaserver host [--debug] [--port PORT] [--wr-timeout WR-TIMEOUT] [--game-timeout GAME-TIMEOUT]";
-    public static final String CLIENT_USAGE_STRING = "usage: sagradaclient --host HOST [--debug] [--port PORT] [--connection socket|rmi] [--interface cli|gui]";
+    public static final String SERVER_USAGE_STRING = "usage: sagradaserver [--debug] [--host HOST] [--port PORT] [--wr-timeout WR-TIMEOUT] [--game-timeout GAME-TIMEOUT]";
+    public static final String CLIENT_USAGE_STRING = "usage: sagradaclient --host HOST [--port PORT] [--connection socket|rmi] [--interface cli|gui] [--debug]";
     public static final String TOOL_CARD_1_NAME = "Pinza Sgrossatrice";
     public static final String TOOL_CARD_2_NAME = "Pennello per Eglomise";
     public static final String TOOL_CARD_3_NAME = "Alesatore per lamina di rame";

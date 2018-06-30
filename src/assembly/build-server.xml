@@ -14,7 +14,12 @@ http://maven.apache.org/ASSEMBLY/2.0.0 ">
             <directory>${project.build.outputDirectory}</directory>
             <outputDirectory>/</outputDirectory>
             <excludes>
-                <exclude>it/polimi/ingsw/client/</exclude>
+                <exclude>it/polimi/ingsw/client/*</exclude>
+                <exclude>it/polimi/ingsw/client/gui/*</exclude>
+                <exclude>images/privateObj/*</exclude>
+                <exclude>images/publicObj/*</exclude>
+                <exclude>images/toolCards/*</exclude>
+                <exclude>images/*</exclude>
             </excludes>
         </fileSet>
     </fileSets>
@@ -26,7 +31,12 @@ http://maven.apache.org/ASSEMBLY/2.0.0 ">
             <scope>runtime</scope>
             <unpackOptions>
                 <excludes>
-                    <exclude>it/polimi/ingsw/client/</exclude>
+                    <exclude>it/polimi/ingsw/client/*</exclude>
+                    <exclude>it/polimi/ingsw/client/gui/*</exclude>
+                    <exclude>images/privateObj/*</exclude>
+                    <exclude>images/publicObj/*</exclude>
+                    <exclude>images/toolCards/*</exclude>
+                    <exclude>images/*</exclude>
                 </excludes>
             </unpackOptions>
         </dependencySet>

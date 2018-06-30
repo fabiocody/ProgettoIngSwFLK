@@ -137,8 +137,8 @@ public class Client {
         parser.accepts(CLIArguments.DEBUG);
         parser.accepts(CLIArguments.HOST).withRequiredArg();
         parser.accepts(CLIArguments.PORT).withRequiredArg().ofType(Integer.class).defaultsTo(Constants.DEFAULT_PORT);
-        parser.accepts(CLIArguments.CONNECTION).withRequiredArg().ofType(String.class).defaultsTo(CLIArguments.SOCKET);
-        parser.accepts(CLIArguments.INTERFACE).withRequiredArg().ofType(String.class).defaultsTo(CLIArguments.CLI);
+        parser.accepts(CLIArguments.CONNECTION).withRequiredArg().defaultsTo(CLIArguments.SOCKET);
+        parser.accepts(CLIArguments.INTERFACE).withRequiredArg().defaultsTo(CLIArguments.CLI);
 
         try {
             OptionSet options = parser.parse(args);
