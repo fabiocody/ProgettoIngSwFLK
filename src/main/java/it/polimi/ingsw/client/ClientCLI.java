@@ -174,7 +174,7 @@ public class ClientCLI extends Client implements Observer {
         int toCellX;
         int toCellY;
 
-        if (requiredData.get("data").getAsJsonObject().has(JsonFields.STOP) || requiredData.get("data").getAsJsonObject().get(JsonFields.STOP).getAsBoolean()) {
+        if (!(requiredData.get("data").getAsJsonObject().has(JsonFields.STOP) && requiredData.get("data").getAsJsonObject().get(JsonFields.STOP).getAsBoolean())) {
             if (requiredData.get("data").getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) {
                 draftPoolIndex = this.getInputIndex("\nQuale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE, 0, draftPoolLength, true);
                 requiredData.get("data").getAsJsonObject().addProperty("draftPoolIndex", draftPoolIndex);

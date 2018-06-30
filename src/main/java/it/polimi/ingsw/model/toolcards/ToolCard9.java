@@ -71,6 +71,7 @@ public class ToolCard9 extends ToolCard {
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
             throw new InvalidEffectResultException(DIE_INVALID_POSITION);
         }
+
     }
 
     /**
