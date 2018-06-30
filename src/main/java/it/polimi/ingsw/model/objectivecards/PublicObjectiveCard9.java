@@ -15,7 +15,7 @@ public class PublicObjectiveCard9 extends ObjectiveCard {
      *
      * @author Fabio Codiglioni
      */
-    public PublicObjectiveCard9() {
+    PublicObjectiveCard9() {
         super("Diagonali Colorate",
                 "Numero di dadi dello stesso colore diagonalmente adiacenti");
     }

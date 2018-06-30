@@ -16,7 +16,7 @@ public class PrivateObjectiveCard1 extends ObjectiveCard {
      *
      * @author Fabio Codiglioni
      */
-    public PrivateObjectiveCard1() {
+    PrivateObjectiveCard1() {
         super("Sfumature Rosse",
                 "Somma dei valori su tutti i dati rossi");
     }

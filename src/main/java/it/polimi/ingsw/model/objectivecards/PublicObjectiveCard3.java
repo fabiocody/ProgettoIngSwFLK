@@ -15,7 +15,7 @@ public class PublicObjectiveCard3 extends ObjectiveCard {
      *
      * @author Fabio Codiglioni
      */
-    public PublicObjectiveCard3() {
+    PublicObjectiveCard3() {
         super("Sfumature diverse - Riga",
                 "Righe senza sfumature ripetute",
                 5);

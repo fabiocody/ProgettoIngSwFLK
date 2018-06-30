@@ -16,7 +16,7 @@ public class PublicObjectiveCard10 extends ObjectiveCard {
      *
      * @author Fabio Codiglioni
      */
-    public PublicObjectiveCard10() {
+    PublicObjectiveCard10() {
         super("Varietà di Colore",
                 "Set di dadi di ogni colore ovunque",
                 4);

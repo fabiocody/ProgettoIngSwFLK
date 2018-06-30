@@ -31,7 +31,7 @@ public class SocketClient extends ClientNetwork {
      * @param port the port of the server to which it is listening
      * @param debug debug messages will be shown if true
      */
-    SocketClient(String host, int port, boolean debug) {
+    public SocketClient(String host, int port, boolean debug) {
         super(host, port, debug);
         this.jsonParser = new JsonParser();
         this.responseBuffer = new ConcurrentLinkedQueue<>();
@@ -171,7 +171,7 @@ public class SocketClient extends ClientNetwork {
      * This method handles log in of a player
      */
     @Override
-    UUID addPlayer(String nickname) {
+    public UUID addPlayer(String nickname) {
         this.nickname = nickname;
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.NICKNAME, nickname);
@@ -204,7 +204,7 @@ public class SocketClient extends ClientNetwork {
      * @param patternIndex the index of the chosen window pattern
      */
     @Override
-    void choosePattern(int patternIndex) {
+    public void choosePattern(int patternIndex) {
         JsonObject payload = new JsonObject();
         JsonObject arg = new JsonObject();
         arg.addProperty(JsonFields.PATTERN_INDEX, patternIndex);
@@ -221,7 +221,7 @@ public class SocketClient extends ClientNetwork {
      * @return input the result message of the placement
      */
     @Override
-    JsonObject placeDie(int draftPoolIndex, int x, int y){
+    public JsonObject placeDie(int draftPoolIndex, int x, int y){
         JsonObject payload = new JsonObject();
         JsonObject arg = new JsonObject();
         arg.addProperty(JsonFields.DRAFT_POOL_INDEX, draftPoolIndex);
@@ -241,7 +241,7 @@ public class SocketClient extends ClientNetwork {
      * @return JsonObject containing the required fields for the specified tool card
      */
     @Override
-    JsonObject requiredData(int cardIndex){
+    public JsonObject requiredData(int cardIndex){
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.CARD_INDEX, cardIndex);
         this.sendMessage(payload, Methods.REQUIRED_DATA.getString());
@@ -258,7 +258,7 @@ public class SocketClient extends ClientNetwork {
      * @return
      */
     @Override
-    JsonObject useToolCard(int cardIndex, JsonObject data){
+    public JsonObject useToolCard(int cardIndex, JsonObject data){
         JsonObject payload = new JsonObject();
         JsonObject arg = new JsonObject();
         arg.addProperty(JsonFields.CARD_INDEX, cardIndex);
@@ -274,7 +274,7 @@ public class SocketClient extends ClientNetwork {
      * This method is used to pass to the next turn
      */
     @Override
-    void nextTurn() {
+    public void nextTurn() {
         JsonObject payload = new JsonObject();
         this.sendMessage(payload, Methods.NEXT_TURN.getString());
     }

@@ -15,7 +15,7 @@ public class PublicObjectiveCard7 extends ObjectiveCard {
      *
      * @author Fabio Codiglioni
      */
-    public PublicObjectiveCard7() {
+    PublicObjectiveCard7() {
         super("Sfumature Scure",
                 "Set di 5 & 6 ovunque",
                 2);

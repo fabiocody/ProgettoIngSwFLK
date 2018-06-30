@@ -15,7 +15,7 @@ public class PublicObjectiveCard2 extends ObjectiveCard {
      *
      * @author Fabio Codiglioni
      */
-    public PublicObjectiveCard2() {
+    PublicObjectiveCard2() {
         super("Colori diversi - Colonna",
                 "Colonne senza colori ripetuti",
                 5);

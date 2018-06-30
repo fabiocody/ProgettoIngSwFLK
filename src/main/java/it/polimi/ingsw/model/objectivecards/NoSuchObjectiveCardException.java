@@ -9,7 +9,7 @@ import java.util.NoSuchElementException;
  * @author Fabio Codiglioni
  * @see ObjectiveCardsGenerator
  */
-public class NoSuchObjectiveCardException extends NoSuchElementException {
+class NoSuchObjectiveCardException extends NoSuchElementException {
 
     NoSuchObjectiveCardException(String message) {
         super(message);

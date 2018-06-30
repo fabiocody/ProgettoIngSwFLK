@@ -208,7 +208,7 @@ public class Game extends Observable implements Observer {
             player.setWindowPatternList(this.getPatternCardsGenerator().getCardsForPlayer());
         }
         this.toolCards = new Vector<>(ToolCardsGenerator.generate(this));
-        this.publicObjectiveCards = new Vector<>(getObjectiveCardsGenerator().generatePublic());
+        this.publicObjectiveCards = new Vector<>(getObjectiveCardsGenerator().generatePublicCards());
         this.getDiceGenerator().generateDraftPool();
     }
 
