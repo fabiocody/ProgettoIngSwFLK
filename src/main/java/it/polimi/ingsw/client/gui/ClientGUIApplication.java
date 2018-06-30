@@ -4,22 +4,25 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.client.*;
+import it.polimi.ingsw.model.Colors;
 import it.polimi.ingsw.shared.util.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.geometry.*;
 import javafx.scene.Scene;
 import javafx.scene.canvas.*;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.StreamSupport;
 
 import static it.polimi.ingsw.shared.util.InterfaceMessages.*;
 import static org.fusesource.jansi.Ansi.ansi;
@@ -27,8 +30,13 @@ import static org.fusesource.jansi.Ansi.ansi;
 
 public class ClientGUIApplication extends Application implements Observer {
 
-    private static int WINDOW_WIDTH = 700;
-    private static int WINDOW_HEIGHT = 500;
+    private static final int WINDOW_WIDTH = 1000;
+    private static final int WINDOW_HEIGHT = 700;
+    private static final int CELL_SIZE = 60;
+    private static final int DOT_SIZE = 10;
+    private static final double RESIZE_WP = 0.6;
+    private static final String FX_BACKGROUND_COLOR_DARKGREY = "-fx-background-color: dimgrey;";
+    private static final int CARD_SIZE = 200;
 
     private Stage primaryStage;
 
@@ -43,7 +51,18 @@ public class ClientGUIApplication extends Application implements Observer {
     private Label loginErrorLabel = new Label();
 
     private VBox waitingPlayersBox = new VBox();
-    private Label wrTimerLabel = new Label();
+    private Label wrTimerLabel = new Label("∞");
+    private Label gameTimerLabel = new Label("∞");
+    private GridPane boardPane;
+    private ImageView privateObjectiveCard;
+    private List<ImageView> toolCards = new ArrayList<>();
+    private List<ImageView> publicObjectiveCards = new ArrayList<>();
+    private GridPane myWindowPattern;
+    private GridPane roundTrack;
+    private GridPane draftPool;
+
+    private boolean boardShown = false;
+
 
     public static void setClient(Client c) {
         if (clientSet) {
@@ -65,11 +84,11 @@ public class ClientGUIApplication extends Application implements Observer {
             boolean answer = ConfirmBox.display("", EXIT_MESSAGE);
             if (answer) primaryStage.close();
         });
-        showLogin(primaryStage);
+        this.primaryStage = primaryStage;
+        showLogin();
     }
 
-    private void showLogin(Stage primaryStage) {
-        this.primaryStage = primaryStage;
+    private void showLogin() {
         primaryStage.setTitle(WINDOW_TITLE);
 
         Label hostLabel = new Label(HOST_PROMPT);
@@ -81,6 +100,12 @@ public class ClientGUIApplication extends Application implements Observer {
         hostTextField.setPromptText(HOST_PLACEHOLDER);
         portTextField.setPromptText(PORT_PLACEHOLDER);
         nicknameTextField.setPromptText(NICKNAME_PLACEHOLDER);
+        for (TextField textField : Arrays.asList(hostTextField, portTextField, nicknameTextField)) {
+            textField.setOnKeyPressed(e -> {
+                if (e.getCode().equals(KeyCode.ENTER))
+                    loginAction();
+            });
+        }
         connectionChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(SOCKET, RMI));
         connectionChoiceBox.getSelectionModel().selectFirst();
         loginButton.setOnAction(e -> loginAction());
@@ -113,6 +138,64 @@ public class ClientGUIApplication extends Application implements Observer {
         primaryStage.show();
     }
 
+    private void showWaitingRoom() {
+        GridPane pane = new GridPane();
+        pane.setAlignment(Pos.CENTER);
+        pane.setHgap(20);
+        pane.setVgap(10);
+        pane.setPadding(new Insets(25, 25, 25, 25));
+
+        waitingPlayersBox.setSpacing(10);
+        wrTimerLabel.setFont(new Font(30));
+        pane.add(waitingPlayersBox, 0, 0);
+        pane.add(wrTimerLabel, 1, 0);
+
+        Scene scene = new Scene(pane, WINDOW_WIDTH, WINDOW_HEIGHT);
+        primaryStage.setScene(scene);
+    }
+
+    private void showSelectableWindowPatterns(JsonObject jsonArg) {
+        GridPane pane = new GridPane();
+        pane.setAlignment(Pos.CENTER);
+        pane.setHgap(20);
+        pane.setVgap(10);
+        pane.setPadding(new Insets(25, 25, 25, 25));
+        String privateObjCardName = jsonArg.getAsJsonObject(JsonFields.PRIVATE_OBJECTIVE_CARD).get(JsonFields.NAME).getAsString();
+        Image privateObjectiveCardImage = new Image("images/privateObj/" + privateObjCardName + ".png");
+        privateObjectiveCard = new ImageView(privateObjectiveCardImage);
+        privateObjectiveCard.setFitHeight(400);
+        privateObjectiveCard.setPreserveRatio(true);
+        pane.add(privateObjectiveCard, 2, 0, 1, 3);
+        JsonArray wpArray = jsonArg.getAsJsonArray(JsonFields.WINDOW_PATTERNS);
+        for (int i = 0; i < wpArray.size(); i++) {
+            GridPane windowPattern = createWindowPattern(wpArray.get(i).getAsJsonObject(), null, 1.0);
+            int column = i % 2;
+            int row = (i / 2) * 2;
+            pane.add(windowPattern, column, row);
+            Button button = new Button("Seleziona pattern " + (i+1));
+            button.setOnAction(this::chooseWindowPattern);
+            pane.add(button, column, row+1);
+            GridPane.setHalignment(button, HPos.CENTER);
+        }
+        Scene scene = new Scene(pane, WINDOW_WIDTH, WINDOW_HEIGHT);
+        primaryStage.setScene(scene);
+    }
+
+    private void showBoard() {
+        boardPane = new GridPane();
+        boardPane.setAlignment(Pos.CENTER);
+        boardPane.setHgap(20);
+        boardPane.setVgap(10);
+        boardPane.setPadding(new Insets(25, 25, 25, 25));
+        // TODO
+        privateObjectiveCard.setFitHeight(CARD_SIZE);
+        boardPane.add(privateObjectiveCard, 4, 4);
+        Scene scene = new Scene(boardPane);
+        primaryStage.setScene(scene);
+        primaryStage.setMaximized(true);
+        boardShown = true;
+    }
+
     private void loginAction() {
         if (!hostTextField.getText().isEmpty() && !nicknameTextField.getText().isEmpty()) {
             String host = hostTextField.getText();
@@ -134,20 +217,34 @@ public class ClientGUIApplication extends Application implements Observer {
                     String nickname = nicknameTextField.getText();
                     this.addPlayer(nickname);
                     if (client.isLogged()) {
-                        waitingRoom();
+                        showWaitingRoom();
                     } else {
                         loginErrorLabel.setText(InterfaceMessages.LOGIN_FAILED_USED);
                     }
                 } catch (IOException e) {
                     loginErrorLabel.setText(CONNECTION_FAILED);
                     Logger.printStackTraceConditionally(e);
-                    System.exit(Constants.EXIT_ERROR);
                 }
             } else {
                 loginErrorLabel.setText(INVALID_HOST);
             }
         } else {
             loginErrorLabel.setText(MISSING_DATA);
+        }
+    }
+
+    private void chooseWindowPattern(ActionEvent event) {
+        Button source = (Button) event.getSource();
+        int index = Integer.parseInt(source.getText().split(" ")[2]) - 1;
+        ClientNetwork.getInstance().choosePattern(index);
+        client.setPatternChosen();
+        if (!client.isGameStarted()) {
+            BorderPane pane = new BorderPane();
+            Label label = new Label(patternSelected(index + 1));
+            label.setFont(new Font(20));
+            pane.setCenter(label);
+            Scene scene = new Scene(pane, WINDOW_WIDTH, WINDOW_HEIGHT);
+            primaryStage.setScene(scene);
         }
     }
 
@@ -165,34 +262,11 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
-    private void waitingRoom() {
-        GridPane pane = new GridPane();
-        pane.setAlignment(Pos.CENTER);
-        pane.setHgap(20);
-        pane.setVgap(10);
-        pane.setPadding(new Insets(25, 25, 25, 25));
-
-        waitingPlayersBox.setSpacing(10);
-        wrTimerLabel.setFont(new Font(30));
-        pane.add(waitingPlayersBox, 0, 0);
-        pane.add(wrTimerLabel, 1, 0);
-
-        Scene scene = new Scene(pane, WINDOW_WIDTH, WINDOW_HEIGHT);
-        primaryStage.setScene(scene);
-    }
-
     /*private void theOtherShit() {
-
-        VBox waitingVertical = new VBox();          //waiting room scene
-        Button dummy = new Button("to game");
-        waitingVertical.getChildren().addAll(waitingPlayersLabel, wrTimerLabel, dummy);
-        waitingVertical.setAlignment(Pos.CENTER);
-        waitingVertical.setSpacing(30);
-        Scene waitingRoomScene = new Scene(waitingVertical, 500, 250);
 
         BorderPane gameInterface = new BorderPane();  //game scene
         VBox leftSide = new VBox();
-        HBox toolcard = new HBox();
+        HBox toolCards = new HBox();
         HBox favorTokens = new HBox();
         HBox comment = new HBox();
         GridPane windowPattern = new GridPane();
@@ -204,7 +278,7 @@ public class ClientGUIApplication extends Application implements Observer {
         ImageView toolCard1 = new ImageView();
         ImageView toolCard2 = new ImageView();
         ImageView toolCard3 = new ImageView();
-        toolcard.getChildren().addAll(toolCard1, toolCard2, toolCard3);
+        toolCards.getChildren().addAll(toolCard1, toolCard2, toolCard3);
 
         Label favorTokensLabel = new Label("segnalini favore: ");
         Label favorTokensNumber = new Label("");
@@ -236,7 +310,7 @@ public class ClientGUIApplication extends Application implements Observer {
         windowPattern.add(new StackPane(), 4 ,3);
         windowPattern.setGridLinesVisible(true);
 
-        leftSide.getChildren().addAll(toolcard, favorTokens, comment, windowPattern);
+        leftSide.getChildren().addAll(toolCards, favorTokens, comment, windowPattern);
         gameInterface.setLeft(leftSide);
 
         otherWindowPatterns = this.getOtherWindowPatterns();
@@ -352,49 +426,101 @@ public class ClientGUIApplication extends Application implements Observer {
         return windowPatterns;
     }
 
-    private Canvas createGridCellCanvas(JsonObject jsonARG){
-        Canvas canvas = new Canvas(60, 60);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.setFill(Color.BLUE);  //background color
-        gc.fillRect(0,0,60,60);
-        gc.setFill(Color.WHITE);
-        //canvas.setOnMouseClicked(event -> );
-        return canvas;
+    private GridPane createWindowPattern(JsonObject wpJson, String nickname, Double resize) {
+        if (resize == null) resize = 1.0;
+        GridPane wpPane = new GridPane();
+        JsonArray grid = wpJson.getAsJsonArray(JsonFields.GRID);
+        for (int i = 0; i < Constants.NUMBER_OF_PATTERN_ROWS * Constants.NUMBER_OF_PATTERN_COLUMNS; i++) {
+            JsonObject cell = grid.get(i).getAsJsonObject();
+            int column = i % Constants.NUMBER_OF_PATTERN_COLUMNS;
+            int row = i / Constants.NUMBER_OF_PATTERN_COLUMNS + 1;
+            wpPane.add(createCellStack(cell, resize), column, row);
+        }
+        wpPane.setGridLinesVisible(true);
+        Label topLabel = new Label();
+        topLabel.setStyle(FX_BACKGROUND_COLOR_DARKGREY);
+        topLabel.setTextFill(Color.WHITE);
+        if (nickname != null)
+            topLabel.setText(nickname);
+        topLabel.setPrefWidth(5 * CELL_SIZE * resize);
+        wpPane.add(topLabel, 0, 0, 5, 1);
+        Label nameLabel = new Label(wpJson.get(JsonFields.NAME).getAsString());
+        nameLabel.setStyle(FX_BACKGROUND_COLOR_DARKGREY);
+        nameLabel.setTextFill(Color.WHITE);
+        nameLabel.setPrefWidth(4 * CELL_SIZE * resize);
+        wpPane.add(nameLabel, 0, Constants.NUMBER_OF_PATTERN_ROWS + 1, Constants.NUMBER_OF_PATTERN_COLUMNS - 1, 1);
+        Label difficultyLabel = new Label(wpJson.get(JsonFields.DIFFICULTY).getAsString());
+        difficultyLabel.setStyle(FX_BACKGROUND_COLOR_DARKGREY);
+        difficultyLabel.setTextFill(Color.WHITE);
+        difficultyLabel.setPrefWidth(CELL_SIZE * resize);
+        difficultyLabel.setAlignment(Pos.BASELINE_RIGHT);
+        wpPane.add(difficultyLabel, Constants.NUMBER_OF_PATTERN_COLUMNS - 1, Constants.NUMBER_OF_PATTERN_ROWS + 1);
+        return wpPane;
     }
 
-    private Canvas createDieCanvas(int value, Color color){
-        Canvas canvas = new Canvas(60,60);
+    private StackPane createCellStack(JsonObject jsonCell, Double resize) {
+        if (resize == null) resize = 1.0;
+        StackPane pane = new StackPane();
+        Canvas canvas = new Canvas(CELL_SIZE * resize, CELL_SIZE * resize);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        Colors color = jsonCell.get(JsonFields.COLOR).isJsonNull() ? null : Colors.valueOf(jsonCell.get(JsonFields.COLOR).getAsString());
+        Integer value = jsonCell.get(JsonFields.VALUE).isJsonNull() ? null : jsonCell.get(JsonFields.VALUE).getAsInt();
+        if (value == null) {
+            if (color != null)
+                gc.setFill(color.getJavaFXColor());
+            else
+                gc.setFill(Color.WHITE);
+            gc.fillRect(0, 0, CELL_SIZE * resize, CELL_SIZE * resize);
+            pane.getChildren().add(canvas);
+        } else {
+            pane.getChildren().add(createNumberedCell(value, Color.SILVER, resize));
+        }
+        return pane;
+    }
+
+    /**
+     * If color is GREY, create a value cell for Window Pattern, else create a (colored) Die
+     * @param value
+     * @param color
+     * @return
+     */
+    private Canvas createNumberedCell(int value, Color color, Double resize) {
+        if (resize == null) resize = 1.0;
+        Canvas canvas = new Canvas(CELL_SIZE * resize, CELL_SIZE * resize);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(color);
-        gc.fillRoundRect(0,0, 60, 60, 10, 10);
+        if (color == Color.GREY)
+            gc.fillRect(0, 0, CELL_SIZE * resize, CELL_SIZE * resize);
+        else
+            gc.fillRoundRect(0,0, CELL_SIZE * resize, CELL_SIZE * resize, 10 * resize, 10 * resize);
         gc.setFill(Color.WHITE);
-        if (value == 1){
-            gc.fillOval(25,25,10,10);
-        }else if (value == 2){
-            gc.fillOval(10,10,10,10);
-            gc.fillOval(40,40,10,10);
-        }else if (value == 3){
-            gc.fillOval(10,10,10,10);
-            gc.fillOval(40,40,10,10);
-            gc.fillOval(25,25,10,10);
-        }else if (value == 4){
-            gc.fillOval(10,10,10,10);
-            gc.fillOval(40,40,10,10);
-            gc.fillOval(10,40,10,10);
-            gc.fillOval(40,10,10,10);
-        }else if (value == 5){
-            gc.fillOval(10,10,10,10);
-            gc.fillOval(40,40,10,10);
-            gc.fillOval(10,40,10,10);
-            gc.fillOval(40,10,10,10);
-            gc.fillOval(25,25,10,10);
-        }else if (value == 6){
-            gc.fillOval(10,10,10,10);
-            gc.fillOval(40,40,10,10);
-            gc.fillOval(10,40,10,10);
-            gc.fillOval(40,10,10,10);
-            gc.fillOval(10,25,10,10);
-            gc.fillOval(40,25,10,10);
+        if (value == 1) {
+            gc.fillOval(25 * resize,25 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+        } else if (value == 2) {
+            gc.fillOval(10 * resize,10 * resize,DOT_SIZE * resize, DOT_SIZE * resize);
+            gc.fillOval(40 * resize,40 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+        } else if (value == 3) {
+            gc.fillOval(10 * resize,10 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+            gc.fillOval(40 * resize,40 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+            gc.fillOval(25 * resize,25 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+        } else if (value == 4) {
+            gc.fillOval(10 * resize,10 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+            gc.fillOval(40 * resize,40 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+            gc.fillOval(10 * resize,40 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+            gc.fillOval(40 * resize,10 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+        } else if (value == 5) {
+            gc.fillOval(10 * resize,10 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+            gc.fillOval(40 * resize,40 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+            gc.fillOval(10 * resize,40 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+            gc.fillOval(40 * resize,10 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+            gc.fillOval(25 * resize,25 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+        } else if (value == 6) {
+            gc.fillOval(10 * resize,10 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+            gc.fillOval(40 * resize,40 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+            gc.fillOval(10 * resize,40 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+            gc.fillOval(40 * resize,10 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+            gc.fillOval(10 * resize,25 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+            gc.fillOval(40 * resize,25 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
         }
         return canvas;
     }
@@ -406,49 +532,49 @@ public class ClientGUIApplication extends Application implements Observer {
             Methods method = Methods.getAsMethods(jsonArg.get(JsonFields.METHOD).getAsString());
             switch (method) {
                 case ADD_PLAYER:
-                    addPlayerUpdateHandle(jsonArg);
+                    Platform.runLater(() -> addPlayerUpdateHandle(jsonArg));
                     break;
                 case UPDATE_WAITING_PLAYERS:
-                    updateWaitingPlayersUpdateHandle(jsonArg);
+                    Platform.runLater(() -> updateWaitingPlayersUpdateHandle(jsonArg));
                     break;
                 case WR_TIMER_TICK:
-                    wrTimerTickUpdateHandle(jsonArg);
+                    Platform.runLater(() -> wrTimerTickUpdateHandle(jsonArg));
                     break;
                 case GAME_TIMER_TICK:
-                    gameTimerTickUpdateHandle(jsonArg);
+                    Platform.runLater(() -> gameTimerTickUpdateHandle(jsonArg));
                     break;
                 case GAME_SETUP:
-                    privateObjectiveCardUpdateHandle(jsonArg);
-                    selectableWindowPatternsUpdateHandle(jsonArg);
+                    Platform.runLater(() -> showSelectableWindowPatterns(jsonArg));
                     break;
                 case WINDOW_PATTERNS:
-                    windowPatternsUpdateHandle(jsonArg);
+                    Platform.runLater(() -> windowPatternsUpdateHandle(jsonArg));
                     break;
                 case TOOL_CARDS:
-                    toolCardsUpdateHandle(jsonArg);
+                    Platform.runLater(() -> toolCardsUpdateHandle(jsonArg));
                     break;
                 case PUBLIC_OBJECTIVE_CARDS:
-                    publicObjectiveCardsUpdateHandle(jsonArg);
+                    Platform.runLater(() -> publicObjectiveCardsUpdateHandle(jsonArg));
                     break;
                 case DRAFT_POOL:
-                    draftPoolUpdateHandle(jsonArg);
+                    Platform.runLater(() -> draftPoolUpdateHandle(jsonArg));
                     break;
                 case TURN_MANAGEMENT:
-                    turnManagementUpdateHandle(jsonArg);
+                    Platform.runLater(() -> turnManagementUpdateHandle(jsonArg));
                     break;
                 case ROUND_TRACK:
-                    String roundTrack = jsonArg.get(JsonFields.CLI_STRING).getAsString();
-                    long roundTrackLength = roundTrack.chars().filter(ch -> ch == ']').count();
-                    Logger.println("Tracciato del Round\n" + roundTrack + "\n");
+                    //String roundTrack = jsonArg.get(JsonFields.CLI_STRING).getAsString();
+                    //long roundTrackLength = roundTrack.chars().filter(ch -> ch == ']').count();
+                    //Logger.println("Tracciato del Round\n" + roundTrack + "\n");
                     break;
                 case PLAYERS:
-                    Logger.print(ansi().eraseScreen().cursor(0, 0).toString());
+                    if (!boardShown)
+                        Platform.runLater(this::showBoard);
                     break;
                 case FAVOR_TOKENS:
-                    favorTokensUpdateHandle(jsonArg);
+                    Platform.runLater(() -> favorTokensUpdateHandle(jsonArg));
                     break;
                 case FINAL_SCORES:
-                    finalScoresUpdateHandle(jsonArg);
+                    Platform.runLater(() -> finalScoresUpdateHandle(jsonArg));
                     break;
                 default:
                     throw new IllegalStateException("This was not supposed to happen! " + method.toString());
@@ -461,35 +587,23 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void updateWaitingPlayersUpdateHandle(JsonObject jsonArg) {
-        Platform.runLater(() -> {
-            if (!client.isPatternChosen()) {
-                waitingPlayersBox.getChildren().clear();
-                JsonArray playersArray = jsonArg.get(JsonFields.PLAYERS).getAsJsonArray();
-                for (JsonElement element : playersArray) {
-                    String nickname = element.getAsString();
-                    Label label = new Label(nickname);
-                    waitingPlayersBox.getChildren().add(label);
-                }
+        if (!client.isPatternChosen()) {
+            waitingPlayersBox.getChildren().clear();
+            JsonArray playersArray = jsonArg.get(JsonFields.PLAYERS).getAsJsonArray();
+            for (JsonElement element : playersArray) {
+                String nickname = element.getAsString();
+                Label label = new Label(nickname);
+                waitingPlayersBox.getChildren().add(label);
             }
-        });
+        }
     }
 
     private void wrTimerTickUpdateHandle(JsonObject jsonArg) {
-        Platform.runLater(() -> {
-            wrTimerLabel.setText(jsonArg.get(JsonFields.TICK).getAsString());
-        });
+        wrTimerLabel.setText(jsonArg.get(JsonFields.TICK).getAsString());
     }
 
     private void gameTimerTickUpdateHandle(JsonObject jsonArg) {
-
-    }
-
-    private void privateObjectiveCardUpdateHandle(JsonObject jsonArg) {
-
-    }
-
-    private void selectableWindowPatternsUpdateHandle(JsonObject jsonArg) {
-
+        gameTimerLabel.setText(jsonArg.get(JsonFields.TICK).getAsString());
     }
 
     private void windowPatternsUpdateHandle(JsonObject jsonArg) {
@@ -497,7 +611,18 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void toolCardsUpdateHandle(JsonObject jsonArg) {
-
+        JsonArray array = jsonArg.getAsJsonArray(JsonFields.TOOL_CARDS);
+        for (int i = 0; i < array.size(); i++) {
+            JsonObject card = array.get(i).getAsJsonObject();
+            if (toolCards.size() < array.size()) {
+                Image image = new Image("images/toolCards/" + card.get(JsonFields.NAME).getAsString() + ".png");
+                ImageView imageView = new ImageView(image);
+                toolCards.add(imageView);
+                imageView.setFitHeight(CARD_SIZE);
+                imageView.setPreserveRatio(true);
+                boardPane.add(imageView, i, 1);
+            }
+        }
     }
 
     private void publicObjectiveCardsUpdateHandle(JsonObject jsonArg) {

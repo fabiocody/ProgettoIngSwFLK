@@ -43,4 +43,8 @@ public class InterfaceMessages {
     public static final String INVALID_HOST = "Inserisci un host valido";
     public static final String MISSING_DATA = "Dati mancanti e/o non validi";
 
+    public static String patternSelected(int patternIndex) {
+        return "Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.";
+    }
+
 }

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model;
 
+import javafx.scene.paint.Color;
 import org.fusesource.jansi.Ansi;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -24,6 +25,10 @@ public enum Colors {
         } catch (IllegalArgumentException e) {
             return Ansi.Color.valueOf("MAGENTA");
         }
+    }
+
+    public Color getJavaFXColor() {
+        return Color.valueOf(this.toString());
     }
 
     /**

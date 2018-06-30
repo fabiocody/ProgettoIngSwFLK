@@ -134,7 +134,7 @@ public class ClientCLI extends Client implements Observer {
             ClientNetwork.getInstance().choosePattern(patternIndex - 1);
             this.setPatternChosen();
             if (!isGameStarted()) {
-                Logger.println("Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.\n");
+                Logger.println(InterfaceMessages.patternSelected(patternIndex) + "\n");
                 while (!this.isGameStarted()) Thread.sleep(10);
             }
         } catch (IOException | InterruptedException e){

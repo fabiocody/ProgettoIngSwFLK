@@ -25,6 +25,7 @@ public abstract class ServerNetwork extends Observable implements Observer {
 
     private JsonObject createWindowPatternJSON(WindowPattern wp) {
         JsonObject wpJSON = new JsonObject();
+        wpJSON.addProperty(JsonFields.NAME, wp.getPatternName());
         wpJSON.addProperty(JsonFields.DIFFICULTY, wp.getDifficulty());
         JsonArray grid = new JsonArray();
         for (Cell c : wp.getGrid()) {
