@@ -108,15 +108,20 @@ public class ClientCLI extends Client implements Observer {
             Logger.println("");
             System.exit(Constants.EXIT_ERROR);
         } finally {
-            Logger.println("");
-            try {
-                ClientNetwork.getInstance().teardown();
-                AnsiConsole.systemUninstall();
-            } catch (IOException e) {
-                Logger.error("Exception raised while tearing down");
-                Logger.printStackTrace(e);
-            }
+            exit();
         }
+    }
+
+    private void exit() {
+        Logger.println("");
+        try {
+            ClientNetwork.getInstance().teardown();
+            AnsiConsole.systemUninstall();
+        } catch (IOException e) {
+            Logger.error("Exception raised while tearing down");
+            Logger.printStackTrace(e);
+        }
+        System.exit(EXIT_ERROR);
     }
 
     private void choosePatternMessage() throws IOException, InterruptedException{
@@ -504,56 +509,60 @@ public class ClientCLI extends Client implements Observer {
     public void update(Observable o, Object arg) {
         if (o instanceof ClientNetwork && arg instanceof JsonObject) {
             JsonObject jsonArg = (JsonObject) arg;
-            Methods method = Methods.getAsMethods(jsonArg.get(JsonFields.METHOD).getAsString());
-            switch (method) {
-                case ADD_PLAYER:
-                    addPlayerUpdateHandler(jsonArg);
-                    break;
-                case UPDATE_WAITING_PLAYERS:
-                    updateWaitingPlayersUpdateHandler(jsonArg);
-                    break;
-                case WR_TIMER_TICK:
-                    this.wrTimeout = jsonArg.get(JsonFields.TICK).getAsString();
-                    if (isLogged()) Logger.print(waitingRoomPrompt());
-                    break;
-                case GAME_TIMER_TICK:
-                    gameTimerTickUpdateHandler(jsonArg);
-                    break;
-                case GAME_SETUP:
-                    privateObjectiveCardUpdateHandler(jsonArg);
-                    selectableWindowPatternsUpdateHandler(jsonArg);
-                    break;
-                case WINDOW_PATTERNS:
-                    windowPatternsUpdateHandler(jsonArg);
-                    break;
-                case TOOL_CARDS:
-                    toolCardsUpdateHandler(jsonArg);
-                    break;
-                case PUBLIC_OBJECTIVE_CARDS:
-                    publicObjectiveCardsUpdateHandler(jsonArg);
-                    break;
-                case DRAFT_POOL:
-                    draftPoolUpdateHandler(jsonArg);
-                    break;
-                case TURN_MANAGEMENT:
-                    turnManagementUpdateHandler(jsonArg);
-                    break;
-                case ROUND_TRACK:
-                    String roundTrack = jsonArg.get(JsonFields.CLI_STRING).getAsString();
-                    roundTrackLength = roundTrack.chars().filter(ch -> ch == ']').count();
-                    Logger.println("Tracciato del Round\n" + roundTrack + "\n");
-                    break;
-                case PLAYERS:
-                    Logger.print(ansi().eraseScreen().cursor(0, 0).toString());
-                    break;
-                case FAVOR_TOKENS:
-                    favorTokensUpdateHandler(jsonArg);
-                    break;
-                case FINAL_SCORES:
-                    finalScoresUpdateHandler(jsonArg);
-                    break;
-                default:
-                    throw new IllegalStateException("This was not supposed to happen! " + method.toString());
+            if (jsonArg.has(JsonFields.METHOD)) {
+                Methods method = Methods.getAsMethods(jsonArg.get(JsonFields.METHOD).getAsString());
+                switch (method) {
+                    case ADD_PLAYER:
+                        addPlayerUpdateHandler(jsonArg);
+                        break;
+                    case UPDATE_WAITING_PLAYERS:
+                        updateWaitingPlayersUpdateHandler(jsonArg);
+                        break;
+                    case WR_TIMER_TICK:
+                        this.wrTimeout = jsonArg.get(JsonFields.TICK).getAsString();
+                        if (isLogged()) Logger.print(waitingRoomPrompt());
+                        break;
+                    case GAME_TIMER_TICK:
+                        gameTimerTickUpdateHandler(jsonArg);
+                        break;
+                    case GAME_SETUP:
+                        privateObjectiveCardUpdateHandler(jsonArg);
+                        selectableWindowPatternsUpdateHandler(jsonArg);
+                        break;
+                    case WINDOW_PATTERNS:
+                        windowPatternsUpdateHandler(jsonArg);
+                        break;
+                    case TOOL_CARDS:
+                        toolCardsUpdateHandler(jsonArg);
+                        break;
+                    case PUBLIC_OBJECTIVE_CARDS:
+                        publicObjectiveCardsUpdateHandler(jsonArg);
+                        break;
+                    case DRAFT_POOL:
+                        draftPoolUpdateHandler(jsonArg);
+                        break;
+                    case TURN_MANAGEMENT:
+                        turnManagementUpdateHandler(jsonArg);
+                        break;
+                    case ROUND_TRACK:
+                        String roundTrack = jsonArg.get(JsonFields.CLI_STRING).getAsString();
+                        roundTrackLength = roundTrack.chars().filter(ch -> ch == ']').count();
+                        Logger.println("Tracciato del Round\n" + roundTrack + "\n");
+                        break;
+                    case PLAYERS:
+                        Logger.print(ansi().eraseScreen().cursor(0, 0).toString());
+                        break;
+                    case FAVOR_TOKENS:
+                        favorTokensUpdateHandler(jsonArg);
+                        break;
+                    case FINAL_SCORES:
+                        finalScoresUpdateHandler(jsonArg);
+                        break;
+                    default:
+                        throw new IllegalStateException("This was not supposed to happen! " + method.toString());
+                }
+            } else if (jsonArg.has(JsonFields.EXIT)) {
+                exit();
             }
         }
     }

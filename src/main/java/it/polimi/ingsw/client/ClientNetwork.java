@@ -2,6 +2,7 @@ package it.polimi.ingsw.client;
 
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.shared.util.Constants;
+import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Logger;
 import java.io.IOException;
 import java.util.*;
@@ -74,7 +75,11 @@ public abstract class ClientNetwork extends Observable {
     void connectionError(Throwable e) {
         Logger.connectionLost();
         Logger.printStackTraceConditionally(e);
-        System.exit(Constants.EXIT_ERROR);
+        JsonObject obj = new JsonObject();
+        obj.addProperty(JsonFields.EXIT, true);
+        setChanged();
+        notifyObservers(obj);
+        //System.exit(Constants.EXIT_ERROR);
     }
 
 }

@@ -2,6 +2,7 @@ package it.polimi.ingsw.client.gui;
 
 import com.google.gson.*;
 import it.polimi.ingsw.client.*;
+import it.polimi.ingsw.client.gui.alerts.*;
 import it.polimi.ingsw.shared.util.*;
 import javafx.application.*;
 import javafx.collections.FXCollections;
@@ -47,7 +48,6 @@ public class ClientGUIApplication extends Application implements Observer {
     private TextField portTextField = new TextField();
     private TextField nicknameTextField = new TextField();
     private Label loginErrorLabel = new Label();
-    private GridPane selectableWPPane;
     private Label consoleLabel;
     private Button nextTurnButton;
 
@@ -55,7 +55,6 @@ public class ClientGUIApplication extends Application implements Observer {
     private Label wrTimerLabel = new Label("∞");
     private Label gameTimerLabel = new Label("∞");
     private GridPane boardPane;
-    private ImageView privateObjectiveCard;
     private List<ImageView> toolCards = new ArrayList<>();
     private List<ImageView> publicObjectiveCards = new ArrayList<>();
     private List<GridPane> windowPatterns = new ArrayList<>();
@@ -80,13 +79,14 @@ public class ClientGUIApplication extends Application implements Observer {
 
     @Override
     public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
         primaryStage.setOnCloseRequest(e -> {
             e.consume();
-            boolean answer = new ConfirmBox().display(WINDOW_TITLE, EXIT_MESSAGE);
+            boolean answer = new ConfirmAlert(WINDOW_TITLE).display(EXIT_MESSAGE);
             if (answer) primaryStage.close();
         });
-        this.primaryStage = primaryStage;
         showLogin();
+        new ErrorAlert().display("Nel mezzo del cammin di nostra vita mi ritrovai per una selva oscura che la diritta via era smarrita. Ahi quanto a dir qual era è cosa dura, esta selva selvaggia ed aspra e forte, che nel pensier rinnova la paura.");
     }
 
     private void showLogin() {
@@ -111,7 +111,7 @@ public class ClientGUIApplication extends Application implements Observer {
         connectionChoiceBox.getSelectionModel().selectFirst();
         loginButton.setOnAction(e -> loginAction());
 
-        Image sagrada = new Image("images/Sagrada.jpg");
+        Image sagrada = new Image(Paths.SAGRADA_LOGO);
         sagradaLogoImage = new ImageView(sagrada);
         sagradaLogoImage.setFitHeight(400);
         sagradaLogoImage.setFitWidth(400);
@@ -158,14 +158,14 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void showSelectableWindowPatterns(JsonObject jsonArg) {
-        selectableWPPane = new GridPane();
+        GridPane selectableWPPane = new GridPane();
         selectableWPPane.setAlignment(Pos.CENTER);
         selectableWPPane.setHgap(20);
         selectableWPPane.setVgap(10);
         selectableWPPane.setPadding(new Insets(25, 25, 25, 25));
         privateObjCardName = jsonArg.getAsJsonObject(JsonFields.PRIVATE_OBJECTIVE_CARD).get(JsonFields.NAME).getAsString();
-        Image privateObjectiveCardImage = new Image("images/privateObj/" + privateObjCardName + ".png");
-        privateObjectiveCard = new ImageView(privateObjectiveCardImage);
+        Image privateObjectiveCardImage = new Image(Paths.privateObjectiveCard(privateObjCardName));
+        ImageView privateObjectiveCard = new ImageView(privateObjectiveCardImage);
         privateObjectiveCard.setFitHeight(400);
         privateObjectiveCard.setPreserveRatio(true);
         selectableWPPane.add(privateObjectiveCard, 2, 0, 1, 3);
@@ -190,8 +190,8 @@ public class ClientGUIApplication extends Application implements Observer {
         boardPane.setHgap(20);
         boardPane.setVgap(20);
         boardPane.setPadding(new Insets(25, 25, 25, 25));
-        Image privateObjectiveCardImage = new Image("images/privateObj/" + privateObjCardName + ".png");
-        privateObjectiveCard = new ImageView(privateObjectiveCardImage);
+        Image privateObjectiveCardImage = new Image(Paths.privateObjectiveCard(privateObjCardName));
+        ImageView privateObjectiveCard = new ImageView(privateObjectiveCardImage);
         privateObjectiveCard.setFitHeight(CARD_SIZE);
         privateObjectiveCard.setPreserveRatio(true);
         boardPane.add(privateObjectiveCard, 3, 4);
@@ -200,7 +200,7 @@ public class ClientGUIApplication extends Application implements Observer {
         gameTimerLabel.setMinWidth(CELL_SIZE * 2);
         boardPane.add(gameTimerLabel, 7, 0);
 
-        consoleLabel = new Label("Nel mezzo del cammin di nostra vita mi ritrovai per una selva oscura che la diritta via era smarrita. Ahi quanto a dir qual era è cosa dura, esta selva selvaggia ed aspra e forte, che nel pensier rinnova la paura.");
+        consoleLabel = new Label();
         consoleLabel.setWrapText(true);
         consoleLabel.setFont(new Font(16));
         consoleLabel.setMaxWidth(CARD_SIZE * 2 + boardPane.getHgap() * 3);
@@ -425,59 +425,67 @@ public class ClientGUIApplication extends Application implements Observer {
     public void update(Observable o, Object arg) {
         if (o instanceof ClientNetwork && arg instanceof JsonObject) {
             JsonObject jsonArg = (JsonObject) arg;
-            Methods method = Methods.getAsMethods(jsonArg.get(JsonFields.METHOD).getAsString());
-            switch (method) {
-                case ADD_PLAYER:
-                    Platform.runLater(() -> addPlayerUpdateHandler(jsonArg));
-                    break;
-                case UPDATE_WAITING_PLAYERS:
-                    Platform.runLater(() -> updateWaitingPlayersUpdateHandler(jsonArg));
-                    break;
-                case WR_TIMER_TICK:
-                    Platform.runLater(() -> wrTimerTickUpdateHandler(jsonArg));
-                    break;
-                case GAME_TIMER_TICK:
-                    Platform.runLater(() -> gameTimerTickUpdateHandler(jsonArg));
-                    break;
-                case GAME_SETUP:
-                    Platform.runLater(() -> showSelectableWindowPatterns(jsonArg));
-                    break;
-                case WINDOW_PATTERNS:
-                    Platform.runLater(() -> windowPatternsUpdateHandler(jsonArg));
-                    break;
-                case TOOL_CARDS:
-                    Platform.runLater(() -> toolCardsUpdateHandler(jsonArg));
-                    break;
-                case PUBLIC_OBJECTIVE_CARDS:
-                    Platform.runLater(() -> publicObjectiveCardsUpdateHandler(jsonArg));
-                    break;
-                case DRAFT_POOL:
-                    Platform.runLater(() -> draftPoolUpdateHandler(jsonArg));
-                    break;
-                case TURN_MANAGEMENT:
-                    Platform.runLater(() -> turnManagementUpdateHandler(jsonArg));
-                    break;
-                case ROUND_TRACK:
-                    Platform.runLater(() -> roundTrackUpdateHandler(jsonArg));
-                    break;
-                case PLAYERS:
-                    if (!boardShown)
-                        Platform.runLater(this::showBoard);
-                    break;
-                case FAVOR_TOKENS:
-                    Platform.runLater(() -> favorTokensUpdateHandler(jsonArg));
-                    break;
-                case FINAL_SCORES:
-                    Platform.runLater(() -> finalScoresUpdateHandler(jsonArg));
-                    break;
-                default:
-                    throw new IllegalStateException("This was not supposed to happen! " + method.toString());
+            if (jsonArg.has(JsonFields.METHOD)) {
+                Methods method = Methods.getAsMethods(jsonArg.get(JsonFields.METHOD).getAsString());
+                switch (method) {
+                    case ADD_PLAYER:
+                        Platform.runLater(() -> addPlayerUpdateHandler(jsonArg));
+                        break;
+                    case UPDATE_WAITING_PLAYERS:
+                        Platform.runLater(() -> updateWaitingPlayersUpdateHandler(jsonArg));
+                        break;
+                    case WR_TIMER_TICK:
+                        Platform.runLater(() -> wrTimerTickUpdateHandler(jsonArg));
+                        break;
+                    case GAME_TIMER_TICK:
+                        Platform.runLater(() -> gameTimerTickUpdateHandler(jsonArg));
+                        break;
+                    case GAME_SETUP:
+                        Platform.runLater(() -> showSelectableWindowPatterns(jsonArg));
+                        break;
+                    case WINDOW_PATTERNS:
+                        Platform.runLater(() -> windowPatternsUpdateHandler(jsonArg));
+                        break;
+                    case TOOL_CARDS:
+                        Platform.runLater(() -> toolCardsUpdateHandler(jsonArg));
+                        break;
+                    case PUBLIC_OBJECTIVE_CARDS:
+                        Platform.runLater(() -> publicObjectiveCardsUpdateHandler(jsonArg));
+                        break;
+                    case DRAFT_POOL:
+                        Platform.runLater(() -> draftPoolUpdateHandler(jsonArg));
+                        break;
+                    case TURN_MANAGEMENT:
+                        Platform.runLater(() -> turnManagementUpdateHandler(jsonArg));
+                        break;
+                    case ROUND_TRACK:
+                        Platform.runLater(() -> roundTrackUpdateHandler(jsonArg));
+                        break;
+                    case PLAYERS:
+                        if (!boardShown)
+                            Platform.runLater(this::showBoard);
+                        break;
+                    case FAVOR_TOKENS:
+                        Platform.runLater(() -> favorTokensUpdateHandler(jsonArg));
+                        break;
+                    case FINAL_SCORES:
+                        Platform.runLater(() -> finalScoresUpdateHandler(jsonArg));
+                        break;
+                    default:
+                        throw new IllegalStateException("This was not supposed to happen! " + method.toString());
+                }
+            } else if (jsonArg.has(JsonFields.EXIT)) {
+                // TODO Show message
+                Platform.runLater(this::showLogin);
             }
         }
     }
 
     private void addPlayerUpdateHandler(JsonObject jsonArg) {
-        // TODO
+        if (jsonArg.get(JsonFields.RECONNECTED).getAsBoolean()) {
+            client.setPatternChosen();
+            client.setSuspended(false);
+        }
     }
 
     private void updateWaitingPlayersUpdateHandler(JsonObject jsonArg) {
@@ -547,7 +555,7 @@ public class ClientGUIApplication extends Application implements Observer {
         for (int i = 0; i < array.size(); i++) {
             JsonObject card = array.get(i).getAsJsonObject();
             if (toolCards.size() < array.size()) {
-                Image image = new Image("images/toolCards/" + card.get(JsonFields.NAME).getAsString() + ".png");
+                Image image = new Image(Paths.toolCard(card.get(JsonFields.NAME).getAsString()));
                 ImageView imageView = new ImageView(image);
                 toolCards.add(imageView);
                 imageView.setFitHeight(CARD_SIZE);
@@ -569,7 +577,7 @@ public class ClientGUIApplication extends Application implements Observer {
             JsonArray array = jsonArg.getAsJsonArray(JsonFields.PUBLIC_OBJECTIVE_CARDS);
             for (int i = 0; i < array.size(); i++) {
                 JsonObject card = array.get(i).getAsJsonObject();
-                Image image = new Image("images/publicObj/" + card.get(JsonFields.NAME).getAsString() + ".png");
+                Image image = new Image(Paths.publicObjectiveCard(card.get(JsonFields.NAME).getAsString()));
                 ImageView imageView = new ImageView(image);
                 publicObjectiveCards.add(imageView);
                 imageView.setFitHeight(CARD_SIZE);
