@@ -69,8 +69,9 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
             gameController.unsuspendPlayer(this.uuid);
             this.probeThread = new Thread(this::probeCheck);
             this.probeThread.start();
+            JsonObject privateObjectiveCard = createObjectiveCardJson(player.getPrivateObjectiveCard());
             try {
-                client.reconnect();
+                client.reconnect(privateObjectiveCard.toString());
             } catch (RemoteException e1) {
                 connectionError(e1);
             }

@@ -7,6 +7,6 @@ public interface ClientAPI extends Remote {
 
     void probe() throws RemoteException;
     void update(String jsonString) throws RemoteException;
-    void reconnect() throws RemoteException;
+    void reconnect(String privateObjectiveCard) throws RemoteException;
 
 }

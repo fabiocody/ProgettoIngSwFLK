@@ -54,6 +54,14 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return jsonCard;
     }
 
+    JsonObject createObjectiveCardJson(ObjectiveCard card) {
+        JsonObject jsonCard = new JsonObject();
+        jsonCard.addProperty(JsonFields.NAME, card.getName());
+        jsonCard.addProperty(JsonFields.DESCRIPTION, card.getDescription());
+        jsonCard.addProperty(JsonFields.VICTORY_POINTS, card.getVictoryPoints());
+        return jsonCard;
+    }
+
     void probeCheck() {
         while (true) {
             try {
@@ -119,10 +127,7 @@ public abstract class ServerNetwork extends Observable implements Observer {
         payload.addProperty(JsonFields.METHOD, Methods.PUBLIC_OBJECTIVE_CARDS.getString());
         JsonArray cards = new JsonArray();
         for (ObjectiveCard card : this.gameController.getPublicObjectiveCards()) {
-            JsonObject jsonCard = new JsonObject();
-            jsonCard.addProperty(JsonFields.NAME, card.getName());
-            jsonCard.addProperty(JsonFields.DESCRIPTION, card.getDescription());
-            jsonCard.addProperty(JsonFields.VICTORY_POINTS, card.getVictoryPoints());
+            JsonObject jsonCard = createObjectiveCardJson(card);
             cards.add(jsonCard);
         }
         payload.add(JsonFields.PUBLIC_OBJECTIVE_CARDS, cards);
@@ -242,10 +247,7 @@ public abstract class ServerNetwork extends Observable implements Observer {
         Player player = this.gameController.getPlayer(this.uuid);
         ObjectiveCard privateObjectiveCard = player.getPrivateObjectiveCard();
         // Private objective card
-        JsonObject privateObjectiveCardJSON = new JsonObject();
-        privateObjectiveCardJSON.addProperty(JsonFields.NAME, privateObjectiveCard.getName());
-        privateObjectiveCardJSON.addProperty(JsonFields.DESCRIPTION, privateObjectiveCard.getDescription());
-        privateObjectiveCardJSON.addProperty(JsonFields.VICTORY_POINTS, privateObjectiveCard.getVictoryPoints());
+        JsonObject privateObjectiveCardJSON = createObjectiveCardJson(privateObjectiveCard);
         payload.add(JsonFields.PRIVATE_OBJECTIVE_CARD, privateObjectiveCardJSON);
         // Window Patterns
         List<WindowPattern> windowPatterns = player.getWindowPatternList();

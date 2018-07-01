@@ -28,7 +28,6 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         String address = clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort();
         Logger.log("Disconnected " + address + " (nickname: " + this.nickname + ")");
         run = false;
-        Thread.currentThread().interrupt();
     }
 
     @Override
@@ -103,7 +102,6 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             Logger.error("run");
             Logger.printStackTraceConditionally(e);
             this.onUserDisconnection();
-            Thread.currentThread().interrupt();
         }
     }
 
@@ -157,6 +155,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             payload.addProperty(JsonFields.LOGGED, true);
             payload.addProperty(JsonFields.RECONNECTED, true);
             payload.addProperty(JsonFields.PLAYER_ID, this.uuid.toString());
+            payload.add(JsonFields.PRIVATE_OBJECTIVE_CARD, createObjectiveCardJson(player.getPrivateObjectiveCard()));
             Logger.debugPayload(payload);
             out.println(payload.toString());
             this.probeThread = new Thread(this::probeCheck);

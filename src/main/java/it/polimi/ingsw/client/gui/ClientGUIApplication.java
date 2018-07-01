@@ -33,7 +33,7 @@ public class ClientGUIApplication extends Application implements Observer {
     private static final int DOT_SIZE = 10;
     private static final double RESIZE_WP = 0.6;
     private static final String FX_BACKGROUND_COLOR_DARKGREY = "-fx-background-color: dimgrey;";
-    private static final int CARD_SIZE = 250;
+    private static final int CARD_SIZE = 225;
     private static final Color VALUE_CELL_COLOR = Color.SILVER;
 
     private Stage primaryStage;
@@ -86,7 +86,6 @@ public class ClientGUIApplication extends Application implements Observer {
             if (answer) primaryStage.close();
         });
         showLogin();
-        new ErrorAlert().display("Nel mezzo del cammin di nostra vita mi ritrovai per una selva oscura che la diritta via era smarrita. Ahi quanto a dir qual era è cosa dura, esta selva selvaggia ed aspra e forte, che nel pensier rinnova la paura.");
     }
 
     private void showLogin() {
@@ -485,6 +484,7 @@ public class ClientGUIApplication extends Application implements Observer {
         if (jsonArg.get(JsonFields.RECONNECTED).getAsBoolean()) {
             client.setPatternChosen();
             client.setSuspended(false);
+            privateObjCardName = jsonArg.getAsJsonObject(JsonFields.PRIVATE_OBJECTIVE_CARD).get(JsonFields.NAME).getAsString();
         }
     }
 

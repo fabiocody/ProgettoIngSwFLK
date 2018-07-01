@@ -74,6 +74,11 @@
     "logged": <bool>,
     "playerID": <string>,
     "reconnected": <bool>,
+    "privateObjectiveCard": {
+        "name": <string>,
+        "description": <string>,
+        "victoryPoints": <int>
+    }
     "players": [
         <nickname: string>,
         ...

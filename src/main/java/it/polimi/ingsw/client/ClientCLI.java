@@ -573,6 +573,11 @@ public class ClientCLI extends Client implements Observer {
             stopAsyncInput = true;
             this.setPatternChosen();
             this.setSuspended(false);
+            JsonObject cardJson = jsonArg.getAsJsonObject(JsonFields.PRIVATE_OBJECTIVE_CARD);
+            privateObjectiveCard = "Obiettivo privato: " +
+                    cardJson.get(JsonFields.NAME).getAsString() +
+                    " - " +
+                    cardJson.get(JsonFields.DESCRIPTION).getAsString();
         }
     }
 

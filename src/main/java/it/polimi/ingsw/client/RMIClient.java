@@ -122,10 +122,12 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     }
 
     @Override
-    public void reconnect() {
+    public void reconnect(String privateObjString) {
+        JsonObject privateObjectiveCard = jsonParser.parse(privateObjString).getAsJsonObject();
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
         payload.addProperty(JsonFields.RECONNECTED, true);
+        payload.add(JsonFields.PRIVATE_OBJECTIVE_CARD, privateObjectiveCard);
         setChanged();
         notifyObservers(payload);
     }
