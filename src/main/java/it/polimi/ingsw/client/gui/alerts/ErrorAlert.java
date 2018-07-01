@@ -1,38 +1,30 @@
 package it.polimi.ingsw.client.gui.alerts;
 
-import it.polimi.ingsw.client.gui.Paths;
+import it.polimi.ingsw.client.gui.PicturesPaths;
 import javafx.geometry.HPos;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.layout.GridPane;
 
 
-public class ErrorAlert extends Alert {
-
-    private ImageView errorImage;
+public class ErrorAlert extends AlertWindow {
 
     public ErrorAlert() {
         super("Errore");
     }
 
-    public void display(String message) {
-        display(() -> {
+    public void present(String message) {
+        present(() -> {
 
-            Label label = new Label(message);
-            label.setWrapText(true);
-            label.setMinWidth(100);
-            label.setMaxWidth(300);
+            Label label = getMessageLabel(message);
+            Button button = getOkButton();
 
-            Image image = new Image(Paths.ERROR);
-            errorImage = new ImageView(image);
+            Image image = new Image(PicturesPaths.ERROR);
+            ImageView errorImage = new ImageView(image);
             errorImage.setFitWidth(50);
             errorImage.setPreserveRatio(true);
 
-            Button button = new Button("OK");
-            button.setMinWidth(SUGGESTED_BUTTON_WIDTH);
-            button.setOnAction(e -> onButtonClick());
-
-            getGridPane().setHgap(20);
+            setWideHGap();
             getGridPane().add(errorImage, 0, 0);
             getGridPane().add(label, 1, 0);
             getGridPane().add(button, 1, 1);
@@ -43,8 +35,5 @@ public class ErrorAlert extends Alert {
         });
     }
 
-    private void onButtonClick() {
-        getWindow().close();
-    }
 
 }

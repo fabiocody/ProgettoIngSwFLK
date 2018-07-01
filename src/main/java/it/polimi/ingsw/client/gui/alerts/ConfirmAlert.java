@@ -5,7 +5,7 @@ import javafx.scene.control.*;
 import javafx.geometry.*;
 
 
-public class ConfirmAlert extends Alert {
+public class ConfirmAlert extends AlertWindow {
 
     private boolean answer;
 
@@ -13,8 +13,8 @@ public class ConfirmAlert extends Alert {
         super(title);
     }
 
-    public boolean display(String message) {
-        display(() -> {
+    public boolean present(String message) {
+        present(() -> {
 
             Label label = new Label();
             label.setText(message);
@@ -35,7 +35,7 @@ public class ConfirmAlert extends Alert {
             });
 
             getGridPane().setPadding(new Insets(25, 25, 25, 25));
-            getGridPane().setVgap(20);
+            setWideVGap();
             getGridPane().add(label, 0, 0, 2, 1);
             getGridPane().add(yesButton, 0, 1);
             getGridPane().add(noButton, 1, 1);

@@ -16,6 +16,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.*;
@@ -82,7 +83,7 @@ public class ClientGUIApplication extends Application implements Observer {
         this.primaryStage = primaryStage;
         primaryStage.setOnCloseRequest(e -> {
             e.consume();
-            boolean answer = new ConfirmAlert(WINDOW_TITLE).display(EXIT_MESSAGE);
+            boolean answer = new ConfirmAlert(WINDOW_TITLE).present(EXIT_MESSAGE);
             if (answer) primaryStage.close();
         });
         showLogin();
@@ -110,7 +111,7 @@ public class ClientGUIApplication extends Application implements Observer {
         connectionChoiceBox.getSelectionModel().selectFirst();
         loginButton.setOnAction(e -> loginAction());
 
-        Image sagrada = new Image(Paths.SAGRADA_LOGO);
+        Image sagrada = new Image(PicturesPaths.SAGRADA_LOGO);
         sagradaLogoImage = new ImageView(sagrada);
         sagradaLogoImage.setFitHeight(400);
         sagradaLogoImage.setFitWidth(400);
@@ -163,7 +164,7 @@ public class ClientGUIApplication extends Application implements Observer {
         selectableWPPane.setVgap(10);
         selectableWPPane.setPadding(new Insets(25, 25, 25, 25));
         privateObjCardName = jsonArg.getAsJsonObject(JsonFields.PRIVATE_OBJECTIVE_CARD).get(JsonFields.NAME).getAsString();
-        Image privateObjectiveCardImage = new Image(Paths.privateObjectiveCard(privateObjCardName));
+        Image privateObjectiveCardImage = new Image(PicturesPaths.privateObjectiveCard(privateObjCardName));
         ImageView privateObjectiveCard = new ImageView(privateObjectiveCardImage);
         privateObjectiveCard.setFitHeight(400);
         privateObjectiveCard.setPreserveRatio(true);
@@ -189,7 +190,7 @@ public class ClientGUIApplication extends Application implements Observer {
         boardPane.setHgap(20);
         boardPane.setVgap(20);
         boardPane.setPadding(new Insets(25, 25, 25, 25));
-        Image privateObjectiveCardImage = new Image(Paths.privateObjectiveCard(privateObjCardName));
+        Image privateObjectiveCardImage = new Image(PicturesPaths.privateObjectiveCard(privateObjCardName));
         ImageView privateObjectiveCard = new ImageView(privateObjectiveCardImage);
         privateObjectiveCard.setFitHeight(CARD_SIZE);
         privateObjectiveCard.setPreserveRatio(true);
@@ -493,7 +494,7 @@ public class ClientGUIApplication extends Application implements Observer {
             } else if (jsonArg.has(JsonFields.EXIT_ERROR)) {
                 ClientNetwork.getInstance().deleteObserver(this);
                 Platform.runLater(() -> {
-                    new ErrorAlert().display("Errore di connessione");
+                    new ErrorAlert().present("Errore di connessione");
                     showLogin();
                 });
             }
@@ -573,7 +574,7 @@ public class ClientGUIApplication extends Application implements Observer {
         for (int i = 0; i < array.size(); i++) {
             JsonObject card = array.get(i).getAsJsonObject();
             if (toolCards.size() < array.size()) {
-                Image image = new Image(Paths.toolCard(card.get(JsonFields.NAME).getAsString()));
+                Image image = new Image(PicturesPaths.toolCard(card.get(JsonFields.NAME).getAsString()));
                 ImageView imageView = new ImageView(image);
                 toolCards.add(imageView);
                 imageView.setFitHeight(CARD_SIZE);
@@ -595,7 +596,7 @@ public class ClientGUIApplication extends Application implements Observer {
             JsonArray array = jsonArg.getAsJsonArray(JsonFields.PUBLIC_OBJECTIVE_CARDS);
             for (int i = 0; i < array.size(); i++) {
                 JsonObject card = array.get(i).getAsJsonObject();
-                Image image = new Image(Paths.publicObjectiveCard(card.get(JsonFields.NAME).getAsString()));
+                Image image = new Image(PicturesPaths.publicObjectiveCard(card.get(JsonFields.NAME).getAsString()));
                 ImageView imageView = new ImageView(image);
                 publicObjectiveCards.add(imageView);
                 imageView.setFitHeight(CARD_SIZE);
