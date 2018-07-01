@@ -222,53 +222,62 @@ public class ClientGUIApplication extends Application implements Observer {
             String host = hostTextField.getText();
             if (Client.isValidHost(host)) {
                 try {
-                    String connection = connectionChoiceBox.getValue();
-                    if (connection.equals(RMI)) {
-                        ClientNetwork.setInstance(new RMIClient(host, Constants.DEFAULT_RMI_PORT, debug));
-                    } else {
-                        try {
-                            int port = Integer.parseInt(portTextField.getText());
-                            ClientNetwork.setInstance(new SocketClient(host, port, debug));
-                        } catch (NumberFormatException e) {
-                            ClientNetwork.setInstance(new SocketClient(host, Constants.DEFAULT_PORT, debug));
-                        }
-                    }
-                    ClientNetwork.getInstance().addObserver(this);
-                    ClientNetwork.getInstance().setup();
+                    setupConnection(host);
                     String nickname = nicknameTextField.getText();
-                    if (nickname.equals("")) {
-                        loginErrorLabel.setText(InterfaceMessages.LOGIN_FAILED_EMPTY);
-                        ClientNetwork.getInstance().deleteObserver(this);
-                        return;
-                    } else if (nickname.contains(" ")) {
-                        loginErrorLabel.setText(InterfaceMessages.LOGIN_FAILED_SPACES);
-                        ClientNetwork.getInstance().deleteObserver(this);
-                        return;
-                    } else if (nickname.length() > Constants.MAX_NICKNAME_LENGTH) {
-                        loginErrorLabel.setText(InterfaceMessages.LOGIN_FAILED_LENGTH);
-                        ClientNetwork.getInstance().deleteObserver(this);
-                        return;
-                    }
+                    if (!checkNickname(nickname)) return;
                     this.addPlayer(nickname);
-                    if (client.isLogged()) {
+                    if (client.isLogged())
                         showWaitingRoom();
-                    } else {
-                        loginErrorLabel.setText(InterfaceMessages.LOGIN_FAILED_USED);
-                        ClientNetwork.getInstance().deleteObserver(this);
-                    }
+                    else
+                        updateLoginErrorLabel(LOGIN_FAILED_USED, null);
                 } catch (IOException e) {
-                    loginErrorLabel.setText(CONNECTION_FAILED);
-                    ClientNetwork.getInstance().deleteObserver(this);
-                    Logger.printStackTraceConditionally(e);
+                    updateLoginErrorLabel(CONNECTION_FAILED, e);
                 }
             } else {
-                loginErrorLabel.setText(INVALID_HOST);
-                ClientNetwork.getInstance().deleteObserver(this);
+                updateLoginErrorLabel(INVALID_HOST, null);
             }
         } else {
-            loginErrorLabel.setText(MISSING_DATA);
-            ClientNetwork.getInstance().deleteObserver(this);
+            updateLoginErrorLabel(MISSING_DATA, null);
         }
+    }
+
+    private void setupConnection(String host) throws IOException {
+        String connection = connectionChoiceBox.getValue();
+        if (connection.equals(RMI)) {
+            ClientNetwork.setInstance(new RMIClient(host, Constants.DEFAULT_RMI_PORT, debug));
+        } else {
+            try {
+                int port = Integer.parseInt(portTextField.getText());
+                ClientNetwork.setInstance(new SocketClient(host, port, debug));
+            } catch (NumberFormatException e) {
+                ClientNetwork.setInstance(new SocketClient(host, Constants.DEFAULT_PORT, debug));
+            }
+        }
+        ClientNetwork.getInstance().addObserver(this);
+        ClientNetwork.getInstance().setup();
+    }
+
+    private boolean checkNickname(String nickname) {
+        if (nickname.equals("")) {
+            loginErrorLabel.setText(InterfaceMessages.LOGIN_FAILED_EMPTY);
+            ClientNetwork.getInstance().deleteObserver(this);
+            return false;
+        } else if (nickname.contains(" ")) {
+            loginErrorLabel.setText(InterfaceMessages.LOGIN_FAILED_SPACES);
+            ClientNetwork.getInstance().deleteObserver(this);
+            return false;
+        } else if (nickname.length() > Constants.MAX_NICKNAME_LENGTH) {
+            loginErrorLabel.setText(InterfaceMessages.LOGIN_FAILED_LENGTH);
+            ClientNetwork.getInstance().deleteObserver(this);
+            return false;
+        }
+        return true;
+    }
+
+    private void updateLoginErrorLabel(String message, Throwable e) {
+        loginErrorLabel.setText(message);
+        ClientNetwork.getInstance().deleteObserver(this);
+        Logger.printStackTraceConditionally(e);
     }
 
     private void chooseWindowPattern(ActionEvent event) {
@@ -358,9 +367,10 @@ public class ClientGUIApplication extends Application implements Observer {
 
     /**
      * If color is GREY, create a value cell for Window Pattern, else create a (colored) Die
-     * @param value
-     * @param color
-     * @return
+     * @param value the value of the numbered cell
+     * @param color the color of the numbered cell
+     * @param resize the scale value of the numbered cell
+     * @return the Canvas representing the numbered cell
      */
     static Canvas createNumberedCell(int value, Color color, Double resize) {
         if (resize == null) resize = 1.0;
@@ -553,8 +563,6 @@ public class ClientGUIApplication extends Application implements Observer {
                         columnIndex++;
                     }
                 }
-                //GridPane.setHalignment(pattern, HPos.CENTER);
-                //GridPane.setValignment(pattern, VPos.BOTTOM);
                 pattern.setAlignment(Pos.BOTTOM_CENTER);
             }
         }
