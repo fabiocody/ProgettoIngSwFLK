@@ -3,7 +3,7 @@ package it.polimi.ingsw.model.patterncards;
 import com.google.gson.*;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
-import it.polimi.ingsw.model.Colors;
+import it.polimi.ingsw.shared.util.Colors;
 import it.polimi.ingsw.shared.util.*;
 import static it.polimi.ingsw.shared.util.Constants.*;
 import java.util.Arrays;

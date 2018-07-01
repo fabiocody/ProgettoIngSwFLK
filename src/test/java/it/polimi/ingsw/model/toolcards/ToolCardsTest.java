@@ -1,7 +1,7 @@
 package it.polimi.ingsw.model.toolcards;
 
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.model.Colors;
+import it.polimi.ingsw.shared.util.Colors;
 import it.polimi.ingsw.model.dice.*;
 import it.polimi.ingsw.model.game.*;
 import it.polimi.ingsw.model.patterncards.*;

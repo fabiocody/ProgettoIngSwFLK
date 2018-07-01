@@ -93,8 +93,8 @@ public class GameController extends BaseController {
         return this.game.getRoundTrack().getCurrentRound();
     }
 
-    List<Die> getRoundTrackDice() {
-        return new Vector<>(this.game.getRoundTrack().getFlattenedDice());
+    List<List<Die>> getRoundTrackDice() {
+        return new Vector<>(this.game.getRoundTrack().getDice());
     }
 
     RoundTrack getRoundTrack(){ return this.game.getRoundTrack(); }

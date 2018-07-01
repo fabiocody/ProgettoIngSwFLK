@@ -25,10 +25,10 @@ public class InterfaceMessages {
     public static final String NO_PROPER_COLOR_DIE_ON_ROUND_TRACK = "non ci sono dadi di questo colore nel tracciato del round";
 
     public static final String WINDOW_TITLE = "Sagrada";
-    public static final String LOGIN_FAILED_EMPTY = "Login fallito! I nickname non possono essere vuoti";
-    public static final String LOGIN_FAILED_SPACES = "Login fallito! I nickname non possono contenere spazi";
-    public static final String LOGIN_FAILED_LENGTH = "Login fallito! I nickname non possono essere più lunghi di " + MAX_NICKNAME_LENGTH + " caratteri";
-    public static final String LOGIN_FAILED_USED = "Login fallito! Questo nickname è già in uso";
+    public static final String LOGIN_FAILED_EMPTY = "Login fallito!\nI nickname non possono essere vuoti";
+    public static final String LOGIN_FAILED_SPACES = "Login fallito!\nI nickname non possono contenere spazi";
+    public static final String LOGIN_FAILED_LENGTH = "Login fallito!\nI nickname non possono essere più lunghi di " + MAX_NICKNAME_LENGTH + " caratteri";
+    public static final String LOGIN_FAILED_USED = "Login fallito!\nQuesto nickname è già in uso";
 
     public static final String EXIT_MESSAGE = "Sei sicuro di voler uscire?";
     public static final String HOST_PROMPT = "Host: ";

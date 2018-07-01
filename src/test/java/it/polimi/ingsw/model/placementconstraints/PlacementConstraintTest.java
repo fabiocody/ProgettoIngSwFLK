@@ -2,7 +2,7 @@ package it.polimi.ingsw.model.placementconstraints;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import it.polimi.ingsw.model.Colors;
+import it.polimi.ingsw.shared.util.Colors;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.shared.util.Constants;

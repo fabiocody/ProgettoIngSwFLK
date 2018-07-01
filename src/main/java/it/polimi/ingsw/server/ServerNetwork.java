@@ -178,8 +178,11 @@ public abstract class ServerNetwork extends Observable implements Observer {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.ROUND_TRACK.getString());
         JsonArray dice = new JsonArray();
-        for (Die d : this.gameController.getRoundTrackDice()) {
-            dice.add(generateJsonDie(d));
+        for (List<Die> round : this.gameController.getRoundTrackDice()) {
+            JsonArray roundArray = new JsonArray();
+            for (Die die : round)
+                roundArray.add(generateJsonDie(die));
+            dice.add(roundArray);
         }
         payload.add(JsonFields.DICE, dice);
         payload.addProperty(JsonFields.CLI_STRING, this.gameController.getRoundTrack().toString());
