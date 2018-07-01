@@ -668,7 +668,33 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void finalScoresUpdateHandler(JsonObject jsonArg) {
-        // TODO
+        JsonObject scores = jsonArg.getAsJsonObject(JsonFields.FINAL_SCORES);
+        StringBuilder scoresSB = new StringBuilder();
+        boolean isWinner = scores.get(JsonFields.WINNER).getAsString().equals(client.getNickname());
+        scoresSB.append(isWinner ? "Hai vinto!" : "Hai perso...")
+                .append("\n\n")
+                /*.append("Risultati finali")
+                .append('\n')*/;
+        for (Map.Entry<String, JsonElement> entry : scores.entrySet()) {
+            String nickname = entry.getKey();
+            if (!nickname.equals(JsonFields.WINNER)) {
+                int score = entry.getValue().getAsInt();
+                scoresSB.append(nickname)
+                        .append(": ")
+                        .append(score)
+                        .append('\n');
+            }
+        }
+        Platform.runLater(() -> {
+            String title = "Risultati finali";
+            // TODO Stringhe non centrate
+            if (isWinner)
+                new MessageImageAlert(title).present(scoresSB.toString(), new Image(PicturesPaths.CUP), TextAlignment.CENTER);
+            else
+                new MessageAlert(title).present(scoresSB.toString(), TextAlignment.CENTER);
+            ClientNetwork.getInstance().deleteObserver(this);
+            showLogin();
+        });
     }
 
 }
