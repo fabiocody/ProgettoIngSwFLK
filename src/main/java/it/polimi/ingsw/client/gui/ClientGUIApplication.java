@@ -238,12 +238,15 @@ public class ClientGUIApplication extends Application implements Observer {
                     String nickname = nicknameTextField.getText();
                     if (nickname.equals("")) {
                         loginErrorLabel.setText(InterfaceMessages.LOGIN_FAILED_EMPTY);
+                        ClientNetwork.getInstance().deleteObserver(this);
                         return;
                     } else if (nickname.contains(" ")) {
                         loginErrorLabel.setText(InterfaceMessages.LOGIN_FAILED_SPACES);
+                        ClientNetwork.getInstance().deleteObserver(this);
                         return;
                     } else if (nickname.length() > Constants.MAX_NICKNAME_LENGTH) {
                         loginErrorLabel.setText(InterfaceMessages.LOGIN_FAILED_LENGTH);
+                        ClientNetwork.getInstance().deleteObserver(this);
                         return;
                     }
                     this.addPlayer(nickname);
@@ -251,16 +254,20 @@ public class ClientGUIApplication extends Application implements Observer {
                         showWaitingRoom();
                     } else {
                         loginErrorLabel.setText(InterfaceMessages.LOGIN_FAILED_USED);
+                        ClientNetwork.getInstance().deleteObserver(this);
                     }
                 } catch (IOException e) {
                     loginErrorLabel.setText(CONNECTION_FAILED);
+                    ClientNetwork.getInstance().deleteObserver(this);
                     Logger.printStackTraceConditionally(e);
                 }
             } else {
                 loginErrorLabel.setText(INVALID_HOST);
+                ClientNetwork.getInstance().deleteObserver(this);
             }
         } else {
             loginErrorLabel.setText(MISSING_DATA);
+            ClientNetwork.getInstance().deleteObserver(this);
         }
     }
 
@@ -473,9 +480,12 @@ public class ClientGUIApplication extends Application implements Observer {
                     default:
                         throw new IllegalStateException("This was not supposed to happen! " + method.toString());
                 }
-            } else if (jsonArg.has(JsonFields.EXIT)) {
-                // TODO Show message
-                Platform.runLater(this::showLogin);
+            } else if (jsonArg.has(JsonFields.EXIT_ERROR)) {
+                ClientNetwork.getInstance().deleteObserver(this);
+                Platform.runLater(() -> {
+                    new ErrorAlert().display("Errore di connessione");
+                    showLogin();
+                });
             }
         }
     }

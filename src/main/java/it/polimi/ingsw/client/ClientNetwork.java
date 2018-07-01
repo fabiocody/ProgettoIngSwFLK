@@ -76,7 +76,7 @@ public abstract class ClientNetwork extends Observable {
         Logger.connectionLost();
         Logger.printStackTraceConditionally(e);
         JsonObject obj = new JsonObject();
-        obj.addProperty(JsonFields.EXIT, true);
+        obj.addProperty(JsonFields.EXIT_ERROR, true);
         setChanged();
         notifyObservers(obj);
         //System.exit(Constants.EXIT_ERROR);

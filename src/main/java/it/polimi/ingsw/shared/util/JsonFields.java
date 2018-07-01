@@ -54,7 +54,7 @@ public class JsonFields {
     public static final String NO_FAVOR_TOKENS = "noFavorTokens";
     public static final String SECOND_DIE_PLACEMENT = "secondDiePlacement";
     public static final String WINNER = "WINNER";
-    public static final String EXIT = "exit";
+    public static final String EXIT_ERROR = "exitError";
 
     private JsonFields() throws IllegalAccessException {
         throw new IllegalAccessException("Cannot instantiate");

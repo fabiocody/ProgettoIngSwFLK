@@ -561,7 +561,7 @@ public class ClientCLI extends Client implements Observer {
                     default:
                         throw new IllegalStateException("This was not supposed to happen! " + method.toString());
                 }
-            } else if (jsonArg.has(JsonFields.EXIT)) {
+            } else if (jsonArg.has(JsonFields.EXIT_ERROR)) {
                 exit();
             }
         }
