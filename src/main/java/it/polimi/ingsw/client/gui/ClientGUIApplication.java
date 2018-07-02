@@ -252,6 +252,7 @@ public class ClientGUIApplication extends Application implements Observer {
                         showWaitingRoom();
                     else
                         updateLoginErrorLabel(LOGIN_FAILED_USED, null);
+
                 } catch (IOException e) {
                     updateLoginErrorLabel(CONNECTION_FAILED, e);
                 }
@@ -298,8 +299,14 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private void updateLoginErrorLabel(String message, Throwable e) {
         loginErrorLabel.setText(message);
-        if (ClientNetwork.getInstance() != null)
+        if (ClientNetwork.getInstance() != null) {
             ClientNetwork.getInstance().deleteObserver(this);
+            try {
+                ClientNetwork.getInstance().teardown();
+            } catch (IOException e1) {
+                new ErrorAlert().present(e1.getMessage());
+            }
+        }
         Logger.printStackTraceConditionally(e);
     }
 

@@ -63,23 +63,27 @@ public abstract class ClientNetwork extends Observable {
             @Override
             public void run() {
                 if (!gameEnding)
-                    connectionError();
+                    connectionError("rescheduleProbeTimer");
             }
         }, Constants.PROBE_TIMEOUT * 2000);
     }
 
-    void connectionError() {
-        connectionError(null);
-    }
-
-    void connectionError(Throwable e) {
+    void connectionError(String message, Throwable e) {
         Logger.connectionLost();
+        if (message != null) Logger.conditionalError(message);
         Logger.printStackTraceConditionally(e);
         JsonObject obj = new JsonObject();
         obj.addProperty(JsonFields.EXIT_ERROR, true);
         setChanged();
         notifyObservers(obj);
-        //System.exit(Constants.EXIT_ERROR);
+    }
+
+    void connectionError(String message) {
+        connectionError(message, null);
+    }
+
+    void connectionError(Throwable e) {
+        connectionError(null, e);
     }
 
 }

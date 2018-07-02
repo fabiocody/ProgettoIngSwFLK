@@ -148,7 +148,7 @@ public class SocketClient extends ClientNetwork {
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         String line = in.readLine();
         if (line == null) {
-            connectionError();
+            connectionError("readLine");
         }
         return line;
     }

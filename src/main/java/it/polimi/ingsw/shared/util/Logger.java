@@ -52,6 +52,10 @@ public class Logger {
         System.err.println(ansi().fgRed().a(output).reset());
     }
 
+    public static void conditionalError(String message) {
+        if (debugActive) error(message);
+    }
+
     public static void connectionLost(String nickname) {
         error("Connection lost (" + nickname + ")");
     }
