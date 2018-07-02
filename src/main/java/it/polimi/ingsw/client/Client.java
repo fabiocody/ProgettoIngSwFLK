@@ -88,8 +88,8 @@ public class Client {
         return patternChosen;
     }
 
-    public void setPatternChosen() {
-        this.patternChosen = true;
+    public void setPatternChosen(boolean value) {
+        this.patternChosen = value;
     }
 
     public boolean isSuspended() {
@@ -119,6 +119,19 @@ public class Client {
 
     public String getActiveNickname() {
         return activeNickname;
+    }
+
+    public void reset() {
+        nickname = null;
+        uuid = null;
+        logged = false;
+        gameStarted = false;
+        active = false;
+        patternChosen = false;
+        suspended = false;
+        gameOver = false;
+        activeNickname = null;
+        suspendedPlayers = new ArrayList<>();
     }
 
     public static boolean isValidHost(String host){

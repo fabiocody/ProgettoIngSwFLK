@@ -90,7 +90,26 @@ public class ClientGUIApplication extends Application implements Observer {
         showLogin();
     }
 
+    private void reset() {
+        privateObjCardName = null;
+        loginErrorLabel = new Label();
+        consoleLabel = null;
+        nextTurnButton = null;
+        wrTimerLabel = new Label("∞");
+        gameTimerLabel = new Label("∞");
+        boardPane = null;
+        toolCards = new ArrayList<>();
+        publicObjectiveCards = new ArrayList<>();
+        windowPatterns = new ArrayList<>();
+        myWindowPattern = null;
+        roundTrack = null;
+        draftPool = null;
+        boardShown = false;
+    }
+
     private void showLogin() {
+        reset();
+
         primaryStage.setTitle(WINDOW_TITLE);
 
         Label hostLabel = new Label(HOST_PROMPT);
@@ -288,7 +307,7 @@ public class ClientGUIApplication extends Application implements Observer {
         Button source = (Button) event.getSource();
         int index = Integer.parseInt(source.getText().split(" ")[2]) - 1;
         ClientNetwork.getInstance().choosePattern(index);
-        client.setPatternChosen();
+        client.setPatternChosen(true);
         if (!client.isGameStarted()) {
             BorderPane pane = new BorderPane();
             Label label = new Label(patternSelected(index + 1));
@@ -496,9 +515,15 @@ public class ClientGUIApplication extends Application implements Observer {
                 }
             } else if (jsonArg.has(JsonFields.EXIT_ERROR)) {
                 ClientNetwork.getInstance().deleteObserver(this);
+                try {
+                    ClientNetwork.getInstance().teardown();
+                } catch (IOException e) {
+                    new ErrorAlert().present(e.getMessage());
+                }
                 Platform.runLater(() -> {
                     new ErrorAlert().present("Errore di connessione");
                     showLogin();
+                    client.reset();
                 });
             }
         }
@@ -506,7 +531,7 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private void addPlayerUpdateHandler(JsonObject jsonArg) {
         if (jsonArg.get(JsonFields.RECONNECTED).getAsBoolean()) {
-            client.setPatternChosen();
+            client.setPatternChosen(true);
             client.setSuspended(false);
             privateObjCardName = jsonArg.getAsJsonObject(JsonFields.PRIVATE_OBJECTIVE_CARD).get(JsonFields.NAME).getAsString();
         }
@@ -634,7 +659,7 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void turnManagementUpdateHandler(JsonObject jsonArg) {
-        if (!client.isGameStarted()) client.setGameStarted();
+        client.setGameStarted();
         client.setGameOver(jsonArg.get(JsonFields.GAME_OVER).getAsBoolean());
         List<String> suspendedPlayers = StreamSupport.stream(jsonArg.getAsJsonArray(JsonFields.SUSPENDED_PLAYERS).spliterator(), false)
                 .map(JsonElement::getAsString)
@@ -702,7 +727,13 @@ public class ClientGUIApplication extends Application implements Observer {
             else
                 new MessageAlert(title).present(scoresSB.toString(), TextAlignment.CENTER);
             ClientNetwork.getInstance().deleteObserver(this);
+            try {
+                ClientNetwork.getInstance().teardown();
+            } catch (IOException e) {
+                new ErrorAlert().present(e.getMessage());
+            }
             showLogin();
+            client.reset();
         });
     }
 

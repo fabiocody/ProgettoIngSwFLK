@@ -50,7 +50,6 @@ public class SocketClient extends ClientNetwork {
     public void teardown() throws IOException {
         recvRun = false;
         recvThread.interrupt();
-        if (this.in != null) this.in.close();
         if (this.out != null) this.out.close();
         if (this.socket != null) this.socket.close();
     }

@@ -137,7 +137,7 @@ public class ClientCLI extends Client implements Observer {
                 }
             } while (patternIndex <= 0 || patternIndex > 4);
             ClientNetwork.getInstance().choosePattern(patternIndex - 1);
-            this.setPatternChosen();
+            this.setPatternChosen(true);
             if (!isGameStarted()) {
                 Logger.println(InterfaceMessages.patternSelected(patternIndex) + "\n");
                 while (!this.isGameStarted()) Thread.sleep(10);
@@ -571,7 +571,7 @@ public class ClientCLI extends Client implements Observer {
         if (jsonArg.get(JsonFields.RECONNECTED).getAsBoolean()) {
             bypassWaitingRoom = true;
             stopAsyncInput = true;
-            this.setPatternChosen();
+            this.setPatternChosen(true);
             this.setSuspended(false);
             JsonObject cardJson = jsonArg.getAsJsonObject(JsonFields.PRIVATE_OBJECTIVE_CARD);
             privateObjectiveCard = "Obiettivo privato: " +

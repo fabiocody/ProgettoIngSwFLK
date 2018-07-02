@@ -4,6 +4,7 @@ import javafx.geometry.*;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.stage.*;
 
@@ -61,6 +62,9 @@ class AlertWindow {
         Button button = new Button("OK");
         button.setMinWidth(SUGGESTED_BUTTON_WIDTH);
         button.setOnAction(e -> closeWindow());
+        button.setOnKeyPressed(e -> {
+            if (e.getCode().equals(KeyCode.ENTER)) closeWindow();
+        });
         return button;
     }
 
