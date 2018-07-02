@@ -13,6 +13,7 @@ import javafx.scene.canvas.*;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -66,6 +67,9 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private boolean boardShown = false;
 
+    private List<Node> focusedNode = new ArrayList<>();
+    private Integer draftPoolIndex = null;
+
     public static void setClient(Client c) {
         if (clientSet) {
             throw new IllegalStateException("Cannot set client more than once");
@@ -105,6 +109,16 @@ public class ClientGUIApplication extends Application implements Observer {
         roundTrack = null;
         draftPool = null;
         boardShown = false;
+    }
+
+    private void setMyWindowPattern(GridPane myWindowPattern) {
+        this.myWindowPattern = myWindowPattern;
+        for (Node node : myWindowPattern.getChildren()) {
+            if (node instanceof StackPane) {
+                StackPane stackPane = (StackPane) node;
+                stackPane.setOnMouseClicked(this::onCellClick);
+            }
+        }
     }
 
     private void showLogin() {
@@ -224,8 +238,8 @@ public class ClientGUIApplication extends Application implements Observer {
         consoleLabel = new Label();
         consoleLabel.setWrapText(true);
         consoleLabel.setFont(new Font(16));
-        consoleLabel.setMaxWidth(CARD_SIZE * 2 + boardPane.getHgap() * 3);
-        boardPane.add(consoleLabel, 0, 5, 3, 1);
+        consoleLabel.setMaxWidth(CARD_SIZE * 3 + boardPane.getHgap() * 3);
+        boardPane.add(consoleLabel, 0, 5, 4, 1);
 
         nextTurnButton = new Button("Termina il turno");
         nextTurnButton.setOnAction(e -> nextTurn());
@@ -234,6 +248,7 @@ public class ClientGUIApplication extends Application implements Observer {
         GridPane.setValignment(nextTurnButton, VPos.BOTTOM);
 
         Scene scene = new Scene(boardPane);
+        scene.setOnMouseClicked(e -> onOutsideClick());
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true);
         boardShown = true;
@@ -325,6 +340,45 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
+    private void onOutsideClick() {
+        if (!focusedNode.contains(draftPool)) {
+            resetDraftPoolHighlight();
+            focusedNode.add(draftPool);
+        } else {
+            focusedNode.remove(draftPool);
+        }
+    }
+
+    private void onDraftPoolClick(MouseEvent e) {
+        focusedNode.add(myWindowPattern);
+        resetDraftPoolHighlight();
+        Canvas dieCanvas = (Canvas) e.getSource();
+        GraphicsContext gc = dieCanvas.getGraphicsContext2D();
+        gc.setLineWidth(3);
+        gc.setStroke(Color.AQUA);
+        gc.strokeRoundRect(0, 0, CELL_SIZE * STANDARD_FACTOR, CELL_SIZE * STANDARD_FACTOR, 10 * STANDARD_FACTOR, 10 * STANDARD_FACTOR);
+        draftPoolIndex = GridPane.getColumnIndex(dieCanvas);
+    }
+
+    private void onCellClick(MouseEvent e) {
+        if (draftPoolIndex != null) {
+            StackPane cell = (StackPane) e.getSource();
+            int x = GridPane.getColumnIndex(cell);
+            int y = GridPane.getRowIndex(cell) - 1;     // We absolutely don't know why "- 1" is required, but it f*****g works, so...
+            placeDie(draftPoolIndex, x, y);
+        }
+    }
+
+    private void resetDraftPoolHighlight() {
+        for (Node node : draftPool.getChildren()) {
+            Canvas die = (Canvas) node;
+            GraphicsContext gc = die.getGraphicsContext2D();
+            gc.setLineWidth(3);
+            gc.setStroke(Color.BLACK);
+            gc.strokeRoundRect(0, 0, CELL_SIZE * STANDARD_FACTOR, CELL_SIZE * STANDARD_FACTOR, 10 * STANDARD_FACTOR, 10 * STANDARD_FACTOR);
+        }
+    }
+
     private void addPlayer(String nickname) {
         client.setNickname(nickname);
         client.setUUID(ClientNetwork.getInstance().addPlayer(nickname));
@@ -334,6 +388,21 @@ public class ClientGUIApplication extends Application implements Observer {
     private void nextTurn() {
         client.setActive(false);
         ClientNetwork.getInstance().nextTurn();
+    }
+
+    private void placeDie(int draftPoolIndex, int x, int y) {
+        JsonObject result = ClientNetwork.getInstance().placeDie(draftPoolIndex, x, y);
+        if (result.get(JsonFields.RESULT).getAsBoolean()) {
+            consoleLabel.setText(InterfaceMessages.SUCCESSFUL_DIE_PLACEMENT);
+            this.draftPoolIndex = null;
+            Canvas dieCanvas = (Canvas) draftPool.getChildren().get(draftPoolIndex);
+            GraphicsContext gc = dieCanvas.getGraphicsContext2D();
+            gc.setLineWidth(3);
+            gc.setStroke(Color.BLACK);
+            gc.strokeRoundRect(0, 0, CELL_SIZE * STANDARD_FACTOR, CELL_SIZE * STANDARD_FACTOR, 10 * STANDARD_FACTOR, 10 * STANDARD_FACTOR);
+        } else {
+            consoleLabel.setText(InterfaceMessages.UNSUCCESSFUL_DIE_PLACEMENT + result.get(JsonFields.ERROR_MESSAGE).getAsString());
+        }
     }
 
     private static GridPane createWindowPattern(JsonObject wpJson, String nickname, Double resize) {
@@ -411,6 +480,7 @@ public class ClientGUIApplication extends Application implements Observer {
             gc.fillRect(0, 0, CELL_SIZE * resize, CELL_SIZE * resize);
         } else {
             gc.fillRoundRect(0, 0, CELL_SIZE * resize, CELL_SIZE * resize, 10 * resize, 10 * resize);
+            gc.setLineWidth(3);
             gc.strokeRoundRect(0, 0, CELL_SIZE * resize, CELL_SIZE * resize, 10 * resize, 10 * resize);
         }
         gc.setFill(Color.WHITE);
@@ -576,7 +646,7 @@ public class ClientGUIApplication extends Application implements Observer {
             GridPane pattern;
             if (nickname.equals(client.getNickname())) {
                 pattern = createWindowPattern(jsonPattern, nickname, STANDARD_FACTOR);
-                myWindowPattern = pattern;
+                setMyWindowPattern(pattern);
                 windowPatterns.add(pattern);
                 boardPane.add(pattern, 5, 4);
             } else {
@@ -655,7 +725,8 @@ public class ClientGUIApplication extends Application implements Observer {
             JsonObject jsonDie = array.get(i).getAsJsonObject();
             Colors color = Colors.valueOf(jsonDie.get(JsonFields.COLOR).getAsString());
             int value = jsonDie.get(JsonFields.VALUE).getAsInt();
-            draftPool.add(createNumberedCell(value, color.getJavaFXColor(), STANDARD_FACTOR), i, 0);
+            Canvas dieCanvas = createNumberedCell(value, color.getJavaFXColor(), STANDARD_FACTOR);
+            draftPool.add(dieCanvas, i, 0);
         }
         boardPane.getChildren().remove(draftPool);
         if (windowPatterns.size() == 2)
@@ -673,6 +744,12 @@ public class ClientGUIApplication extends Application implements Observer {
                 .collect(Collectors.toList());
         client.setSuspendedPlayers(suspendedPlayers);
         client.setActive(jsonArg.get(JsonFields.ACTIVE_PLAYER).getAsString());
+        if (client.isActive()) {
+            draftPool.getChildren().forEach(node -> node.setOnMouseClicked(this::onDraftPoolClick));
+            focusedNode.clear();
+            focusedNode.add(draftPool);
+            // TODO ADD toolCards
+        }
         if (!client.isActive() && !client.isSuspended() && !client.isGameOver()) {
             consoleLabel.setText("Aspetta il tuo turno.");
             nextTurnButton.setDisable(true);

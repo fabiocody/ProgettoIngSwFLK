@@ -159,9 +159,9 @@ public class ClientCLI extends Client implements Observer {
         int draftPoolIndex;
         int x;
         int y;
-        draftPoolIndex = this.getInputIndex("\nQuale dado vuoi piazzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE,0,draftPoolLength,true);
-        x = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_COLUMNS,true);
-        y = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE,0,NUMBER_OF_PATTERN_ROWS,true);
+        draftPoolIndex = this.getInputIndex("\nQuale dado vuoi piazzare [1-" + draftPoolLength + "]? " + CANCEL_MESSAGE,0,draftPoolLength,true);
+        x = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + CANCEL_MESSAGE,0,NUMBER_OF_PATTERN_COLUMNS,true);
+        y = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + CANCEL_MESSAGE,0,NUMBER_OF_PATTERN_ROWS,true);
         JsonObject result = ClientNetwork.getInstance().placeDie(draftPoolIndex,x,y);
         if(result.get(JsonFields.RESULT).getAsBoolean())
             Logger.println(InterfaceMessages.SUCCESSFUL_DIE_PLACEMENT);
@@ -181,35 +181,35 @@ public class ClientCLI extends Client implements Observer {
 
         if (!(requiredData.get("data").getAsJsonObject().has(JsonFields.STOP) && requiredData.get("data").getAsJsonObject().get(JsonFields.STOP).getAsBoolean())) {
             if (requiredData.get("data").getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) {
-                draftPoolIndex = this.getInputIndex("\nQuale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]? " + EXIT_MESSAGE, 0, draftPoolLength, true);
+                draftPoolIndex = this.getInputIndex("\nQuale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]? " + CANCEL_MESSAGE, 0, draftPoolLength, true);
                 requiredData.get("data").getAsJsonObject().addProperty("draftPoolIndex", draftPoolIndex);
             }
             if (requiredData.get("data").getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX)) {
-                roundTrackIndex = this.getInputIndex("\nQuale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]? " + EXIT_MESSAGE, 0, (int) roundTrackLength, true);
+                roundTrackIndex = this.getInputIndex("\nQuale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]? " + CANCEL_MESSAGE, 0, (int) roundTrackLength, true);
                 requiredData.get("data").getAsJsonObject().addProperty("roundTrackIndex", roundTrackIndex);
             }
             if (requiredData.get("data").getAsJsonObject().has(JsonFields.DELTA)) {
-                delta = this.getInputIndex("\nVuoi aumentare[1] o diminuire[-1] il valore del dado? " + EXIT_MESSAGE);
+                delta = this.getInputIndex("\nVuoi aumentare[1] o diminuire[-1] il valore del dado? " + CANCEL_MESSAGE);
                 requiredData.get("data").getAsJsonObject().addProperty("delta", delta);
             }
             if (requiredData.get("data").getAsJsonObject().has(JsonFields.NEW_VALUE)) {
-                newValue = this.getInputIndex("\nQuale valore vuoi assegnare al dado[1-6]? " + EXIT_MESSAGE, 1, 7, false);
+                newValue = this.getInputIndex("\nQuale valore vuoi assegnare al dado[1-6]? " + CANCEL_MESSAGE, 1, 7, false);
                 requiredData.get("data").getAsJsonObject().addProperty("newValue", newValue);
             }
             if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_X)) {
-                fromCellX = this.getInputIndex("\nDa quale colonna vuoi muoverlo [1-5]? " + EXIT_MESSAGE, 0, NUMBER_OF_PATTERN_COLUMNS, true);
+                fromCellX = this.getInputIndex("\nDa quale colonna vuoi muoverlo [1-5]? " + CANCEL_MESSAGE, 0, NUMBER_OF_PATTERN_COLUMNS, true);
                 requiredData.get("data").getAsJsonObject().addProperty("fromCellX", fromCellX);
             }
             if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_Y)) {
-                fromCellY = this.getInputIndex("\nDa quale riga vuoi muoverlo [1-4]? " + EXIT_MESSAGE, 0, NUMBER_OF_PATTERN_ROWS, true);
+                fromCellY = this.getInputIndex("\nDa quale riga vuoi muoverlo [1-4]? " + CANCEL_MESSAGE, 0, NUMBER_OF_PATTERN_ROWS, true);
                 requiredData.get("data").getAsJsonObject().addProperty("fromCellY", fromCellY);
             }
             if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_X)) {
-                toCellX = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + EXIT_MESSAGE, 0, NUMBER_OF_PATTERN_COLUMNS, true);
+                toCellX = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + CANCEL_MESSAGE, 0, NUMBER_OF_PATTERN_COLUMNS, true);
                 requiredData.get("data").getAsJsonObject().addProperty("toCellX", toCellX);
             }
             if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_Y)) {
-                toCellY = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + EXIT_MESSAGE, 0, NUMBER_OF_PATTERN_ROWS, true);
+                toCellY = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + CANCEL_MESSAGE, 0, NUMBER_OF_PATTERN_ROWS, true);
                 requiredData.get("data").getAsJsonObject().addProperty("toCellY", toCellY);
             }
         }
@@ -229,7 +229,7 @@ public class ClientCLI extends Client implements Observer {
         boolean stop;
         JsonObject requiredData;
         boolean valid;
-        cardIndex = this.getInputIndex("\nQuale carta strumento vuoi usare [1-3]? " + EXIT_MESSAGE, 0, 3,true);
+        cardIndex = this.getInputIndex("\nQuale carta strumento vuoi usare [1-3]? " + CANCEL_MESSAGE, 0, 3,true);
         requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
         requiredData.remove("method");
         if (requiredData.get("data").getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS) || requiredData.get("data").getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {

@@ -49,7 +49,7 @@ public class SocketClient extends ClientNetwork {
     @Override
     public void teardown() throws IOException {
         recvRun = false;
-        recvThread.interrupt();
+        if (recvThread != null) recvThread.interrupt();
         if (this.out != null) this.out.close();
         if (this.socket != null) this.socket.close();
     }
