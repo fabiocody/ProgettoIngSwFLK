@@ -1,6 +1,6 @@
 package it.polimi.ingsw.client.gui.alerts;
 
-import javafx.geometry.HPos;
+import javafx.geometry.*;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.layout.GridPane;
@@ -27,6 +27,7 @@ public class MessageImageAlert extends AlertWindow {
             getGridPane().add(imageView, 0, 0);
             GridPane.setHalignment(imageView, HPos.CENTER);
             getGridPane().add(label, 0, 1);
+            label.setAlignment(Pos.valueOf(textAlignment.toString()));
             GridPane.setHalignment(label, HPos.CENTER);
             getGridPane().add(button, 0, 2);
             GridPane.setHalignment(button, HPos.CENTER);

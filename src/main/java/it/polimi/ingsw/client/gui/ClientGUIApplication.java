@@ -687,7 +687,6 @@ public class ClientGUIApplication extends Application implements Observer {
         }
         Platform.runLater(() -> {
             String title = "Risultati finali";
-            // TODO Stringhe non centrate
             if (isWinner)
                 new MessageImageAlert(title).present(scoresSB.toString(), new Image(PicturesPaths.CUP), TextAlignment.CENTER);
             else
