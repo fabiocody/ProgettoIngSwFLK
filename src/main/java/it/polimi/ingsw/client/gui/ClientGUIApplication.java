@@ -69,6 +69,7 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private List<Node> focusedNode = new ArrayList<>();
     private Integer draftPoolIndex = null;
+    private Integer roundTrackIndex = null;
 
     public static void setClient(Client c) {
         if (clientSet) {
@@ -132,8 +133,11 @@ public class ClientGUIApplication extends Application implements Observer {
         Button loginButton = new Button("Login");
         ImageView sagradaLogoImage;
 
+        connectionChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(SOCKET, RMI));
+        connectionChoiceBox.getSelectionModel().selectFirst();
+        connectionChoiceBox.setOnAction(e -> onConnectionChoiceBoxSelection());
         hostTextField.setPromptText(HOST_PLACEHOLDER);
-        portTextField.setPromptText(PORT_PLACEHOLDER);
+        onConnectionChoiceBoxSelection();
         nicknameTextField.setPromptText(NICKNAME_PLACEHOLDER);
         for (TextField textField : Arrays.asList(hostTextField, portTextField, nicknameTextField)) {
             textField.setOnKeyPressed(e -> {
@@ -141,8 +145,6 @@ public class ClientGUIApplication extends Application implements Observer {
                     loginAction();
             });
         }
-        connectionChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(SOCKET, RMI));
-        connectionChoiceBox.getSelectionModel().selectFirst();
         loginButton.setOnAction(e -> loginAction());
 
         Image sagrada = new Image(PicturesPaths.SAGRADA_LOGO);
@@ -255,8 +257,9 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void loginAction() {
-        if (!hostTextField.getText().isEmpty() && !nicknameTextField.getText().isEmpty()) {
+        if (!nicknameTextField.getText().isEmpty()) {
             String host = hostTextField.getText();
+            if (host.isEmpty()) host = HOST_PLACEHOLDER;
             if (Client.isValidHost(host)) {
                 try {
                     setupConnection(host);
@@ -340,6 +343,17 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
+    private void onConnectionChoiceBoxSelection() {
+        String value = connectionChoiceBox.getValue();
+        if (value.equals(SOCKET)) {
+            portTextField.setPromptText(String.valueOf(Constants.DEFAULT_PORT));
+            portTextField.setDisable(false);
+        } else {
+            portTextField.setPromptText(String.valueOf(Constants.DEFAULT_RMI_PORT));
+            portTextField.setDisable(true);
+        }
+    }
+
     private void onOutsideClick() {
         if (!focusedNode.contains(draftPool)) {
             resetDraftPoolHighlight();
@@ -367,6 +381,29 @@ public class ClientGUIApplication extends Application implements Observer {
             int y = GridPane.getRowIndex(cell) - 1;     // We absolutely don't know why "- 1" is required, but it f*****g works, so...
             placeDie(draftPoolIndex, x, y);
         }
+    }
+
+    private void onRoundTrackCellClick(MouseEvent event) {
+        @SuppressWarnings("unchecked")
+        ComboBox<JsonObject> source = (ComboBox) event.getSource();
+        int column = GridPane.getColumnIndex(source);
+        new Thread(() -> {
+            while (source.isShowing()) {
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            int selectedIndex = source.getSelectionModel().getSelectedIndex();
+            int index = 0;
+            for (int i = 0; i < column; i++) {
+                @SuppressWarnings("unchecked")
+                ComboBox<JsonObject> comboBox = (ComboBox) roundTrack.getChildren().get(i);
+                index += comboBox.getItems().size();
+            }
+            roundTrackIndex = index + selectedIndex;
+        }).start();
     }
 
     private void resetDraftPoolHighlight() {
@@ -534,6 +571,7 @@ public class ClientGUIApplication extends Application implements Observer {
             comboBox.setButtonCell(new RoundTrackCell());
             comboBox.getSelectionModel().selectFirst();
             roundTrack.add(comboBox, i, 0);
+            comboBox.setOnMouseClicked(this::onRoundTrackCellClick);
         }
     }
 

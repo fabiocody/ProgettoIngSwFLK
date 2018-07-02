@@ -34,7 +34,7 @@ public class InterfaceMessages {
     public static final String HOST_PROMPT = "Host: ";
     public static final String PORT_PROMPT = "Porta: ";
     public static final String NICKNAME_PROMPT = "Nickname: ";
-    public static final String HOST_PLACEHOLDER = "Inserisci l'indirizzo del server";
+    public static final String HOST_PLACEHOLDER = "localhost";
     public static final String PORT_PLACEHOLDER = "Inserisci la porta per la socket";
     public static final String NICKNAME_PLACEHOLDER = "Inserisci il tuo nickname";
     public static final String SOCKET = "Socket";
