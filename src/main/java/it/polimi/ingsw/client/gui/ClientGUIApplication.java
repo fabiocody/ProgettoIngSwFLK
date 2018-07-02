@@ -32,7 +32,8 @@ public class ClientGUIApplication extends Application implements Observer {
     private static final int SELECTABLE_WP_WINDOW_HEIGHT = 700;
     static final int CELL_SIZE = 60;
     private static final int DOT_SIZE = 10;
-    private static final double RESIZE_WP = 0.6;
+    private static final double RESIZE_FACTOR = 0.6;
+    private static final double STANDARD_FACTOR = 0.8;
     private static final String FX_BACKGROUND_COLOR_DARKGREY = "-fx-background-color: dimgrey;";
     private static final int CARD_SIZE = 225;
     private static final Color VALUE_CELL_COLOR = Color.SILVER;
@@ -171,7 +172,7 @@ public class ClientGUIApplication extends Application implements Observer {
         selectableWPPane.add(privateObjectiveCard, 2, 0, 1, 3);
         JsonArray wpArray = jsonArg.getAsJsonArray(JsonFields.WINDOW_PATTERNS);
         for (int i = 0; i < wpArray.size(); i++) {
-            GridPane windowPattern = createWindowPattern(wpArray.get(i).getAsJsonObject(), null, 1.0);
+            GridPane windowPattern = createWindowPattern(wpArray.get(i).getAsJsonObject(), null, STANDARD_FACTOR);
             int column = i % 2;
             int row = (i / 2) * 2;
             selectableWPPane.add(windowPattern, column, row);
@@ -198,7 +199,8 @@ public class ClientGUIApplication extends Application implements Observer {
 
         gameTimerLabel.setFont(new Font(30));
         gameTimerLabel.setMinWidth(CELL_SIZE * 2);
-        boardPane.add(gameTimerLabel, 7, 0);
+        boardPane.add(gameTimerLabel, 6, 0);
+        GridPane.setHalignment(gameTimerLabel, HPos.CENTER);
 
         consoleLabel = new Label();
         consoleLabel.setWrapText(true);
@@ -208,7 +210,7 @@ public class ClientGUIApplication extends Application implements Observer {
 
         nextTurnButton = new Button("Termina il turno");
         nextTurnButton.setOnAction(e -> nextTurn());
-        boardPane.add(nextTurnButton, 7, 4);
+        boardPane.add(nextTurnButton, 6, 4);
         GridPane.setHalignment(nextTurnButton, HPos.CENTER);
         GridPane.setValignment(nextTurnButton, VPos.BOTTOM);
 
@@ -277,7 +279,8 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private void updateLoginErrorLabel(String message, Throwable e) {
         loginErrorLabel.setText(message);
-        ClientNetwork.getInstance().deleteObserver(this);
+        if (ClientNetwork.getInstance() != null)
+            ClientNetwork.getInstance().deleteObserver(this);
         Logger.printStackTraceConditionally(e);
     }
 
@@ -308,7 +311,7 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private static GridPane createWindowPattern(JsonObject wpJson, String nickname, Double resize) {
-        if (resize == null) resize = 1.0;
+        if (resize == null) resize = STANDARD_FACTOR;
         GridPane wpPane = new GridPane();
         JsonArray grid = wpJson.getAsJsonArray(JsonFields.GRID);
         for (int i = 0; i < grid.size(); i++) {
@@ -340,7 +343,7 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private static StackPane createCellStack(JsonObject jsonCell, Double resize) {
-        if (resize == null) resize = 1.0;
+        if (resize == null) resize = STANDARD_FACTOR;
         StackPane pane = new StackPane();
         Canvas canvas;
         Colors color = jsonCell.get(JsonFields.COLOR).isJsonNull() ? null : Colors.valueOf(jsonCell.get(JsonFields.COLOR).getAsString());
@@ -374,7 +377,7 @@ public class ClientGUIApplication extends Application implements Observer {
      * @return the Canvas representing the numbered cell
      */
     static Canvas createNumberedCell(int value, Color color, Double resize) {
-        if (resize == null) resize = 1.0;
+        if (resize == null) resize = STANDARD_FACTOR;
         Canvas canvas = new Canvas(CELL_SIZE * resize, CELL_SIZE * resize);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(color);
@@ -538,13 +541,14 @@ public class ClientGUIApplication extends Application implements Observer {
         for (Map.Entry<String, JsonElement> entry : wpJson.entrySet()) {
             String nickname = entry.getKey();
             JsonObject jsonPattern = entry.getValue().getAsJsonObject();
+            GridPane pattern;
             if (nickname.equals(client.getNickname())) {
-                GridPane pattern = createWindowPattern(jsonPattern, nickname, 1.0);
+                pattern = createWindowPattern(jsonPattern, nickname, STANDARD_FACTOR);
                 myWindowPattern = pattern;
                 windowPatterns.add(pattern);
                 boardPane.add(pattern, 5, 4);
             } else {
-                GridPane pattern = createWindowPattern(jsonPattern, nickname, RESIZE_WP);
+                pattern = createWindowPattern(jsonPattern, nickname, RESIZE_FACTOR);
                 windowPatterns.add(pattern);
                 if (numberOfRivals == 1) {
                     boardPane.add(pattern, 5, 1);
@@ -564,8 +568,8 @@ public class ClientGUIApplication extends Application implements Observer {
                         columnIndex++;
                     }
                 }
-                pattern.setAlignment(Pos.BOTTOM_CENTER);
             }
+            pattern.setAlignment(Pos.BOTTOM_CENTER);
         }
     }
 
@@ -619,9 +623,14 @@ public class ClientGUIApplication extends Application implements Observer {
             JsonObject jsonDie = array.get(i).getAsJsonObject();
             Colors color = Colors.valueOf(jsonDie.get(JsonFields.COLOR).getAsString());
             int value = jsonDie.get(JsonFields.VALUE).getAsInt();
-            draftPool.add(createNumberedCell(value, color.getJavaFXColor(), 1.0), i, 0);
+            draftPool.add(createNumberedCell(value, color.getJavaFXColor(), STANDARD_FACTOR), i, 0);
         }
-        boardPane.add(draftPool, 4, 3, 3, 1);
+        boardPane.getChildren().remove(draftPool);
+        if (windowPatterns.size() == 2)
+            boardPane.add(draftPool, 5, 3);
+        else
+            boardPane.add(draftPool, 4, 3, 3, 1);
+        draftPool.setAlignment(Pos.CENTER);
     }
 
     private void turnManagementUpdateHandler(JsonObject jsonArg) {
@@ -646,7 +655,7 @@ public class ClientGUIApplication extends Application implements Observer {
             roundTrack = new GridPane();
             roundTrack.setAlignment(Pos.CENTER);
             roundTrack.setGridLinesVisible(true);
-            boardPane.add(roundTrack, 0, 0, 7, 1);
+            boardPane.add(roundTrack, 0, 0, 6, 1);
             GridPane.setHalignment(roundTrack, HPos.CENTER);
         }
         createRoundTrack(jsonArg.getAsJsonArray(JsonFields.DICE));
@@ -670,11 +679,12 @@ public class ClientGUIApplication extends Application implements Observer {
     private void finalScoresUpdateHandler(JsonObject jsonArg) {
         JsonObject scores = jsonArg.getAsJsonObject(JsonFields.FINAL_SCORES);
         StringBuilder scoresSB = new StringBuilder();
-        boolean isWinner = scores.get(JsonFields.WINNER).getAsString().equals(client.getNickname());
+        String winner = scores.get(JsonFields.WINNER).getAsString();
+        boolean isWinner = winner.equals(client.getNickname());
         scoresSB.append(isWinner ? "Hai vinto!" : "Hai perso...")
-                .append("\n\n")
-                /*.append("Risultati finali")
-                .append('\n')*/;
+                .append(isWinner ? "" : "\n\nIl vincitore è ")
+                .append(isWinner ? "" : winner)
+                .append("\n\n");
         for (Map.Entry<String, JsonElement> entry : scores.entrySet()) {
             String nickname = entry.getKey();
             if (!nickname.equals(JsonFields.WINNER)) {
