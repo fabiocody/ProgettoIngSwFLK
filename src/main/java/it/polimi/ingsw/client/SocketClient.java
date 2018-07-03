@@ -91,7 +91,7 @@ public class SocketClient extends ClientNetwork {
             }
             Methods recvMethod;
             try {
-                recvMethod = Methods.getAsMethods(inputJson.get(JsonFields.METHOD).getAsString());
+                recvMethod = Methods.fromString(inputJson.get(JsonFields.METHOD).getAsString());
             } catch (NoSuchElementException e) {
                 Logger.error("METHOD NOT RECOGNIZED");
                 continue;

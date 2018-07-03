@@ -32,7 +32,7 @@ public enum Colors {
     }
 
     /**
-     * @return a random value from this Enum, <code>RESET</code> excluded.
+     * @return a random value from this Enum.
      */
     public static Colors getRandomColor(){
         return values()[ThreadLocalRandom.current().nextInt(values().length-1)];

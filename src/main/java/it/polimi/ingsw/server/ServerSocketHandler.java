@@ -66,7 +66,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
                 }
                 Methods calledMethod;
                 try {
-                    calledMethod = Methods.getAsMethods(input.get(JsonFields.METHOD).getAsString());
+                    calledMethod = Methods.fromString(input.get(JsonFields.METHOD).getAsString());
                 } catch (NoSuchElementException e) {
                     Logger.error("METHOD NOT RECOGNIZED");
                     continue;

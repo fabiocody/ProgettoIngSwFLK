@@ -89,8 +89,8 @@ public class ClientGUIApplication extends Application implements Observer {
         this.primaryStage = primaryStage;
         primaryStage.setOnCloseRequest(e -> {
             e.consume();
-            boolean answer = new ConfirmAlert(WINDOW_TITLE).present(EXIT_MESSAGE);
-            if (answer) primaryStage.close();
+            Options exit = TwoOptionsAlert.presentExitAlert();
+            if (exit == Options.YES) primaryStage.close();
         });
         showLogin();
     }
@@ -580,7 +580,7 @@ public class ClientGUIApplication extends Application implements Observer {
         if (o instanceof ClientNetwork && arg instanceof JsonObject) {
             JsonObject jsonArg = (JsonObject) arg;
             if (jsonArg.has(JsonFields.METHOD)) {
-                Methods method = Methods.getAsMethods(jsonArg.get(JsonFields.METHOD).getAsString());
+                Methods method = Methods.fromString(jsonArg.get(JsonFields.METHOD).getAsString());
                 switch (method) {
                     case ADD_PLAYER:
                         Platform.runLater(() -> addPlayerUpdateHandler(jsonArg));

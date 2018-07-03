@@ -53,7 +53,7 @@ public enum Methods {
      * @return the Enum value corresponding to the specified String.
      * @throws NoSuchElementException thrown when there's no Method represented by the given String.
      */
-    public static Methods getAsMethods(String string) {
+    public static Methods fromString(String string) {
         for (Methods m : values()) {
             if (m.getString().equals(string))
                 return m;
