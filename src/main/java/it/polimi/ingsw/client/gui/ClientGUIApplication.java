@@ -35,6 +35,8 @@ public class ClientGUIApplication extends Application implements Observer {
     private static final int DOT_SIZE = 10;
     private static final double RESIZE_FACTOR = 0.6;
     private static final double STANDARD_FACTOR = 0.8;
+    private static final double ROUND_TRACK_DIE_RESIZE = 0.35;
+    private static final int MAX_DICE_ON_ROUND_TRACK_COLUMN = 3;
     private static final String FX_BACKGROUND_COLOR_DARKGREY = "-fx-background-color: dimgrey;";
     private static final int CARD_SIZE = 225;
     private static final Color VALUE_CELL_COLOR = Color.SILVER;
@@ -67,7 +69,7 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private boolean boardShown = false;
 
-    private List<Node> focusedNode = new ArrayList<>();
+    private Set<Node> focusedNode = new HashSet<>();
     private Integer draftPoolIndex = null;
     private Integer roundTrackIndex = null;
 
@@ -383,27 +385,27 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
+    private static Node getNode(GridPane gridPane, int column, int row) {
+        for (Node node : gridPane.getChildren()) {
+            if (GridPane.getColumnIndex(node) == column && GridPane.getRowIndex(node) == row)
+                return node;
+        }
+        throw new NoSuchElementException("Nothing found at given position");
+    }
+
     private void onRoundTrackCellClick(MouseEvent event) {
-        @SuppressWarnings("unchecked")
-        ComboBox<JsonObject> source = (ComboBox) event.getSource();
+        Canvas source = (Canvas) event.getSource();
         int column = GridPane.getColumnIndex(source);
-        new Thread(() -> {
-            while (source.isShowing()) {
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-            int selectedIndex = source.getSelectionModel().getSelectedIndex();
-            int index = 0;
-            for (int i = 0; i < column; i++) {
-                @SuppressWarnings("unchecked")
-                ComboBox<JsonObject> comboBox = (ComboBox) roundTrack.getChildren().get(i);
-                index += comboBox.getItems().size();
-            }
-            roundTrackIndex = index + selectedIndex;
-        }).start();
+        int row = GridPane.getRowIndex(source);
+        GridPane parent = (GridPane) source.getParent();
+        int round = GridPane.getColumnIndex(parent);
+        int index = 0;
+        for (int i = 0; i < round; i++) {
+            GridPane pane = (GridPane) getNode(roundTrack, i, 1);
+            index += pane.getChildren().size();
+        }
+        roundTrackIndex = index + column * MAX_DICE_ON_ROUND_TRACK_COLUMN + row;
+        System.out.println(roundTrackIndex);
     }
 
     private void resetDraftPoolHighlight() {
@@ -517,7 +519,7 @@ public class ClientGUIApplication extends Application implements Observer {
             gc.fillRect(0, 0, CELL_SIZE * resize, CELL_SIZE * resize);
         } else {
             gc.fillRoundRect(0, 0, CELL_SIZE * resize, CELL_SIZE * resize, 10 * resize, 10 * resize);
-            gc.setLineWidth(3);
+            gc.setLineWidth(3 * resize);
             gc.strokeRoundRect(0, 0, CELL_SIZE * resize, CELL_SIZE * resize, 10 * resize, 10 * resize);
         }
         gc.setFill(Color.WHITE);
@@ -555,24 +557,37 @@ public class ClientGUIApplication extends Application implements Observer {
     private void createRoundTrack(JsonArray roundTrackArray) {
         roundTrack.getChildren().clear();
         for (int i = 0; i < Constants.NUMBER_OF_ROUNDS; i++) {
-            ComboBox<JsonObject> comboBox = new ComboBox<>();
+            roundTrack.setHgap(1);
+            roundTrack.setVgap(1);
+            Label roundLabel = new Label(String.valueOf(i+1));
+            roundLabel.setFont(new Font(20));
+            roundLabel.setPrefWidth(CELL_SIZE);
+            roundLabel.setAlignment(Pos.CENTER);
+            roundTrack.add(roundLabel, i, 0);
+            GridPane.setHalignment(roundLabel, HPos.CENTER);
             JsonArray diceArray = roundTrackArray.get(i).getAsJsonArray();
             List<JsonObject> diceList = StreamSupport.stream(diceArray.spliterator(), false)
                     .map(JsonElement::getAsJsonObject)
                     .collect(Collectors.toList());
-            if (diceList.isEmpty()) {
-                JsonObject obj = new JsonObject();
-                obj.addProperty(JsonFields.CURRENT_ROUND, i+1);
-                comboBox.getItems().add(obj);
-            } else {
-                comboBox.getItems().addAll(diceList);
+            GridPane roundGridPane = new GridPane();
+            roundGridPane.setAlignment(Pos.CENTER);
+            roundGridPane.setHgap(1);
+            roundGridPane.setVgap(1);
+            for (int j = 0; j < diceList.size(); j++) {
+                JsonObject jsonDie = diceList.get(j);
+                int dieValue = jsonDie.get(JsonFields.VALUE).getAsInt();
+                Colors dieColor = Colors.valueOf(jsonDie.get(JsonFields.COLOR).getAsString());
+                Canvas die = createNumberedCell(dieValue, dieColor.getJavaFXColor(), ROUND_TRACK_DIE_RESIZE);
+                int column = j / MAX_DICE_ON_ROUND_TRACK_COLUMN;
+                int row = (j % MAX_DICE_ON_ROUND_TRACK_COLUMN);
+                roundGridPane.add(die, column, row);
+                GridPane.setHalignment(die, HPos.CENTER);
+                die.setOnMouseClicked(this::onRoundTrackCellClick);
             }
-            comboBox.setCellFactory(param -> new RoundTrackCell());
-            comboBox.setButtonCell(new RoundTrackCell());
-            comboBox.getSelectionModel().selectFirst();
-            roundTrack.add(comboBox, i, 0);
-            comboBox.setOnMouseClicked(this::onRoundTrackCellClick);
+            roundTrack.add(roundGridPane, i, 1);
+            GridPane.setHalignment(roundGridPane, HPos.CENTER);
         }
+        roundTrack.setGridLinesVisible(true);
     }
 
     @Override

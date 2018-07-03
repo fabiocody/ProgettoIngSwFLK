@@ -31,9 +31,9 @@ public class InterfaceMessages {
     public static final String LOGIN_FAILED_USED = "Login fallito!\nQuesto nickname è già in uso";
 
     public static final String EXIT_MESSAGE = "Sei sicuro di voler uscire?";
-    public static final String HOST_PROMPT = "Host: ";
-    public static final String PORT_PROMPT = "Porta: ";
-    public static final String NICKNAME_PROMPT = "Nickname: ";
+    public static final String HOST_PROMPT = "Host";
+    public static final String PORT_PROMPT = "Porta";
+    public static final String NICKNAME_PROMPT = "Nickname";
     public static final String HOST_PLACEHOLDER = "localhost";
     public static final String PORT_PLACEHOLDER = "Inserisci la porta per la socket";
     public static final String NICKNAME_PLACEHOLDER = "Inserisci il tuo nickname";
