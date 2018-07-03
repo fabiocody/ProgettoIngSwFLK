@@ -25,7 +25,7 @@ import java.util.stream.*;
 import static it.polimi.ingsw.shared.util.InterfaceMessages.*;
 
 
-public class ClientGUIApplication extends Application implements Observer {
+public class ClientGUIApplication extends Application implements Observer { //
 
     private static final int LOGIN_WINDOW_WIDTH = 700;
     private static final int LOGIN_WINDOW_HEIGHT = 500;
