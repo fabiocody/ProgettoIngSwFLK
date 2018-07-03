@@ -24,6 +24,8 @@ public class InterfaceMessages {
     public static final String DIE_NOT_YET_PLACED_IN_THIS_TURN = "non hai ancora piazzato un dado questo turno";
     public static final String NO_PROPER_COLOR_DIE_ON_ROUND_TRACK = "non ci sono dadi di questo colore nel tracciato del round";
 
+    public static final String ITS_YOUR_TURN = "È il tuo turno";
+
     public static final String WINDOW_TITLE = "Sagrada";
     public static final String LOGIN_FAILED_EMPTY = "Login fallito!\nI nickname non possono essere vuoti";
     public static final String LOGIN_FAILED_SPACES = "Login fallito!\nI nickname non possono contenere spazi";
@@ -35,7 +37,6 @@ public class InterfaceMessages {
     public static final String PORT_PROMPT = "Porta";
     public static final String NICKNAME_PROMPT = "Nickname";
     public static final String HOST_PLACEHOLDER = "localhost";
-    public static final String PORT_PLACEHOLDER = "Inserisci la porta per la socket";
     public static final String NICKNAME_PLACEHOLDER = "Inserisci il tuo nickname";
     public static final String SOCKET = "Socket";
     public static final String RMI = "RMI";

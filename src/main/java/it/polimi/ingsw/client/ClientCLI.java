@@ -71,7 +71,7 @@ public class ClientCLI extends Client implements Observer {
                 while (!this.isActive() && !this.isGameOver()) Thread.sleep(10);
 
                 if (!isGameOver()) {
-                    Logger.println("È il tuo turno!");
+                    Logger.println(InterfaceMessages.ITS_YOUR_TURN);
                     boolean turnOver = false;
                     do {
                         try {
