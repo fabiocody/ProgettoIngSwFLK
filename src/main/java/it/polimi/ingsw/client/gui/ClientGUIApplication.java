@@ -227,10 +227,13 @@ public class ClientGUIApplication extends Application implements Observer {
         loginPane.setPadding(new Insets(25, 25, 25, 25));
         loginPane.add(connectionChoiceBox, 0, 0, 1, 3);
         loginPane.add(hostLabel, 1, 0);
+        GridPane.setHalignment(hostLabel, HPos.RIGHT);
         loginPane.add(hostTextField, 2, 0);
         loginPane.add(portLabel, 1, 1);
+        GridPane.setHalignment(portLabel, HPos.RIGHT);
         loginPane.add(portTextField, 2, 1);
         loginPane.add(nicknameLabel, 1, 2);
+        GridPane.setHalignment(nicknameLabel, HPos.RIGHT);
         loginPane.add(nicknameTextField, 2, 2);
         loginPane.add(loginButton, 2, 3);
         GridPane.setHalignment(loginButton, HPos.RIGHT);
