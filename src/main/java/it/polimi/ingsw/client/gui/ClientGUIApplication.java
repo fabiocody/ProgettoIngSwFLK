@@ -501,8 +501,7 @@ public class ClientGUIApplication extends Application implements Observer { //
                 if(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP)) {
                     TwoOptionsAlert continueAlert = new TwoOptionsAlert("Continue");
                     Options answer = continueAlert.present("Vuoi continuare?",Options.YES, Options.NO);
-                    if (answer == Options.YES) stop = false;
-                    else stop = true;
+                    stop = answer == Options.NO;
                     requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.STOP, stop);
                 }
                 this.useData(requiredData,cardIndex);
@@ -681,7 +680,7 @@ public class ClientGUIApplication extends Application implements Observer { //
      * @param resize the scale value of the numbered cell
      * @return the Canvas representing the numbered cell
      */
-    static Canvas createNumberedCell(int value, Color color, Double resize) {
+    private static Canvas createNumberedCell(int value, Color color, Double resize) {
         if (resize == null) resize = STANDARD_FACTOR;
         Canvas canvas = new Canvas(CELL_SIZE * resize, CELL_SIZE * resize);
         GraphicsContext gc = canvas.getGraphicsContext2D();
