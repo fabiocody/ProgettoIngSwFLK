@@ -69,7 +69,17 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private List<Node> focusedNode = new ArrayList<>();
     private Integer draftPoolIndex = null;
-    private Integer roundTrackIndex = null;
+    private Integer toolCardIndex = null;
+
+    private JsonObject requiredData;
+    private Integer requestedDraftPoolIndex = null;
+    private Integer requestedRoundTrackIndex = null;
+    private Integer requestedDelta = null;
+    private Integer requestedNewValue = null;
+    private Integer requestedFromCellX = null;
+    private Integer requesdtedFromCellY = null;
+    private Integer requestedToCellX = null;
+    private Integer requestedToCellY = null;
 
     public static void setClient(Client c) {
         if (clientSet) {
@@ -126,8 +136,8 @@ public class ClientGUIApplication extends Application implements Observer {
         reset();
 
         primaryStage.setTitle(WINDOW_TITLE);
-
         Label hostLabel = new Label(HOST_PROMPT);
+        //hostLabel.setFont(new Font("Myriad", 30));
         Label portLabel = new Label(PORT_PROMPT);
         Label nicknameLabel = new Label(NICKNAME_PROMPT);
         Button loginButton = new Button("Login");
@@ -371,8 +381,33 @@ public class ClientGUIApplication extends Application implements Observer {
         gc.setLineWidth(3);
         gc.setStroke(Color.AQUA);
         gc.strokeRoundRect(0, 0, CELL_SIZE * STANDARD_FACTOR, CELL_SIZE * STANDARD_FACTOR, 10 * STANDARD_FACTOR, 10 * STANDARD_FACTOR);
-        draftPoolIndex = GridPane.getColumnIndex(dieCanvas);
+        if (toolCardIndex == null){
+            draftPoolIndex = GridPane.getColumnIndex(dieCanvas);
+        } else {
+            requestedDraftPoolIndex = GridPane.getColumnIndex(dieCanvas);
+            if (requestedDelta == Constants.INDEX_CONSTANT){
+                //showDelta(requestedDraftPoolIndex);   creare popup sevezione delta
+            }
+            useToolCardIfReady();
+        }
+
     }
+
+    /*private void onRequestedDraftPoolClick(MouseEvent e) {
+        if (requestedDraftPoolIndex == Constants.INDEX_CONSTANT && toolCardIndex != null) {
+            resetDraftPoolHighlight();
+            Canvas dieCanvas = (Canvas) e.getSource();
+            GraphicsContext gc = dieCanvas.getGraphicsContext2D();
+            gc.setLineWidth(3);
+            gc.setStroke(Color.AQUA);
+            gc.strokeRoundRect(0, 0, CELL_SIZE * STANDARD_FACTOR, CELL_SIZE * STANDARD_FACTOR, 10 * STANDARD_FACTOR, 10 * STANDARD_FACTOR);
+            requestedDraftPoolIndex = GridPane.getColumnIndex(dieCanvas);
+            if (requestedDelta == Constants.INDEX_CONSTANT){
+                //showDelta(requestedDraftPoolIndex);   creare popup sevezione delta
+            }
+            useToolCardIfReady();
+        }
+    }*/
 
     private void onCellClick(MouseEvent e) {
         if (draftPoolIndex != null) {
@@ -402,8 +437,14 @@ public class ClientGUIApplication extends Application implements Observer {
                 ComboBox<JsonObject> comboBox = (ComboBox) roundTrack.getChildren().get(i);
                 index += comboBox.getItems().size();
             }
-            roundTrackIndex = index + selectedIndex;
+            requestedRoundTrackIndex = index + selectedIndex;
         }).start();
+    }
+
+    private void onToolCardClick(MouseEvent e) {
+        ImageView selectedToolCard = (ImageView) e.getSource();
+        toolCardIndex = GridPane.getColumnIndex(selectedToolCard);
+        useToolCardMove(toolCardIndex);
     }
 
     private void resetDraftPoolHighlight() {
@@ -439,6 +480,106 @@ public class ClientGUIApplication extends Application implements Observer {
             gc.strokeRoundRect(0, 0, CELL_SIZE * STANDARD_FACTOR, CELL_SIZE * STANDARD_FACTOR, 10 * STANDARD_FACTOR, 10 * STANDARD_FACTOR);
         } else {
             consoleLabel.setText(InterfaceMessages.UNSUCCESSFUL_DIE_PLACEMENT + result.get(JsonFields.ERROR_MESSAGE).getAsString());
+        }
+    }
+
+    private void useToolCardMove(int toolCardIndex){
+        int cardIndex;
+        boolean stop;
+        boolean valid;
+        cardIndex = toolCardIndex;
+        requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
+        requiredData.remove("method");
+        if (requiredData.get("data").getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS)
+                || requiredData.get("data").getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {
+            consoleLabel.setText(InterfaceMessages.UNSUCCESSFUL_TOOL_CARD_USAGE + requiredData.get("data").getAsJsonObject()
+                    .get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString());
+        } else {
+            if (!(requiredData.get("data").getAsJsonObject().has(JsonFields.STOP) && requiredData.get("data").getAsJsonObject().get(JsonFields.STOP).getAsBoolean())) {
+                if (requiredData.get("data").getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) {
+                    requestedDraftPoolIndex = Constants.INDEX_CONSTANT;
+                    focusedNode.add(draftPool);
+                }
+                if (requiredData.get("data").getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX)) {
+                    requestedRoundTrackIndex = Constants.INDEX_CONSTANT;
+                    focusedNode.add(roundTrack);
+                }
+                if (requiredData.get("data").getAsJsonObject().has(JsonFields.DELTA)) {
+                    requestedDelta = Constants.INDEX_CONSTANT;
+                }
+                if (requiredData.get("data").getAsJsonObject().has(JsonFields.NEW_VALUE)) {
+                    requestedNewValue = Constants.INDEX_CONSTANT;
+                }
+                if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_X)) {
+                    requestedFromCellX = Constants.INDEX_CONSTANT;
+                }
+                if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_Y)) {
+                    requesdtedFromCellY = Constants.INDEX_CONSTANT;
+                }
+                if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_X)) {
+                    requestedToCellX = Constants.INDEX_CONSTANT;
+                }
+                if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_Y)) {
+                    requestedToCellY = Constants.INDEX_CONSTANT;
+                }
+            }
+        }
+    }
+
+    private void onRequestedRoundTrackClick(MouseEvent e){
+        if (requestedRoundTrackIndex == Constants.INDEX_CONSTANT && toolCardIndex !=null){
+            Canvas dieCanvas = (Canvas) e.getSource();
+            requestedRoundTrackIndex = GridPane.getColumnIndex(dieCanvas);
+            useToolCardIfReady();
+        }
+    }
+
+    private void useToolCardIfReady(){
+        if(toolCardIndex != null && requestedDraftPoolIndex != Constants.INDEX_CONSTANT &&
+                requestedRoundTrackIndex != Constants.INDEX_CONSTANT && requestedFromCellX != Constants.INDEX_CONSTANT &&
+                requesdtedFromCellY != Constants.INDEX_CONSTANT && requestedToCellX != Constants.INDEX_CONSTANT &&
+                requestedToCellY != Constants.INDEX_CONSTANT && requestedNewValue != Constants.INDEX_CONSTANT &&
+                requestedDelta != Constants.INDEX_CONSTANT) {
+            useData(requiredData, toolCardIndex);
+        }
+    }
+
+    private boolean useData(JsonObject requiredData, int cardIndex){
+
+        if (!(requiredData.get("data").getAsJsonObject().has(JsonFields.STOP) && requiredData.get("data").getAsJsonObject().get(JsonFields.STOP).getAsBoolean())) {
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) {
+                requiredData.get("data").getAsJsonObject().addProperty("draftPoolIndex", requestedDraftPoolIndex);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX)) {
+                requiredData.get("data").getAsJsonObject().addProperty("roundTrackIndex", requestedRoundTrackIndex);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.DELTA)) {
+                requiredData.get("data").getAsJsonObject().addProperty("delta", requestedDelta);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.NEW_VALUE)) {
+                requiredData.get("data").getAsJsonObject().addProperty("newValue", requestedNewValue);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_X)) {
+                requiredData.get("data").getAsJsonObject().addProperty("fromCellX", requestedFromCellX);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_Y)) {
+                requiredData.get("data").getAsJsonObject().addProperty("fromCellY", requesdtedFromCellY);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_X)) {
+                requiredData.get("data").getAsJsonObject().addProperty("toCellX", requestedToCellX);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_Y)) {
+                requiredData.get("data").getAsJsonObject().addProperty("toCellY", requestedToCellY);
+            }
+        }
+        JsonObject result = ClientNetwork.getInstance().useToolCard(cardIndex,requiredData.get("data").getAsJsonObject());
+        if(result.get(JsonFields.RESULT).getAsBoolean()){
+            if(!requiredData.get("data").getAsJsonObject().has(JsonFields.CONTINUE)) Logger.println("\nCarta strumento usata con successo!");
+            return true;
+        }
+        else {
+            Logger.println("\nCarta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString());
+            return false;
         }
     }
 
