@@ -25,6 +25,7 @@ public class InterfaceMessages {
     public static final String NO_PROPER_COLOR_DIE_ON_ROUND_TRACK = "non ci sono dadi di questo colore nel tracciato del round";
 
     public static final String ITS_YOUR_TURN = "È il tuo turno";
+    public static final String WAIT_FOR_YOUR_TURN = "Aspetta il tuo turno";
 
     public static final String WINDOW_TITLE = "Sagrada";
     public static final String LOGIN_FAILED_EMPTY = "Login fallito!\nI nickname non possono essere vuoti";

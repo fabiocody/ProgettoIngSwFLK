@@ -4,7 +4,7 @@ import com.google.gson.*;
 import it.polimi.ingsw.client.*;
 import it.polimi.ingsw.client.gui.alerts.*;
 import it.polimi.ingsw.shared.util.*;
-import javafx.animation.FadeTransition;
+import javafx.animation.*;
 import javafx.application.*;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -51,6 +51,7 @@ public class ClientGUIApplication extends Application implements Observer {
     private static boolean clientSet = false;
     private static boolean debug;
     private Stage primaryStage;
+    private List<Animation> animations = new ArrayList<>();
 
     /*********************
      * Graphical (Login) *
@@ -73,9 +74,9 @@ public class ClientGUIApplication extends Application implements Observer {
     private String privateObjCardName;
     private Label gameTimerLabel = new Label("∞");
     private GridPane boardPane;
-    private List<ImageView> toolCards = new ArrayList<>();
-    private List<ImageView> publicObjectiveCards = new ArrayList<>();
-    private List<GridPane> windowPatterns = new ArrayList<>();
+    private List<ImageView> toolCards = new Vector<>();
+    private List<ImageView> publicObjectiveCards = new Vector<>();
+    private List<GridPane> windowPatterns = new Vector<>();
     private GridPane myWindowPattern;
     private GridPane roundTrack;
     private GridPane draftPool;
@@ -139,6 +140,34 @@ public class ClientGUIApplication extends Application implements Observer {
         transition.setCycleCount(4);
         transition.setAutoReverse(true);
         transition.play();
+    }
+
+    private void addZoomingAnimation(Node node) {
+        ScaleTransition animation = new ScaleTransition(Duration.seconds(1), node);
+        animation.setFromX(1);
+        animation.setFromY(1);
+        animation.setToX(1.1);
+        animation.setToY(1.1);
+        animation.setInterpolator(Interpolator.EASE_BOTH);
+        animation.setCycleCount(Animation.INDEFINITE);
+        animation.setAutoReverse(true);
+        animations.add(animation);
+        animation.play();
+    }
+
+    private void restoreAnimatedNodes() {
+        for (Animation animation : animations) {
+            animation.stop();
+            if (animation instanceof ScaleTransition) {
+                ScaleTransition scaleTransition = (ScaleTransition) animation;
+                scaleTransition.setToX(1);
+                scaleTransition.setToY(1);
+            }
+            animation.setCycleCount(1);
+            animation.setAutoReverse(false);
+            animation.play();
+        }
+        animations.clear();
     }
 
 
@@ -288,7 +317,7 @@ public class ClientGUIApplication extends Application implements Observer {
         GridPane.setValignment(nextTurnButton, VPos.BOTTOM);
 
         cancelButton = new Button("Annulla");
-        cancelButton.setOnAction(e -> cancelAction());
+        cancelButton.setOnAction(e -> cancelAction(true));
         cancelButton.setDisable(true);
         boardPane.add(cancelButton, 6, 4);
         GridPane.setHalignment(cancelButton, HPos.LEFT);
@@ -357,22 +386,21 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
-    private void cancelAction() {
+    private void cancelAction(boolean resetConsoleLabel) {
         resetDraftPoolHighlight();
         resetToolCardsEnvironment();
         Platform.runLater(() -> {
             cancelButton.setDisable(true);
-            setConsoleLabelText(ITS_YOUR_TURN);
+            if (resetConsoleLabel) setConsoleLabelText(ITS_YOUR_TURN);
+            restoreAnimatedNodes();
         });
     }
 
     private void onDraftPoolClick(MouseEvent e) {
         if (client.isActive()) {
+            restoreAnimatedNodes();
             Canvas dieCanvas = (Canvas) e.getSource();
-            GraphicsContext gc = dieCanvas.getGraphicsContext2D();
-            gc.setLineWidth(3);
-            gc.setStroke(Color.AQUA);
-            gc.strokeRoundRect(0, 0, CELL_SIZE * STANDARD_FACTOR, CELL_SIZE * STANDARD_FACTOR, 10 * STANDARD_FACTOR, 10 * STANDARD_FACTOR);
+            addZoomingAnimation(dieCanvas);
             if (toolCardIndex == null) {
                 draftPoolIndex = GridPane.getColumnIndex(dieCanvas);
             } else {
@@ -384,7 +412,9 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private void onToolCardClick(MouseEvent e) {
         if (client.isActive()) {
+            restoreAnimatedNodes();
             ImageView selectedToolCard = (ImageView) e.getSource();
+            addZoomingAnimation(selectedToolCard);
             toolCardIndex = GridPane.getColumnIndex(selectedToolCard);
             new Thread(() -> useToolCardMove(toolCardIndex)).start();
             cancelButton.setDisable(false);
@@ -485,9 +515,9 @@ public class ClientGUIApplication extends Application implements Observer {
         wrTimerLabel = new Label("∞");
         gameTimerLabel = new Label("∞");
         boardPane = null;
-        toolCards = new ArrayList<>();
-        publicObjectiveCards = new ArrayList<>();
-        windowPatterns = new ArrayList<>();
+        toolCards = new Vector<>();
+        publicObjectiveCards = new Vector<>();
+        windowPatterns = new Vector<>();
         myWindowPattern = null;
         roundTrack = null;
         draftPool = null;
@@ -496,13 +526,13 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private void resetDraftPoolHighlight() {
         Platform.runLater(() -> {
-            for (Node node : draftPool.getChildren()) {
+            /*for (Node node : draftPool.getChildren()) {
                 Canvas die = (Canvas) node;
                 GraphicsContext gc = die.getGraphicsContext2D();
                 gc.setLineWidth(3);
                 gc.setStroke(Color.BLACK);
                 gc.strokeRoundRect(0, 0, CELL_SIZE * STANDARD_FACTOR, CELL_SIZE * STANDARD_FACTOR, 10 * STANDARD_FACTOR, 10 * STANDARD_FACTOR);
-            }
+            }*/
             cancelButton.setDisable(true);
         });
         draftPoolIndex = null;
@@ -543,16 +573,11 @@ public class ClientGUIApplication extends Application implements Observer {
         JsonObject result = ClientNetwork.getInstance().placeDie(draftPoolIndex, x, y);
         if (result.get(JsonFields.RESULT).getAsBoolean()) {
             setConsoleLabelText(InterfaceMessages.SUCCESSFUL_DIE_PLACEMENT);
-            this.draftPoolIndex = null;
-            Canvas dieCanvas = (Canvas) draftPool.getChildren().get(draftPoolIndex);
-            GraphicsContext gc = dieCanvas.getGraphicsContext2D();
-            gc.setLineWidth(3);
-            gc.setStroke(Color.BLACK);
-            gc.strokeRoundRect(0, 0, CELL_SIZE * STANDARD_FACTOR, CELL_SIZE * STANDARD_FACTOR, 10 * STANDARD_FACTOR, 10 * STANDARD_FACTOR);
         } else {
             setConsoleLabelText(InterfaceMessages.UNSUCCESSFUL_DIE_PLACEMENT + result.get(JsonFields.ERROR_MESSAGE).getAsString());
         }
-        resetDraftPoolHighlight();
+        this.draftPoolIndex = null;
+        cancelAction(false);
     }
 
     private void useToolCardMove(int toolCardIndex){
@@ -562,9 +587,9 @@ public class ClientGUIApplication extends Application implements Observer {
         cardIndex = toolCardIndex;
         requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
         requiredData.remove(JsonFields.METHOD);
-        if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS)
-                || requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {
+        if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS) || requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {
             Platform.runLater(() -> setConsoleLabelText(InterfaceMessages.UNSUCCESSFUL_TOOL_CARD_USAGE + requiredData.get(JsonFields.DATA).getAsJsonObject().get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString()));
+            cancelAction(false);
         } else {
             valid = this.useData(requiredData,cardIndex);
             if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE) && valid) {
@@ -664,13 +689,13 @@ public class ClientGUIApplication extends Application implements Observer {
         if (result.get(JsonFields.RESULT).getAsBoolean()) {
             if (!data.has(JsonFields.CONTINUE)) {
                 Platform.runLater(() -> setConsoleLabelText("Carta strumento usata con successo!"));
-                resetToolCardsEnvironment();
+                cancelAction(false);
             }
             return true;
         }
         else {
             Platform.runLater(() -> setConsoleLabelText("Carta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString()));
-            resetToolCardsEnvironment();
+            cancelAction(false);
             return false;
         }
     }
@@ -755,7 +780,7 @@ public class ClientGUIApplication extends Application implements Observer {
             gc.fillRect(0, 0, CELL_SIZE * resize, CELL_SIZE * resize);
         } else {
             gc.fillRoundRect(0, 0, CELL_SIZE * resize, CELL_SIZE * resize, 10 * resize, 10 * resize);
-            gc.setLineWidth(3 * resize);
+            gc.setLineWidth(2);
             gc.strokeRoundRect(0, 0, CELL_SIZE * resize, CELL_SIZE * resize, 10 * resize, 10 * resize);
         }
         gc.setFill(Color.WHITE);
@@ -1043,14 +1068,16 @@ public class ClientGUIApplication extends Application implements Observer {
                 .map(JsonElement::getAsString)
                 .collect(Collectors.toList());
         client.setSuspendedPlayers(suspendedPlayers);
+        boolean wasActive = client.isActive();
         client.setActive(jsonArg.get(JsonFields.ACTIVE_PLAYER).getAsString());
         draftPool.getChildren().forEach(node -> node.setOnMouseClicked(this::onDraftPoolClick));
         toolCards.forEach(toolCard -> toolCard.setOnMouseClicked(this::onToolCardClick));
         if (!client.isActive() && !client.isSuspended() && !client.isGameOver()) {
-            setConsoleLabelText("Aspetta il tuo turno.");
+            setConsoleLabelText(WAIT_FOR_YOUR_TURN);
             nextTurnButton.setDisable(true);
         } else if (client.isActive()) {
-            setConsoleLabelText(ITS_YOUR_TURN);
+            if (!wasActive)
+                setConsoleLabelText(ITS_YOUR_TURN);
             nextTurnButton.setDisable(false);
         }
     }

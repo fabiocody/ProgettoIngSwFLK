@@ -714,7 +714,7 @@ public class ClientCLI extends Client implements Observer {
                 .reduce((s, r) -> s + ", " + r)
                 .ifPresent(sp -> Logger.println("Giocatori sospesi: " + sp + "\n"));
         this.setActive(jsonArg.get(JsonFields.ACTIVE_PLAYER).getAsString());
-        if (!isActive() && !isSuspended() && !isGameOver()) Logger.println("Aspetta il tuo turno.");
+        if (!isActive() && !isSuspended() && !isGameOver()) Logger.println(InterfaceMessages.WAIT_FOR_YOUR_TURN);
         stopAsyncInput = true;
     }
 

@@ -45,7 +45,9 @@ public class TwoOptionsAlert extends AlertWindow {
                 getGridPane().add(label, 0, 0, 2, 1);
             }
             getGridPane().add(leftButton, 0, 1);
+            GridPane.setHalignment(leftButton, HPos.LEFT);
             getGridPane().add(rightButton, 1, 1);
+            GridPane.setHalignment(rightButton, HPos.RIGHT);
 
         });
         return answer;
