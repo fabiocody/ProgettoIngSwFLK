@@ -1,7 +1,13 @@
 package it.polimi.ingsw.client.gui.alerts;
 
+import it.polimi.ingsw.client.gui.ClientGUIApplication;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
+import javafx.scene.layout.GridPane;
 
 
 public class SpinnerAlert extends AlertWindow {
@@ -13,7 +19,7 @@ public class SpinnerAlert extends AlertWindow {
         super(title);
     }
 
-    public int present(String message, int from, int to) {
+    public int present(String message, Canvas dieCanvas, int from, int to) {
         present(() -> {
 
             Label label = getMessageLabel(message);
@@ -26,7 +32,10 @@ public class SpinnerAlert extends AlertWindow {
             spinner.setValueFactory(valueFactory);
             spinner.setOnKeyPressed(this::onKeyPressed);
 
+            getGridPane().setPadding(new Insets(25, 25, 25, 25));
             getGridPane().add(label, 0, 0);
+            getGridPane().add(dieCanvas, 1, 0);
+            GridPane.setHalignment(dieCanvas, HPos.CENTER);
             getGridPane().add(spinner, 0, 1);
             getGridPane().add(button, 1, 1);
 
