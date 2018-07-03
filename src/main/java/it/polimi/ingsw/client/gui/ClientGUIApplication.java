@@ -4,6 +4,7 @@ import com.google.gson.*;
 import it.polimi.ingsw.client.*;
 import it.polimi.ingsw.client.gui.alerts.*;
 import it.polimi.ingsw.shared.util.*;
+import javafx.animation.FadeTransition;
 import javafx.application.*;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -12,20 +13,19 @@ import javafx.scene.*;
 import javafx.scene.canvas.*;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.TextAlignment;
+import javafx.scene.text.*;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.*;
 import static it.polimi.ingsw.shared.util.InterfaceMessages.*;
 
 
-public class ClientGUIApplication extends Application implements Observer { //
+public class ClientGUIApplication extends Application implements Observer {
 
     /*************
      * Constants *
@@ -34,7 +34,7 @@ public class ClientGUIApplication extends Application implements Observer { //
     private static final int LOGIN_WINDOW_HEIGHT = 500;
     private static final int SELECTABLE_WP_WINDOW_WIDTH = 1000;
     private static final int SELECTABLE_WP_WINDOW_HEIGHT = 700;
-    static final int CELL_SIZE = 60;
+    private static final int CELL_SIZE = 60;
     private static final int DOT_SIZE = 10;
     private static final double RESIZE_FACTOR = 0.6;
     private static final double STANDARD_FACTOR = 0.8;
@@ -131,6 +131,16 @@ public class ClientGUIApplication extends Application implements Observer { //
         }
     }
 
+    private void setConsoleLabelText(String text) {
+        consoleLabel.setText(text);
+        FadeTransition transition = new FadeTransition(Duration.millis(300), consoleLabel);
+        transition.setFromValue(1.0);
+        transition.setToValue(0);
+        transition.setCycleCount(4);
+        transition.setAutoReverse(true);
+        transition.play();
+    }
+
 
     /*********
      * Start *
@@ -160,7 +170,6 @@ public class ClientGUIApplication extends Application implements Observer { //
         Label portLabel = new Label(PORT_PROMPT);
         Label nicknameLabel = new Label(NICKNAME_PROMPT);
         Button loginButton = new Button("Login");
-        ImageView sagradaLogoImage;
 
         connectionChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(SOCKET, RMI));
         connectionChoiceBox.getSelectionModel().selectFirst();
@@ -177,7 +186,7 @@ public class ClientGUIApplication extends Application implements Observer { //
         loginButton.setOnAction(e -> loginAction());
 
         Image sagrada = new Image(PicturesPaths.SAGRADA_LOGO);
-        sagradaLogoImage = new ImageView(sagrada);
+        ImageView sagradaLogoImage = new ImageView(sagrada);
         sagradaLogoImage.setFitHeight(400);
         sagradaLogoImage.setFitWidth(400);
         sagradaLogoImage.setPreserveRatio(true);
@@ -286,7 +295,6 @@ public class ClientGUIApplication extends Application implements Observer { //
         GridPane.setValignment(cancelButton, VPos.TOP);
 
         Scene scene = new Scene(boardPane);
-        //scene.setOnMouseClicked(this::onOutsideClick);
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true);
         boardShown = true;
@@ -354,7 +362,7 @@ public class ClientGUIApplication extends Application implements Observer { //
         resetToolCardsEnvironment();
         Platform.runLater(() -> {
             cancelButton.setDisable(true);
-            consoleLabel.setText(ITS_YOUR_TURN);
+            setConsoleLabelText(ITS_YOUR_TURN);
         });
     }
 
@@ -374,11 +382,20 @@ public class ClientGUIApplication extends Application implements Observer { //
         }
     }
 
+    private void onToolCardClick(MouseEvent e) {
+        if (client.isActive()) {
+            ImageView selectedToolCard = (ImageView) e.getSource();
+            toolCardIndex = GridPane.getColumnIndex(selectedToolCard);
+            new Thread(() -> useToolCardMove(toolCardIndex)).start();
+            cancelButton.setDisable(false);
+        }
+    }
+
     private void onCellClick(MouseEvent e) {
         if (toolCardIndex == null && draftPoolIndex != null) {
             StackPane cell = (StackPane) e.getSource();
             int x = GridPane.getColumnIndex(cell);
-            int y = GridPane.getRowIndex(cell) - 1;     // We absolutely don't know why "- 1" is required, but it f*****g works, so...
+            int y = GridPane.getRowIndex(cell) - 1;     // -1 required because the first row is the nickname label
             placeDie(draftPoolIndex, x, y);
         } else {
             // TODO
@@ -398,15 +415,6 @@ public class ClientGUIApplication extends Application implements Observer { //
                 index += pane.getChildren().size();
             }
             requestedRoundTrackIndex = index + column * MAX_DICE_ON_ROUND_TRACK_COLUMN + row;
-        }
-    }
-
-    private void onToolCardClick(MouseEvent e) {
-        if (client.isActive()) {
-            ImageView selectedToolCard = (ImageView) e.getSource();
-            toolCardIndex = GridPane.getColumnIndex(selectedToolCard);
-            new Thread(() -> useToolCardMove(toolCardIndex)).start();
-            cancelButton.setDisable(false);
         }
     }
 
@@ -534,7 +542,7 @@ public class ClientGUIApplication extends Application implements Observer { //
     private void placeDie(int draftPoolIndex, int x, int y) {
         JsonObject result = ClientNetwork.getInstance().placeDie(draftPoolIndex, x, y);
         if (result.get(JsonFields.RESULT).getAsBoolean()) {
-            consoleLabel.setText(InterfaceMessages.SUCCESSFUL_DIE_PLACEMENT);
+            setConsoleLabelText(InterfaceMessages.SUCCESSFUL_DIE_PLACEMENT);
             this.draftPoolIndex = null;
             Canvas dieCanvas = (Canvas) draftPool.getChildren().get(draftPoolIndex);
             GraphicsContext gc = dieCanvas.getGraphicsContext2D();
@@ -542,7 +550,7 @@ public class ClientGUIApplication extends Application implements Observer { //
             gc.setStroke(Color.BLACK);
             gc.strokeRoundRect(0, 0, CELL_SIZE * STANDARD_FACTOR, CELL_SIZE * STANDARD_FACTOR, 10 * STANDARD_FACTOR, 10 * STANDARD_FACTOR);
         } else {
-            consoleLabel.setText(InterfaceMessages.UNSUCCESSFUL_DIE_PLACEMENT + result.get(JsonFields.ERROR_MESSAGE).getAsString());
+            setConsoleLabelText(InterfaceMessages.UNSUCCESSFUL_DIE_PLACEMENT + result.get(JsonFields.ERROR_MESSAGE).getAsString());
         }
         resetDraftPoolHighlight();
     }
@@ -556,7 +564,7 @@ public class ClientGUIApplication extends Application implements Observer { //
         requiredData.remove(JsonFields.METHOD);
         if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS)
                 || requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {
-            Platform.runLater(() -> consoleLabel.setText(InterfaceMessages.UNSUCCESSFUL_TOOL_CARD_USAGE + requiredData.get(JsonFields.DATA).getAsJsonObject().get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString()));
+            Platform.runLater(() -> setConsoleLabelText(InterfaceMessages.UNSUCCESSFUL_TOOL_CARD_USAGE + requiredData.get(JsonFields.DATA).getAsJsonObject().get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString()));
         } else {
             valid = this.useData(requiredData,cardIndex);
             if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE) && valid) {
@@ -577,7 +585,7 @@ public class ClientGUIApplication extends Application implements Observer { //
         JsonObject data = requiredData.getAsJsonObject(JsonFields.DATA);
         if (!(data.has(JsonFields.STOP) && data.get(JsonFields.STOP).getAsBoolean())) {
             if (data.has(JsonFields.DRAFT_POOL_INDEX)) {
-                Platform.runLater(() -> consoleLabel.setText("Seleziona un dado dalla riserva"));
+                Platform.runLater(() -> setConsoleLabelText("Seleziona un dado dalla riserva"));
                 while (requestedDraftPoolIndex == null) {
                     try {
                         Thread.sleep(1);
@@ -588,7 +596,7 @@ public class ClientGUIApplication extends Application implements Observer { //
                 data.addProperty(JsonFields.DRAFT_POOL_INDEX, requestedDraftPoolIndex);
             }
             if (data.has(JsonFields.ROUND_TRACK_INDEX)) {
-                Platform.runLater(() -> consoleLabel.setText("Seleziona un dado dal roundTrack"));
+                Platform.runLater(() -> setConsoleLabelText("Seleziona un dado dal roundTrack"));
                 while (requestedRoundTrackIndex == null) {
                     try {
                         Thread.sleep(1);
@@ -628,7 +636,7 @@ public class ClientGUIApplication extends Application implements Observer { //
                 data.addProperty(JsonFields.NEW_VALUE, requestedNewValue);
             }
             if (data.has(JsonFields.FROM_CELL_X)) {
-                Platform.runLater(() -> consoleLabel.setText("Seleziona la cella da cui vuoi muovere il dado"));
+                Platform.runLater(() -> setConsoleLabelText("Seleziona la cella da cui vuoi muovere il dado"));
                 while (requestedFromCellX == null) {
                     try {
                         Thread.sleep(1);
@@ -640,7 +648,7 @@ public class ClientGUIApplication extends Application implements Observer { //
                 data.addProperty(JsonFields.FROM_CELL_Y, requestedFromCellY);
             }
             if (data.has(JsonFields.TO_CELL_X)) {
-                Platform.runLater(() -> consoleLabel.setText("Seleziona la cella in cui vuoi muovere il dado"));
+                Platform.runLater(() -> setConsoleLabelText("Seleziona la cella in cui vuoi muovere il dado"));
                 while (requestedToCellX == null) {
                     try {
                         Thread.sleep(1);
@@ -655,13 +663,13 @@ public class ClientGUIApplication extends Application implements Observer { //
         JsonObject result = ClientNetwork.getInstance().useToolCard(cardIndex, data);
         if (result.get(JsonFields.RESULT).getAsBoolean()) {
             if (!data.has(JsonFields.CONTINUE)) {
-                Platform.runLater(() -> consoleLabel.setText("Carta strumento usata con successo!"));
+                Platform.runLater(() -> setConsoleLabelText("Carta strumento usata con successo!"));
                 resetToolCardsEnvironment();
             }
             return true;
         }
         else {
-            Platform.runLater(() -> consoleLabel.setText("Carta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString()));
+            Platform.runLater(() -> setConsoleLabelText("Carta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString()));
             resetToolCardsEnvironment();
             return false;
         }
@@ -1039,10 +1047,10 @@ public class ClientGUIApplication extends Application implements Observer { //
         draftPool.getChildren().forEach(node -> node.setOnMouseClicked(this::onDraftPoolClick));
         toolCards.forEach(toolCard -> toolCard.setOnMouseClicked(this::onToolCardClick));
         if (!client.isActive() && !client.isSuspended() && !client.isGameOver()) {
-            consoleLabel.setText("Aspetta il tuo turno.");
+            setConsoleLabelText("Aspetta il tuo turno.");
             nextTurnButton.setDisable(true);
         } else if (client.isActive()) {
-            consoleLabel.setText(ITS_YOUR_TURN);
+            setConsoleLabelText(ITS_YOUR_TURN);
             nextTurnButton.setDisable(false);
         }
     }
