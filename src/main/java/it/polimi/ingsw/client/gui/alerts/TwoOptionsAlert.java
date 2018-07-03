@@ -51,6 +51,10 @@ public class TwoOptionsAlert extends AlertWindow {
         return answer;
     }
 
+    public Options present(String message, Options leftOption, Options rightOption) {
+        return present(message, null, leftOption, rightOption);
+    }
+
     private void onButtonClick(ActionEvent e) {
         Button source = (Button) e.getSource();
         String text = source.getText();

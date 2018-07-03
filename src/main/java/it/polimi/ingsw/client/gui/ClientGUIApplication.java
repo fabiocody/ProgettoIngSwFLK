@@ -25,7 +25,7 @@ import java.util.stream.*;
 import static it.polimi.ingsw.shared.util.InterfaceMessages.*;
 
 
-public class ClientGUIApplication extends Application implements Observer {
+public class ClientGUIApplication extends Application implements Observer { //
 
     private static final int LOGIN_WINDOW_WIDTH = 700;
     private static final int LOGIN_WINDOW_HEIGHT = 500;
@@ -69,9 +69,19 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private boolean boardShown = false;
 
-    private Set<Node> focusedNode = new HashSet<>();
+    private Set<Object> focusedNode = new HashSet<>();
     private Integer draftPoolIndex = null;
-    private Integer roundTrackIndex = null;
+    private Integer toolCardIndex = null;
+
+    private JsonObject requiredData;
+    private Integer requestedDraftPoolIndex = null;
+    private Integer requestedRoundTrackIndex = null;
+    private Integer requestedDelta = null;
+    private Integer requestedNewValue = null;
+    private Integer requestedFromCellX = null;
+    private Integer requestedFromCellY = null;
+    private Integer requestedToCellX = null;
+    private Integer requestedToCellY = null;
 
     public static void setClient(Client c) {
         if (clientSet) {
@@ -128,8 +138,8 @@ public class ClientGUIApplication extends Application implements Observer {
         reset();
 
         primaryStage.setTitle(WINDOW_TITLE);
-
         Label hostLabel = new Label(HOST_PROMPT);
+        //hostLabel.setFont(new Font("Myriad", 30));
         Label portLabel = new Label(PORT_PROMPT);
         Label nicknameLabel = new Label(NICKNAME_PROMPT);
         Button loginButton = new Button("Login");
@@ -373,15 +383,24 @@ public class ClientGUIApplication extends Application implements Observer {
         gc.setLineWidth(3);
         gc.setStroke(Color.AQUA);
         gc.strokeRoundRect(0, 0, CELL_SIZE * STANDARD_FACTOR, CELL_SIZE * STANDARD_FACTOR, 10 * STANDARD_FACTOR, 10 * STANDARD_FACTOR);
-        draftPoolIndex = GridPane.getColumnIndex(dieCanvas);
+        if (toolCardIndex == null){
+            draftPoolIndex = GridPane.getColumnIndex(dieCanvas);
+        } else {
+            requestedDraftPoolIndex = GridPane.getColumnIndex(dieCanvas);
+        }
+
     }
 
     private void onCellClick(MouseEvent e) {
-        if (draftPoolIndex != null) {
-            StackPane cell = (StackPane) e.getSource();
-            int x = GridPane.getColumnIndex(cell);
-            int y = GridPane.getRowIndex(cell) - 1;     // We absolutely don't know why "- 1" is required, but it f*****g works, so...
-            placeDie(draftPoolIndex, x, y);
+        if (toolCardIndex == null) {
+            if (draftPoolIndex != null) {
+                StackPane cell = (StackPane) e.getSource();
+                int x = GridPane.getColumnIndex(cell);
+                int y = GridPane.getRowIndex(cell) - 1;     // We absolutely don't know why "- 1" is required, but it f*****g works, so...
+                placeDie(draftPoolIndex, x, y);
+            }
+        } else {
+
         }
     }
 
@@ -404,8 +423,13 @@ public class ClientGUIApplication extends Application implements Observer {
             GridPane pane = (GridPane) getNode(roundTrack, i, 1);
             index += pane.getChildren().size();
         }
-        roundTrackIndex = index + column * MAX_DICE_ON_ROUND_TRACK_COLUMN + row;
-        System.out.println(roundTrackIndex);
+        requestedRoundTrackIndex = index + column * MAX_DICE_ON_ROUND_TRACK_COLUMN + row;
+    }
+
+    private void onToolCardClick(MouseEvent e) {
+        ImageView selectedToolCard = (ImageView) e.getSource();
+        toolCardIndex = GridPane.getColumnIndex(selectedToolCard);
+        new Thread(() -> useToolCardMove(toolCardIndex)).start();
     }
 
     private void resetDraftPoolHighlight() {
@@ -441,6 +465,146 @@ public class ClientGUIApplication extends Application implements Observer {
             gc.strokeRoundRect(0, 0, CELL_SIZE * STANDARD_FACTOR, CELL_SIZE * STANDARD_FACTOR, 10 * STANDARD_FACTOR, 10 * STANDARD_FACTOR);
         } else {
             consoleLabel.setText(InterfaceMessages.UNSUCCESSFUL_DIE_PLACEMENT + result.get(JsonFields.ERROR_MESSAGE).getAsString());
+        }
+    }
+
+    private void useToolCardMove(int toolCardIndex){
+        int cardIndex;
+        boolean stop;
+        boolean valid;
+        cardIndex = toolCardIndex;
+        requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
+        requiredData.remove("method");
+        if (requiredData.get("data").getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS)
+                || requiredData.get("data").getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {
+            Platform.runLater(() -> consoleLabel.setText(InterfaceMessages.UNSUCCESSFUL_TOOL_CARD_USAGE + requiredData.get("data").getAsJsonObject().get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString()));
+        } else {
+            valid = this.useData(requiredData,cardIndex);
+            if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE) && valid) {
+                requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
+                requiredData.remove(JsonFields.METHOD);
+                if(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP)) {
+                    TwoOptionsAlert continueAlert = new TwoOptionsAlert("Continue");
+                    Options answer = continueAlert.present("Vuoi continuare?",Options.YES, Options.NO);
+                    if (answer == Options.YES) stop = false;
+                    else stop = true;
+                    requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.STOP, stop);
+                }
+                this.useData(requiredData,cardIndex);
+            }
+        }
+    }
+
+    private void onRequestedRoundTrackClick(MouseEvent e){
+        if (requestedRoundTrackIndex == Constants.INDEX_CONSTANT && toolCardIndex !=null){
+            Canvas dieCanvas = (Canvas) e.getSource();
+            requestedRoundTrackIndex = GridPane.getColumnIndex(dieCanvas);
+        }
+    }
+
+    /*private void useToolCardIfReady(){
+        if(toolCardIndex != null && requestedDraftPoolIndex != Constants.INDEX_CONSTANT &&
+                requestedRoundTrackIndex != Constants.INDEX_CONSTANT && requestedFromCellX != Constants.INDEX_CONSTANT &&
+                requestedFromCellY != Constants.INDEX_CONSTANT && requestedToCellX != Constants.INDEX_CONSTANT &&
+                requestedToCellY != Constants.INDEX_CONSTANT && requestedNewValue != Constants.INDEX_CONSTANT &&
+                requestedDelta != Constants.INDEX_CONSTANT) {
+            useData(requiredData, toolCardIndex);
+        }
+    }*/
+
+    private boolean useData(JsonObject requiredData, int cardIndex){
+
+        if (!(requiredData.get("data").getAsJsonObject().has(JsonFields.STOP) && requiredData.get("data").getAsJsonObject().get(JsonFields.STOP).getAsBoolean())) {
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) {
+                focusedNode.add(draftPool);
+                Platform.runLater(() -> consoleLabel.setText("seleziona un dado dalla riserva"));
+                while (requestedDraftPoolIndex != null) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.DRAFT_POOL_INDEX, requestedDraftPoolIndex);
+                focusedNode.remove(draftPool);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX)) {
+                focusedNode.add(roundTrack);
+                Platform.runLater(() -> consoleLabel.setText("seleziona un dado dal roundTrack"));
+                while (requestedRoundTrackIndex != null) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.ROUND_TRACK_INDEX, requestedRoundTrackIndex);
+                focusedNode.remove(roundTrack);
+
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.DELTA)) {
+                TwoOptionsAlert deltaAlert = new TwoOptionsAlert("Delta");
+                Options answer = deltaAlert.present("Vuoi aumentare o diminuire il valore di questo dado", Options.DECREMENT, Options.INCREMENT);
+                if (answer == Options.INCREMENT) requestedDelta = 1;
+                else requestedDelta = -1;
+                while (requestedDelta != null) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.DELTA, requestedDelta);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.NEW_VALUE)) {
+                SpinnerAlert newValueAlert = new SpinnerAlert("Nuovo Valore");
+                requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", (Canvas) draftPool.getChildren().get(requestedDraftPoolIndex), 1, 6);
+                while (requestedNewValue != null) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.NEW_VALUE, requestedNewValue);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_X)) {
+                focusedNode.add(myWindowPattern);
+                Platform.runLater(() -> consoleLabel.setText("Seleziona la cella da cui vuoi muovere il dado"));
+                while (requestedFromCellX != null) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                focusedNode.remove(myWindowPattern);
+                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.FROM_CELL_X, requestedFromCellX);
+                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.FROM_CELL_Y, requestedFromCellY);
+            }
+            if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_X)) {
+                focusedNode.add(myWindowPattern);
+                Platform.runLater(() -> consoleLabel.setText("Seleziona la cella in cui vuoi muovere il dado"));
+                while (requestedToCellX!= null) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                focusedNode.remove(myWindowPattern);
+                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.TO_CELL_X, requestedToCellX);
+                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.TO_CELL_Y, requestedToCellY);
+            }
+        }
+        JsonObject result = ClientNetwork.getInstance().useToolCard(cardIndex,requiredData.get("data").getAsJsonObject());
+        if(result.get(JsonFields.RESULT).getAsBoolean()){
+            if(!requiredData.get("data").getAsJsonObject().has(JsonFields.CONTINUE)) Logger.println("\nCarta strumento usata con successo!");
+            return true;
+        }
+        else {
+            Logger.println("\nCarta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString());
+            return false;
         }
     }
 
@@ -799,9 +963,10 @@ public class ClientGUIApplication extends Application implements Observer {
         client.setActive(jsonArg.get(JsonFields.ACTIVE_PLAYER).getAsString());
         if (client.isActive()) {
             draftPool.getChildren().forEach(node -> node.setOnMouseClicked(this::onDraftPoolClick));
+            toolCards.forEach(toolCard -> toolCard.setOnMouseClicked(this::onToolCardClick));
             focusedNode.clear();
             focusedNode.add(draftPool);
-            // TODO ADD toolCards
+            focusedNode.add(toolCards);
         }
         if (!client.isActive() && !client.isSuspended() && !client.isGameOver()) {
             consoleLabel.setText("Aspetta il tuo turno.");
