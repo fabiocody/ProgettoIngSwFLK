@@ -73,7 +73,7 @@ public class ClientGUIApplication extends Application implements Observer { //
     private Integer draftPoolIndex = null;
     private Integer toolCardIndex = null;
 
-    private JsonObject requiredData;
+    private JsonObject requiredData = null;
     private Integer requestedDraftPoolIndex = null;
     private Integer requestedRoundTrackIndex = null;
     private Integer requestedDelta = null;
@@ -122,6 +122,19 @@ public class ClientGUIApplication extends Application implements Observer { //
         roundTrack = null;
         draftPool = null;
         boardShown = false;
+    }
+
+    private void resetToolCardsEnvironment() {
+        toolCardIndex = null;
+        requiredData = null;
+        requestedDraftPoolIndex = null;
+        requestedRoundTrackIndex = null;
+        requestedDelta = null;
+        requestedNewValue = null;
+        requestedFromCellX = null;
+        requestedFromCellY = null;
+        requestedToCellX = null;
+        requestedToCellY = null;
     }
 
     private void setMyWindowPattern(GridPane myWindowPattern) {
@@ -413,17 +426,19 @@ public class ClientGUIApplication extends Application implements Observer { //
     }
 
     private void onRoundTrackCellClick(MouseEvent event) {
-        Canvas source = (Canvas) event.getSource();
-        int column = GridPane.getColumnIndex(source);
-        int row = GridPane.getRowIndex(source);
-        GridPane parent = (GridPane) source.getParent();
-        int round = GridPane.getColumnIndex(parent);
-        int index = 0;
-        for (int i = 0; i < round; i++) {
-            GridPane pane = (GridPane) getNode(roundTrack, i, 1);
-            index += pane.getChildren().size();
+        if (toolCardIndex != null) {
+            Canvas source = (Canvas) event.getSource();
+            int column = GridPane.getColumnIndex(source);
+            int row = GridPane.getRowIndex(source);
+            GridPane parent = (GridPane) source.getParent();
+            int round = GridPane.getColumnIndex(parent);
+            int index = 0;
+            for (int i = 0; i < round; i++) {
+                GridPane pane = (GridPane) getNode(roundTrack, i, 1);
+                index += pane.getChildren().size();
+            }
+            requestedRoundTrackIndex = index + column * MAX_DICE_ON_ROUND_TRACK_COLUMN + row;
         }
-        requestedRoundTrackIndex = index + column * MAX_DICE_ON_ROUND_TRACK_COLUMN + row;
     }
 
     private void onToolCardClick(MouseEvent e) {
@@ -474,10 +489,10 @@ public class ClientGUIApplication extends Application implements Observer { //
         boolean valid;
         cardIndex = toolCardIndex;
         requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
-        requiredData.remove("method");
-        if (requiredData.get("data").getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS)
-                || requiredData.get("data").getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {
-            Platform.runLater(() -> consoleLabel.setText(InterfaceMessages.UNSUCCESSFUL_TOOL_CARD_USAGE + requiredData.get("data").getAsJsonObject().get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString()));
+        requiredData.remove(JsonFields.METHOD);
+        if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS)
+                || requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {
+            Platform.runLater(() -> consoleLabel.setText(InterfaceMessages.UNSUCCESSFUL_TOOL_CARD_USAGE + requiredData.get(JsonFields.DATA).getAsJsonObject().get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString()));
         } else {
             valid = this.useData(requiredData,cardIndex);
             if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE) && valid) {
@@ -495,83 +510,69 @@ public class ClientGUIApplication extends Application implements Observer { //
         }
     }
 
-    private void onRequestedRoundTrackClick(MouseEvent e){
-        if (requestedRoundTrackIndex == Constants.INDEX_CONSTANT && toolCardIndex !=null){
-            Canvas dieCanvas = (Canvas) e.getSource();
-            requestedRoundTrackIndex = GridPane.getColumnIndex(dieCanvas);
-        }
-    }
-
-    /*private void useToolCardIfReady(){
-        if(toolCardIndex != null && requestedDraftPoolIndex != Constants.INDEX_CONSTANT &&
-                requestedRoundTrackIndex != Constants.INDEX_CONSTANT && requestedFromCellX != Constants.INDEX_CONSTANT &&
-                requestedFromCellY != Constants.INDEX_CONSTANT && requestedToCellX != Constants.INDEX_CONSTANT &&
-                requestedToCellY != Constants.INDEX_CONSTANT && requestedNewValue != Constants.INDEX_CONSTANT &&
-                requestedDelta != Constants.INDEX_CONSTANT) {
-            useData(requiredData, toolCardIndex);
-        }
-    }*/
-
-    private boolean useData(JsonObject requiredData, int cardIndex){
-
-        if (!(requiredData.get("data").getAsJsonObject().has(JsonFields.STOP) && requiredData.get("data").getAsJsonObject().get(JsonFields.STOP).getAsBoolean())) {
-            if (requiredData.get("data").getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) {
+    private boolean useData(JsonObject requiredData, int cardIndex) {
+        JsonObject data = requiredData.getAsJsonObject(JsonFields.DATA);
+        if (!(data.has(JsonFields.STOP) && data.get(JsonFields.STOP).getAsBoolean())) {
+            if (data.has(JsonFields.DRAFT_POOL_INDEX)) {
                 focusedNode.add(draftPool);
-                Platform.runLater(() -> consoleLabel.setText("seleziona un dado dalla riserva"));
-                while (requestedDraftPoolIndex != null) {
+                Platform.runLater(() -> consoleLabel.setText("Seleziona un dado dalla riserva"));
+                while (requestedDraftPoolIndex == null) {
                     try {
                         Thread.sleep(1);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
                 }
-                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.DRAFT_POOL_INDEX, requestedDraftPoolIndex);
+                data.addProperty(JsonFields.DRAFT_POOL_INDEX, requestedDraftPoolIndex);
                 focusedNode.remove(draftPool);
             }
-            if (requiredData.get("data").getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX)) {
+            if (data.has(JsonFields.ROUND_TRACK_INDEX)) {
                 focusedNode.add(roundTrack);
-                Platform.runLater(() -> consoleLabel.setText("seleziona un dado dal roundTrack"));
-                while (requestedRoundTrackIndex != null) {
+                Platform.runLater(() -> consoleLabel.setText("Seleziona un dado dal roundTrack"));
+                while (requestedRoundTrackIndex == null) {
                     try {
                         Thread.sleep(1);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
                 }
-                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.ROUND_TRACK_INDEX, requestedRoundTrackIndex);
+                data.addProperty(JsonFields.ROUND_TRACK_INDEX, requestedRoundTrackIndex);
                 focusedNode.remove(roundTrack);
 
             }
-            if (requiredData.get("data").getAsJsonObject().has(JsonFields.DELTA)) {
-                TwoOptionsAlert deltaAlert = new TwoOptionsAlert("Delta");
-                Options answer = deltaAlert.present("Vuoi aumentare o diminuire il valore di questo dado", Options.DECREMENT, Options.INCREMENT);
-                if (answer == Options.INCREMENT) requestedDelta = 1;
-                else requestedDelta = -1;
-                while (requestedDelta != null) {
+            if (data.has(JsonFields.DELTA)) {
+                Platform.runLater(() -> {
+                    TwoOptionsAlert deltaAlert = new TwoOptionsAlert("Delta");
+                    Options answer = deltaAlert.present("Vuoi aumentare o diminuire il valore di questo dado", Options.DECREMENT, Options.INCREMENT);
+                    requestedDelta = answer == Options.INCREMENT ? 1 : -1;
+                });
+                while (requestedDelta == null) {
                     try {
                         Thread.sleep(1);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
                 }
-                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.DELTA, requestedDelta);
+                data.addProperty(JsonFields.DELTA, requestedDelta);
             }
-            if (requiredData.get("data").getAsJsonObject().has(JsonFields.NEW_VALUE)) {
-                SpinnerAlert newValueAlert = new SpinnerAlert("Nuovo Valore");
-                requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", (Canvas) draftPool.getChildren().get(requestedDraftPoolIndex), 1, 6);
-                while (requestedNewValue != null) {
+            if (data.has(JsonFields.NEW_VALUE)) {
+                Platform.runLater(() -> {
+                    SpinnerAlert newValueAlert = new SpinnerAlert("Nuovo Valore");
+                    requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", (Canvas) draftPool.getChildren().get(requestedDraftPoolIndex), 1, 6);
+                });
+                while (requestedNewValue == null) {
                     try {
                         Thread.sleep(1);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
                 }
-                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.NEW_VALUE, requestedNewValue);
+                data.addProperty(JsonFields.NEW_VALUE, requestedNewValue);
             }
-            if (requiredData.get("data").getAsJsonObject().has(JsonFields.FROM_CELL_X)) {
+            if (data.has(JsonFields.FROM_CELL_X)) {
                 focusedNode.add(myWindowPattern);
                 Platform.runLater(() -> consoleLabel.setText("Seleziona la cella da cui vuoi muovere il dado"));
-                while (requestedFromCellX != null) {
+                while (requestedFromCellX == null) {
                     try {
                         Thread.sleep(1);
                     } catch (InterruptedException e) {
@@ -579,13 +580,13 @@ public class ClientGUIApplication extends Application implements Observer { //
                     }
                 }
                 focusedNode.remove(myWindowPattern);
-                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.FROM_CELL_X, requestedFromCellX);
-                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.FROM_CELL_Y, requestedFromCellY);
+                data.addProperty(JsonFields.FROM_CELL_X, requestedFromCellX);
+                data.addProperty(JsonFields.FROM_CELL_Y, requestedFromCellY);
             }
-            if (requiredData.get("data").getAsJsonObject().has(JsonFields.TO_CELL_X)) {
+            if (data.has(JsonFields.TO_CELL_X)) {
                 focusedNode.add(myWindowPattern);
                 Platform.runLater(() -> consoleLabel.setText("Seleziona la cella in cui vuoi muovere il dado"));
-                while (requestedToCellX!= null) {
+                while (requestedToCellX == null) {
                     try {
                         Thread.sleep(1);
                     } catch (InterruptedException e) {
@@ -593,17 +594,23 @@ public class ClientGUIApplication extends Application implements Observer { //
                     }
                 }
                 focusedNode.remove(myWindowPattern);
-                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.TO_CELL_X, requestedToCellX);
-                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.TO_CELL_Y, requestedToCellY);
+                data.addProperty(JsonFields.TO_CELL_X, requestedToCellX);
+                data.addProperty(JsonFields.TO_CELL_Y, requestedToCellY);
             }
         }
-        JsonObject result = ClientNetwork.getInstance().useToolCard(cardIndex,requiredData.get("data").getAsJsonObject());
-        if(result.get(JsonFields.RESULT).getAsBoolean()){
-            if(!requiredData.get("data").getAsJsonObject().has(JsonFields.CONTINUE)) Logger.println("\nCarta strumento usata con successo!");
+        JsonObject result = ClientNetwork.getInstance().useToolCard(cardIndex, data);
+        if (result.get(JsonFields.RESULT).getAsBoolean()) {
+            if (!data.has(JsonFields.CONTINUE)) {
+                Platform.runLater(() -> consoleLabel.setText("Carta strumento usata con successo!"));
+                resetToolCardsEnvironment();
+                focusedNode.clear();
+            }
             return true;
         }
         else {
-            Logger.println("\nCarta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString());
+            Platform.runLater(() -> consoleLabel.setText("Carta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString()));
+            resetToolCardsEnvironment();
+            focusedNode.clear();
             return false;
         }
     }
@@ -908,9 +915,15 @@ public class ClientGUIApplication extends Application implements Observer { //
             String favorTokens = "Costo: " +
                     (card.get(JsonFields.USED).getAsBoolean() ? 2 : 1) +
                     " FT";
-            Label favorTokensLabel = new Label(favorTokens);
-            boardPane.add(favorTokensLabel, i, 2);
-            GridPane.setHalignment(favorTokensLabel, HPos.CENTER);
+            Label favorTokensLabel;
+            try {
+                favorTokensLabel = (Label) getNode(boardPane, i, 2);
+            } catch (NoSuchElementException e) {
+                favorTokensLabel = new Label();
+                boardPane.add(favorTokensLabel, i, 2);
+                GridPane.setHalignment(favorTokensLabel, HPos.CENTER);
+            }
+            favorTokensLabel.setText(favorTokens);
         }
     }
 
@@ -994,12 +1007,23 @@ public class ClientGUIApplication extends Application implements Observer { //
             String nickname = ((Label) pane.getChildren().get(pane.getChildren().size() - 3)).getText();
             int favorTokens = jsonFavorTokens.get(nickname).getAsInt();
             String favorTokensString = "Favor Tokens: " + favorTokens;
-            Label favorTokensLabel = new Label(favorTokensString);
+            Label label;
             if (nickname.equals(client.getNickname()))
-                boardPane.add(favorTokensLabel, GridPane.getColumnIndex(pane), 5);
+                try {
+                    label = (Label) getNode(boardPane, GridPane.getColumnIndex(pane), 5);
+                } catch (NoSuchElementException e) {
+                    label = new Label();
+                    boardPane.add(label, GridPane.getColumnIndex(pane), 5);
+                }
             else
-                boardPane.add(favorTokensLabel, GridPane.getColumnIndex(pane), 2);
-            GridPane.setHalignment(favorTokensLabel, HPos.CENTER);
+                try {
+                    label = (Label) getNode(boardPane, GridPane.getColumnIndex(pane), 2);
+                } catch (NoSuchElementException e) {
+                    label = new Label();
+                    boardPane.add(label, GridPane.getColumnIndex(pane), 2);
+                    GridPane.setHalignment(label, HPos.CENTER);
+                }
+            label.setText(favorTokensString);
         }
     }
 
