@@ -6,7 +6,9 @@ import java.util.NoSuchElementException;
 public enum Options {
 
     YES("Si"),
-    NO("No");
+    NO("No"),
+    INCREMENT("Aumentare"),
+    DECREMENT("Diminuire");
 
     private String string;
 
