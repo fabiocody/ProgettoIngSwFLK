@@ -159,8 +159,8 @@ public class SocketClient extends ClientNetwork {
     }
 
     private void sendMessage(JsonObject payload, String method) {
-        if (uuid != null)
-            payload.addProperty(JsonFields.PLAYER_ID, uuid.toString());
+        if (getUuid() != null)
+            payload.addProperty(JsonFields.PLAYER_ID, getUuid().toString());
         payload.addProperty(JsonFields.METHOD, method);
         Logger.debugPayload(payload);
         out.println(payload.toString());
@@ -171,14 +171,14 @@ public class SocketClient extends ClientNetwork {
      */
     @Override
     public UUID addPlayer(String nickname) {
-        this.nickname = nickname;
+        setNickname(nickname);
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.NICKNAME, nickname);
         Logger.debugPayload(payload);
         this.sendMessage(payload, Methods.ADD_PLAYER.getString());
         JsonObject input = this.pollResponseBuffer();
         if (input.get(JsonFields.LOGGED).getAsBoolean()) {
-            uuid = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
+            setUuid(UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString()));
             Logger.debugInput(input);
             if (input.get(JsonFields.RECONNECTED).getAsBoolean()) {
                 new Timer(true).schedule(new TimerTask() {
@@ -191,7 +191,7 @@ public class SocketClient extends ClientNetwork {
             } else {
                 this.rescheduleProbeTimer();
             }
-            return uuid;
+            return getUuid();
         } else {
             return null;
         }

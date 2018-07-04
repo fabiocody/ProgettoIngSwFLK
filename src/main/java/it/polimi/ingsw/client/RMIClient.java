@@ -47,11 +47,11 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     @Override
     public UUID addPlayer(String nickname) {
         try {
-            uuid = server.addPlayer(nickname);
+            setUuid(server.addPlayer(nickname));
         } catch (RemoteException e) {
             connectionError(e);
         }
-        return uuid;
+        return getUuid();
     }
 
     @Override

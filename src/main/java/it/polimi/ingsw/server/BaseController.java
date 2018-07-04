@@ -14,7 +14,7 @@ abstract class BaseController implements Observer {
         serverNetworksLock = new Object();
     }
 
-    void addServerNetwork(ServerNetwork network) {
+    void addNetwork(ServerNetwork network) {
         new Thread(() -> {
             synchronized (serverNetworksLock) {
                 serverNetworks.add(network);
@@ -23,7 +23,7 @@ abstract class BaseController implements Observer {
         }).start();
     }
 
-    void removeServerNetwork(ServerNetwork network) {
+    void removeNetwork(ServerNetwork network) {
         new Thread(() -> {
             synchronized (serverNetworksLock) {
                 serverNetworks.remove(network);
@@ -31,7 +31,7 @@ abstract class BaseController implements Observer {
         }).start();
     }
 
-    void closeServerNetworks() {
+    void closeNetworks() {
         new Thread(() -> {
             synchronized (serverNetworksLock) {
                 serverNetworks.clear();
@@ -39,7 +39,7 @@ abstract class BaseController implements Observer {
         }).start();
     }
 
-    void forEachServerNetwork(Consumer<? super ServerNetwork> action) {
+    void forEachNetwork(Consumer<? super ServerNetwork> action) {
         synchronized (serverNetworksLock) {
             for (ServerNetwork serverNetwork : serverNetworks) {
                 action.accept(serverNetwork);
