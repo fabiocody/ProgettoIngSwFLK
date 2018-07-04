@@ -37,7 +37,7 @@ public class ClientGUIApplication extends Application implements Observer {
     private static final int CELL_SIZE = 60;
     private static final int DOT_SIZE = 10;
     private static final double RESIZE_FACTOR = 0.6;
-    private static final double STANDARD_FACTOR = 0.8;
+    public static final double STANDARD_FACTOR = 0.8;
     private static final double ROUND_TRACK_DIE_RESIZE = 0.35;
     private static final int MAX_DICE_ON_ROUND_TRACK_COLUMN = 3;
     private static final String FX_BACKGROUND_COLOR_DARKGREY = "-fx-background-color: dimgrey;";
@@ -94,6 +94,7 @@ public class ClientGUIApplication extends Application implements Observer {
     /*******************
      * Tool Cards data *
      *******************/
+    private List<Colors> draftPoolColors = new ArrayList<>();
     private JsonObject requiredData = null;
     private Integer requestedDraftPoolIndex = null;
     private Integer requestedRoundTrackIndex = null;
@@ -104,7 +105,7 @@ public class ClientGUIApplication extends Application implements Observer {
     private Integer requestedToCellX = null;
     private Integer requestedToCellY = null;
     private boolean movement = false;
-    boolean stop = false;
+    private boolean stop = false;
 
 
     /***********************
@@ -603,7 +604,7 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private void resetToolCardContinue(){
         resetDraftPoolHighlight();
-        requestedDraftPoolIndex = null;
+        //requestedDraftPoolIndex = null;
         requestedRoundTrackIndex = null;
         requestedDelta = null;
         requestedNewValue = null;
@@ -714,7 +715,10 @@ public class ClientGUIApplication extends Application implements Observer {
             if (data.has(JsonFields.NEW_VALUE)) {
                 Platform.runLater(() -> {
                     SpinnerAlert newValueAlert = new SpinnerAlert("Nuovo Valore");
-                    requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", (Canvas) draftPool.getChildren().get(requestedDraftPoolIndex), 1, 6);
+                    List<Node> children = draftPool.getChildren();
+                    requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", draftPoolColors.get(requestedDraftPoolIndex), 1, 6);
+                    Canvas newDie = createNumberedCell(requestedNewValue, draftPoolColors.get(requestedDraftPoolIndex).getJavaFXColor(), STANDARD_FACTOR);
+                    draftPool.add(newDie, requestedDraftPoolIndex, 0);
                 });
                 while (requestedNewValue == null) {
                     try {
@@ -836,7 +840,7 @@ public class ClientGUIApplication extends Application implements Observer {
      * @param resize the scale value of the numbered cell
      * @return the Canvas representing the numbered cell
      */
-    private static Canvas createNumberedCell(int value, Color color, Double resize) {
+    public static Canvas createNumberedCell(int value, Color color, Double resize) {
         if (resize == null) resize = STANDARD_FACTOR;
         Canvas canvas = new Canvas(CELL_SIZE * resize, CELL_SIZE * resize);
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -1112,10 +1116,12 @@ public class ClientGUIApplication extends Application implements Observer {
         } else {
             draftPool.getChildren().clear();
         }
+        draftPoolColors = new ArrayList<>();
         JsonArray array = jsonArg.getAsJsonArray(JsonFields.DICE);
         for (int i = 0; i < array.size(); i++) {
             JsonObject jsonDie = array.get(i).getAsJsonObject();
             Colors color = Colors.valueOf(jsonDie.get(JsonFields.COLOR).getAsString());
+            draftPoolColors.add(color);
             int value = jsonDie.get(JsonFields.VALUE).getAsInt();
             Canvas dieCanvas = createNumberedCell(value, color.getJavaFXColor(), STANDARD_FACTOR);
             draftPool.add(dieCanvas, i, 0);

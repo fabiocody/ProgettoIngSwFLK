@@ -137,6 +137,7 @@ public class ToolCard11 extends ToolCard {
             this.state = 0;
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
             Cell cell = player.getWindowPattern().getCell(cellIndex);
+            this.state = 0;
             throw new InvalidEffectResultException("Invalid placement on cell at index " + cellIndex + " (" + cell + ") of die " + die);
         }
     }

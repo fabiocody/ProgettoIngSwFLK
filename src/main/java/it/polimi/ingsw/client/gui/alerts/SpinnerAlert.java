@@ -1,6 +1,7 @@
 package it.polimi.ingsw.client.gui.alerts;
 
 import it.polimi.ingsw.client.gui.ClientGUIApplication;
+import it.polimi.ingsw.shared.util.Colors;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.canvas.Canvas;
@@ -14,12 +15,15 @@ public class SpinnerAlert extends AlertWindow {
 
     private int value;
     private Spinner<Integer> spinner;
+    private Canvas dieCanvas;
+    private Colors dieColor;
 
     public SpinnerAlert(String title) {
         super(title);
     }
 
-    public int present(String message, Canvas dieCanvas, int from, int to) {
+    public int present(String message, Colors dieColor, int from, int to) {
+        this.dieColor = dieColor;
         present(() -> {
 
             Label label = getMessageLabel(message);
@@ -30,10 +34,12 @@ public class SpinnerAlert extends AlertWindow {
             spinner = new Spinner<>();
             SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(from, to, from);
             spinner.setValueFactory(valueFactory);
+            spinner.setOnMouseClicked(e -> onSpinnerClick());
             spinner.setOnKeyPressed(this::onKeyPressed);
 
             getGridPane().setPadding(new Insets(25, 25, 25, 25));
             getGridPane().add(label, 0, 0);
+            dieCanvas = ClientGUIApplication.createNumberedCell(spinner.getValue(), dieColor.getJavaFXColor(), ClientGUIApplication.STANDARD_FACTOR);
             getGridPane().add(dieCanvas, 1, 0);
             GridPane.setHalignment(dieCanvas, HPos.CENTER);
             getGridPane().add(spinner, 0, 1);
@@ -53,6 +59,14 @@ public class SpinnerAlert extends AlertWindow {
     private void onKeyPressed(KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER)
             onButtonClick();
+    }
+
+    private void onSpinnerClick() {
+        value = spinner.getValue();
+        getGridPane().getChildren().remove(dieCanvas);
+        dieCanvas = ClientGUIApplication.createNumberedCell(value, dieColor.getJavaFXColor(), ClientGUIApplication.STANDARD_FACTOR);
+        getGridPane().add(dieCanvas, 1, 0);
+        GridPane.setHalignment(dieCanvas, HPos.CENTER);
     }
 
 }
