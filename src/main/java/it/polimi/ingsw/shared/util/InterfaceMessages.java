@@ -8,7 +8,7 @@ public class InterfaceMessages {
     private InterfaceMessages() { throw new IllegalStateException("Cannot instantiate"); }
 
     public static final String SERVER_USAGE_STRING = "usage: sagradaserver [--debug] [--host HOST] [--port PORT] [--wr-timeout WR-TIMEOUT] [--game-timeout GAME-TIMEOUT]";
-    public static final String CLIENT_USAGE_STRING = "usage: sagradaclient --host HOST [--port PORT] [--connection socket|rmi] [--interface cli|gui] [--debug]";
+    public static final String CLIENT_USAGE_STRING = "usage: sagradaclient [--host HOST] [--port PORT] [--connection socket|rmi] [--interface cli|gui] [--debug]";
     public static final String CANCEL_MESSAGE = "Premi 0 per annullare.";
     public static final String DIE_ALREADY_PLACED_IN_THIS_TURN = "hai già piazzato un dado questo turno!";
     public static final String TOOL_CARD_ALREADY_USED_IN_THIS_TURN = "hai già utilizzato una carta strumento questo turno!";
@@ -41,7 +41,6 @@ public class InterfaceMessages {
     public static final String HOST_PROMPT = "Host";
     public static final String PORT_PROMPT = "Porta";
     public static final String NICKNAME_PROMPT = "Nickname";
-    public static final String HOST_PLACEHOLDER = "localhost";
     public static final String NICKNAME_PLACEHOLDER = "Inserisci il tuo nickname";
     public static final String SOCKET = "Socket";
     public static final String RMI = "RMI";

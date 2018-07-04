@@ -148,7 +148,7 @@ public class Client {
     public static void main(String[] args) {
         OptionParser parser = new OptionParser();
         parser.accepts(CLIArguments.DEBUG);
-        parser.accepts(CLIArguments.HOST).withRequiredArg();
+        parser.accepts(CLIArguments.HOST).withRequiredArg().defaultsTo(Constants.DEFAULT_HOST);
         parser.accepts(CLIArguments.PORT).withRequiredArg().ofType(Integer.class).defaultsTo(Constants.DEFAULT_PORT);
         parser.accepts(CLIArguments.CONNECTION).withRequiredArg().defaultsTo(CLIArguments.SOCKET);
         parser.accepts(CLIArguments.INTERFACE).withRequiredArg().defaultsTo(CLIArguments.CLI);
@@ -162,13 +162,9 @@ public class Client {
             switch (iface) {
                 case CLIArguments.CLI:
                     String host = null;
-                    if (options.has(CLIArguments.HOST)) {
-                        host = (String) options.valueOf(CLIArguments.HOST);
-                        if (!isValidHost(host)) {
-                            Logger.println("Invalid Host");
-                            exitError();
-                        }
-                    } else {
+                    host = (String) options.valueOf(CLIArguments.HOST);
+                    if (!isValidHost(host)) {
+                        Logger.println("Invalid Host");
                         exitError();
                     }
                     int port = (int) options.valueOf(CLIArguments.PORT);

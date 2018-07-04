@@ -4,16 +4,17 @@ package it.polimi.ingsw.client.gui;
 public class PicturesPaths {
 
     private static final String IMAGES_PATH = "images/";
-    static final String SAGRADA_LOGO = IMAGES_PATH + "var/" + jpgFile("Sagrada");
-    public static final String ERROR = IMAGES_PATH + "var/" + pngFile("error");
-    public static final String CUP = IMAGES_PATH + "var/" + pngFile("cup");
+    private static final String VAR_PATH = IMAGES_PATH + "var/";
+
+    static final String LOGO = VAR_PATH + pngFile("logo");
+    static final String LOGIN_BACKGROUND = VAR_PATH + pngFile("loginBackground");
+    static final String BACKGROUND = VAR_PATH + pngFile("blackBackground");
+
+    public static final String ERROR = VAR_PATH + pngFile("error");
+    static final String CUP = VAR_PATH + pngFile("cup");
 
     private static String pngFile(String name) {
         return name + ".png";
-    }
-
-    private static String jpgFile(String name) {
-        return name + ".jpg";
     }
 
     static String privateObjectiveCard(String cardName) {

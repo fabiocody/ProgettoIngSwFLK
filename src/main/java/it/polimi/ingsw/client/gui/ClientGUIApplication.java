@@ -124,6 +124,12 @@ public class ClientGUIApplication extends Application implements Observer {
         debug = value;
     }
 
+    private static void setBackground(Pane pane, String imagePath) {
+        Image loginBackground = new Image(imagePath);
+        BackgroundImage backgroundImage = new BackgroundImage(loginBackground, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, new BackgroundSize(1.0, 1.0, true, true, false, false));
+        pane.setBackground(new Background(backgroundImage));
+    }
+
     private void setMyWindowPattern(GridPane myWindowPattern) {
         this.myWindowPattern = myWindowPattern;
         for (Node node : myWindowPattern.getChildren()) {
@@ -194,6 +200,8 @@ public class ClientGUIApplication extends Application implements Observer {
      **********/
 
     private void showLogin() {
+        primaryStage.setResizable(false);
+
         reset();
 
         primaryStage.setTitle(WINDOW_TITLE);
@@ -205,7 +213,7 @@ public class ClientGUIApplication extends Application implements Observer {
         connectionChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(SOCKET, RMI));
         connectionChoiceBox.getSelectionModel().selectFirst();
         connectionChoiceBox.setOnAction(e -> onConnectionChoiceBoxSelection());
-        hostTextField.setPromptText(HOST_PLACEHOLDER);
+        hostTextField.setPromptText(Constants.DEFAULT_HOST);
         onConnectionChoiceBoxSelection();
         nicknameTextField.setPromptText(NICKNAME_PLACEHOLDER);
         for (TextField textField : Arrays.asList(hostTextField, portTextField, nicknameTextField)) {
@@ -216,31 +224,33 @@ public class ClientGUIApplication extends Application implements Observer {
         }
         loginButton.setOnAction(e -> loginAction());
 
-        Image sagrada = new Image(PicturesPaths.SAGRADA_LOGO);
-        ImageView sagradaLogoImage = new ImageView(sagrada);
-        sagradaLogoImage.setFitHeight(400);
-        sagradaLogoImage.setFitWidth(400);
-        sagradaLogoImage.setPreserveRatio(true);
+        Image logoImage = new Image(PicturesPaths.LOGO);
+        ImageView logo = new ImageView(logoImage);
+        logo.setFitHeight(400);
+        logo.setFitWidth(400);
+        logo.setPreserveRatio(true);
 
         GridPane loginPane = new GridPane();
         loginPane.setAlignment(Pos.CENTER);
         loginPane.setHgap(20);
         loginPane.setVgap(10);
         loginPane.setPadding(new Insets(25, 25, 25, 25));
-        loginPane.add(connectionChoiceBox, 0, 0, 1, 3);
-        loginPane.add(hostLabel, 1, 0);
+        loginPane.add(logo, 0, 0, 3, 1);
+        loginPane.add(connectionChoiceBox, 0, 3, 1, 3);
+        loginPane.add(hostLabel, 1, 3);
         GridPane.setHalignment(hostLabel, HPos.RIGHT);
-        loginPane.add(hostTextField, 2, 0);
-        loginPane.add(portLabel, 1, 1);
+        loginPane.add(hostTextField, 2, 3);
+        loginPane.add(portLabel, 1, 4);
         GridPane.setHalignment(portLabel, HPos.RIGHT);
-        loginPane.add(portTextField, 2, 1);
-        loginPane.add(nicknameLabel, 1, 2);
+        loginPane.add(portTextField, 2, 4);
+        loginPane.add(nicknameLabel, 1, 5);
         GridPane.setHalignment(nicknameLabel, HPos.RIGHT);
-        loginPane.add(nicknameTextField, 2, 2);
-        loginPane.add(loginButton, 2, 3);
+        loginPane.add(nicknameTextField, 2, 5);
+        loginPane.add(loginButton, 2, 6);
         GridPane.setHalignment(loginButton, HPos.RIGHT);
-        loginPane.add(loginErrorLabel, 0, 4, 3, 1);
-        loginPane.add(sagradaLogoImage, 0, 5, 3, 1);
+        loginPane.add(loginErrorLabel, 0, 7, 3, 1);
+
+        setBackground(loginPane, PicturesPaths.LOGIN_BACKGROUND);
 
         Scene loginScene = new Scene(loginPane, LOGIN_WINDOW_WIDTH, LOGIN_WINDOW_HEIGHT);
         primaryStage.setScene(loginScene);
@@ -248,6 +258,8 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void showWaitingRoom() {
+        primaryStage.setResizable(false);
+
         GridPane pane = new GridPane();
         pane.setAlignment(Pos.CENTER);
         pane.setHgap(20);
@@ -261,22 +273,28 @@ public class ClientGUIApplication extends Application implements Observer {
         pane.add(waitingPlayersBox, 0, 0);
         pane.add(wrTimerLabel, 1, 0);
 
+        setBackground(pane, PicturesPaths.LOGIN_BACKGROUND);
+
         Scene scene = new Scene(pane, LOGIN_WINDOW_WIDTH, LOGIN_WINDOW_HEIGHT);
         primaryStage.setScene(scene);
     }
 
     private void showSelectableWindowPatterns(JsonObject jsonArg) {
+        primaryStage.setResizable(true);
+
         GridPane selectableWPPane = new GridPane();
         selectableWPPane.setAlignment(Pos.CENTER);
         selectableWPPane.setHgap(20);
         selectableWPPane.setVgap(10);
         selectableWPPane.setPadding(new Insets(25, 25, 25, 25));
+
         privateObjCardName = jsonArg.getAsJsonObject(JsonFields.PRIVATE_OBJECTIVE_CARD).get(JsonFields.NAME).getAsString();
         Image privateObjectiveCardImage = new Image(PicturesPaths.privateObjectiveCard(privateObjCardName));
         ImageView privateObjectiveCard = new ImageView(privateObjectiveCardImage);
         privateObjectiveCard.setFitHeight(400);
         privateObjectiveCard.setPreserveRatio(true);
         selectableWPPane.add(privateObjectiveCard, 2, 0, 1, 3);
+
         JsonArray wpArray = jsonArg.getAsJsonArray(JsonFields.WINDOW_PATTERNS);
         for (int i = 0; i < wpArray.size(); i++) {
             GridPane windowPattern = createWindowPattern(wpArray.get(i).getAsJsonObject(), null, STANDARD_FACTOR);
@@ -288,11 +306,18 @@ public class ClientGUIApplication extends Application implements Observer {
             selectableWPPane.add(button, column, row+1);
             GridPane.setHalignment(button, HPos.CENTER);
         }
+
+        setBackground(selectableWPPane, PicturesPaths.BACKGROUND);
+
         Scene scene = new Scene(selectableWPPane, SELECTABLE_WP_WINDOW_WIDTH, SELECTABLE_WP_WINDOW_HEIGHT);
         primaryStage.setScene(scene);
+
+        primaryStage.setResizable(false);
     }
 
     private void showBoard() {
+        primaryStage.setResizable(true);
+
         boardPane = new GridPane();
         boardPane.setAlignment(Pos.CENTER);
         boardPane.setHgap(20);
@@ -306,6 +331,7 @@ public class ClientGUIApplication extends Application implements Observer {
 
         gameTimerLabel.setFont(new Font(30));
         gameTimerLabel.setMinWidth(CELL_SIZE * 2);
+        gameTimerLabel.setTextFill(Color.WHITE);
         boardPane.add(gameTimerLabel, 6, 0);
         GridPane.setHalignment(gameTimerLabel, HPos.CENTER);
 
@@ -327,6 +353,16 @@ public class ClientGUIApplication extends Application implements Observer {
         boardPane.add(cancelButton, 6, 4);
         GridPane.setHalignment(cancelButton, HPos.LEFT);
         GridPane.setValignment(cancelButton, VPos.TOP);
+
+        Image logoImage = new Image(PicturesPaths.LOGO);
+        ImageView logo = new ImageView(logoImage);
+        logo.setFitWidth(200);
+        logo.setPreserveRatio(true);
+        boardPane.add(logo, 5, 0);
+        GridPane.setHalignment(logo, HPos.CENTER);
+        GridPane.setValignment(logo, VPos.BOTTOM);
+
+        setBackground(boardPane, PicturesPaths.BACKGROUND);
 
         Scene scene = new Scene(boardPane);
         primaryStage.setScene(scene);
@@ -353,7 +389,7 @@ public class ClientGUIApplication extends Application implements Observer {
     private void loginAction() {
         if (!nicknameTextField.getText().isEmpty()) {
             String host = hostTextField.getText();
-            if (host.isEmpty()) host = HOST_PLACEHOLDER;
+            if (host.isEmpty()) host = Constants.DEFAULT_HOST;
             if (Client.isValidHost(host)) {
                 try {
                     setupConnection(host);
@@ -386,6 +422,7 @@ public class ClientGUIApplication extends Application implements Observer {
             Label label = new Label(patternSelected(index + 1));
             label.setFont(new Font(20));
             pane.setCenter(label);
+            setBackground(pane, PicturesPaths.BACKGROUND);
             Scene scene = new Scene(pane, SELECTABLE_WP_WINDOW_WIDTH, SELECTABLE_WP_WINDOW_HEIGHT);
             primaryStage.setScene(scene);
         }
@@ -808,6 +845,7 @@ public class ClientGUIApplication extends Application implements Observer {
             gc.fillRect(0, 0, CELL_SIZE * resize, CELL_SIZE * resize);
         } else {
             gc.fillRoundRect(0, 0, CELL_SIZE * resize, CELL_SIZE * resize, 10 * resize, 10 * resize);
+            gc.setStroke(Color.WHITE);
             gc.setLineWidth(2);
             gc.strokeRoundRect(0, 0, CELL_SIZE * resize, CELL_SIZE * resize, 10 * resize, 10 * resize);
         }
@@ -852,6 +890,7 @@ public class ClientGUIApplication extends Application implements Observer {
             roundLabel.setFont(new Font(20));
             roundLabel.setPrefWidth(CELL_SIZE);
             roundLabel.setAlignment(Pos.CENTER);
+            roundLabel.setTextFill(Color.WHITE);
             roundTrack.add(roundLabel, i, 0);
             GridPane.setHalignment(roundLabel, HPos.CENTER);
             JsonArray diceArray = roundTrackArray.get(i).getAsJsonArray();
@@ -1115,7 +1154,7 @@ public class ClientGUIApplication extends Application implements Observer {
             roundTrack = new GridPane();
             roundTrack.setAlignment(Pos.CENTER);
             roundTrack.setGridLinesVisible(true);
-            boardPane.add(roundTrack, 0, 0, 6, 1);
+            boardPane.add(roundTrack, 0, 0, 4, 1);
             GridPane.setHalignment(roundTrack, HPos.CENTER);
         }
         createRoundTrack(jsonArg.getAsJsonArray(JsonFields.DICE));
@@ -1141,8 +1180,8 @@ public class ClientGUIApplication extends Application implements Observer {
                 } catch (NoSuchElementException e) {
                     label = new Label();
                     boardPane.add(label, GridPane.getColumnIndex(pane), 2);
-                    GridPane.setHalignment(label, HPos.CENTER);
                 }
+            GridPane.setHalignment(label, HPos.CENTER);
             label.setText(favorTokensString);
         }
     }
