@@ -19,7 +19,7 @@ http://maven.apache.org/ASSEMBLY/2.0.0 ">
                 <exclude>images/privateObj/*</exclude>
                 <exclude>images/publicObj/*</exclude>
                 <exclude>images/toolCards/*</exclude>
-                <exclude>images/*</exclude>
+                <exclude>images/var/*</exclude>
             </excludes>
         </fileSet>
     </fileSets>
@@ -36,7 +36,7 @@ http://maven.apache.org/ASSEMBLY/2.0.0 ">
                     <exclude>images/privateObj/*</exclude>
                     <exclude>images/publicObj/*</exclude>
                     <exclude>images/toolCards/*</exclude>
-                    <exclude>images/*</exclude>
+                    <exclude>images/var/*</exclude>
                 </excludes>
             </unpackOptions>
         </dependencySet>
