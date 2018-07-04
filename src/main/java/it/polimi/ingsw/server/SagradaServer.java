@@ -65,7 +65,7 @@ public class SagradaServer extends Observable implements Observer {
             while (run) {
                 Socket socket = serverSocket.accept();
                 ServerSocketHandler serverSocketHandler = new ServerSocketHandler(socket);
-                WaitingRoomController.getInstance().addServerNetwork(serverSocketHandler);
+                WaitingRoomController.getInstance().addNetwork(serverSocketHandler);
                 this.addObserver(serverSocketHandler);
                 executor.submit(serverSocketHandler);
             }

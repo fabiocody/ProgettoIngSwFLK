@@ -29,12 +29,6 @@ public class GameController extends BaseController {
         return game;
     }
 
-    List<String> getCurrentPlayers() {
-        return this.game.getPlayers().stream()
-                .map(Player::getNickname)
-                .collect(Collectors.toList());
-    }
-
     Map<String, Scores> getFinalScores() {
         return this.game.getFinalScores();
     }
@@ -45,6 +39,12 @@ public class GameController extends BaseController {
 
     List<ToolCard> getToolCards() {
         return this.game.getToolCards();
+    }
+
+    List<String> getPlayers() {
+        return this.game.getPlayers().stream()
+                .map(Player::getNickname)
+                .collect(Collectors.toList());
     }
 
     Player getPlayer(UUID id) {
@@ -71,7 +71,7 @@ public class GameController extends BaseController {
         return this.game.getSuspendedPlayers();
     }
 
-    int getFavorTokensOf(String nickname) {
+    int getFavorTokens(String nickname) {
         Optional<Integer> result = this.game.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(nickname))
                 .map(Player::getFavorTokens)
@@ -80,7 +80,7 @@ public class GameController extends BaseController {
         else throw new NoSuchElementException("Cannot retrieve favor tokens because no Player object with specified nickname has been found");
     }
 
-    WindowPattern getWindowPatternOf(String nickname) {
+    WindowPattern getWindowPattern(String nickname) {
         Optional<WindowPattern> result = this.game.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(nickname))
                 .map(Player::getWindowPattern)
@@ -97,40 +97,53 @@ public class GameController extends BaseController {
         return new Vector<>(this.game.getRoundTrack().getDice());
     }
 
-    RoundTrack getRoundTrack(){ return this.game.getRoundTrack(); }
+    RoundTrack getRoundTrack() { return this.game.getRoundTrack(); }
 
     List<Die> getDraftPool() {
         return this.game.getDiceGenerator().getDraftPool();
     }
 
-    private String addEmptyDraftPoolMessage(){ return (this.getDraftPool().isEmpty()) ? InterfaceMessages.EMPTY_DRAFT_POOL : ""; }
-
-    private String addEmptyGridMessage(UUID id){ return (this.getWindowPatternOf(this.getPlayer(id).getNickname()).isGridEmpty()) ? InterfaceMessages.EMPTY_GRID : ""; }
-
-    private String addOneOrLessDieMessage(UUID id){
-        return (this.getWindowPatternOf(this.getPlayer(id).getNickname()).isGridEmpty() || this.getWindowPatternOf(this.getPlayer(id).getNickname()).checkIfOnlyOneDie())
-                ? InterfaceMessages.ONE_OR_LESS_DIE_MESSAGE : "";
-    }
-
-    private String addEmptyRoundTrackMessage(){ return (this.getRoundTrack().isRoundTrackEmpty()) ? InterfaceMessages.EMPTY_ROUND_TRACK : ""; }
-
-    private String addFirstHalfOfRoundMessage(){ return (!this.getGame().getTurnManager().isSecondHalfOfRound()) ? InterfaceMessages.FIRST_HALF_OF_ROUND: ""; }
-
-    private String addDieAlreadyPlacedMessage(UUID id) {return (this.getPlayer(id).isDiePlacedInThisTurn()) ? InterfaceMessages.DIE_ALREADY_PLACED_IN_THIS_TURN: "";}
-    private String addDieNotYetPlacedMessage(UUID id) {return (!this.getPlayer(id).isDiePlacedInThisTurn()) ? InterfaceMessages.DIE_NOT_YET_PLACED_IN_THIS_TURN: "";}
-
     void choosePattern(UUID id, int patternIndex){
         getPlayer(id).chooseWindowPattern(patternIndex);
     }
 
-    void placeDie(UUID id, int draftPoolIndex, int x, int y) throws DieAlreadyPlacedException, InvalidPlacementException {
+    // throws DieAlreadyPlacedException, InvalidPlacementException
+    void placeDie(UUID id, int draftPoolIndex, int x, int y) {
         Die d = this.getDraftPool().get(draftPoolIndex);
         getPlayer(id).placeDie(d, x, y);
         this.game.getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
-        forEachServerNetwork(ServerNetwork::fullUpdate);
+        forEachNetwork(ServerNetwork::fullUpdate);
     }
 
-    private void addUnusabilityMessages (int toolCardIndex, UUID id, JsonObject data){
+    private String emptyDraftPoolMessage() {
+        return this.getDraftPool().isEmpty() ? InterfaceMessages.EMPTY_DRAFT_POOL : "";
+    }
+
+    private String emptyGridMessage(UUID id) {
+        return this.getWindowPattern(this.getPlayer(id).getNickname()).isGridEmpty() ? InterfaceMessages.EMPTY_GRID : "";
+    }
+
+    private String oneOrLessDieMessage(UUID id) {
+        return (this.getWindowPattern(this.getPlayer(id).getNickname()).isGridEmpty() || this.getWindowPattern(this.getPlayer(id).getNickname()).checkIfOnlyOneDie()) ? InterfaceMessages.ONE_OR_LESS_DIE_MESSAGE : "";
+    }
+
+    private String emptyRoundTrackMessage() {
+        return this.getRoundTrack().isRoundTrackEmpty() ? InterfaceMessages.EMPTY_ROUND_TRACK : "";
+    }
+
+    private String firstHalfOfRoundMessage() {
+        return !this.getGame().getTurnManager().isSecondHalfOfRound() ? InterfaceMessages.FIRST_HALF_OF_ROUND : "";
+    }
+
+    private String dieAlreadyPlacedMessage(UUID id) {
+        return  this.getPlayer(id).isDiePlacedInThisTurn() ? InterfaceMessages.DIE_ALREADY_PLACED_IN_THIS_TURN : "";
+    }
+
+    private String dieNotPlacedYetMessage(UUID id) {
+        return !this.getPlayer(id).isDiePlacedInThisTurn() ? InterfaceMessages.DIE_NOT_YET_PLACED_IN_THIS_TURN : "";
+    }
+
+    private void unusabilityMessages(int toolCardIndex, UUID id, JsonObject data) {
         String unusabilityMessage = "";
         switch (game.getToolCards().get(toolCardIndex).getName()){
             case TOOL_CARD_1_NAME:
@@ -138,31 +151,31 @@ public class GameController extends BaseController {
             case TOOL_CARD_9_NAME:
             case TOOL_CARD_10_NAME:
             case TOOL_CARD_11_NAME:
-                unusabilityMessage += addEmptyDraftPoolMessage();
+                unusabilityMessage += emptyDraftPoolMessage();
                 break;
             case TOOL_CARD_2_NAME:
             case TOOL_CARD_3_NAME:
-                unusabilityMessage += addEmptyGridMessage(id);
+                unusabilityMessage += emptyGridMessage(id);
                 break;
             case TOOL_CARD_4_NAME:
-                unusabilityMessage += addOneOrLessDieMessage(id);
+                unusabilityMessage += oneOrLessDieMessage(id);
                 break;
             case TOOL_CARD_5_NAME:
-                unusabilityMessage += addEmptyDraftPoolMessage();
-                unusabilityMessage += STRING_SEPARATOR + addEmptyRoundTrackMessage();
+                unusabilityMessage += emptyDraftPoolMessage();
+                unusabilityMessage += STRING_SEPARATOR + emptyRoundTrackMessage();
                 break;
             case TOOL_CARD_7_NAME:
-                unusabilityMessage += addEmptyDraftPoolMessage();
-                unusabilityMessage += STRING_SEPARATOR + addFirstHalfOfRoundMessage();
-                unusabilityMessage += STRING_SEPARATOR + addDieAlreadyPlacedMessage(id);
+                unusabilityMessage += emptyDraftPoolMessage();
+                unusabilityMessage += STRING_SEPARATOR + firstHalfOfRoundMessage();
+                unusabilityMessage += STRING_SEPARATOR + dieAlreadyPlacedMessage(id);
                 break;
             case TOOL_CARD_8_NAME:
-                unusabilityMessage += addEmptyDraftPoolMessage();
-                unusabilityMessage += STRING_SEPARATOR + addDieNotYetPlacedMessage(id);
+                unusabilityMessage += emptyDraftPoolMessage();
+                unusabilityMessage += STRING_SEPARATOR + dieNotPlacedYetMessage(id);
                 break;
             case TOOL_CARD_12_NAME:
-                unusabilityMessage += addEmptyDraftPoolMessage();
-                unusabilityMessage += STRING_SEPARATOR + addOneOrLessDieMessage(id);
+                unusabilityMessage += emptyDraftPoolMessage();
+                unusabilityMessage += STRING_SEPARATOR + oneOrLessDieMessage(id);
                 break;
             default:
                 break;
@@ -178,32 +191,32 @@ public class GameController extends BaseController {
                 (this.getPlayer(id).getFavorTokens() < 1 && !this.getToolCards().get(toolCardIndex).isUsed())){
             data.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.NO_FAVOR_TOKENS,InterfaceMessages.NO_FAVOR_TOKENS);
         }
-        else addUnusabilityMessages(toolCardIndex, id, data);
+        else unusabilityMessages(toolCardIndex, id, data);
         return data;
     }
 
-    void useToolCard(UUID uuid, int cardIndex, JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
+    void useToolCard(UUID id, int cardIndex, JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         ToolCard toolCard = getToolCards().get(cardIndex);
-        data.addProperty(JsonFields.PLAYER, getPlayer(uuid).getNickname());
+        data.addProperty(JsonFields.PLAYER, getPlayer(id).getNickname());
         toolCard.effect(data);
         if (!data.has(JsonFields.CONTINUE)) {
             if (!toolCard.isUsed()) {
-                getPlayer(uuid).setFavorTokens(getPlayer(uuid).getFavorTokens() - 1);
+                getPlayer(id).setFavorTokens(getPlayer(id).getFavorTokens() - 1);
                 Logger.debug("Removed 1 favor token");
             } else {
-                getPlayer(uuid).setFavorTokens(getPlayer(uuid).getFavorTokens() - 2);
+                getPlayer(id).setFavorTokens(getPlayer(id).getFavorTokens() - 2);
                 Logger.debug("Removed 2 favor tokens");
             }
             toolCard.setUsed();
         }
-        forEachServerNetwork(ServerNetwork::fullUpdate);
+        forEachNetwork(ServerNetwork::fullUpdate);
     }
 
     void nextTurn() {
         game.getTurnManager().nextTurn();
         if (!getRoundTrack().isGameOver()) {
             game.getTurnManager().subscribeToTimer(this);
-            forEachServerNetwork(ServerNetwork::fullUpdate);
+            forEachNetwork(ServerNetwork::fullUpdate);
         }
     }
 
@@ -214,20 +227,20 @@ public class GameController extends BaseController {
             if (stringArg.startsWith(NotificationMessages.TURN_MANAGER)) {
                 String tick = stringArg.split(" ")[1];
                 Logger.debug("Game Timer tick (from update): " + tick);
-                forEachServerNetwork(network -> network.updateTimerTick(Methods.GAME_TIMER_TICK, tick));
+                forEachNetwork(network -> network.updateTimerTick(Methods.GAME_TIMER_TICK, tick));
             }
         } else if (o instanceof Game) {
             switch (stringArg) {
                 case NotificationMessages.TURN_MANAGEMENT:
                     if (!getRoundTrack().isGameOver())
                         this.game.getTurnManager().subscribeToTimer(this);
-                    forEachServerNetwork(ServerNetwork::fullUpdate);
+                    forEachNetwork(ServerNetwork::fullUpdate);
                     break;
                 case NotificationMessages.GAME_INTERRUPTED:
                 case NotificationMessages.GAME_OVER:
-                    forEachServerNetwork(ServerNetwork::fullUpdate);
-                    forEachServerNetwork(ServerNetwork::updateFinalScores);
-                    closeServerNetworks();
+                    forEachNetwork(ServerNetwork::fullUpdate);
+                    forEachNetwork(ServerNetwork::updateFinalScores);
+                    closeNetworks();
                     SagradaServer.getInstance().getGameControllers().remove(this);
                     break;
                 default:
@@ -236,7 +249,7 @@ public class GameController extends BaseController {
         } else if (o instanceof Player && game.arePlayersReady()) {
             if (!getRoundTrack().isGameOver()) {
                 this.game.getTurnManager().subscribeToTimer(this);
-                forEachServerNetwork(ServerNetwork::fullUpdate);
+                forEachNetwork(ServerNetwork::fullUpdate);
             }
         } else if (o instanceof ServerNetwork) {
             String nickname = String.valueOf(arg);

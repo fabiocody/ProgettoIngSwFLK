@@ -20,7 +20,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         System.setProperty("java.rmi.game.useCodebaseOnly", String.valueOf(false));
         this.client = client;
         this.jsonParser = new JsonParser();
-        if (this.client != null) WaitingRoomController.getInstance().addServerNetwork(this);
+        if (this.client != null) WaitingRoomController.getInstance().addNetwork(this);
     }
 
     ServerRMIHandler() {
@@ -43,32 +43,33 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     @Override
     public void probe() {
-        Logger.debug(nickname + " has sent a probe message");
-        probed = true;
+        Logger.debug(getNickname() + " has sent a probe message");
+        setProbed(true);
     }
 
     @Override
     public UUID addPlayer(String nickname) {
         Logger.debug(nickname + " is attempting to log in");
-        uuid = null;
+        setUuid(null);
+        setNickname(null);
         try {
-            uuid = WaitingRoomController.getInstance().addPlayer(nickname);
-            this.nickname = nickname;
-            Logger.log(nickname + " logged in successfully (" + uuid + ")");
-            this.probeThread = new Thread(this::probeCheck);
-            this.probeThread.start();
+            setUuid(WaitingRoomController.getInstance().addPlayer(nickname));
+            setNickname(nickname);
+            Logger.log(nickname + " logged in successfully (" + getUuid() + ")");
+            setProbeThread(new Thread(this::probeCheck));
+            getProbeThread().start();
         } catch (LoginFailedException e) {
             Logger.error(nickname + " log in failed");
         } catch (NicknameAlreadyUsedInGameException e) {
             Logger.log("Welcome back " + nickname);
-            gameController = e.getController();
-            gameController.addServerNetwork(this);
-            this.nickname = nickname;
-            Player player = gameController.getGame().getPlayer(nickname);
-            this.uuid = player.getId();
-            gameController.unsuspendPlayer(this.uuid);
-            this.probeThread = new Thread(this::probeCheck);
-            this.probeThread.start();
+            setGameController(e.getController());
+            getGameController().addNetwork(this);
+            setNickname(nickname);
+            Player player = getGameController().getGame().getPlayer(nickname);
+            setUuid(player.getId());
+            getGameController().unsuspendPlayer(getUuid());
+            setProbeThread(new Thread(this::probeCheck));
+            getProbeThread().start();
             JsonObject privateObjectiveCard = createObjectiveCardJson(player.getPrivateObjectiveCard());
             try {
                 client.reconnect(privateObjectiveCard.toString());
@@ -82,24 +83,24 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
                 }
             }, 500);
         }
-        return uuid;
+        return getUuid();
     }
 
     @Override
     public void choosePattern(int patternIndex) {
-        gameController.choosePattern(uuid, patternIndex);
-        Logger.log(this.nickname + " has chosen pattern " + patternIndex);
+        getGameController().choosePattern(getUuid(), patternIndex);
+        Logger.log(getNickname() + " has chosen pattern " + patternIndex);
     }
 
     @Override
     public String placeDie(int draftPoolIndex, int x, int y) {
         JsonObject payload = new JsonObject();
         try {
-            this.gameController.placeDie(this.uuid, draftPoolIndex, x, y);
-            Logger.log(this.nickname + " placed a die");
+            getGameController().placeDie(getUuid(), draftPoolIndex, x, y);
+            Logger.log(getNickname() + " placed a die");
             payload.addProperty(JsonFields.RESULT, true);
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
-            Logger.log(this.nickname + "'s die placement attempt was refused");
+            Logger.log(getNickname() + "'s die placement attempt was refused");
             Logger.printStackTraceConditionally(e);
             payload.addProperty(JsonFields.RESULT, false);
             payload.addProperty(JsonFields.ERROR_MESSAGE,e.getMessage());
@@ -109,13 +110,13 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     @Override
     public String requiredData(int cardIndex) {
-        JsonObject payload = this.gameController.requiredData(cardIndex,uuid);
-        Player player = this.gameController.getPlayer(uuid);
-        if ((player.getFavorTokens()<2 && gameController.getToolCards().get(cardIndex).isUsed()) ||
-                (player.getFavorTokens()<1 && !gameController.getToolCards().get(cardIndex).isUsed())){
+        JsonObject payload = getGameController().requiredData(cardIndex, getUuid());
+        Player player = getGameController().getPlayer(getUuid());
+        if ((player.getFavorTokens()<2 && getGameController().getToolCards().get(cardIndex).isUsed()) ||
+                (player.getFavorTokens()<1 && !getGameController().getToolCards().get(cardIndex).isUsed())){
             payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.NO_FAVOR_TOKENS, Constants.INDEX_CONSTANT);
         }
-        if (payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX) && this.gameController.getRoundTrack().getFlattenedDice().isEmpty()){
+        if (payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX) && getGameController().getRoundTrack().getFlattenedDice().isEmpty()){
             payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.ROUND_TRACK);
         }
         if ((payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.TO_CELL_X)) &&
@@ -128,15 +129,15 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     @Override
     public String useToolCard(int cardIndex, String requiredDataString) {
         JsonObject requiredData = jsonParser.parse(requiredDataString).getAsJsonObject();
-        requiredData.addProperty(JsonFields.PLAYER_ID, uuid.toString());
+        requiredData.addProperty(JsonFields.PLAYER_ID, getUuid().toString());
         JsonObject payload = new JsonObject();
         try {
-            this.gameController.useToolCard(uuid, cardIndex, requiredData);
-            Logger.log(this.nickname + " used a tool card");
+            getGameController().useToolCard(getUuid(), cardIndex, requiredData);
+            Logger.log(getNickname() + " used a tool card");
             payload.addProperty(JsonFields.RESULT, true);
         } catch (InvalidEffectArgumentException | InvalidEffectResultException e) {
             Logger.printStackTraceConditionally(e);
-            Logger.log(this.nickname + " usage of tool card was refused");
+            Logger.log(getNickname() + " usage of tool card was refused");
             payload.addProperty(JsonFields.RESULT, false);
             payload.addProperty(JsonFields.ERROR_MESSAGE,e.getMessage());
         }
@@ -145,8 +146,8 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     @Override
     public void nextTurn() {
-        gameController.nextTurn();
-        Logger.log(this.nickname + " has ended his turn");
+        getGameController().nextTurn();
+        Logger.log(getNickname() + " has ended his turn");
     }
 
     private void clientUpdate(String payload) {
@@ -254,7 +255,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     @Override
     void showDisconnectedUserMessage() {
-        Logger.log(nickname + " was disconnected");
+        Logger.log(getNickname() + " was disconnected");
         Thread.currentThread().interrupt();
     }
 
@@ -264,7 +265,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     }
 
     private void connectionError(Throwable e) {
-        Logger.connectionLost(nickname);
+        Logger.connectionLost(getNickname());
         Logger.printStackTraceConditionally(e);
         this.onUserDisconnection();
         this.close();

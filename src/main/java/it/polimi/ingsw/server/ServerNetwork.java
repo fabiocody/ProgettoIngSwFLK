@@ -12,12 +12,52 @@ import java.util.*;
 
 public abstract class ServerNetwork extends Observable implements Observer {
 
-    String nickname;
-    UUID uuid;
-    GameController gameController;
+    private String nickname;
+    private UUID uuid;
+    private GameController gameController;
 
-    Thread probeThread;
-    boolean probed = true;
+    private Thread probeThread;
+    private boolean probed = true;
+
+    String getNickname() {
+        return nickname;
+    }
+
+    void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    UUID getUuid() {
+        return uuid;
+    }
+
+    void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    GameController getGameController() {
+        return gameController;
+    }
+
+    void setGameController(GameController gameController) {
+        this.gameController = gameController;
+    }
+
+    Thread getProbeThread() {
+        return probeThread;
+    }
+
+    void setProbeThread(Thread probeThread) {
+        this.probeThread = probeThread;
+    }
+
+    boolean isProbed() {
+        return probed;
+    }
+
+    void setProbed(boolean probed) {
+        this.probed = probed;
+    }
 
     abstract void sendProbe();
     abstract void showDisconnectedUserMessage();
@@ -89,10 +129,10 @@ public abstract class ServerNetwork extends Observable implements Observer {
         if (probeThread != null) probeThread.interrupt();
         SagradaServer.getInstance().deleteObserver(this);
         WaitingRoomController.getInstance().removePlayer(this.nickname);
-        WaitingRoomController.getInstance().removeServerNetwork(this);
+        WaitingRoomController.getInstance().removeNetwork(this);
         if (gameController != null) {
             gameController.suspendPlayer(this.uuid);
-            gameController.removeServerNetwork(this);
+            gameController.removeNetwork(this);
         }
         setChanged();
         notifyObservers(nickname);
@@ -103,7 +143,7 @@ public abstract class ServerNetwork extends Observable implements Observer {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.PLAYERS.getString());
         JsonArray playersJSON = new JsonArray();
-        for (String name : this.gameController.getCurrentPlayers()) {
+        for (String name : this.gameController.getPlayers()) {
             playersJSON.add(name);
         }
         payload.add(JsonFields.PLAYERS, playersJSON);
@@ -139,8 +179,8 @@ public abstract class ServerNetwork extends Observable implements Observer {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.WINDOW_PATTERNS.getString());
         JsonObject windowPatterns = new JsonObject();
-        for (String player : this.gameController.getCurrentPlayers()) {
-            windowPatterns.add(player, createWindowPatternJSON(this.gameController.getWindowPatternOf(player)));
+        for (String player : this.gameController.getPlayers()) {
+            windowPatterns.add(player, createWindowPatternJSON(this.gameController.getWindowPattern(player)));
         }
         payload.add(JsonFields.WINDOW_PATTERNS, windowPatterns);
         Logger.debugPayload(payload);
@@ -151,8 +191,8 @@ public abstract class ServerNetwork extends Observable implements Observer {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.FAVOR_TOKENS.getString());
         JsonObject favorTokens = new JsonObject();
-        for (String player : this.gameController.getCurrentPlayers()) {
-            favorTokens.addProperty(player, this.gameController.getFavorTokensOf(player));
+        for (String player : this.gameController.getPlayers()) {
+            favorTokens.addProperty(player, this.gameController.getFavorTokens(player));
         }
         payload.add(JsonFields.FAVOR_TOKENS, favorTokens);
         Logger.debugPayload(payload);
@@ -276,9 +316,9 @@ public abstract class ServerNetwork extends Observable implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof SagradaServer) {
-            WaitingRoomController.getInstance().removeServerNetwork(this);
+            WaitingRoomController.getInstance().removeNetwork(this);
             this.gameController = (GameController) arg;
-            this.gameController.addServerNetwork(this);
+            this.gameController.addNetwork(this);
             this.setupGame();
         }
     }

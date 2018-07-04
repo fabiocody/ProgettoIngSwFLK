@@ -54,14 +54,14 @@ public class WaitingRoomController extends BaseController {
         if (o instanceof WaitingRoom) {
             if (arg instanceof List /*&& getUuid() != null*/) {
                 Logger.debug("Updating waiting players");
-                forEachServerNetwork(ServerNetwork::updateWaitingPlayers);
+                forEachNetwork(ServerNetwork::updateWaitingPlayers);
             }
         } else if (o instanceof CountdownTimer) {
             String stringArg = String.valueOf(arg);
             if (stringArg.startsWith(NotificationMessages.WAITING_ROOM)) {
                 String tick = stringArg.split(" ")[1];
                 Logger.debug("WR Timer tick (from update): " + tick);
-                forEachServerNetwork(network -> network.updateTimerTick(Methods.WR_TIMER_TICK, tick));
+                forEachNetwork(network -> network.updateTimerTick(Methods.WR_TIMER_TICK, tick));
             }
         }
     }
