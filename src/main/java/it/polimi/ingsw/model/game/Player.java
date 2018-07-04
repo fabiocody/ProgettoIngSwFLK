@@ -30,6 +30,7 @@ public class Player extends Observable {
     private boolean privateObjectiveCardSet;    // True iff this player has already been assigned a Private Objective Card (to prevent alterations)
     private boolean windowPatternChosen;
     private boolean diePlacedInThisTurn;
+    private boolean toolCardUsedThisTurn;
     private boolean secondTurnToBeSkipped;
 
     /**
@@ -185,6 +186,10 @@ public class Player extends Observable {
     void setDiePlacedInThisTurn(boolean value) {
         this.diePlacedInThisTurn = value;
     }
+
+    public boolean isToolCardUsedThisTurn() {return toolCardUsedThisTurn; }
+
+    public void setToolCardUsedThisTurn(boolean value) { this.toolCardUsedThisTurn= value; }
 
     /**
      * @author Fabio Codiglioni

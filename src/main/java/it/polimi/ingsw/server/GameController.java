@@ -174,11 +174,12 @@ public class GameController extends BaseController {
 
     JsonObject requiredData(int toolCardIndex, UUID id){
         JsonObject data = this.game.getToolCards().get(toolCardIndex).requiredData();
-        if(this.getPlayer(id).getFavorTokens() < 2 && this.getToolCards().get(toolCardIndex).isUsed() ||
+        if (this.getPlayer(id).isToolCardUsedThisTurn()){
+            data.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, InterfaceMessages.TOOL_CARD_ALREADY_USED_IN_THIS_TURN);
+        } else if (this.getPlayer(id).getFavorTokens() < 2 && this.getToolCards().get(toolCardIndex).isUsed() ||
                 (this.getPlayer(id).getFavorTokens() < 1 && !this.getToolCards().get(toolCardIndex).isUsed())){
             data.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.NO_FAVOR_TOKENS,InterfaceMessages.NO_FAVOR_TOKENS);
-        }
-        else addUnusabilityMessages(toolCardIndex, id, data);
+        } else addUnusabilityMessages(toolCardIndex, id, data);
         return data;
     }
 
@@ -195,6 +196,7 @@ public class GameController extends BaseController {
                 Logger.debug("Removed 2 favor tokens");
             }
             toolCard.setUsed();
+            this.getPlayer(uuid).setToolCardUsedThisTurn(true);
         }
         forEachServerNetwork(ServerNetwork::fullUpdate);
     }

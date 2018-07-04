@@ -8,6 +8,7 @@ public class InterfaceMessages {
     private InterfaceMessages() { throw new IllegalStateException("Cannot instantiate"); }
 
     public static final String DIE_ALREADY_PLACED_IN_THIS_TURN = "hai già piazzato un dado questo turno!";
+    public static final String TOOL_CARD_ALREADY_USED_IN_THIS_TURN = "hai già utilizzato una carta strumento questo turno!";
     public static final String DIE_INVALID_POSITION = "questo dado non può essere piazzato in questa posizione!";
     public static final String SUCCESSFUL_DIE_PLACEMENT = "Il dado è stato piazzato!";
     public static final String UNSUCCESSFUL_DIE_PLACEMENT = "Il dado non è stato piazzato: ";

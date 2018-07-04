@@ -103,6 +103,8 @@ public class ClientGUIApplication extends Application implements Observer {
     private Integer requestedFromCellY = null;
     private Integer requestedToCellX = null;
     private Integer requestedToCellY = null;
+    private boolean movement = false;
+    boolean stop = false;
 
 
     /***********************
@@ -425,13 +427,19 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void onCellClick(MouseEvent e) {
+        StackPane cell = (StackPane) e.getSource();
+        int x = GridPane.getColumnIndex(cell);
+        int y = GridPane.getRowIndex(cell) - 1;
         if (toolCardIndex == null && draftPoolIndex != null) {
-            StackPane cell = (StackPane) e.getSource();
-            int x = GridPane.getColumnIndex(cell);
-            int y = GridPane.getRowIndex(cell) - 1;     // -1 required because the first row is the nickname label
             placeDie(draftPoolIndex, x, y);
         } else {
-            // TODO
+            if (requestedFromCellX == null && movement){
+                requestedFromCellX = x;
+                requestedFromCellY = y;
+            } else {
+                requestedToCellX = x;
+                requestedToCellY = y;
+            }
         }
     }
 
@@ -556,6 +564,19 @@ public class ClientGUIApplication extends Application implements Observer {
         Platform.runLater(() -> cancelButton.setDisable(true));
     }
 
+    private void resetToolCardContinue(){
+        resetDraftPoolHighlight();
+        requestedDraftPoolIndex = null;
+        requestedRoundTrackIndex = null;
+        requestedDelta = null;
+        requestedNewValue = null;
+        requestedFromCellX = null;
+        requestedFromCellY = null;
+        requestedToCellX = null;
+        requestedToCellY = null;
+        Platform.runLater(() -> cancelButton.setDisable(true));
+    }
+
 
     /*************
      * Movements *
@@ -585,25 +606,29 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private void useToolCardMove(int toolCardIndex){
         int cardIndex;
-        boolean stop;
         boolean valid;
         cardIndex = toolCardIndex;
         requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
         requiredData.remove(JsonFields.METHOD);
         if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS) || requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {
-            Platform.runLater(() -> setConsoleLabelText(InterfaceMessages.UNSUCCESSFUL_TOOL_CARD_USAGE + requiredData.get(JsonFields.DATA).getAsJsonObject().get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString()));
+            Platform.runLater(() -> {
+                setConsoleLabelText(InterfaceMessages.UNSUCCESSFUL_TOOL_CARD_USAGE + requiredData.get(JsonFields.DATA).getAsJsonObject().get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString());
             cancelAction(false);
+            });
         } else {
             valid = this.useData(requiredData,cardIndex);
             if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE) && valid) {
                 requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
                 requiredData.remove(JsonFields.METHOD);
                 if(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP)) {
-                    TwoOptionsAlert continueAlert = new TwoOptionsAlert("Continue");
-                    Options answer = continueAlert.present("Vuoi continuare?",Options.YES, Options.NO);
-                    stop = answer == Options.NO;
+                    Platform.runLater(() -> {
+                        TwoOptionsAlert continueAlert = new TwoOptionsAlert("Continue");
+                        Options answer = continueAlert.present("Vuoi continuare?", Options.YES, Options.NO);
+                        stop = answer == Options.NO;
+                    });
                     requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.STOP, stop);
                 }
+                resetToolCardContinue();
                 this.useData(requiredData,cardIndex);
             }
         }
@@ -665,6 +690,7 @@ public class ClientGUIApplication extends Application implements Observer {
             }
             if (data.has(JsonFields.FROM_CELL_X)) {
                 Platform.runLater(() -> setConsoleLabelText("Seleziona la cella da cui vuoi muovere il dado"));
+                movement = true;
                 while (requestedFromCellX == null) {
                     try {
                         Thread.sleep(1);
@@ -695,8 +721,7 @@ public class ClientGUIApplication extends Application implements Observer {
                 cancelAction(false);
             }
             return true;
-        }
-        else {
+        } else {
             Platform.runLater(() -> setConsoleLabelText("Carta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString()));
             cancelAction(false);
             return false;
