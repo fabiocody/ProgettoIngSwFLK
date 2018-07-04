@@ -15,9 +15,9 @@ public abstract class ServerNetwork extends Observable implements Observer {
     private String nickname;
     private UUID uuid;
     private GameController gameController;
-
     private Thread probeThread;
     private boolean probed = true;
+    private JsonParser jsonParser;
 
     String getNickname() {
         return nickname;
@@ -43,27 +43,26 @@ public abstract class ServerNetwork extends Observable implements Observer {
         this.gameController = gameController;
     }
 
-    Thread getProbeThread() {
-        return probeThread;
+    void startProbeThread() {
+        probeThread = new Thread(this::probeCheck);
+        probeThread.start();
     }
 
-    void setProbeThread(Thread probeThread) {
-        this.probeThread = probeThread;
+    void setProbed() {
+        this.probed = true;
     }
 
-    boolean isProbed() {
-        return probed;
-    }
-
-    void setProbed(boolean probed) {
-        this.probed = probed;
+    JsonParser getJsonParser() {
+        if (jsonParser == null)
+            jsonParser = new JsonParser();
+        return jsonParser;
     }
 
     abstract void sendProbe();
     abstract void showDisconnectedUserMessage();
     abstract void close();
 
-    private JsonObject createWindowPatternJSON(WindowPattern wp) {
+    private JsonObject createWindowPatternJson(WindowPattern wp) {
         JsonObject wpJSON = new JsonObject();
         wpJSON.addProperty(JsonFields.NAME, wp.getPatternName());
         wpJSON.addProperty(JsonFields.DIFFICULTY, wp.getDifficulty());
@@ -102,7 +101,15 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return jsonCard;
     }
 
-    void probeCheck() {
+    private JsonObject createDieJson(Die d) {
+        JsonObject jsonDie = new JsonObject();
+        jsonDie.addProperty(JsonFields.COLOR, d.getColor().toString());
+        jsonDie.addProperty(JsonFields.VALUE, d.getValue());
+        jsonDie.addProperty(JsonFields.CLI_STRING, d.toString());
+        return jsonDie;
+    }
+
+    private void probeCheck() {
         while (true) {
             try {
                 Thread.sleep(Constants.PROBE_TIMEOUT * 1000);
@@ -180,7 +187,7 @@ public abstract class ServerNetwork extends Observable implements Observer {
         payload.addProperty(JsonFields.METHOD, Methods.WINDOW_PATTERNS.getString());
         JsonObject windowPatterns = new JsonObject();
         for (String player : this.gameController.getPlayers()) {
-            windowPatterns.add(player, createWindowPatternJSON(this.gameController.getWindowPattern(player)));
+            windowPatterns.add(player, createWindowPatternJson(this.gameController.getWindowPattern(player)));
         }
         payload.add(JsonFields.WINDOW_PATTERNS, windowPatterns);
         Logger.debugPayload(payload);
@@ -199,20 +206,12 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return payload;
     }
 
-    private JsonObject generateJsonDie(Die d) {
-        JsonObject jsonDie = new JsonObject();
-        jsonDie.addProperty(JsonFields.COLOR, d.getColor().toString());
-        jsonDie.addProperty(JsonFields.VALUE, d.getValue());
-        jsonDie.addProperty(JsonFields.CLI_STRING, d.toString());
-        return jsonDie;
-    }
-
     JsonObject updateDraftPool() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.DRAFT_POOL.getString());
         JsonArray dice = new JsonArray();
         for (Die d : this.gameController.getDraftPool()) {
-            dice.add(generateJsonDie(d));
+            dice.add(createDieJson(d));
         }
         payload.add(JsonFields.DICE, dice);
         Logger.debugPayload(payload);
@@ -226,7 +225,7 @@ public abstract class ServerNetwork extends Observable implements Observer {
         for (List<Die> round : this.gameController.getRoundTrackDice()) {
             JsonArray roundArray = new JsonArray();
             for (Die die : round)
-                roundArray.add(generateJsonDie(die));
+                roundArray.add(createDieJson(die));
             dice.add(roundArray);
         }
         payload.add(JsonFields.DICE, dice);
@@ -293,7 +292,7 @@ public abstract class ServerNetwork extends Observable implements Observer {
         List<WindowPattern> windowPatterns = player.getWindowPatternList();
         JsonArray windowPatternsJSON = new JsonArray();
         for (WindowPattern wp : windowPatterns) {
-            windowPatternsJSON.add(createWindowPatternJSON(wp));
+            windowPatternsJSON.add(createWindowPatternJson(wp));
         }
         payload.add(JsonFields.WINDOW_PATTERNS, windowPatternsJSON);
         Logger.debugPayload(payload);

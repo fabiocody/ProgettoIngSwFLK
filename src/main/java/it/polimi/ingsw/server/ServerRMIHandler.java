@@ -14,12 +14,10 @@ import java.util.*;
 public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     private ClientAPI client;
-    private JsonParser jsonParser;
 
     private ServerRMIHandler(ClientAPI client) {
         System.setProperty("java.rmi.game.useCodebaseOnly", String.valueOf(false));
         this.client = client;
-        this.jsonParser = new JsonParser();
         if (this.client != null) WaitingRoomController.getInstance().addNetwork(this);
     }
 
@@ -44,7 +42,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     @Override
     public void probe() {
         Logger.debug(getNickname() + " has sent a probe message");
-        setProbed(true);
+        setProbed();
     }
 
     @Override
@@ -56,8 +54,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
             setUuid(WaitingRoomController.getInstance().addPlayer(nickname));
             setNickname(nickname);
             Logger.log(nickname + " logged in successfully (" + getUuid() + ")");
-            setProbeThread(new Thread(this::probeCheck));
-            getProbeThread().start();
+            startProbeThread();
         } catch (LoginFailedException e) {
             Logger.error(nickname + " log in failed");
         } catch (NicknameAlreadyUsedInGameException e) {
@@ -68,8 +65,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
             Player player = getGameController().getGame().getPlayer(nickname);
             setUuid(player.getId());
             getGameController().unsuspendPlayer(getUuid());
-            setProbeThread(new Thread(this::probeCheck));
-            getProbeThread().start();
+            startProbeThread();
             JsonObject privateObjectiveCard = createObjectiveCardJson(player.getPrivateObjectiveCard());
             try {
                 client.reconnect(privateObjectiveCard.toString());
@@ -128,7 +124,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     @Override
     public String useToolCard(int cardIndex, String requiredDataString) {
-        JsonObject requiredData = jsonParser.parse(requiredDataString).getAsJsonObject();
+        JsonObject requiredData = getJsonParser().parse(requiredDataString).getAsJsonObject();
         requiredData.addProperty(JsonFields.PLAYER_ID, getUuid().toString());
         JsonObject payload = new JsonObject();
         try {

@@ -15,12 +15,10 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
     private Socket clientSocket;
     private BufferedReader in;
     private PrintWriter out;
-    private JsonParser jsonParser;
     private boolean run = true;
 
     ServerSocketHandler(Socket socket) {
         this.clientSocket = socket;
-        this.jsonParser = new JsonParser();
     }
 
     @Override
@@ -92,7 +90,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
                         this.requiredData(input);
                         break;
                     case PROBE:
-                        setProbed(true);
+                        setProbed();
                         break;
                     default:
                         Logger.error("METHOD NOT RECOGNIZED");
@@ -111,7 +109,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
 
     private JsonObject parseJson(String string) {
         Logger.debug("Parsing JSON");
-        return this.jsonParser.parse(string).getAsJsonObject();
+        return getJsonParser().parse(string).getAsJsonObject();
     }
 
     private void addPlayer(JsonObject input) {
@@ -135,8 +133,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             payload.add(JsonFields.PLAYERS, waitingPlayers);
             Logger.debugPayload(payload);
             out.println(payload.toString());
-            setProbeThread(new Thread(this::probeCheck));
-            getProbeThread().start();
+            startProbeThread();
         } catch (LoginFailedException e) {
             Logger.log("Login failed for nickname " + tempNickname);
             JsonObject payload = new JsonObject();
@@ -160,8 +157,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             payload.add(JsonFields.PRIVATE_OBJECTIVE_CARD, createObjectiveCardJson(player.getPrivateObjectiveCard()));
             Logger.debugPayload(payload);
             out.println(payload.toString());
-            setProbeThread(new Thread(this::probeCheck));
-            getProbeThread().start();
+            startProbeThread();
             new Timer(true).schedule(new TimerTask() {
                 @Override
                 public void run() {
