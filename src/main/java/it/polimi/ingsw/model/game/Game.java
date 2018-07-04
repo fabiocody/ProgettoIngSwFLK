@@ -97,7 +97,7 @@ public class Game extends Observable implements Observer {
 
     public boolean arePlayersReady() {
         return this.players.stream()
-                .allMatch(Player::isWindowPatternChosen);
+                .allMatch(p -> p.isWindowPatternChosen() || p.isSuspended());       // TODO Da testare
     }
 
     public List<String> getSuspendedPlayers() {

@@ -141,7 +141,7 @@ public class Client {
     }
 
     private static void exitError() {
-        Logger.println(Constants.CLIENT_USAGE_STRING);
+        Logger.println(InterfaceMessages.CLIENT_USAGE_STRING);
         System.exit(Constants.EXIT_ERROR);
     }
 

@@ -20,7 +20,6 @@ public class Constants {
     public static final int NUMBER_OF_TOOL_CARDS = 12;
     public static final int NUMBER_OF_TOOL_CARDS_PER_GAME = 3;
     public static final int NUMBER_OF_ROUNDS = 10;
-    public static final String CANCEL_MESSAGE = "Premi 0 per annullare.";
     public static final int DEFAULT_PORT = 42000;
     public static final int DEFAULT_RMI_PORT = 1099;
     public static final int DEFAULT_WR_TIMEOUT = 30;
@@ -29,8 +28,6 @@ public class Constants {
     public static final int EXIT_ERROR = 1;
     public static final long PROBE_TIMEOUT = 3000;
     public static final String SERVER_RMI_NAME = "SagradaServer";
-    public static final String SERVER_USAGE_STRING = "usage: sagradaserver [--debug] [--host HOST] [--port PORT] [--wr-timeout WR-TIMEOUT] [--game-timeout GAME-TIMEOUT]";
-    public static final String CLIENT_USAGE_STRING = "usage: sagradaclient --host HOST [--port PORT] [--connection socket|rmi] [--interface cli|gui] [--debug]";
     public static final String TOOL_CARD_1_NAME = "Pinza Sgrossatrice";
     public static final String TOOL_CARD_2_NAME = "Pennello per Eglomise";
     public static final String TOOL_CARD_3_NAME = "Alesatore per lamina di rame";

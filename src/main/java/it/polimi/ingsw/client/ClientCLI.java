@@ -7,7 +7,6 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.*;
-import static it.polimi.ingsw.shared.util.Constants.*;
 import static org.fusesource.jansi.Ansi.*;
 
 
@@ -121,12 +120,12 @@ public class ClientCLI extends Client implements Observer {
             Logger.error("Exception raised while tearing down");
             Logger.printStackTrace(e);
         }
-        System.exit(EXIT_ERROR);
+        System.exit(Constants.EXIT_ERROR);
     }
 
     private void choosePatternMessage() throws IOException, InterruptedException{
         try {
-            Integer patternIndex = INDEX_CONSTANT;
+            Integer patternIndex = Constants.INDEX_CONSTANT;
             Logger.println("");
             do {
                 this.input = input("Scegli la tua carta Schema [1-4] >>>");
@@ -159,9 +158,9 @@ public class ClientCLI extends Client implements Observer {
         int draftPoolIndex;
         int x;
         int y;
-        draftPoolIndex = this.getInputIndex("\nQuale dado vuoi piazzare [1-" + draftPoolLength + "]? " + CANCEL_MESSAGE,0,draftPoolLength,true);
-        x = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + CANCEL_MESSAGE,0,NUMBER_OF_PATTERN_COLUMNS,true);
-        y = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + CANCEL_MESSAGE,0,NUMBER_OF_PATTERN_ROWS,true);
+        draftPoolIndex = this.getInputIndex("\nQuale dado vuoi piazzare [1-" + draftPoolLength + "]? " + InterfaceMessages.CANCEL_MESSAGE,0,draftPoolLength,true);
+        x = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + InterfaceMessages.CANCEL_MESSAGE,0,Constants.NUMBER_OF_PATTERN_COLUMNS,true);
+        y = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + InterfaceMessages.CANCEL_MESSAGE,0,Constants.NUMBER_OF_PATTERN_ROWS,true);
         JsonObject result = ClientNetwork.getInstance().placeDie(draftPoolIndex,x,y);
         if(result.get(JsonFields.RESULT).getAsBoolean())
             Logger.println(InterfaceMessages.SUCCESSFUL_DIE_PLACEMENT);
@@ -181,35 +180,35 @@ public class ClientCLI extends Client implements Observer {
 
         if (!(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP) && requiredData.get(JsonFields.DATA).getAsJsonObject().get(JsonFields.STOP).getAsBoolean())) {
             if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) {
-                draftPoolIndex = this.getInputIndex("\nQuale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]? " + CANCEL_MESSAGE, 0, draftPoolLength, true);
+                draftPoolIndex = this.getInputIndex("\nQuale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]? " + InterfaceMessages.CANCEL_MESSAGE, 0, draftPoolLength, true);
                 requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.DRAFT_POOL_INDEX, draftPoolIndex);
             }
             if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX)) {
-                roundTrackIndex = this.getInputIndex("\nQuale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]? " + CANCEL_MESSAGE, 0, (int) roundTrackLength, true);
+                roundTrackIndex = this.getInputIndex("\nQuale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]? " + InterfaceMessages.CANCEL_MESSAGE, 0, (int) roundTrackLength, true);
                 requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.ROUND_TRACK_INDEX, roundTrackIndex);
             }
             if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.DELTA)) {
-                delta = this.getInputIndex("\nVuoi aumentare[1] o diminuire[-1] il valore del dado? " + CANCEL_MESSAGE);
+                delta = this.getInputIndex("\nVuoi aumentare[1] o diminuire[-1] il valore del dado? " + InterfaceMessages.CANCEL_MESSAGE);
                 requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.DELTA, delta);
             }
             if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.NEW_VALUE)) {
-                newValue = this.getInputIndex("\nQuale valore vuoi assegnare al dado[1-6]? " + CANCEL_MESSAGE, 1, 7, false);
+                newValue = this.getInputIndex("\nQuale valore vuoi assegnare al dado[1-6]? " + InterfaceMessages.CANCEL_MESSAGE, 1, 7, false);
                 requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.NEW_VALUE, newValue);
             }
             if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.FROM_CELL_X)) {
-                fromCellX = this.getInputIndex("\nDa quale colonna vuoi muoverlo [1-5]? " + CANCEL_MESSAGE, 0, NUMBER_OF_PATTERN_COLUMNS, true);
+                fromCellX = this.getInputIndex("\nDa quale colonna vuoi muoverlo [1-5]? " + InterfaceMessages.CANCEL_MESSAGE, 0, Constants.NUMBER_OF_PATTERN_COLUMNS, true);
                 requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.FROM_CELL_X, fromCellX);
             }
             if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.FROM_CELL_Y)) {
-                fromCellY = this.getInputIndex("\nDa quale riga vuoi muoverlo [1-4]? " + CANCEL_MESSAGE, 0, NUMBER_OF_PATTERN_ROWS, true);
+                fromCellY = this.getInputIndex("\nDa quale riga vuoi muoverlo [1-4]? " + InterfaceMessages.CANCEL_MESSAGE, 0, Constants.NUMBER_OF_PATTERN_ROWS, true);
                 requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.FROM_CELL_Y, fromCellY);
             }
             if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.TO_CELL_X)) {
-                toCellX = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + CANCEL_MESSAGE, 0, NUMBER_OF_PATTERN_COLUMNS, true);
+                toCellX = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + InterfaceMessages.CANCEL_MESSAGE, 0, Constants.NUMBER_OF_PATTERN_COLUMNS, true);
                 requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.TO_CELL_X, toCellX);
             }
             if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.TO_CELL_Y)) {
-                toCellY = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + CANCEL_MESSAGE, 0, NUMBER_OF_PATTERN_ROWS, true);
+                toCellY = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + InterfaceMessages.CANCEL_MESSAGE, 0, Constants.NUMBER_OF_PATTERN_ROWS, true);
                 requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.TO_CELL_Y, toCellY);
             }
         }
@@ -229,7 +228,7 @@ public class ClientCLI extends Client implements Observer {
         boolean stop;
         JsonObject requiredData;
         boolean valid;
-        cardIndex = this.getInputIndex("\nQuale carta strumento vuoi usare [1-3]? " + CANCEL_MESSAGE, 0, 3,true);
+        cardIndex = this.getInputIndex("\nQuale carta strumento vuoi usare [1-3]? " + InterfaceMessages.CANCEL_MESSAGE, 0, 3,true);
         requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
         requiredData.remove(JsonFields.METHOD);
         if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS) || requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {
@@ -435,7 +434,7 @@ public class ClientCLI extends Client implements Observer {
             Logger.println(InterfaceMessages.LOGIN_FAILED_EMPTY);
         } else if (nickname.contains(" ")) {
             Logger.println(InterfaceMessages.LOGIN_FAILED_SPACES);
-        } else if (nickname.length() > MAX_NICKNAME_LENGTH) {
+        } else if (nickname.length() > Constants.MAX_NICKNAME_LENGTH) {
             Logger.println(InterfaceMessages.LOGIN_FAILED_LENGTH);
         } else {
             this.setNickname(nickname);
@@ -634,7 +633,7 @@ public class ClientCLI extends Client implements Observer {
         List<String> windowPatterns = new ArrayList<>();
         for (Map.Entry<String, JsonElement> entry : windowPatternsJson.entrySet()) {
             StringBuilder patternString = new StringBuilder(entry.getKey());
-            while (patternString.length() < MAX_NICKNAME_LENGTH)
+            while (patternString.length() < Constants.MAX_NICKNAME_LENGTH)
                 patternString.append(' ');
             patternString.append('\n')
                     .append(entry.getValue().getAsJsonObject().get(JsonFields.CLI_STRING).getAsString());

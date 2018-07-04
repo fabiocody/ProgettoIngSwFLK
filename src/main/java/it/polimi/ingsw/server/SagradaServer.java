@@ -184,7 +184,7 @@ public class SagradaServer extends Observable implements Observer {
             }
             SagradaServer.getInstance().start(host, port, wrTimeout, gameTimeout, debug);
         } catch (OptionException | NullPointerException e) {
-            Logger.println(Constants.SERVER_USAGE_STRING);
+            Logger.println(InterfaceMessages.SERVER_USAGE_STRING);
         }
     }
 
