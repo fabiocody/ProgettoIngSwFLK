@@ -49,7 +49,7 @@ public class InterfaceMessages {
     public static final String MISSING_DATA = "Dati mancanti e/o non validi";
 
     public static String itsHisHerTurn(String nickname) {
-        return "È il turno di" + nickname;
+        return "È il turno di " + nickname;
     }
 
     public static String patternSelected(int patternIndex) {

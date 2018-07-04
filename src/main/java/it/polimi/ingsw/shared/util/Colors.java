@@ -30,6 +30,8 @@ public enum Colors {
     public Color getJavaFXColor() {
         if (this == YELLOW)
             return Color.GOLD;
+        else if (this == RED)
+            return Color.CRIMSON;
         return Color.valueOf(this.toString());
     }
 

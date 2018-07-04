@@ -52,6 +52,7 @@ public class ClientGUIApplication extends Application implements Observer {
     private static boolean debug;
     private Stage primaryStage;
     private List<Animation> animations = new ArrayList<>();
+    private FadeTransition gameTimerLabelAnimation;
 
     /*********************
      * Graphical (Login) *
@@ -74,10 +75,9 @@ public class ClientGUIApplication extends Application implements Observer {
     private String privateObjCardName;
     private Label gameTimerLabel = new Label("∞");
     private GridPane boardPane;
-    private List<ImageView> toolCards = new Vector<>();
-    private List<ImageView> publicObjectiveCards = new Vector<>();
-    private List<GridPane> windowPatterns = new Vector<>();
-    private GridPane myWindowPattern;
+    private List<ImageView> toolCards = new ArrayList<>();
+    private List<ImageView> publicObjectiveCards = new ArrayList<>();
+    private List<GridPane> windowPatterns = new ArrayList<>();
     private GridPane roundTrack;
     private GridPane draftPool;
     private Label consoleLabel;
@@ -132,7 +132,6 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void setMyWindowPattern(GridPane myWindowPattern) {
-        this.myWindowPattern = myWindowPattern;
         for (Node node : myWindowPattern.getChildren()) {
             if (node instanceof StackPane) {
                 StackPane stackPane = (StackPane) node;
@@ -430,7 +429,6 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void cancelAction(boolean resetConsoleLabel) {
-        resetDraftPoolHighlight();
         resetToolCardsEnvironment();
         Platform.runLater(() -> {
             cancelButton.setDisable(true);
@@ -441,14 +439,14 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private void onDraftPoolClick(MouseEvent e) {
         if (client.isActive()) {
-            restoreAnimatedNodes();
             Canvas dieCanvas = (Canvas) e.getSource();
-            addZoomingAnimation(dieCanvas);
             if (toolCardIndex == null) {
+                restoreAnimatedNodes();
                 draftPoolIndex = GridPane.getColumnIndex(dieCanvas);
             } else {
                 requestedDraftPoolIndex = GridPane.getColumnIndex(dieCanvas);
             }
+            addZoomingAnimation(dieCanvas);
             cancelButton.setDisable(false);
         }
     }
@@ -567,28 +565,12 @@ public class ClientGUIApplication extends Application implements Observer {
         toolCards = new Vector<>();
         publicObjectiveCards = new Vector<>();
         windowPatterns = new Vector<>();
-        myWindowPattern = null;
         roundTrack = null;
         draftPool = null;
         boardShown = false;
     }
 
-    private void resetDraftPoolHighlight() {
-        Platform.runLater(() -> {
-            /*for (Node node : draftPool.getChildren()) {
-                Canvas die = (Canvas) node;
-                GraphicsContext gc = die.getGraphicsContext2D();
-                gc.setLineWidth(3);
-                gc.setStroke(Color.BLACK);
-                gc.strokeRoundRect(0, 0, CELL_SIZE * STANDARD_FACTOR, CELL_SIZE * STANDARD_FACTOR, 10 * STANDARD_FACTOR, 10 * STANDARD_FACTOR);
-            }*/
-            cancelButton.setDisable(true);
-        });
-        draftPoolIndex = null;
-    }
-
     private void resetToolCardsEnvironment() {
-        resetDraftPoolHighlight();
         toolCardIndex = null;
         requiredData = null;
         requestedDraftPoolIndex = null;
@@ -603,8 +585,6 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void resetToolCardContinue(){
-        resetDraftPoolHighlight();
-        //requestedDraftPoolIndex = null;
         requestedRoundTrackIndex = null;
         requestedDelta = null;
         requestedNewValue = null;
@@ -715,7 +695,6 @@ public class ClientGUIApplication extends Application implements Observer {
             if (data.has(JsonFields.NEW_VALUE)) {
                 Platform.runLater(() -> {
                     SpinnerAlert newValueAlert = new SpinnerAlert("Nuovo Valore");
-                    List<Node> children = draftPool.getChildren();
                     requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", draftPoolColors.get(requestedDraftPoolIndex), 1, 6);
                     Canvas newDie = createNumberedCell(requestedNewValue, draftPoolColors.get(requestedDraftPoolIndex).getJavaFXColor(), STANDARD_FACTOR);
                     draftPool.add(newDie, requestedDraftPoolIndex, 0);
@@ -1022,7 +1001,24 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void gameTimerTickUpdateHandler(JsonObject jsonArg) {
-        gameTimerLabel.setText(jsonArg.get(JsonFields.TICK).getAsString());
+        String tickString = jsonArg.get(JsonFields.TICK).getAsString();
+        gameTimerLabel.setText(tickString);
+        int tick = Integer.parseInt(tickString);
+        if ((tick == 20 || tick == 10) && client.isActive()) {
+            if (tick == 20) {
+                gameTimerLabelAnimation = new FadeTransition(Duration.millis(500), gameTimerLabel);
+                gameTimerLabelAnimation.setCycleCount(2 * 10);
+            } else {
+                gameTimerLabel.setTextFill(Color.CRIMSON);
+                gameTimerLabelAnimation.stop();
+                gameTimerLabelAnimation = new FadeTransition(Duration.millis(250), gameTimerLabel);
+                gameTimerLabelAnimation.setCycleCount(2 * 2 * 10);
+            }
+            gameTimerLabelAnimation.setFromValue(1.0);
+            gameTimerLabelAnimation.setToValue(0.25);
+            gameTimerLabelAnimation.setAutoReverse(true);
+            gameTimerLabelAnimation.play();
+        }
     }
 
     private void windowPatternsUpdateHandler(JsonObject jsonArg) {
@@ -1153,6 +1149,15 @@ public class ClientGUIApplication extends Application implements Observer {
             if (!wasActive)
                 setConsoleLabelText(ITS_YOUR_TURN);
             nextTurnButton.setDisable(false);
+        }
+        if (gameTimerLabelAnimation != null && (!wasActive || !client.isActive())) {
+            gameTimerLabel.setTextFill(Color.WHITE);
+            gameTimerLabelAnimation.stop();
+            gameTimerLabelAnimation.setToValue(1);
+            gameTimerLabelAnimation.setCycleCount(1);
+            gameTimerLabelAnimation.setAutoReverse(false);
+            gameTimerLabelAnimation.play();
+            gameTimerLabelAnimation = null;
         }
     }
 
