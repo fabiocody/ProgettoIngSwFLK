@@ -345,7 +345,7 @@ public class ClientGUIApplication extends Application implements Observer {
         nextTurnButton = new Button("Termina il turno");
         nextTurnButton.setOnAction(e -> nextTurn());
         boardPane.add(nextTurnButton, 6, 4);
-        GridPane.setHalignment(nextTurnButton, HPos.CENTER);
+        GridPane.setHalignment(nextTurnButton, HPos.LEFT);
         GridPane.setValignment(nextTurnButton, VPos.BOTTOM);
 
         cancelButton = new Button("Annulla");
@@ -1046,7 +1046,7 @@ public class ClientGUIApplication extends Application implements Observer {
                     boardPane.add(pattern, 5, 1);
                 } else if (numberOfRivals == 2) {
                     if (columnIndex == null) {
-                        boardPane.add(pattern, 4, 1);
+                        boardPane.add(pattern, 5, 1);
                         columnIndex = 6;
                     } else {
                         boardPane.add(pattern, columnIndex, 1);
