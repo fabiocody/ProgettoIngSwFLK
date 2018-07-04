@@ -1142,11 +1142,12 @@ public class ClientGUIApplication extends Application implements Observer {
                 .collect(Collectors.toList());
         client.setSuspendedPlayers(suspendedPlayers);
         boolean wasActive = client.isActive();
-        client.setActive(jsonArg.get(JsonFields.ACTIVE_PLAYER).getAsString());
+        String activePlayer = jsonArg.get(JsonFields.ACTIVE_PLAYER).getAsString();
+        client.setActive(activePlayer);
         draftPool.getChildren().forEach(node -> node.setOnMouseClicked(this::onDraftPoolClick));
         toolCards.forEach(toolCard -> toolCard.setOnMouseClicked(this::onToolCardClick));
         if (!client.isActive() && !client.isSuspended() && !client.isGameOver()) {
-            setConsoleLabelText(WAIT_FOR_YOUR_TURN);
+            setConsoleLabelText(InterfaceMessages.itsHisHerTurn(activePlayer) + ". " + WAIT_FOR_YOUR_TURN);
             nextTurnButton.setDisable(true);
         } else if (client.isActive()) {
             if (!wasActive)

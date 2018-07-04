@@ -596,7 +596,7 @@ public class ClientCLI extends Client implements Observer {
         if (isActive())
             Logger.print(timerPrompt());
         else {
-            String timerString = "È il turno di " + this.getActiveNickname() + " [" + gameTimeout + "]";
+            String timerString = InterfaceMessages.itsHisHerTurn(getActiveNickname()) + " [" + gameTimeout + "]";
             if (isSuspended()) {
                 Logger.print(ansi()
                         .eraseLine(Erase.ALL)
