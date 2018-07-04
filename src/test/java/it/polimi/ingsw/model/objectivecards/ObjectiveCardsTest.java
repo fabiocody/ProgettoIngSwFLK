@@ -234,7 +234,6 @@ class ObjectiveCardsTest {
 
     @Test
     void publicObjectiveCard9() {
-        // TODO
         WindowPattern window = new WindowPattern(Constants.INDEX_CONSTANT);
         window.placeDie(new Die(Colors.RED, 1), 0, new EmptyConstraint());
         window.placeDie(new Die(Colors.RED, 2), 6, new EmptyConstraint());

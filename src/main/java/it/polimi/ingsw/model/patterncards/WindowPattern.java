@@ -173,7 +173,7 @@ public class WindowPattern {
         try {
             this.placeDie(d, destination, constraint);
         } catch (InvalidPlacementException e) {
-            this.grid[position].setPlacedDie(d);        // TODO I don't think this is necessary @fabiocody
+            this.grid[position].setPlacedDie(d);
             throw e;
         }
     }

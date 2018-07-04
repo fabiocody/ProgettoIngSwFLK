@@ -133,7 +133,7 @@ public class ToolCard11 extends ToolCard {
         Die die = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
         try {
             player.placeDie(die, cellX, cellY);
-            this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex); //TODO placeDie method removes die from draftpool in gameEndPoint
+            this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
             this.state = 0;
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
             Cell cell = player.getWindowPattern().getCell(cellIndex);

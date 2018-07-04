@@ -226,10 +226,8 @@ class ToolCardsTest {
         }
     }*/
 
-    // TODO Enable these tests once all the Tool Cards are fixed
     @Test
     void toolCard7() {
-        // Check that at least one die has changed value
         ToolCard toolCard = new ToolCard7(game);
         while (!game.getTurnManager().isSecondHalfOfRound())
             game.getTurnManager().nextTurn();
@@ -252,7 +250,6 @@ class ToolCardsTest {
 
     @Test
     void toolCard8() {
-        // TODO vedi ToolCard8
         ToolCard toolCard = new ToolCard8(game);
         JsonObject data = new JsonObject();
         data.addProperty(PLAYER, player.getNickname());
