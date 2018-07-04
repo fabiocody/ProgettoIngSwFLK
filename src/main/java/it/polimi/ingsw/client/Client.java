@@ -151,7 +151,7 @@ public class Client {
         parser.accepts(CLIArguments.HOST).withRequiredArg().defaultsTo(Constants.DEFAULT_HOST);
         parser.accepts(CLIArguments.PORT).withRequiredArg().ofType(Integer.class).defaultsTo(Constants.DEFAULT_PORT);
         parser.accepts(CLIArguments.CONNECTION).withRequiredArg().defaultsTo(CLIArguments.SOCKET);
-        parser.accepts(CLIArguments.INTERFACE).withRequiredArg().defaultsTo(CLIArguments.CLI);
+        parser.accepts(CLIArguments.INTERFACE).withRequiredArg().defaultsTo(CLIArguments.GUI);
 
         try {
             OptionSet options = parser.parse(args);
