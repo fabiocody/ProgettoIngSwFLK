@@ -12,6 +12,7 @@ import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
 
 import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_9_NAME;
+import static it.polimi.ingsw.shared.util.InterfaceMessages.DIE_ALREADY_PLACED_IN_THIS_TURN;
 import static it.polimi.ingsw.shared.util.InterfaceMessages.DIE_INVALID_POSITION;
 
 
@@ -68,8 +69,11 @@ public class ToolCard9 extends ToolCard {
         try {
                 player.placeDie(d, cellIndex, constraint);
                 this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
-        } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
+        } catch (InvalidPlacementException e) {
             throw new InvalidEffectResultException(DIE_INVALID_POSITION);
+        }
+        catch (DieAlreadyPlacedException e){
+            throw new InvalidEffectResultException(DIE_ALREADY_PLACED_IN_THIS_TURN);
         }
 
     }
