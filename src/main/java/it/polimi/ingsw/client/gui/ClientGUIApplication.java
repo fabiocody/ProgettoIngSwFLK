@@ -1140,18 +1140,19 @@ public class ClientGUIApplication extends Application implements Observer {
                 boardPane.add(imageView, i, 1);
                 GridPane.setValignment(imageView, VPos.CENTER);
             }
-            String favorTokens = "Costo: " +
-                    (card.get(JsonFields.USED).getAsBoolean() ? 2 : 1) +
-                    " FT";
+            int favorTokens = card.get(JsonFields.USED).getAsBoolean() ? 2 : 1;
+            String favorTokensString = new String(new char[favorTokens]).replace('\0', '•');
+            favorTokensString = "Costo " + favorTokensString;
             Label favorTokensLabel;
             try {
                 favorTokensLabel = (Label) getNode(boardPane, i, 2);
             } catch (NoSuchElementException e) {
                 favorTokensLabel = new Label();
+                favorTokensLabel.setFont(new Font(20));
                 boardPane.add(favorTokensLabel, i, 2);
                 GridPane.setHalignment(favorTokensLabel, HPos.CENTER);
             }
-            favorTokensLabel.setText(favorTokens);
+            favorTokensLabel.setText(favorTokensString);
         }
     }
 
@@ -1235,22 +1236,25 @@ public class ClientGUIApplication extends Application implements Observer {
         for (GridPane pane : windowPatterns) {
             String nickname = ((Label) pane.getChildren().get(pane.getChildren().size() - 3)).getText();
             int favorTokens = jsonFavorTokens.get(nickname).getAsInt();
-            String favorTokensString = "Favor Tokens: " + favorTokens;
+            String favorTokensString = new String(new char[favorTokens]).replace('\0', '•');
+            favorTokensString = "Segnalini favore " + favorTokensString;
             Label label;
-            if (nickname.equals(client.getNickname()))
+            if (nickname.equals(client.getNickname())) {
                 try {
                     label = (Label) getNode(boardPane, GridPane.getColumnIndex(pane), 5);
                 } catch (NoSuchElementException e) {
                     label = new Label();
                     boardPane.add(label, GridPane.getColumnIndex(pane), 5);
                 }
-            else
+            } else {
                 try {
                     label = (Label) getNode(boardPane, GridPane.getColumnIndex(pane), 2);
                 } catch (NoSuchElementException e) {
                     label = new Label();
                     boardPane.add(label, GridPane.getColumnIndex(pane), 2);
                 }
+            }
+            label.setFont(new Font(20));
             GridPane.setHalignment(label, HPos.CENTER);
             label.setText(favorTokensString);
         }
