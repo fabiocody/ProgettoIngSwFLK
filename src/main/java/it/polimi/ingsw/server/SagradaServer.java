@@ -46,10 +46,10 @@ public class SagradaServer extends Observable implements Observer {
         return instance;
     }
 
-    private void start(String host, int port, int wrTimeout, int gameTimeout, boolean debugActive) {
+    private void start(String host, int port, int wrTimeout, int gameTimeout, boolean debug) {
         this.port = port;
         this.gameTimeout = gameTimeout;
-        Logger.setDebugActive(debugActive);
+        Logger.setDebug(debug);
         WaitingRoom.getInstance().setTimeout(wrTimeout);
         new Thread(this::startSocketServer).start();
         this.startRMI(host);

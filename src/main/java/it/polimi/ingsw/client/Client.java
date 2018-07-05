@@ -21,12 +21,12 @@ public class Client {
     private String activeNickname = null;
     private List<String> suspendedPlayers = new ArrayList<>();
 
-    Client(boolean debugActive) {
-        this(debugActive, true);
+    Client(boolean debug) {
+        this(debug, true);
     }
 
-    Client(boolean debugActive, boolean doNetworkSetup) {
-        Logger.setDebugActive(debugActive);
+    Client(boolean debug, boolean doNetworkSetup) {
+        Logger.setDebug(debug);
         if (doNetworkSetup) {
             try {
                 ClientNetwork.getInstance().setup();

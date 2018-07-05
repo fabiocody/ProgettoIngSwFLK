@@ -33,8 +33,8 @@ public class ClientCLI extends Client implements Observer {
     private String input = "";
     private String privateObjectiveCard;
 
-    ClientCLI(boolean debugActive) {
-        super(debugActive);
+    ClientCLI(boolean debug) {
+        super(debug);
         ClientNetwork.getInstance().addObserver(this);
     }
 

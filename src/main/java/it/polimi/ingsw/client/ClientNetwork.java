@@ -24,7 +24,7 @@ public abstract class ClientNetwork extends Observable {
     ClientNetwork(String host, int port, boolean debug) {
         this.host = host;
         this.port = port;
-        Logger.setDebugActive(debug);
+        Logger.setDebug(debug);
     }
 
     public static ClientNetwork getInstance() {

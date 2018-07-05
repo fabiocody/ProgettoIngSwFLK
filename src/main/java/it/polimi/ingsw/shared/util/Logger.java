@@ -7,14 +7,14 @@ import static org.fusesource.jansi.Ansi.ansi;
 
 public class Logger {
 
-    private static boolean debugActive = false;
+    private static boolean debug = false;
 
     private Logger() {
         throw new IllegalStateException("Cannot instantiate");
     }
 
-    public static void setDebugActive(boolean debugActive) {
-        Logger.debugActive = debugActive;
+    public static void setDebug(boolean debug) {
+        Logger.debug = debug;
     }
 
     public static void print(String message) {
@@ -34,7 +34,7 @@ public class Logger {
     }
 
     public static void debug(String message) {
-        if (debugActive) println("[DEBUG " + LocalDateTime.now() + "] " + message);
+        if (debug) println("[DEBUG " + LocalDateTime.now() + "] " + message);
     }
 
     public static void debugInput(JsonObject input) {
@@ -47,13 +47,13 @@ public class Logger {
 
     public static void error(String message) {
         String output;
-        if (debugActive) output = "[ERROR " + LocalDateTime.now() + "] " + message;
+        if (debug) output = "[ERROR " + LocalDateTime.now() + "] " + message;
         else output = "[ERROR] " + message;
         System.err.println(ansi().fgRed().a(output).reset());
     }
 
     public static void conditionalError(String message) {
-        if (debugActive) error(message);
+        if (debug) error(message);
     }
 
     public static void connectionLost(String nickname) {
@@ -69,7 +69,7 @@ public class Logger {
     }
 
     public static void printStackTraceConditionally(Throwable e) {
-        if (debugActive && e != null) e.printStackTrace();
+        if (debug && e != null) e.printStackTrace();
     }
 
 }
