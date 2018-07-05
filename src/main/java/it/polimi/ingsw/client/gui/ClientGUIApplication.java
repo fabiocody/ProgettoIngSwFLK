@@ -192,6 +192,11 @@ public class ClientGUIApplication extends Application implements Observer {
         Text nicknameText = createText(NICKNAME_PROMPT);
         Button loginButton = new Button("Login");
         loginButton.setEffect(getShadow());
+        loginButton.setOnAction(e -> loginAction());
+        loginButton.setOnKeyPressed(e -> {
+            if (e.getCode().equals(KeyCode.ENTER))
+                loginAction();
+        });
 
         connectionChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(SOCKET, RMI));
         connectionChoiceBox.getSelectionModel().selectFirst();
@@ -207,7 +212,6 @@ public class ClientGUIApplication extends Application implements Observer {
                     loginAction();
             });
         }
-        loginButton.setOnAction(e -> loginAction());
 
         Image logoImage = new Image(PicturesPaths.LOGO);
         ImageView logo = new ImageView(logoImage);
@@ -517,7 +521,8 @@ public class ClientGUIApplication extends Application implements Observer {
                 gameTimerTextAnimation.setCycleCount(2 * 10);
             } else {
                 gameTimerText.setFill(Color.CRIMSON);
-                gameTimerTextAnimation.stop();
+                if (gameTimerTextAnimation != null)
+                    gameTimerTextAnimation.stop();
                 gameTimerTextAnimation = new FadeTransition(Duration.millis(250), gameTimerText);
                 gameTimerTextAnimation.setCycleCount(2 * 2 * 10);
             }
@@ -1250,11 +1255,18 @@ public class ClientGUIApplication extends Application implements Observer {
         if (!client.isActive() && !client.isSuspended() && !client.isGameOver()) {
             setConsoleText(InterfaceMessages.itsHisHerTurn(activePlayer) + ". " + WAIT_FOR_YOUR_TURN);
             nextTurnButton.setDisable(true);
+        } else if (client.isSuspended()) {
+            nextTurnButton.setDisable(true);
         } else if (client.isActive()) {
             if (!wasActive)
                 setConsoleText(ITS_YOUR_TURN);
             nextTurnButton.setDisable(false);
         }
+        if (client.isSuspended() && !client.isGameOver())
+            Platform.runLater(() -> {
+                PromptAlert.presentReconnectionPrompt(client.getNickname());
+                ClientNetwork.getInstance().addPlayer(client.getNickname());
+            });
         restoreGameTimerTextAnimation(wasActive);
     }
 
