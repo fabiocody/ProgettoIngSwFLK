@@ -44,7 +44,15 @@ which can cause RMI connection problems. To avoid messing with your network conf
 
 ### Playing under Windows
 
-If you intend to play on Windows using the CLI, you need to install the Linux Bash Shell, which is part of the Linux Subsystem available for Windows 10. Playing on the standard command line (i.e. `cmd.exe`) is not supported at the moment.
+If you intend to play on Windows using the CLI, you need to install the Linux Bash Shell, which is part of the Windows Subsystem for Linux available for Windows 10. Playing on the standard command line (i.e. `cmd.exe`) is not supported.
+
+#### Additional steps for Windows
+
+Since playing under Windows involves the Windows Subsystem for Linux, you need to follow the steps described in [Playing under Linux](#playing-under-linux) in order to use RMI connection. The only difference is that every modifications made to `/etc/hosts` in WLS is ignored, so you need to create a file named `/etc/wsl.conf` and add the following line:
+```
+generateHosts = false
+```
+Only then you can edit `/etc/hosts`, without having your modifications ignored.
 
 ### Playing under macOS
 
@@ -73,14 +81,13 @@ Additional parameters include:
 To start a client, simply locate its jar file and then type into a shell
 
 ```
-$ java -jar path/to/client.jar --host HOST
+$ java -jar path/to/client.jar
 ```
-
-where `HOST` must be the IP address of the machine running the server.
 
 Additional parameters include:
 
+- `--host HOST`: the IP address (or local domain) of the machine hosting the server (required if using CLI).
 - `--port PORT`: the port to be used for socket connectivity (default to 42000).
 - `--connection CONNECTION`: the type of connection, can only be `socket` or `rmi` (default to `socket`). Be aware that some network configurations (e.g. firewalls, NAT, ...) can cause connection problems, especially if you choose to use RMI.
-- `--interface INTERFACE`: the type of interface, can only be `cli` or `gui` (default to `cli`).
+- `--interface INTERFACE`: the type of interface, can only be `cli` or `gui` (default to `gui`).
 - `--debug`: activate debug mode (should be avoided).
