@@ -51,8 +51,6 @@ public class ClientGUIApplication extends Application implements Observer {
     private static boolean clientSet = false;
     private static boolean debug;
     private Stage primaryStage;
-    private List<Animation> animations = new ArrayList<>();
-    private FadeTransition gameTimerLabelAnimation;
 
     /*********************
      * Graphical (Login) *
@@ -73,6 +71,9 @@ public class ClientGUIApplication extends Application implements Observer {
      * Graphical (Game) *
      ********************/
     private String privateObjCardName;
+    private ImageView privateObjectiveCard;
+    private Image privateObjectiveCardFront;
+    private Image privateObjectiveCardBack;
     private Label gameTimerLabel = new Label("∞");
     private GridPane boardPane;
     private List<ImageView> toolCards = new ArrayList<>();
@@ -83,6 +84,14 @@ public class ClientGUIApplication extends Application implements Observer {
     private Label consoleLabel;
     private Button nextTurnButton;
     private Button cancelButton;
+
+    /**************
+     * Animations *
+     **************/
+    private List<Animation> zoomingAnimations = new ArrayList<>();
+    private FadeTransition gameTimerLabelAnimation;
+    private RotateTransition privateObjectiveCardAnimation;
+    private double rotationIncrement = 90;
 
     /*************
      * Game data *
@@ -148,34 +157,6 @@ public class ClientGUIApplication extends Application implements Observer {
         transition.setCycleCount(4);
         transition.setAutoReverse(true);
         transition.play();
-    }
-
-    private void addZoomingAnimation(Node node) {
-        ScaleTransition animation = new ScaleTransition(Duration.seconds(1), node);
-        animation.setFromX(1);
-        animation.setFromY(1);
-        animation.setToX(1.1);
-        animation.setToY(1.1);
-        animation.setInterpolator(Interpolator.EASE_BOTH);
-        animation.setCycleCount(Animation.INDEFINITE);
-        animation.setAutoReverse(true);
-        animations.add(animation);
-        animation.play();
-    }
-
-    private void restoreAnimatedNodes() {
-        for (Animation animation : animations) {
-            animation.stop();
-            if (animation instanceof ScaleTransition) {
-                ScaleTransition scaleTransition = (ScaleTransition) animation;
-                scaleTransition.setToX(1);
-                scaleTransition.setToY(1);
-            }
-            animation.setCycleCount(1);
-            animation.setAutoReverse(false);
-            animation.play();
-        }
-        animations.clear();
     }
 
 
@@ -289,8 +270,8 @@ public class ClientGUIApplication extends Application implements Observer {
         selectableWPPane.setPadding(new Insets(25, 25, 25, 25));
 
         privateObjCardName = jsonArg.getAsJsonObject(JsonFields.PRIVATE_OBJECTIVE_CARD).get(JsonFields.NAME).getAsString();
-        Image privateObjectiveCardImage = new Image(PicturesPaths.privateObjectiveCard(privateObjCardName));
-        ImageView privateObjectiveCard = new ImageView(privateObjectiveCardImage);
+        privateObjectiveCardFront = new Image(PicturesPaths.privateObjectiveCard(privateObjCardName));
+        privateObjectiveCard = new ImageView(privateObjectiveCardFront);
         privateObjectiveCard.setFitHeight(400);
         privateObjectiveCard.setPreserveRatio(true);
         selectableWPPane.add(privateObjectiveCard, 2, 0, 1, 3);
@@ -323,10 +304,12 @@ public class ClientGUIApplication extends Application implements Observer {
         boardPane.setHgap(20);
         boardPane.setVgap(20);
         boardPane.setPadding(new Insets(25, 25, 25, 25));
-        Image privateObjectiveCardImage = new Image(PicturesPaths.privateObjectiveCard(privateObjCardName));
-        ImageView privateObjectiveCard = new ImageView(privateObjectiveCardImage);
+        privateObjectiveCardBack = new Image(PicturesPaths.privateObjectiveCard("back"));
+        privateObjectiveCard = new ImageView(privateObjectiveCardBack);
         privateObjectiveCard.setFitHeight(CARD_SIZE);
         privateObjectiveCard.setPreserveRatio(true);
+        privateObjectiveCard.setOnMouseEntered(e -> onMouseEnteredPrivObj());
+        privateObjectiveCard.setOnMouseExited(e -> onMouseExitedPrivObj());
         boardPane.add(privateObjectiveCard, 3, 4);
 
         gameTimerLabel.setFont(new Font(30));
@@ -433,7 +416,7 @@ public class ClientGUIApplication extends Application implements Observer {
         Platform.runLater(() -> {
             cancelButton.setDisable(true);
             if (resetConsoleLabel) setConsoleLabelText(ITS_YOUR_TURN);
-            restoreAnimatedNodes();
+            restoreZoomedNodes();
         });
     }
 
@@ -441,7 +424,7 @@ public class ClientGUIApplication extends Application implements Observer {
         if (client.isActive()) {
             Canvas dieCanvas = (Canvas) e.getSource();
             if (toolCardIndex == null) {
-                restoreAnimatedNodes();
+                restoreZoomedNodes();
                 draftPoolIndex = GridPane.getColumnIndex(dieCanvas);
             } else {
                 requestedDraftPoolIndex = GridPane.getColumnIndex(dieCanvas);
@@ -453,7 +436,7 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private void onToolCardClick(MouseEvent e) {
         if (client.isActive()) {
-            restoreAnimatedNodes();
+            restoreZoomedNodes();
             ImageView selectedToolCard = (ImageView) e.getSource();
             addZoomingAnimation(selectedToolCard);
             toolCardIndex = GridPane.getColumnIndex(selectedToolCard);
@@ -493,6 +476,102 @@ public class ClientGUIApplication extends Application implements Observer {
             }
             requestedRoundTrackIndex = index + column * MAX_DICE_ON_ROUND_TRACK_COLUMN + row;
         }
+    }
+
+
+    /*********************
+     * Animation methods *
+     *********************/
+
+    private void addZoomingAnimation(Node node) {
+        ScaleTransition animation = new ScaleTransition(Duration.seconds(1), node);
+        animation.setFromX(1);
+        animation.setFromY(1);
+        animation.setToX(1.1);
+        animation.setToY(1.1);
+        animation.setInterpolator(Interpolator.EASE_BOTH);
+        animation.setCycleCount(Animation.INDEFINITE);
+        animation.setAutoReverse(true);
+        zoomingAnimations.add(animation);
+        animation.play();
+    }
+
+    private void restoreZoomedNodes() {
+        for (Animation animation : zoomingAnimations) {
+            animation.stop();
+            if (animation instanceof ScaleTransition) {
+                ScaleTransition scaleTransition = (ScaleTransition) animation;
+                scaleTransition.setToX(1);
+                scaleTransition.setToY(1);
+            }
+            animation.setCycleCount(1);
+            animation.setAutoReverse(false);
+            animation.play();
+        }
+        zoomingAnimations.clear();
+    }
+
+    private void animateGameTimerLabel(int tick) {
+        if ((tick == 20 || tick == 10) && client.isActive()) {
+            if (tick == 20) {
+                gameTimerLabelAnimation = new FadeTransition(Duration.millis(500), gameTimerLabel);
+                gameTimerLabelAnimation.setCycleCount(2 * 10);
+            } else {
+                gameTimerLabel.setTextFill(Color.CRIMSON);
+                gameTimerLabelAnimation.stop();
+                gameTimerLabelAnimation = new FadeTransition(Duration.millis(250), gameTimerLabel);
+                gameTimerLabelAnimation.setCycleCount(2 * 2 * 10);
+            }
+            gameTimerLabelAnimation.setFromValue(1.0);
+            gameTimerLabelAnimation.setToValue(0.25);
+            gameTimerLabelAnimation.setAutoReverse(true);
+            gameTimerLabelAnimation.play();
+        }
+    }
+
+    private void restoreGameTimerLabelAnimation(boolean wasActive) {
+        if (gameTimerLabelAnimation != null && (!wasActive || !client.isActive())) {
+            gameTimerLabel.setTextFill(Color.WHITE);
+            gameTimerLabelAnimation.stop();
+            gameTimerLabelAnimation.setToValue(1);
+            gameTimerLabelAnimation.setCycleCount(1);
+            gameTimerLabelAnimation.setAutoReverse(false);
+            gameTimerLabelAnimation.play();
+            gameTimerLabelAnimation = null;
+        }
+    }
+
+    private void onMouseEnteredPrivObj() {
+        if (privateObjectiveCardAnimation == null) {
+            privateObjectiveCardAnimation = new RotateTransition(Duration.millis(250), privateObjectiveCard);
+            privateObjectiveCardAnimation.setAxis(new Point3D(0, 1, 0));
+            privateObjectiveCardAnimation.setByAngle(270);
+            privateObjectiveCardAnimation.setOnFinished(e -> changeImageAndKeepRotating());
+            privateObjectiveCardAnimation.play();
+        }
+    }
+
+    private void onMouseExitedPrivObj() {
+        if (privateObjectiveCardAnimation == null) {
+            privateObjectiveCardAnimation = new RotateTransition(Duration.millis(250), privateObjectiveCard);
+            privateObjectiveCardAnimation.setAxis(new Point3D(0, 1, 0));
+            privateObjectiveCardAnimation.setByAngle(-270);
+            privateObjectiveCardAnimation.setOnFinished(e -> changeImageAndKeepRotating());
+            privateObjectiveCardAnimation.play();
+        }
+    }
+
+    private void changeImageAndKeepRotating() {
+        if (privateObjectiveCard.getImage() == privateObjectiveCardBack)
+            privateObjectiveCard.setImage(privateObjectiveCardFront);
+        else
+            privateObjectiveCard.setImage(privateObjectiveCardBack);
+        privateObjectiveCardAnimation = new RotateTransition(Duration.millis(250), privateObjectiveCard);
+        privateObjectiveCardAnimation.setAxis(new Point3D(0, 1, 0));
+        privateObjectiveCardAnimation.setByAngle(rotationIncrement);
+        rotationIncrement = -rotationIncrement;
+        privateObjectiveCardAnimation.setOnFinished(e -> privateObjectiveCardAnimation = null);
+        privateObjectiveCardAnimation.play();
     }
 
 
@@ -568,6 +647,7 @@ public class ClientGUIApplication extends Application implements Observer {
         roundTrack = null;
         draftPool = null;
         boardShown = false;
+        rotationIncrement = 90;
     }
 
     private void resetToolCardsEnvironment() {
@@ -1004,21 +1084,7 @@ public class ClientGUIApplication extends Application implements Observer {
         String tickString = jsonArg.get(JsonFields.TICK).getAsString();
         gameTimerLabel.setText(tickString);
         int tick = Integer.parseInt(tickString);
-        if ((tick == 20 || tick == 10) && client.isActive()) {
-            if (tick == 20) {
-                gameTimerLabelAnimation = new FadeTransition(Duration.millis(500), gameTimerLabel);
-                gameTimerLabelAnimation.setCycleCount(2 * 10);
-            } else {
-                gameTimerLabel.setTextFill(Color.CRIMSON);
-                gameTimerLabelAnimation.stop();
-                gameTimerLabelAnimation = new FadeTransition(Duration.millis(250), gameTimerLabel);
-                gameTimerLabelAnimation.setCycleCount(2 * 2 * 10);
-            }
-            gameTimerLabelAnimation.setFromValue(1.0);
-            gameTimerLabelAnimation.setToValue(0.25);
-            gameTimerLabelAnimation.setAutoReverse(true);
-            gameTimerLabelAnimation.play();
-        }
+        animateGameTimerLabel(tick);
     }
 
     private void windowPatternsUpdateHandler(JsonObject jsonArg) {
@@ -1150,15 +1216,7 @@ public class ClientGUIApplication extends Application implements Observer {
                 setConsoleLabelText(ITS_YOUR_TURN);
             nextTurnButton.setDisable(false);
         }
-        if (gameTimerLabelAnimation != null && (!wasActive || !client.isActive())) {
-            gameTimerLabel.setTextFill(Color.WHITE);
-            gameTimerLabelAnimation.stop();
-            gameTimerLabelAnimation.setToValue(1);
-            gameTimerLabelAnimation.setCycleCount(1);
-            gameTimerLabelAnimation.setAutoReverse(false);
-            gameTimerLabelAnimation.play();
-            gameTimerLabelAnimation = null;
-        }
+        restoreGameTimerLabelAnimation(wasActive);
     }
 
     private void roundTrackUpdateHandler(JsonObject jsonArg) {
