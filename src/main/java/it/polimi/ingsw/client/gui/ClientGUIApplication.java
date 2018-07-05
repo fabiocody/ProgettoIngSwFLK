@@ -463,7 +463,7 @@ public class ClientGUIApplication extends Application implements Observer {
             ImageView selectedToolCard = (ImageView) e.getSource();
             addZoomingAnimation(selectedToolCard);
             toolCardIndex = GridPane.getColumnIndex(selectedToolCard);
-            new Thread(() -> useToolCardMove(toolCardIndex)).start();
+            new Thread(() -> useToolCard(toolCardIndex)).start();
             cancelButton.setDisable(false);
             nextTurnButton.setDisable(true);
         }
@@ -746,9 +746,9 @@ public class ClientGUIApplication extends Application implements Observer {
         cancelAction(false);
     }
 
-    private void useToolCardMove(int toolCardIndex){
+    private void useToolCard(int toolCardIndex){
         int cardIndex;
-        boolean valid;
+        //boolean valid;
         cardIndex = toolCardIndex;
         requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
         requiredData.remove(JsonFields.METHOD);
@@ -758,7 +758,20 @@ public class ClientGUIApplication extends Application implements Observer {
             cancelAction(false);
             });
         } else {
-            valid = this.useData(requiredData,cardIndex);
+            boolean valid;
+            JsonObject data = this.askForToolCardData(requiredData);
+            JsonObject result = ClientNetwork.getInstance().useToolCard(cardIndex, data);
+            if (result.get(JsonFields.RESULT).getAsBoolean()) {
+                if (!data.has(JsonFields.CONTINUE)) {
+                    Platform.runLater(() -> setConsoleText("Carta strumento usata con successo!"));
+                    cancelAction(false);
+                }
+                valid = true;
+            } else {
+                Platform.runLater(() -> setConsoleText("Carta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString()));
+                cancelAction(false);
+                valid = false;
+            }
             if (requiredData != null && requiredData.getAsJsonObject(JsonFields.DATA).has(JsonFields.CONTINUE) && valid) {
                 requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
                 requiredData.remove(JsonFields.METHOD);
@@ -771,12 +784,12 @@ public class ClientGUIApplication extends Application implements Observer {
                     requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.STOP, stop);
                 }
                 resetToolCardContinue();
-                this.useData(requiredData,cardIndex);
+                this.askForToolCardData(requiredData);
             }
         }
     }
 
-    private boolean useData(JsonObject requiredData, int cardIndex) {
+    private JsonObject askForToolCardData(JsonObject requiredData) {
         JsonObject data = requiredData.getAsJsonObject(JsonFields.DATA);
         if (!(data.has(JsonFields.STOP) && data.get(JsonFields.STOP).getAsBoolean())) {
             if (data.has(JsonFields.DRAFT_POOL_INDEX)) {
@@ -858,18 +871,7 @@ public class ClientGUIApplication extends Application implements Observer {
                 data.addProperty(JsonFields.TO_CELL_Y, requestedToCellY);
             }
         }
-        JsonObject result = ClientNetwork.getInstance().useToolCard(cardIndex, data);
-        if (result.get(JsonFields.RESULT).getAsBoolean()) {
-            if (!data.has(JsonFields.CONTINUE)) {
-                Platform.runLater(() -> setConsoleText("Carta strumento usata con successo!"));
-                cancelAction(false);
-            }
-            return true;
-        } else {
-            Platform.runLater(() -> setConsoleText("Carta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString()));
-            cancelAction(false);
-            return false;
-        }
+        return data;
     }
 
 
