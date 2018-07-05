@@ -52,6 +52,7 @@ public class ClientGUIApplication extends Application implements Observer {
     private static boolean clientSet = false;
     private static boolean debug;
     private static DropShadow shadow;
+    private static final List<AlertWindow> alertWindows = new ArrayList<>();
     private Stage primaryStage;
 
     /*********************
@@ -160,6 +161,24 @@ public class ClientGUIApplication extends Application implements Observer {
         transition.play();
     }
 
+    public static void addAlertWindow(AlertWindow alertWindow) {
+        synchronized (alertWindows) {
+            alertWindows.add(alertWindow);
+        }
+    }
+
+    public static void removeAlertWindow(AlertWindow alertWindow) {
+        synchronized (alertWindows) {
+            alertWindows.remove(alertWindow);
+        }
+    }
+
+    private static void clearAlertWindows() {
+        synchronized (alertWindows) {
+            alertWindows.forEach(AlertWindow::closeWindow);
+        }
+    }
+
 
     /*********
      * Start *
@@ -171,7 +190,7 @@ public class ClientGUIApplication extends Application implements Observer {
         primaryStage.setOnCloseRequest(e -> {
             e.consume();
             Options exit = TwoOptionsAlert.presentExitAlert();
-            if (exit == Options.YES) primaryStage.close();
+            if (exit == Options.YES) System.exit(Constants.EXIT_STATUS);
         });
         showLogin();
     }
@@ -192,6 +211,11 @@ public class ClientGUIApplication extends Application implements Observer {
         Text nicknameText = createText(NICKNAME_PROMPT);
         Button loginButton = new Button("Login");
         loginButton.setEffect(getShadow());
+        loginButton.setOnAction(e -> loginAction());
+        loginButton.setOnKeyPressed(e -> {
+            if (e.getCode().equals(KeyCode.ENTER))
+                loginAction();
+        });
 
         connectionChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(SOCKET, RMI));
         connectionChoiceBox.getSelectionModel().selectFirst();
@@ -207,7 +231,6 @@ public class ClientGUIApplication extends Application implements Observer {
                     loginAction();
             });
         }
-        loginButton.setOnAction(e -> loginAction());
 
         Image logoImage = new Image(PicturesPaths.LOGO);
         ImageView logo = new ImageView(logoImage);
@@ -254,7 +277,7 @@ public class ClientGUIApplication extends Application implements Observer {
 
         waitingPlayersBox.setSpacing(10);
         waitingPlayersBox.setAlignment(Pos.CENTER_RIGHT);
-        wrTimerText.minWidth(CELL_SIZE * 2);
+        wrTimerText.setWrappingWidth(CELL_SIZE * 2);
         pane.add(waitingPlayersBox, 0, 0);
         pane.add(wrTimerText, 1, 0);
 
@@ -313,12 +336,11 @@ public class ClientGUIApplication extends Application implements Observer {
 
         createPrivateObjectiveCard();
 
-        gameTimerText.minWidth(CELL_SIZE * 2);
+        gameTimerText.setWrappingWidth(CELL_SIZE * 2);
         boardPane.add(gameTimerText, 6, 0);
         GridPane.setHalignment(gameTimerText, HPos.CENTER);
 
         consoleText.setWrappingWidth(CARD_SIZE * 3 + boardPane.getHgap() * 3);
-        consoleText.maxWidth(CARD_SIZE * 3 + boardPane.getHgap() * 3);
         boardPane.add(consoleText, 0, 5, 4, 1);
 
         nextTurnButton = new Button("Termina il turno");
@@ -410,11 +432,12 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
-    private void cancelAction(boolean resetConsoleLabel) {
+    private void cancelAction(boolean resetConsoleText) {
         resetToolCardsEnvironment();
         Platform.runLater(() -> {
             cancelButton.setDisable(true);
-            if (resetConsoleLabel) setConsoleText(ITS_YOUR_TURN);
+            nextTurnButton.setDisable(false);
+            if (resetConsoleText) setConsoleText(ITS_YOUR_TURN);
             restoreZoomedNodes();
         });
     }
@@ -430,6 +453,7 @@ public class ClientGUIApplication extends Application implements Observer {
             }
             addZoomingAnimation(dieCanvas);
             cancelButton.setDisable(false);
+            nextTurnButton.setDisable(true);
         }
     }
 
@@ -439,8 +463,9 @@ public class ClientGUIApplication extends Application implements Observer {
             ImageView selectedToolCard = (ImageView) e.getSource();
             addZoomingAnimation(selectedToolCard);
             toolCardIndex = GridPane.getColumnIndex(selectedToolCard);
-            new Thread(() -> useToolCardMove(toolCardIndex)).start();
+            new Thread(() -> useToolCard(toolCardIndex)).start();
             cancelButton.setDisable(false);
+            nextTurnButton.setDisable(true);
         }
     }
 
@@ -517,7 +542,8 @@ public class ClientGUIApplication extends Application implements Observer {
                 gameTimerTextAnimation.setCycleCount(2 * 10);
             } else {
                 gameTimerText.setFill(Color.CRIMSON);
-                gameTimerTextAnimation.stop();
+                if (gameTimerTextAnimation != null)
+                    gameTimerTextAnimation.stop();
                 gameTimerTextAnimation = new FadeTransition(Duration.millis(250), gameTimerText);
                 gameTimerTextAnimation.setCycleCount(2 * 2 * 10);
             }
@@ -648,7 +674,10 @@ public class ClientGUIApplication extends Application implements Observer {
         requestedFromCellY = null;
         requestedToCellX = null;
         requestedToCellY = null;
-        Platform.runLater(() -> cancelButton.setDisable(true));
+        Platform.runLater(() -> {
+            cancelButton.setDisable(true);
+            nextTurnButton.setDisable(false);
+        });
     }
 
     private void resetToolCardContinue(){
@@ -659,7 +688,10 @@ public class ClientGUIApplication extends Application implements Observer {
         requestedFromCellY = null;
         requestedToCellX = null;
         requestedToCellY = null;
-        Platform.runLater(() -> cancelButton.setDisable(true));
+        Platform.runLater(() -> {
+            cancelButton.setDisable(true);
+            nextTurnButton.setDisable(false);
+        });
     }
 
     private static DropShadow getShadow() {
@@ -714,9 +746,9 @@ public class ClientGUIApplication extends Application implements Observer {
         cancelAction(false);
     }
 
-    private void useToolCardMove(int toolCardIndex){
+    private void useToolCard(int toolCardIndex){
         int cardIndex;
-        boolean valid;
+        //boolean valid;
         cardIndex = toolCardIndex;
         requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
         requiredData.remove(JsonFields.METHOD);
@@ -726,25 +758,38 @@ public class ClientGUIApplication extends Application implements Observer {
             cancelAction(false);
             });
         } else {
-            valid = this.useData(requiredData,cardIndex);
-            if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE) && valid) {
+            boolean valid;
+            JsonObject data = this.askForToolCardData(requiredData);
+            JsonObject result = ClientNetwork.getInstance().useToolCard(cardIndex, data);
+            if (result.get(JsonFields.RESULT).getAsBoolean()) {
+                if (!data.has(JsonFields.CONTINUE)) {
+                    Platform.runLater(() -> setConsoleText("Carta strumento usata con successo!"));
+                    cancelAction(false);
+                }
+                valid = true;
+            } else {
+                Platform.runLater(() -> setConsoleText("Carta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString()));
+                cancelAction(false);
+                valid = false;
+            }
+            if (requiredData != null && requiredData.getAsJsonObject(JsonFields.DATA).has(JsonFields.CONTINUE) && valid) {
                 requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
                 requiredData.remove(JsonFields.METHOD);
                 if(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP)) {
                     Platform.runLater(() -> {
-                        TwoOptionsAlert continueAlert = new TwoOptionsAlert("Continue");
+                        TwoOptionsAlert continueAlert = new TwoOptionsAlert();
                         Options answer = continueAlert.present("Vuoi continuare?", Options.YES, Options.NO);
                         stop = answer == Options.NO;
                     });
                     requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.STOP, stop);
                 }
                 resetToolCardContinue();
-                this.useData(requiredData,cardIndex);
+                this.askForToolCardData(requiredData);
             }
         }
     }
 
-    private boolean useData(JsonObject requiredData, int cardIndex) {
+    private JsonObject askForToolCardData(JsonObject requiredData) {
         JsonObject data = requiredData.getAsJsonObject(JsonFields.DATA);
         if (!(data.has(JsonFields.STOP) && data.get(JsonFields.STOP).getAsBoolean())) {
             if (data.has(JsonFields.DRAFT_POOL_INDEX)) {
@@ -771,7 +816,7 @@ public class ClientGUIApplication extends Application implements Observer {
             }
             if (data.has(JsonFields.DELTA)) {
                 Platform.runLater(() -> {
-                    TwoOptionsAlert deltaAlert = new TwoOptionsAlert("Delta");
+                    TwoOptionsAlert deltaAlert = new TwoOptionsAlert();
                     Options answer = deltaAlert.present("Vuoi aumentare o diminuire il valore di questo dado", Options.DECREMENT, Options.INCREMENT);
                     requestedDelta = answer == Options.INCREMENT ? 1 : -1;
                 });
@@ -786,7 +831,7 @@ public class ClientGUIApplication extends Application implements Observer {
             }
             if (data.has(JsonFields.NEW_VALUE)) {
                 Platform.runLater(() -> {
-                    SpinnerAlert newValueAlert = new SpinnerAlert("Nuovo Valore");
+                    SpinnerAlert newValueAlert = new SpinnerAlert();
                     requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", draftPoolColors.get(requestedDraftPoolIndex), 1, 6);
                     Canvas newDie = createNumberedCell(requestedNewValue, draftPoolColors.get(requestedDraftPoolIndex).getJavaFXColor(), STANDARD_FACTOR);
                     draftPool.add(newDie, requestedDraftPoolIndex, 0);
@@ -826,18 +871,7 @@ public class ClientGUIApplication extends Application implements Observer {
                 data.addProperty(JsonFields.TO_CELL_Y, requestedToCellY);
             }
         }
-        JsonObject result = ClientNetwork.getInstance().useToolCard(cardIndex, data);
-        if (result.get(JsonFields.RESULT).getAsBoolean()) {
-            if (!data.has(JsonFields.CONTINUE)) {
-                Platform.runLater(() -> setConsoleText("Carta strumento usata con successo!"));
-                cancelAction(false);
-            }
-            return true;
-        } else {
-            Platform.runLater(() -> setConsoleText("Carta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString()));
-            cancelAction(false);
-            return false;
-        }
+        return data;
     }
 
 
@@ -880,7 +914,9 @@ public class ClientGUIApplication extends Application implements Observer {
         nameLabel.setTextFill(Color.WHITE);
         nameLabel.setPrefWidth(4 * CELL_SIZE * resize);
         wpPane.add(nameLabel, 0, Constants.NUMBER_OF_PATTERN_ROWS + 1, Constants.NUMBER_OF_PATTERN_COLUMNS - 1, 1);
-        Label difficultyLabel = new Label(wpJson.get(JsonFields.DIFFICULTY).getAsString());
+        int difficulty = wpJson.get(JsonFields.DIFFICULTY).getAsInt();
+        String difficultyString = new String(new char[difficulty]).replace('\0', '•');
+        Label difficultyLabel = new Label(difficultyString);
         difficultyLabel.setStyle(FX_BACKGROUND_COLOR_DARKGRAY);
         difficultyLabel.setTextFill(Color.WHITE);
         difficultyLabel.setPrefWidth(CELL_SIZE * resize);
@@ -973,7 +1009,7 @@ public class ClientGUIApplication extends Application implements Observer {
     private void createRoundTrack(JsonArray roundTrackArray) {
         roundTrack.getChildren().clear();
         for (int i = 0; i < Constants.NUMBER_OF_ROUNDS; i++) {
-            roundTrack.setHgap(1);
+            roundTrack.setHgap(5);
             roundTrack.setVgap(1);
             Text roundText = createText(String.valueOf(i+1), 20);
             roundText.setTextAlignment(TextAlignment.CENTER);
@@ -1225,6 +1261,7 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void turnManagementUpdateHandler(JsonObject jsonArg) {
+        clearAlertWindows();
         client.setGameStarted();
         client.setGameOver(jsonArg.get(JsonFields.GAME_OVER).getAsBoolean());
         List<String> suspendedPlayers = StreamSupport.stream(jsonArg.getAsJsonArray(JsonFields.SUSPENDED_PLAYERS).spliterator(), false)
@@ -1247,7 +1284,7 @@ public class ClientGUIApplication extends Application implements Observer {
         client.setActive(activePlayer);
         draftPool.getChildren().forEach(node -> node.setOnMouseClicked(this::onDraftPoolClick));
         toolCards.forEach(toolCard -> toolCard.setOnMouseClicked(this::onToolCardClick));
-        if (!client.isActive() && !client.isSuspended() && !client.isGameOver()) {
+        if (!client.isActive() && !client.isGameOver()) {
             setConsoleText(InterfaceMessages.itsHisHerTurn(activePlayer) + ". " + WAIT_FOR_YOUR_TURN);
             nextTurnButton.setDisable(true);
         } else if (client.isActive()) {
@@ -1255,6 +1292,12 @@ public class ClientGUIApplication extends Application implements Observer {
                 setConsoleText(ITS_YOUR_TURN);
             nextTurnButton.setDisable(false);
         }
+        if (client.isSuspended() && !client.isGameOver())
+            Platform.runLater(() -> {
+                String text = PromptAlert.presentReconnectionPrompt(client.getNickname());
+                if (!client.isGameOver() && text != null && !text.isEmpty())
+                    ClientNetwork.getInstance().addPlayer(client.getNickname());
+            });
         restoreGameTimerTextAnimation(wasActive);
     }
 
@@ -1315,6 +1358,7 @@ public class ClientGUIApplication extends Application implements Observer {
         }
         Platform.runLater(() -> {
             String title = "Risultati finali";
+            clearAlertWindows();
             if (isWinner)
                 new MessageImageAlert(title).present(scoresSB.toString(), new Image(PicturesPaths.CUP), TextAlignment.CENTER);
             else
