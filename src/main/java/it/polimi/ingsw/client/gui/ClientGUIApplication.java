@@ -912,7 +912,9 @@ public class ClientGUIApplication extends Application implements Observer {
         nameLabel.setTextFill(Color.WHITE);
         nameLabel.setPrefWidth(4 * CELL_SIZE * resize);
         wpPane.add(nameLabel, 0, Constants.NUMBER_OF_PATTERN_ROWS + 1, Constants.NUMBER_OF_PATTERN_COLUMNS - 1, 1);
-        Label difficultyLabel = new Label(wpJson.get(JsonFields.DIFFICULTY).getAsString());
+        int difficulty = wpJson.get(JsonFields.DIFFICULTY).getAsInt();
+        String difficultyString = new String(new char[difficulty]).replace('\0', '•');
+        Label difficultyLabel = new Label(difficultyString);
         difficultyLabel.setStyle(FX_BACKGROUND_COLOR_DARKGRAY);
         difficultyLabel.setTextFill(Color.WHITE);
         difficultyLabel.setPrefWidth(CELL_SIZE * resize);
