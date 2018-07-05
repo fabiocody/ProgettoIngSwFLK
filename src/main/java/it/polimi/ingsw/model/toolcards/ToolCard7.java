@@ -3,6 +3,7 @@ package it.polimi.ingsw.model.toolcards;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.game.Game;
+import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
 
@@ -54,5 +55,9 @@ public class ToolCard7 extends ToolCard {
         return payload;
     }
 
+    @Override
+    public void cancel(Player player){
+        // Nothing to cancel
+    }
 
 }

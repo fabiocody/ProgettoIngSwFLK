@@ -178,48 +178,53 @@ public class ClientCLI extends Client implements Observer {
         int toCellX;
         int toCellY;
 
-        if (!(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP) && requiredData.get(JsonFields.DATA).getAsJsonObject().get(JsonFields.STOP).getAsBoolean())) {
-            if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) {
-                draftPoolIndex = this.getInputIndex("\nQuale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]? " + InterfaceMessages.CANCEL_MESSAGE, 0, draftPoolLength, true);
-                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.DRAFT_POOL_INDEX, draftPoolIndex);
+        try{
+            if (!(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP) && requiredData.get(JsonFields.DATA).getAsJsonObject().get(JsonFields.STOP).getAsBoolean())) {
+                if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) {
+                    draftPoolIndex = this.getInputIndex("\nQuale dado della riserva vuoi utilizzare [1-" + draftPoolLength + "]? " + InterfaceMessages.CANCEL_MESSAGE, 0, draftPoolLength, true);
+                    requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.DRAFT_POOL_INDEX, draftPoolIndex);
+                }
+                if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX)) {
+                    roundTrackIndex = this.getInputIndex("\nQuale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]? " + InterfaceMessages.CANCEL_MESSAGE, 0, (int) roundTrackLength, true);
+                    requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.ROUND_TRACK_INDEX, roundTrackIndex);
+                }
+                if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.DELTA)) {
+                    delta = this.getInputIndex("\nVuoi aumentare[1] o diminuire[-1] il valore del dado? " + InterfaceMessages.CANCEL_MESSAGE);
+                    requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.DELTA, delta);
+                }
+                if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.NEW_VALUE)) {
+                    newValue = this.getInputIndex("\nQuale valore vuoi assegnare al dado[1-6]? " + InterfaceMessages.CANCEL_MESSAGE, 1, 7, false);
+                    requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.NEW_VALUE, newValue);
+                }
+                if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.FROM_CELL_X)) {
+                    fromCellX = this.getInputIndex("\nDa quale colonna vuoi muoverlo [1-5]? " + InterfaceMessages.CANCEL_MESSAGE, 0, Constants.NUMBER_OF_PATTERN_COLUMNS, true);
+                    requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.FROM_CELL_X, fromCellX);
+                }
+                if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.FROM_CELL_Y)) {
+                    fromCellY = this.getInputIndex("\nDa quale riga vuoi muoverlo [1-4]? " + InterfaceMessages.CANCEL_MESSAGE, 0, Constants.NUMBER_OF_PATTERN_ROWS, true);
+                    requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.FROM_CELL_Y, fromCellY);
+                }
+                if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.TO_CELL_X)) {
+                    toCellX = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + InterfaceMessages.CANCEL_MESSAGE, 0, Constants.NUMBER_OF_PATTERN_COLUMNS, true);
+                    requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.TO_CELL_X, toCellX);
+                }
+                if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.TO_CELL_Y)) {
+                    toCellY = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + InterfaceMessages.CANCEL_MESSAGE, 0, Constants.NUMBER_OF_PATTERN_ROWS, true);
+                    requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.TO_CELL_Y, toCellY);
+                }
             }
-            if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX)) {
-                roundTrackIndex = this.getInputIndex("\nQuale dado del round track vuoi utilizzare [1-" + roundTrackLength + "]? " + InterfaceMessages.CANCEL_MESSAGE, 0, (int) roundTrackLength, true);
-                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.ROUND_TRACK_INDEX, roundTrackIndex);
+            JsonObject result = ClientNetwork.getInstance().useToolCard(cardIndex,requiredData.get(JsonFields.DATA).getAsJsonObject());
+            if(result.get(JsonFields.RESULT).getAsBoolean()){
+                if(!requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE)) Logger.println("\nCarta strumento usata con successo!");
+                return true;
             }
-            if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.DELTA)) {
-                delta = this.getInputIndex("\nVuoi aumentare[1] o diminuire[-1] il valore del dado? " + InterfaceMessages.CANCEL_MESSAGE);
-                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.DELTA, delta);
+            else {
+                Logger.println("\nCarta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString());
+                return false;
             }
-            if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.NEW_VALUE)) {
-                newValue = this.getInputIndex("\nQuale valore vuoi assegnare al dado[1-6]? " + InterfaceMessages.CANCEL_MESSAGE, 1, 7, false);
-                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.NEW_VALUE, newValue);
-            }
-            if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.FROM_CELL_X)) {
-                fromCellX = this.getInputIndex("\nDa quale colonna vuoi muoverlo [1-5]? " + InterfaceMessages.CANCEL_MESSAGE, 0, Constants.NUMBER_OF_PATTERN_COLUMNS, true);
-                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.FROM_CELL_X, fromCellX);
-            }
-            if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.FROM_CELL_Y)) {
-                fromCellY = this.getInputIndex("\nDa quale riga vuoi muoverlo [1-4]? " + InterfaceMessages.CANCEL_MESSAGE, 0, Constants.NUMBER_OF_PATTERN_ROWS, true);
-                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.FROM_CELL_Y, fromCellY);
-            }
-            if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.TO_CELL_X)) {
-                toCellX = this.getInputIndex("\nIn quale colonna vuoi piazzarlo [1-5]? " + InterfaceMessages.CANCEL_MESSAGE, 0, Constants.NUMBER_OF_PATTERN_COLUMNS, true);
-                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.TO_CELL_X, toCellX);
-            }
-            if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.TO_CELL_Y)) {
-                toCellY = this.getInputIndex("\nIn quale riga vuoi piazzarlo [1-4]? " + InterfaceMessages.CANCEL_MESSAGE, 0, Constants.NUMBER_OF_PATTERN_ROWS, true);
-                requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.TO_CELL_Y, toCellY);
-            }
-        }
-        JsonObject result = ClientNetwork.getInstance().useToolCard(cardIndex,requiredData.get(JsonFields.DATA).getAsJsonObject());
-        if(result.get(JsonFields.RESULT).getAsBoolean()){
-            if(!requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE)) Logger.println("\nCarta strumento usata con successo!");
-            return true;
-        }
-        else {
-            Logger.println("\nCarta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString());
-            return false;
+        } catch (CancelException e) {
+            ClientNetwork.getInstance().cancelToolCardUsage(cardIndex);
+            throw e;
         }
     }
 
@@ -242,7 +247,9 @@ public class ClientCLI extends Client implements Observer {
                     stop = !this.getInputBool("\nVuoi continuare [Sì 1/No 0]? ");
                     requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.STOP, stop);
                 }
-                this.useData(requiredData,cardIndex);
+                do{
+                    valid = this.useData(requiredData,cardIndex);
+                } while (!valid);
             }
         }
     }

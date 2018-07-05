@@ -96,4 +96,9 @@ public class ToolCard9 extends ToolCard {
         return payload;
     }
 
+    @Override
+    public void cancel(Player player){
+        // Nothing to cancel
+    }
+
 }

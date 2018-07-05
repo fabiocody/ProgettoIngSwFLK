@@ -142,4 +142,9 @@ public class ToolCard12 extends ToolCard {
         this.firstMoveColor = null;
     }
 
+    @Override
+    public void cancel(Player player){
+        // Nothing to cancel
+    }
+
 }

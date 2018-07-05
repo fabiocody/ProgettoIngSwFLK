@@ -274,7 +274,7 @@ public class SocketClient extends ClientNetwork {
         JsonObject payload = new JsonObject();
         JsonObject arg = new JsonObject();
         arg.addProperty(JsonFields.CARD_INDEX, cardIndex);
-        payload.add(JsonFields.DATA, arg);
+        payload.add(JsonFields.ARG, arg);
         this.sendMessage(payload, Methods.CANCEL_TOOL_CARD_USAGE.getString());
     }
 

@@ -18,6 +18,7 @@ public class ToolCard4 extends ToolCard {
 
     private boolean firstMoveDone;
     private Integer firstMoveIndex;
+    private Integer beforeFirstMoveIndex;
 
     /**
      * This constructor initializes the card with its name and description.
@@ -101,6 +102,7 @@ public class ToolCard4 extends ToolCard {
      * @throws InvalidEffectResultException thrown when the placement is invalid.
      */
     private void firstMove(Player player, int fromIndex, int toIndex) throws InvalidEffectResultException {
+        this.beforeFirstMoveIndex = fromIndex;
         this.moveDie(player, fromIndex, toIndex, PlacementConstraint.standardConstraint());
         this.firstMoveIndex = toIndex;
     }
@@ -117,6 +119,16 @@ public class ToolCard4 extends ToolCard {
         if (fromIndex == this.firstMoveIndex) throw new InvalidEffectResultException("Cannot move the same die twice");
         this.moveDie(player, fromIndex, toIndex, PlacementConstraint.standardConstraint());
         this.firstMoveIndex = null;
+        this.beforeFirstMoveIndex = null;
     }
 
+    @Override
+    public void cancel(Player player){
+        if(beforeFirstMoveIndex != null) {
+            player.getWindowPattern().moveDie(firstMoveIndex,beforeFirstMoveIndex,new EmptyConstraint());
+            this.firstMoveDone = false;
+            this.firstMoveIndex = null;
+            this.beforeFirstMoveIndex = null;
+        }
+    }
 }

@@ -84,5 +84,9 @@ public class ToolCard8 extends ToolCard {
         }
     }
 
+    @Override
+    public void cancel(Player player){
+        // Nothing to cancel
+    }
 
 }
