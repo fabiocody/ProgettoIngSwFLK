@@ -971,13 +971,7 @@ public class ClientGUIApplication extends Application implements Observer {
             roundTrack.setVgap(1);
             Text roundText = createText(String.valueOf(i+1), 20);
             roundText.setTextAlignment(TextAlignment.CENTER);
-            roundText.minWidth(CELL_SIZE);
-            roundText.minHeight(CELL_SIZE);
-            roundText.prefWidth(CELL_SIZE);
-            roundText.prefHeight(CELL_SIZE);
-            roundText.maxWidth(CELL_SIZE);
-            roundText.maxHeight(CELL_SIZE);
-            //roundText.setAlignment(Pos.CENTER);
+            roundText.setWrappingWidth(CELL_SIZE);
             roundText.setFill(Color.WHITE);
             roundTrack.add(roundText, i, 0);
             GridPane.setHalignment(roundText, HPos.CENTER);
