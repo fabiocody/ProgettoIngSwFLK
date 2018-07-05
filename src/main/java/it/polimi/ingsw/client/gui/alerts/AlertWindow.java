@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.stage.*;
+import static it.polimi.ingsw.shared.util.InterfaceMessages.WINDOW_TITLE;
 
 
 class AlertWindow {
@@ -19,6 +20,10 @@ class AlertWindow {
     AlertWindow(String title) {
         this.title = title;
         init();
+    }
+
+    AlertWindow() {
+        this(WINDOW_TITLE);
     }
 
     Stage getWindow() {

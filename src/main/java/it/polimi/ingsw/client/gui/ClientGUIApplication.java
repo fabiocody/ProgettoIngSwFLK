@@ -410,11 +410,11 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
-    private void cancelAction(boolean resetConsoleLabel) {
+    private void cancelAction(boolean resetConsoleText) {
         resetToolCardsEnvironment();
         Platform.runLater(() -> {
             cancelButton.setDisable(true);
-            if (resetConsoleLabel) setConsoleText(ITS_YOUR_TURN);
+            if (resetConsoleText) setConsoleText(ITS_YOUR_TURN);
             restoreZoomedNodes();
         });
     }
@@ -732,7 +732,7 @@ public class ClientGUIApplication extends Application implements Observer {
                 requiredData.remove(JsonFields.METHOD);
                 if(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP)) {
                     Platform.runLater(() -> {
-                        TwoOptionsAlert continueAlert = new TwoOptionsAlert("Continue");
+                        TwoOptionsAlert continueAlert = new TwoOptionsAlert();
                         Options answer = continueAlert.present("Vuoi continuare?", Options.YES, Options.NO);
                         stop = answer == Options.NO;
                     });
@@ -771,7 +771,7 @@ public class ClientGUIApplication extends Application implements Observer {
             }
             if (data.has(JsonFields.DELTA)) {
                 Platform.runLater(() -> {
-                    TwoOptionsAlert deltaAlert = new TwoOptionsAlert("Delta");
+                    TwoOptionsAlert deltaAlert = new TwoOptionsAlert();
                     Options answer = deltaAlert.present("Vuoi aumentare o diminuire il valore di questo dado", Options.DECREMENT, Options.INCREMENT);
                     requestedDelta = answer == Options.INCREMENT ? 1 : -1;
                 });
@@ -786,7 +786,7 @@ public class ClientGUIApplication extends Application implements Observer {
             }
             if (data.has(JsonFields.NEW_VALUE)) {
                 Platform.runLater(() -> {
-                    SpinnerAlert newValueAlert = new SpinnerAlert("Nuovo Valore");
+                    SpinnerAlert newValueAlert = new SpinnerAlert();
                     requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", draftPoolColors.get(requestedDraftPoolIndex), 1, 6);
                     Canvas newDie = createNumberedCell(requestedNewValue, draftPoolColors.get(requestedDraftPoolIndex).getJavaFXColor(), STANDARD_FACTOR);
                     draftPool.add(newDie, requestedDraftPoolIndex, 0);

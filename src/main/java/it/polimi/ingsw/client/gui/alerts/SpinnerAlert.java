@@ -18,8 +18,8 @@ public class SpinnerAlert extends AlertWindow {
     private Canvas dieCanvas;
     private Colors dieColor;
 
-    public SpinnerAlert(String title) {
-        super(title);
+    public SpinnerAlert() {
+        super();
     }
 
     public int present(String message, Colors dieColor, int from, int to) {
