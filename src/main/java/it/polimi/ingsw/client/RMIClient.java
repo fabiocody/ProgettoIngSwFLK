@@ -103,6 +103,15 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     }
 
     @Override
+    public void cancelToolCardUsage(int cardIndex) {
+        try {
+            server.cancelToolCardUsage(cardIndex);
+        } catch (RemoteException e) {
+            connectionError(e);
+        }
+    }
+
+    @Override
     public void probe() {
         try {
             server.probe();

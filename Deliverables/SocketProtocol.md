@@ -28,6 +28,7 @@
 	- [Die placement](#die-placement)
 	- [Tool card usage](#tool-card-usage)
 	- [Data required for Tool Card usage](#data-required-for-tool-card-usage)
+	- [Cancel Tool Card Usage](#cancel-tool-card-usage)
 
 <!-- /TOC -->
 
@@ -469,6 +470,20 @@ After this request, the server will send to each client the following informatio
     "data": {
         <dataName: string>: <dummyValue>,
         ...
+    }
+}
+```
+
+### Cancel Tool Card Usage
+
+#### Client -> Server
+
+```
+{
+    "playerID": <uuid: string>,
+    "method": "cancelToolCardUsage",
+    "arg": {
+        "cardIndex": <int>
     }
 }
 ```

@@ -29,6 +29,7 @@ public enum Methods {
     DRAFT_POOL("draftPool"),
     PLACE_DIE("placeDie"),
     USE_TOOL_CARD("useToolCard"),
+    CANCEL_TOOL_CARD_USAGE("cancelToolCardUsage"),
     PROBE("probe");
 
 

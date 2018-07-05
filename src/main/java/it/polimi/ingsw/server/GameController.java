@@ -215,6 +215,10 @@ public class GameController extends BaseController {
         forEachNetwork(ServerNetwork::fullUpdate);
     }
 
+    void cancelToolCardUsage(UUID id, int cardIndex) {
+        // TODO getToolCards().get(cardIndex).cancel();
+    }
+
     void nextTurn() {
         game.getTurnManager().nextTurn();
         if (!getRoundTrack().isGameOver()) {

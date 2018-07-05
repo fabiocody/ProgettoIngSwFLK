@@ -269,6 +269,15 @@ public class SocketClient extends ClientNetwork {
         return input;
     }
 
+    @Override
+    public void cancelToolCardUsage(int cardIndex) {
+        JsonObject payload = new JsonObject();
+        JsonObject arg = new JsonObject();
+        arg.addProperty(JsonFields.CARD_INDEX, cardIndex);
+        payload.add(JsonFields.DATA, arg);
+        this.sendMessage(payload, Methods.CANCEL_TOOL_CARD_USAGE.getString());
+    }
+
     /**
      * This method is used to pass to the next turn
      */

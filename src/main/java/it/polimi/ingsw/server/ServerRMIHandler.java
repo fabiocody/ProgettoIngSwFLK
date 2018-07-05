@@ -141,6 +141,11 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     }
 
     @Override
+    public void cancelToolCardUsage(int cardIndex) {
+        getGameController().cancelToolCardUsage(getUuid(), cardIndex);
+    }
+
+    @Override
     public void nextTurn() {
         getGameController().nextTurn();
         Logger.log(getNickname() + " has ended his turn");

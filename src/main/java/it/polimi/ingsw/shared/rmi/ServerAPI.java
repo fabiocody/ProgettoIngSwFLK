@@ -15,5 +15,6 @@ public interface ServerAPI extends Remote {
     void nextTurn() throws RemoteException;
     String requiredData(int cardIndex) throws RemoteException;
     String useToolCard(int cardIndex, String requiredDataString) throws RemoteException;
+    void cancelToolCardUsage(int cardIndex) throws RemoteException;
 
 }

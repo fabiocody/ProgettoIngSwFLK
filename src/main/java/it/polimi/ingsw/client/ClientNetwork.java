@@ -68,6 +68,7 @@ public abstract class ClientNetwork extends Observable {
     public abstract void nextTurn();
     public abstract JsonObject requiredData(int cardIndex);
     public abstract JsonObject useToolCard(int cardIndex, JsonObject requiredData);
+    public abstract void cancelToolCardUsage(int cardIndex);
 
     void rescheduleProbeTimer() {
         if (this.probeTimer != null) {

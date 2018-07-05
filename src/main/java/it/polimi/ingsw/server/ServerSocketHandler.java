@@ -89,6 +89,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
                     case REQUIRED_DATA:
                         this.requiredData(input);
                         break;
+                    case CANCEL_TOOL_CARD_USAGE:
+                        this.cancelToolCardUsage(input);
+                        break;
                     case PROBE:
                         setProbed();
                         break;
@@ -222,6 +225,12 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             Logger.debugPayload(payload);
             out.println(payload.toString());
         }
+    }
+
+    private void cancelToolCardUsage(JsonObject input) {
+        UUID id = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
+        int cardIndex = input.getAsJsonObject(JsonFields.ARG).get(JsonFields.CARD_INDEX).getAsInt();
+        getGameController().cancelToolCardUsage(id, cardIndex);
     }
 
     private void nextTurn() {
