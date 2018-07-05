@@ -1,5 +1,7 @@
 package it.polimi.ingsw.client.gui.alerts;
 
+import it.polimi.ingsw.client.gui.ClientGUIApplication;
+import javafx.application.Platform;
 import javafx.geometry.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -9,7 +11,7 @@ import javafx.stage.*;
 import static it.polimi.ingsw.shared.util.InterfaceMessages.WINDOW_TITLE;
 
 
-class AlertWindow {
+public class AlertWindow {
 
     private Stage window;
     private GridPane gridPane;
@@ -19,6 +21,7 @@ class AlertWindow {
 
     AlertWindow(String title) {
         this.title = title;
+        new Thread(() -> ClientGUIApplication.addAlertWindow(this)).start();
         init();
     }
 
@@ -77,8 +80,9 @@ class AlertWindow {
         show();
     }
 
-    void closeWindow() {
-        window.close();
+    public void closeWindow() {
+        Platform.runLater(() -> window.close());
+        new Thread(() -> ClientGUIApplication.removeAlertWindow(this)).start();
     }
 
     void setWideVGap() {

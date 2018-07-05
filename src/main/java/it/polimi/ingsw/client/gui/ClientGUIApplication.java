@@ -52,6 +52,7 @@ public class ClientGUIApplication extends Application implements Observer {
     private static boolean clientSet = false;
     private static boolean debug;
     private static DropShadow shadow;
+    private static final List<AlertWindow> alertWindows = new ArrayList<>();
     private Stage primaryStage;
 
     /*********************
@@ -160,6 +161,24 @@ public class ClientGUIApplication extends Application implements Observer {
         transition.play();
     }
 
+    public static void addAlertWindow(AlertWindow alertWindow) {
+        synchronized (alertWindows) {
+            alertWindows.add(alertWindow);
+        }
+    }
+
+    public static void removeAlertWindow(AlertWindow alertWindow) {
+        synchronized (alertWindows) {
+            alertWindows.remove(alertWindow);
+        }
+    }
+
+    private static void clearAlertWindows() {
+        synchronized (alertWindows) {
+            alertWindows.forEach(AlertWindow::closeWindow);
+        }
+    }
+
 
     /*********
      * Start *
@@ -171,7 +190,7 @@ public class ClientGUIApplication extends Application implements Observer {
         primaryStage.setOnCloseRequest(e -> {
             e.consume();
             Options exit = TwoOptionsAlert.presentExitAlert();
-            if (exit == Options.YES) primaryStage.close();
+            if (exit == Options.YES) System.exit(Constants.EXIT_STATUS);
         });
         showLogin();
     }
@@ -258,7 +277,7 @@ public class ClientGUIApplication extends Application implements Observer {
 
         waitingPlayersBox.setSpacing(10);
         waitingPlayersBox.setAlignment(Pos.CENTER_RIGHT);
-        wrTimerText.minWidth(CELL_SIZE * 2);
+        wrTimerText.setWrappingWidth(CELL_SIZE * 2);
         pane.add(waitingPlayersBox, 0, 0);
         pane.add(wrTimerText, 1, 0);
 
@@ -317,12 +336,11 @@ public class ClientGUIApplication extends Application implements Observer {
 
         createPrivateObjectiveCard();
 
-        gameTimerText.minWidth(CELL_SIZE * 2);
+        gameTimerText.setWrappingWidth(CELL_SIZE * 2);
         boardPane.add(gameTimerText, 6, 0);
         GridPane.setHalignment(gameTimerText, HPos.CENTER);
 
         consoleText.setWrappingWidth(CARD_SIZE * 3 + boardPane.getHgap() * 3);
-        consoleText.maxWidth(CARD_SIZE * 3 + boardPane.getHgap() * 3);
         boardPane.add(consoleText, 0, 5, 4, 1);
 
         nextTurnButton = new Button("Termina il turno");
@@ -418,6 +436,7 @@ public class ClientGUIApplication extends Application implements Observer {
         resetToolCardsEnvironment();
         Platform.runLater(() -> {
             cancelButton.setDisable(true);
+            nextTurnButton.setDisable(false);
             if (resetConsoleText) setConsoleText(ITS_YOUR_TURN);
             restoreZoomedNodes();
         });
@@ -434,6 +453,7 @@ public class ClientGUIApplication extends Application implements Observer {
             }
             addZoomingAnimation(dieCanvas);
             cancelButton.setDisable(false);
+            nextTurnButton.setDisable(true);
         }
     }
 
@@ -445,6 +465,7 @@ public class ClientGUIApplication extends Application implements Observer {
             toolCardIndex = GridPane.getColumnIndex(selectedToolCard);
             new Thread(() -> useToolCardMove(toolCardIndex)).start();
             cancelButton.setDisable(false);
+            nextTurnButton.setDisable(true);
         }
     }
 
@@ -653,7 +674,10 @@ public class ClientGUIApplication extends Application implements Observer {
         requestedFromCellY = null;
         requestedToCellX = null;
         requestedToCellY = null;
-        Platform.runLater(() -> cancelButton.setDisable(true));
+        Platform.runLater(() -> {
+            cancelButton.setDisable(true);
+            nextTurnButton.setDisable(false);
+        });
     }
 
     private void resetToolCardContinue(){
@@ -664,7 +688,10 @@ public class ClientGUIApplication extends Application implements Observer {
         requestedFromCellY = null;
         requestedToCellX = null;
         requestedToCellY = null;
-        Platform.runLater(() -> cancelButton.setDisable(true));
+        Platform.runLater(() -> {
+            cancelButton.setDisable(true);
+            nextTurnButton.setDisable(false);
+        });
     }
 
     private static DropShadow getShadow() {
@@ -978,7 +1005,7 @@ public class ClientGUIApplication extends Application implements Observer {
     private void createRoundTrack(JsonArray roundTrackArray) {
         roundTrack.getChildren().clear();
         for (int i = 0; i < Constants.NUMBER_OF_ROUNDS; i++) {
-            roundTrack.setHgap(1);
+            roundTrack.setHgap(5);
             roundTrack.setVgap(1);
             Text roundText = createText(String.valueOf(i+1), 20);
             roundText.setTextAlignment(TextAlignment.CENTER);
@@ -1230,6 +1257,7 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void turnManagementUpdateHandler(JsonObject jsonArg) {
+        clearAlertWindows();
         client.setGameStarted();
         client.setGameOver(jsonArg.get(JsonFields.GAME_OVER).getAsBoolean());
         List<String> suspendedPlayers = StreamSupport.stream(jsonArg.getAsJsonArray(JsonFields.SUSPENDED_PLAYERS).spliterator(), false)
@@ -1252,10 +1280,8 @@ public class ClientGUIApplication extends Application implements Observer {
         client.setActive(activePlayer);
         draftPool.getChildren().forEach(node -> node.setOnMouseClicked(this::onDraftPoolClick));
         toolCards.forEach(toolCard -> toolCard.setOnMouseClicked(this::onToolCardClick));
-        if (!client.isActive() && !client.isSuspended() && !client.isGameOver()) {
+        if (!client.isActive() && !client.isGameOver()) {
             setConsoleText(InterfaceMessages.itsHisHerTurn(activePlayer) + ". " + WAIT_FOR_YOUR_TURN);
-            nextTurnButton.setDisable(true);
-        } else if (client.isSuspended()) {
             nextTurnButton.setDisable(true);
         } else if (client.isActive()) {
             if (!wasActive)
@@ -1264,8 +1290,9 @@ public class ClientGUIApplication extends Application implements Observer {
         }
         if (client.isSuspended() && !client.isGameOver())
             Platform.runLater(() -> {
-                PromptAlert.presentReconnectionPrompt(client.getNickname());
-                ClientNetwork.getInstance().addPlayer(client.getNickname());
+                String text = PromptAlert.presentReconnectionPrompt(client.getNickname());
+                if (!client.isGameOver() && text != null && !text.isEmpty())
+                    ClientNetwork.getInstance().addPlayer(client.getNickname());
             });
         restoreGameTimerTextAnimation(wasActive);
     }
@@ -1327,6 +1354,7 @@ public class ClientGUIApplication extends Application implements Observer {
         }
         Platform.runLater(() -> {
             String title = "Risultati finali";
+            clearAlertWindows();
             if (isWinner)
                 new MessageImageAlert(title).present(scoresSB.toString(), new Image(PicturesPaths.CUP), TextAlignment.CENTER);
             else
