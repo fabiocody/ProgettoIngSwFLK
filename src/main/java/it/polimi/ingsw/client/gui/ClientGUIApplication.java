@@ -72,7 +72,7 @@ public class ClientGUIApplication extends Application implements Observer {
     /********************
      * Graphical (Game) *
      ********************/
-    private String privateObjCardName;
+    private String privateObjectiveCardName;
     private ImageView privateObjectiveCard;
     private Image privateObjectiveCardFront;
     private Image privateObjectiveCardBack;
@@ -273,8 +273,8 @@ public class ClientGUIApplication extends Application implements Observer {
         selectableWPPane.setVgap(10);
         selectableWPPane.setPadding(new Insets(25, 25, 25, 25));
 
-        privateObjCardName = jsonArg.getAsJsonObject(JsonFields.PRIVATE_OBJECTIVE_CARD).get(JsonFields.NAME).getAsString();
-        privateObjectiveCardFront = new Image(PicturesPaths.privateObjectiveCard(privateObjCardName));
+        privateObjectiveCardName = jsonArg.getAsJsonObject(JsonFields.PRIVATE_OBJECTIVE_CARD).get(JsonFields.NAME).getAsString();
+        privateObjectiveCardFront = new Image(PicturesPaths.privateObjectiveCard(privateObjectiveCardName));
         privateObjectiveCard = new ImageView(privateObjectiveCardFront);
         privateObjectiveCard.setEffect(getShadow());
         privateObjectiveCard.setFitHeight(400);
@@ -310,14 +310,8 @@ public class ClientGUIApplication extends Application implements Observer {
         boardPane.setHgap(20);
         boardPane.setVgap(20);
         boardPane.setPadding(new Insets(25, 25, 25, 25));
-        privateObjectiveCardBack = new Image(PicturesPaths.privateObjectiveCard("back"));
-        privateObjectiveCard = new ImageView(privateObjectiveCardBack);
-        privateObjectiveCard.setEffect(getShadow());
-        privateObjectiveCard.setFitHeight(CARD_SIZE);
-        privateObjectiveCard.setPreserveRatio(true);
-        privateObjectiveCard.setOnMouseEntered(e -> startRotation());
-        privateObjectiveCard.setOnMouseExited(e -> startRotation());
-        boardPane.add(privateObjectiveCard, 3, 4);
+
+        createPrivateObjectiveCard();
 
         gameTimerText.minWidth(CELL_SIZE * 2);
         boardPane.add(gameTimerText, 6, 0);
@@ -628,7 +622,7 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void reset() {
-        privateObjCardName = null;
+        privateObjectiveCardName = null;
         loginErrorText = createText(16);
         consoleText = createText(18);
         nextTurnButton = null;
@@ -850,6 +844,18 @@ public class ClientGUIApplication extends Application implements Observer {
     /***********************
      * Graphics generators *
      ***********************/
+
+    private void createPrivateObjectiveCard() {
+        privateObjectiveCardBack = new Image(PicturesPaths.privateObjectiveCard("back"));
+        privateObjectiveCardFront = new Image(PicturesPaths.privateObjectiveCard(privateObjectiveCardName));
+        privateObjectiveCard = new ImageView(privateObjectiveCardBack);
+        privateObjectiveCard.setEffect(getShadow());
+        privateObjectiveCard.setFitHeight(CARD_SIZE);
+        privateObjectiveCard.setPreserveRatio(true);
+        privateObjectiveCard.setOnMouseEntered(e -> startRotation());
+        privateObjectiveCard.setOnMouseExited(e -> startRotation());
+        boardPane.add(privateObjectiveCard, 3, 4);
+    }
 
     private static GridPane createWindowPattern(JsonObject wpJson, String nickname, Double resize) {
         if (resize == null) resize = STANDARD_FACTOR;
@@ -1078,7 +1084,8 @@ public class ClientGUIApplication extends Application implements Observer {
         if (jsonArg.get(JsonFields.RECONNECTED).getAsBoolean()) {
             client.setPatternChosen(true);
             client.setSuspended(false);
-            privateObjCardName = jsonArg.getAsJsonObject(JsonFields.PRIVATE_OBJECTIVE_CARD).get(JsonFields.NAME).getAsString();
+            privateObjectiveCardName = jsonArg.getAsJsonObject(JsonFields.PRIVATE_OBJECTIVE_CARD).get(JsonFields.NAME).getAsString();
+            createPrivateObjectiveCard();
         }
     }
 
@@ -1224,6 +1231,17 @@ public class ClientGUIApplication extends Application implements Observer {
                 .map(JsonElement::getAsString)
                 .collect(Collectors.toList());
         client.setSuspendedPlayers(suspendedPlayers);
+        for (GridPane windowPattern : windowPatterns) {
+            String nickname = ((Label) windowPattern.getChildren().get(windowPattern.getChildren().size() - 3)).getText();
+            FadeTransition transition = new FadeTransition(Duration.millis(100), windowPattern);
+            if (client.getSuspendedPlayers().contains(nickname))
+                transition.setToValue(0.5);
+            else
+                transition.setToValue(1);
+            transition.setCycleCount(1);
+            transition.setAutoReverse(false);
+            transition.play();
+        }
         boolean wasActive = client.isActive();
         String activePlayer = jsonArg.get(JsonFields.ACTIVE_PLAYER).getAsString();
         client.setActive(activePlayer);

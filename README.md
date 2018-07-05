@@ -40,7 +40,7 @@ Before playing under Linux, we suggest to have a look at your `/etc/hosts` file.
 127.0.1.1   <hostname>
 ```
 
-which can cause RMI connection problems. To avoid messing with your network configuration, we recommend to comment out this line, so you can bring it back once you finish playing.
+which can cause RMI connection problems. To avoid messing with your network configuration, we recommend to comment out this line (insert `#` at the beginning of the line), so you can bring it back once you finish playing.
 
 ### Playing under Windows
 
