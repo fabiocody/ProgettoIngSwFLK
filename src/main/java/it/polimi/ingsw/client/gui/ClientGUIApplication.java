@@ -759,7 +759,7 @@ public class ClientGUIApplication extends Application implements Observer {
             });
         } else {
             valid = this.useData(requiredData,cardIndex);
-            if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.CONTINUE) && valid) {
+            if (requiredData != null && requiredData.getAsJsonObject(JsonFields.DATA).has(JsonFields.CONTINUE) && valid) {
                 requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
                 requiredData.remove(JsonFields.METHOD);
                 if(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP)) {
