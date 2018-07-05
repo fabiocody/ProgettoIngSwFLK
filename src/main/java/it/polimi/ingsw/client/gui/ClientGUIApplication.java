@@ -90,8 +90,7 @@ public class ClientGUIApplication extends Application implements Observer {
      **************/
     private List<Animation> zoomingAnimations = new ArrayList<>();
     private FadeTransition gameTimerLabelAnimation;
-    private RotateTransition privateObjectiveCardAnimation;
-    private double rotationIncrement = 90;
+    private ScaleTransition privateObjectiveCardAnimation;
 
     /*************
      * Game data *
@@ -151,7 +150,7 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private void setConsoleLabelText(String text) {
         consoleLabel.setText(text);
-        FadeTransition transition = new FadeTransition(Duration.millis(300), consoleLabel);
+        FadeTransition transition = new FadeTransition(Duration.millis(250), consoleLabel);
         transition.setFromValue(1.0);
         transition.setToValue(0);
         transition.setCycleCount(4);
@@ -339,7 +338,7 @@ public class ClientGUIApplication extends Application implements Observer {
 
         Image logoImage = new Image(PicturesPaths.LOGO);
         ImageView logo = new ImageView(logoImage);
-        logo.setFitWidth(200);
+        logo.setFitWidth(250);
         logo.setPreserveRatio(true);
         boardPane.add(logo, 5, 0);
         GridPane.setHalignment(logo, HPos.CENTER);
@@ -543,9 +542,9 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private void onMouseEnteredPrivObj() {
         if (privateObjectiveCardAnimation == null) {
-            privateObjectiveCardAnimation = new RotateTransition(Duration.millis(250), privateObjectiveCard);
-            privateObjectiveCardAnimation.setAxis(new Point3D(0, 1, 0));
-            privateObjectiveCardAnimation.setByAngle(270);
+            privateObjectiveCardAnimation = new ScaleTransition(Duration.millis(125), privateObjectiveCard);
+            privateObjectiveCardAnimation.setFromX(1);
+            privateObjectiveCardAnimation.setToX(0);
             privateObjectiveCardAnimation.setOnFinished(e -> changeImageAndKeepRotating());
             privateObjectiveCardAnimation.play();
         }
@@ -553,23 +552,22 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private void onMouseExitedPrivObj() {
         if (privateObjectiveCardAnimation == null) {
-            privateObjectiveCardAnimation = new RotateTransition(Duration.millis(250), privateObjectiveCard);
-            privateObjectiveCardAnimation.setAxis(new Point3D(0, 1, 0));
-            privateObjectiveCardAnimation.setByAngle(-270);
+            privateObjectiveCardAnimation = new ScaleTransition(Duration.millis(125), privateObjectiveCard);
+            privateObjectiveCardAnimation.setFromX(1);
+            privateObjectiveCardAnimation.setToX(0);
             privateObjectiveCardAnimation.setOnFinished(e -> changeImageAndKeepRotating());
             privateObjectiveCardAnimation.play();
         }
     }
 
     private void changeImageAndKeepRotating() {
-        if (privateObjectiveCard.getImage() == privateObjectiveCardBack)
+        if (privateObjectiveCard.getImage() == privateObjectiveCardBack) {
             privateObjectiveCard.setImage(privateObjectiveCardFront);
-        else
+        } else
             privateObjectiveCard.setImage(privateObjectiveCardBack);
-        privateObjectiveCardAnimation = new RotateTransition(Duration.millis(250), privateObjectiveCard);
-        privateObjectiveCardAnimation.setAxis(new Point3D(0, 1, 0));
-        privateObjectiveCardAnimation.setByAngle(rotationIncrement);
-        rotationIncrement = -rotationIncrement;
+        privateObjectiveCardAnimation = new ScaleTransition(Duration.millis(250), privateObjectiveCard);
+        privateObjectiveCardAnimation.setFromX(0);
+        privateObjectiveCardAnimation.setToX(1);
         privateObjectiveCardAnimation.setOnFinished(e -> privateObjectiveCardAnimation = null);
         privateObjectiveCardAnimation.play();
     }
@@ -647,7 +645,6 @@ public class ClientGUIApplication extends Application implements Observer {
         roundTrack = null;
         draftPool = null;
         boardShown = false;
-        rotationIncrement = 90;
     }
 
     private void resetToolCardsEnvironment() {
