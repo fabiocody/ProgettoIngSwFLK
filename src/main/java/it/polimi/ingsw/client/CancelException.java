@@ -1,5 +1,5 @@
 package it.polimi.ingsw.client;
 
-public class CancelException extends Exception {
-    public CancelException() { super(); }
+class CancelException extends Exception {
+    CancelException() { super(); }
 }

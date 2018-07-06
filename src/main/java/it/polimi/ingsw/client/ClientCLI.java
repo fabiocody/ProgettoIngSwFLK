@@ -79,7 +79,7 @@ public class ClientCLI extends Client implements Observer {
                                 int instructionIndex = Integer.parseInt(input);
 
                                 switch (instructionIndex){
-                                    case 1: //Place Die
+                                    case 1:
                                         this.placeDieMove();
                                         break;
                                     case 2:
@@ -91,14 +91,14 @@ public class ClientCLI extends Client implements Observer {
                                         turnOver = true;
                                         break;
                                     default:
-                                        Logger.println("\nMossa invalida.");
+                                        Logger.println(InterfaceMessages.INVALID_MOVE_CAPITALIZED);
                                         break;
                                 }
                             } catch (NumberFormatException e) {
                                 if (isSuspended()) break;
                             }
                         } catch (CancelException e) {
-                            Logger.println("\nMossa annullata.");
+                            Logger.println(InterfaceMessages.CANCELED_MOVE);
                         }
                     } while (!turnOver);
                 }
@@ -244,7 +244,7 @@ public class ClientCLI extends Client implements Observer {
                 requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
                 requiredData.remove(JsonFields.METHOD);
                 if(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP)) {
-                    stop = !this.getInputBool("\nVuoi continuare [Sì 1/No 0]? ");
+                    stop = !this.getInputStop();
                     requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.STOP, stop);
                 }
                 do{
@@ -343,7 +343,7 @@ public class ClientCLI extends Client implements Observer {
                 }
                 if (index == cancelValue) throw new CancelException();
             } catch (NumberFormatException e) {
-                Logger.println("Indice non valido\n");
+                Logger.println(InterfaceMessages.INDEX_NOT_VALID);
             }
         } while (index < lowerBound || index >= higherBound);
         return index;
@@ -359,26 +359,22 @@ public class ClientCLI extends Client implements Observer {
                 index = Integer.valueOf(userInput);
                 if (index == 0) throw new CancelException();
             } catch (NumberFormatException e) {
-                Logger.println("Indice non valido\n");
-            } catch (CancelException | IOException e) {
-                throw e;
+                Logger.println(InterfaceMessages.INDEX_NOT_VALID);
             }
         } while (!(index == 1|| index == -1));
         return index;
     }
 
-    private boolean getInputBool(String cliMessage) throws IOException {
+    private boolean getInputStop() throws IOException {
         int index = Constants.INDEX_CONSTANT;
         String userInput;
         do {
             try {
-                Logger.println(cliMessage);
+                Logger.println(InterfaceMessages.STOP_MESSAGE);
                 userInput = asyncInput(TIMER_PROMPT);
                 index = Integer.valueOf(userInput);
             } catch (NumberFormatException e) {
-                Logger.println("Indice non valido\n");
-            } catch (IOException e) {
-                throw e;
+                Logger.println(InterfaceMessages.INDEX_NOT_VALID);
             }
         } while (!(index == 0|| index == 1));
         return index == 1;

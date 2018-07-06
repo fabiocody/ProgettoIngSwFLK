@@ -9,9 +9,9 @@ import java.util.NoSuchElementException;
  * @author Fabio Codiglioni
  * @see ToolCardsGenerator
  */
-public class NoSuchToolCardException extends NoSuchElementException {
+class NoSuchToolCardException extends NoSuchElementException {
 
-    public NoSuchToolCardException(String message) {
+    NoSuchToolCardException(String message) {
         super(message);
     }
 

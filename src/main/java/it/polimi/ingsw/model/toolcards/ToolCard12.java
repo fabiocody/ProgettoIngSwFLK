@@ -100,6 +100,8 @@ public class ToolCard12 extends ToolCard {
         int toCellX = data.get(JsonFields.TO_CELL_X).getAsInt();
         int toCellY = data.get(JsonFields.TO_CELL_Y).getAsInt();
         int toIndex = this.linearizeIndex(toCellX, toCellY);
+        if (fromIndex == toIndex)
+            throw new InvalidEffectArgumentException(InterfaceMessages.SAME_POSITION_INDEX);
         if (toIndex < 0 || toIndex >= player.getWindowPattern().getGrid().length)
             throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
         Colors dieColor = player.getWindowPattern().getCell(fromIndex).getPlacedDie().getColor();
@@ -132,11 +134,13 @@ public class ToolCard12 extends ToolCard {
         int toCellX = data.get(JsonFields.TO_CELL_X).getAsInt();
         int toCellY = data.get(JsonFields.TO_CELL_Y).getAsInt();
         int toIndex = this.linearizeIndex(toCellX, toCellY);
+        if (fromIndex == toIndex)
+            throw new InvalidEffectArgumentException(InterfaceMessages.SAME_POSITION_INDEX);
         if (toIndex < 0 || toIndex >= player.getWindowPattern().getGrid().length)
             throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
         if (player.getWindowPattern().getCell(fromIndex).getPlacedDie().getColor() != this.firstMoveColor)
-            throw new InvalidEffectResultException("Colors don't match");
-        if (fromIndex == this.firstMoveIndex) throw new InvalidEffectResultException("Cannot move the same die twice");
+            throw new InvalidEffectResultException(InterfaceMessages.NOT_MATCHING_COLORS);
+        if (fromIndex == this.firstMoveIndex) throw new InvalidEffectResultException(InterfaceMessages.MULTIPLE_DIE_MOVEMENTS);
         this.moveDie(player, fromIndex, toIndex, PlacementConstraint.standardConstraint());
         this.firstMoveIndex = null;
         this.firstMoveColor = null;

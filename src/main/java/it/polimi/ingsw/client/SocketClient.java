@@ -256,7 +256,7 @@ public class SocketClient extends ClientNetwork {
      *
      * @param cardIndex index of the specified tool card
      * @param data JsonObject containing all the necessary fields filled with information given by the user
-     * @return
+     * @return JsonObject containing the result of the usage
      */
     @Override
     public JsonObject useToolCard(int cardIndex, JsonObject data){

@@ -25,7 +25,7 @@ public class Client {
         this(debug, true);
     }
 
-    Client(boolean debug, boolean doNetworkSetup) {
+    private Client(boolean debug, boolean doNetworkSetup) {
         Logger.setDebug(debug);
         if (doNetworkSetup) {
             try {
@@ -117,7 +117,7 @@ public class Client {
         this.gameOver = gameOver;
     }
 
-    public String getActiveNickname() {
+    String getActiveNickname() {
         return activeNickname;
     }
 
