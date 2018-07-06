@@ -794,17 +794,21 @@ public class ClientGUIApplication extends Application implements Observer {
                         Options answer = continueAlert.present("Vuoi continuare?", Options.YES, Options.NO, e -> cancelAction(true, false));
                         stop = answer == Options.NO;
                     });
-                }
-                while (stop == null) {
-                    try {
-                        Thread.sleep(1);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
+                    while (stop == null) {
+                        try {
+                            Thread.sleep(1);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
                     }
+                    requiredData.getAsJsonObject(JsonFields.DATA).addProperty(JsonFields.STOP, stop);
                 }
-                requiredData.getAsJsonObject(JsonFields.DATA).addProperty(JsonFields.STOP, stop);
                 resetToolCardContinue();
                 do {
+                    Platform.runLater(() -> {
+                        nextTurnButton.setDisable(true);
+                        cancelButton.setDisable(false);
+                    });
                     data = this.askForToolCardData(requiredData);
                     result = ClientNetwork.getInstance().useToolCard(cardIndex, data);
                     valid = result.get(JsonFields.RESULT).getAsBoolean();
@@ -844,7 +848,7 @@ public class ClientGUIApplication extends Application implements Observer {
             if (data.has(JsonFields.DELTA)) {
                 Platform.runLater(() -> {
                     TwoOptionsAlert deltaAlert = new TwoOptionsAlert();
-                    Options answer = deltaAlert.present("Vuoi aumentare o diminuire il valore di questo dado", Options.DECREMENT, Options.INCREMENT, e -> cancelAction(false, true));
+                    Options answer = deltaAlert.present("Vuoi aumentare o diminuire il valore di questo dado", Options.DECREMENT, Options.INCREMENT, e -> cancelAction(true, true));
                     requestedDelta = answer == Options.INCREMENT ? 1 : -1;
                 });
                 while (requestedDelta == null) {
@@ -859,7 +863,7 @@ public class ClientGUIApplication extends Application implements Observer {
             if (data.has(JsonFields.NEW_VALUE)) {
                 Platform.runLater(() -> {
                     SpinnerAlert newValueAlert = new SpinnerAlert();
-                    requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", draftPoolColors.get(requestedDraftPoolIndex), 1, 6, e -> cancelAction(false, true));
+                    requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", draftPoolColors.get(requestedDraftPoolIndex), 1, 6, e -> cancelAction(true, true));
                 });
                 while (requestedNewValue == null) {
                     try {
