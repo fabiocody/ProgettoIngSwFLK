@@ -48,7 +48,7 @@ If you intend to play on Windows using the CLI, you need to install the Linux Ba
 
 #### Additional steps for Windows
 
-Since playing under Windows involves the Windows Subsystem for Linux, you need to follow the steps described in [Playing under Linux](#playing-under-linux) in order to use RMI connection. The only difference is that every modifications made to `/etc/hosts` in WLS is ignored, so you need to create a file named `/etc/wsl.conf` and add the following line:
+Since playing under Windows involves the Windows Subsystem for Linux, you need to follow the steps described in [Playing under Linux](#playing-under-linux) in order to use RMI connection. The only difference is that every modification made to `/etc/hosts` in WSL is ignored, so you need to create a file named `/etc/wsl.conf` and add the following line:
 ```
 generateHosts = false
 ```
@@ -88,6 +88,6 @@ Additional parameters include:
 
 - `--host HOST`: the IP address (or local domain) of the machine hosting the server (required if using CLI).
 - `--port PORT`: the port to be used for socket connectivity (default to 42000).
-- `--connection CONNECTION`: the type of connection, can only be `socket` or `rmi` (default to `socket`). Be aware that some network configurations (e.g. firewalls, NAT, ...) can cause connection problems, especially if you choose to use RMI.
-- `--interface INTERFACE`: the type of interface, can only be `cli` or `gui` (default to `gui`).
+- `--connection CONNECTION`: the type of connection, it can only be `socket` or `rmi` (default to `socket`). Be aware that some network configurations (e.g. firewalls, NAT, ...) can cause connection problems, especially if you choose to use RMI.
+- `--interface INTERFACE`: the type of interface, it can only be `cli` or `gui` (default to `gui`).
 - `--debug`: activate debug mode (should be avoided).
