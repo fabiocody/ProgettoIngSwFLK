@@ -67,6 +67,8 @@ public class ToolCard4 extends ToolCard {
             this.firstMoveDone = true;
         } else {
             secondMove(player, fromIndex, toIndex);
+            this.firstMoveIndex = null;
+            this.beforeFirstMoveIndex = null;
             this.firstMoveDone = false;
         }
     }
@@ -118,8 +120,6 @@ public class ToolCard4 extends ToolCard {
     private void secondMove(Player player, int fromIndex, int toIndex) throws InvalidEffectResultException {
         if (fromIndex == this.firstMoveIndex) throw new InvalidEffectResultException("Cannot move the same die twice");
         this.moveDie(player, fromIndex, toIndex, PlacementConstraint.standardConstraint());
-        this.firstMoveIndex = null;
-        this.beforeFirstMoveIndex = null;
     }
 
     @Override
