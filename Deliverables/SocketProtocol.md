@@ -386,6 +386,7 @@ After this request, the server will send to each client the following informatio
 {
     "method": "placeDie",
     "result": <bool>
+    "errorMessage": <string>
 }
 ```
 
@@ -410,6 +411,7 @@ After this request, the server will send to each client the following informatio
 {
     "method": "useToolCard",
     "result": <bool>
+    "errorMessage": <string>
 }
 ```
 

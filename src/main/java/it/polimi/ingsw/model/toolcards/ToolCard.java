@@ -6,7 +6,6 @@ import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.shared.util.Constants;
-import it.polimi.ingsw.shared.util.JsonFields;
 
 import static it.polimi.ingsw.shared.util.InterfaceMessages.DIE_INVALID_POSITION;
 

@@ -7,6 +7,7 @@ import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.patterncards.Cell;
 import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
 import it.polimi.ingsw.shared.util.Constants;
+import it.polimi.ingsw.shared.util.InterfaceMessages;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
 
@@ -80,7 +81,8 @@ public class ToolCard8 extends ToolCard {
             this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
         } catch (InvalidPlacementException e) {
             Cell cell = player.getWindowPattern().getCell(cellIndex);
-            throw new InvalidEffectResultException("Invalid placement on cell at index " + cellIndex + " (" + cell + ") of die " + die);
+            //"Invalid placement on cell at index " + cellIndex + " (" + cell + ") of die " + die
+            throw new InvalidEffectResultException(InterfaceMessages.DIE_INVALID_POSITION);
         }
     }
 

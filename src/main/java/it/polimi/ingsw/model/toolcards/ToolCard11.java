@@ -69,7 +69,7 @@ public class ToolCard11 extends ToolCard {
             int cellIndex = this.linearizeIndex(cellX, cellY);
             if (cellIndex < 0 || cellIndex >= player.getWindowPattern().getGrid().length)
                 //"Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")"
-                throw new InvalidEffectArgumentException(DIE_INVALID_POSITION);
+                throw new InvalidEffectResultException(DIE_INVALID_POSITION);
             this.placeDie(player, draftPoolIndex, cellX, cellY, cellIndex);
 
         }
@@ -138,7 +138,8 @@ public class ToolCard11 extends ToolCard {
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
             Cell cell = player.getWindowPattern().getCell(cellIndex);
             this.state = 0;
-            throw new InvalidEffectResultException("Invalid placement on cell at index " + cellIndex + " (" + cell + ") of die " + die);
+            //"Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")"
+            throw new InvalidEffectResultException(DIE_INVALID_POSITION);
         }
     }
 
