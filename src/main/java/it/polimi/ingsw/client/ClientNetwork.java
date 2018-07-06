@@ -31,8 +31,8 @@ public abstract class ClientNetwork extends Observable {
         return instance;
     }
 
-    public static void setInstance(ClientNetwork clientNetwork) {
-        instance = clientNetwork;
+    public static void setInstance(ClientNetwork network) {
+        instance = network;
     }
 
     String getHost() {
@@ -63,7 +63,7 @@ public abstract class ClientNetwork extends Observable {
     public abstract void teardown() throws IOException;
 
     public abstract UUID addPlayer(String nickname);
-    public abstract void choosePattern(int patternIndex);
+    public abstract boolean choosePattern(int patternIndex);
     public abstract JsonObject placeDie(int draftPoolIndex, int x, int y);
     public abstract void nextTurn();
     public abstract JsonObject requiredData(int cardIndex);

@@ -203,12 +203,14 @@ public class SocketClient extends ClientNetwork {
      * @param patternIndex the index of the chosen window pattern
      */
     @Override
-    public void choosePattern(int patternIndex) {
+    public boolean choosePattern(int patternIndex) {
         JsonObject payload = new JsonObject();
         JsonObject arg = new JsonObject();
         arg.addProperty(JsonFields.PATTERN_INDEX, patternIndex);
         payload.add(JsonFields.ARG, arg);
         this.sendMessage(payload, Methods.CHOOSE_PATTERN.getString());
+        JsonObject input = pollResponseBuffer();
+        return input.get(JsonFields.RESULT).getAsBoolean();
     }
 
     /**

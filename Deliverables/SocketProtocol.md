@@ -7,11 +7,9 @@
 - [Waiting Room](#waiting-room)
 	- [Add new player](#add-new-player)
 	- [Update waiting players list](#update-waiting-players-list)
-	- [Subscribe to timer's updates](#subscribe-to-timers-updates)
 	- [Timer tick](#timer-tick)
 - [Game](#game)
 	- [Game setup message](#game-setup-message)
-	- [Subscribe to timer's updates](#subscribe-to-timers-updates)
 	- [Timer tick](#timer-tick)
 	- [Pattern selection](#pattern-selection)
 	- [Turn management](#turn-management)
@@ -101,27 +99,6 @@
 }
 ```
 
-### Subscribe to timer's updates
-
-#### Client -> Server
-
-```
-{
-    "playerID": <uuid: string>,
-    "method": "subscribeToWRTimer",
-    "arg": null
-}
-```
-
-#### Server -> Client
-
-```
-{
-    "method": "subscribeToWRTimer",
-    "result": <bool>
-}
-```
-
 ### Timer tick
 
 #### Server -> Client
@@ -169,27 +146,6 @@
 }
 ```
 
-### Subscribe to timer's updates
-
-#### Client -> Server
-
-```
-{
-    "playerID": <uuid: string>,
-    "method": "subscribeToGameTimer",
-    "arg": null
-}
-```
-
-#### Server -> Client
-
-```
-{
-    "method": "subscribeToGameTimer",
-    "result": <bool>
-}
-```
-
 ### Timer tick
 
 #### Server -> Client
@@ -212,6 +168,15 @@
     "arg": {
         "patternIndex": <int>
     }
+}
+```
+
+#### Server -> Client
+
+```
+{
+    "method": "choosePattern",
+    "result": <bool>
 }
 ```
 

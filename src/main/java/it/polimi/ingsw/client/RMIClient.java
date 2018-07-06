@@ -55,11 +55,12 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     }
 
     @Override
-    public void choosePattern(int patternIndex) {
+    public boolean choosePattern(int patternIndex) {
         try {
-            server.choosePattern(patternIndex);
+            return server.choosePattern(patternIndex);
         } catch (RemoteException e) {
             connectionError(e);
+            return false;
         }
     }
 

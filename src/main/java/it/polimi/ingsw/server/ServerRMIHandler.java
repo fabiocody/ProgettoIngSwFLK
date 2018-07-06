@@ -83,9 +83,15 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     }
 
     @Override
-    public void choosePattern(int patternIndex) {
-        getGameController().choosePattern(getUuid(), patternIndex);
-        Logger.log(getNickname() + " has chosen pattern " + patternIndex);
+    public boolean choosePattern(int patternIndex) {
+        try {
+            getGameController().choosePattern(getUuid(), patternIndex);
+            Logger.log(getNickname() + " has chosen pattern " + patternIndex);
+            return true;
+        } catch (IndexOutOfBoundsException e) {
+            Logger.log("Pattern choosing for " + getNickname() + " unsuccessful");
+            return false;
+        }
     }
 
     @Override
