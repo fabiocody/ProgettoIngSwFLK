@@ -143,6 +143,12 @@ public class ClientGUIApplication extends Application implements Observer {
         pane.setBackground(new Background(backgroundImage));
     }
 
+    /**
+     * This method is used to set the behaviour of the cells that are part of the client's window pattern in the case
+     * of a mouse clicked event
+     *
+     * @param myWindowPattern the GridPane containing the window pattern
+     */
     private void setMyWindowPattern(GridPane myWindowPattern) {
         for (Node node : myWindowPattern.getChildren()) {
             if (node instanceof StackPane) {
@@ -152,6 +158,11 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
+    /**
+     * This method is used to change the console text, which displays the game messages in the main board of the game
+     *
+     * @param text the new text that will be displayed
+     */
     private void setConsoleText(String text) {
         consoleText.setText(text);
         FadeTransition transition = new FadeTransition(Duration.millis(300), consoleText);
@@ -196,11 +207,13 @@ public class ClientGUIApplication extends Application implements Observer {
         showLogin();
     }
 
+    /*
+     Scenes
+     */
 
-    /**********
-     * Scenes *
-     **********/
-
+    /**
+     * This method is used to set and show the login scene
+     */
     private void showLogin() {
         primaryStage.setResizable(false);
 
@@ -267,6 +280,9 @@ public class ClientGUIApplication extends Application implements Observer {
         primaryStage.show();
     }
 
+    /**
+     * This method is used to set and show the waiting room scene
+     */
     private void showWaitingRoom() {
         primaryStage.setResizable(false);
 
@@ -288,6 +304,11 @@ public class ClientGUIApplication extends Application implements Observer {
         primaryStage.setScene(scene);
     }
 
+    /**
+     * This method is used to set and show the window pattern selection scene
+     *
+     * @param jsonArg JsonObject containing the name of the private objective
+     */
     private void showSelectableWindowPatterns(JsonObject jsonArg) {
         primaryStage.setResizable(true);
 
@@ -326,6 +347,9 @@ public class ClientGUIApplication extends Application implements Observer {
         primaryStage.setResizable(false);
     }
 
+    /**
+     * This method is used to set and show the main board scene
+     */
     private void showBoard() {
         primaryStage.setResizable(true);
 
@@ -418,6 +442,10 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
+    /**
+     * This method is invoked when a client clicks on a button in the window pattern selection scene
+     * @param event MouseClickedEvent on a button
+     */
     private void chooseWindowPattern(ActionEvent event) {
         Button source = (Button) event.getSource();
         int index = Integer.parseInt(source.getText().split(" ")[2]) - 1;
@@ -513,10 +541,11 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
 
-    /*********************
-     * Animation methods *
-     *********************/
-
+    /**
+     * This method creates the pulsing animation on a specified node
+     *
+     * @param node the node on which the animation will be applied
+     */
     private void addZoomingAnimation(Node node) {
         ScaleTransition animation = new ScaleTransition(Duration.seconds(1), node);
         animation.setFromX(1);
@@ -530,6 +559,9 @@ public class ClientGUIApplication extends Application implements Observer {
         animation.play();
     }
 
+    /**
+     * This method is used to stop all zooming animations, bringing all the nodes back to their original dimension
+     */
     private void restoreZoomedNodes() {
         for (Animation animation : zoomingAnimations) {
             animation.stop();
@@ -545,6 +577,11 @@ public class ClientGUIApplication extends Application implements Observer {
         zoomingAnimations.clear();
     }
 
+    /**
+     * This method applies an animation to the game timer, only for the active player, that changes depending on how much time is left
+     *
+     * @param tick the remaining time for the turn
+     */
     private void animateGameTimerText(int tick) {
         if ((tick == 20 || tick == 10) && client.isActive()) {
             if (tick == 20) {
@@ -564,6 +601,10 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
+    /**
+     * This method is used to stop the game timer animation
+     * @param wasActive
+     */
     private void restoreGameTimerTextAnimation(boolean wasActive) {
         if (gameTimerTextAnimation != null && (!wasActive || !client.isActive())) {
             gameTimerText.setFill(Color.WHITE);
@@ -576,6 +617,10 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
+    /**
+     * This method applies animation to the private objective card that rotates it half way, and once finished calls
+     * changeImageAndKeepRotating to finish the animation
+     */
     private void startRotation() {
         if (privateObjectiveCardAnimation == null) {
             privateObjectiveCardAnimation = new ScaleTransition(Duration.millis(125), privateObjectiveCard);
@@ -586,6 +631,10 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
+    /**
+     * This method is used to change the image of the private objective card, depending on which way it's being rotated,
+     * and finishing the rotation animation
+     */
     private void changeImageAndKeepRotating() {
         if (privateObjectiveCard.getImage() == privateObjectiveCardBack) {
             privateObjectiveCard.setImage(privateObjectiveCardFront);
@@ -759,6 +808,12 @@ public class ClientGUIApplication extends Application implements Observer {
         cancelAction(false, false);
     }
 
+    /**
+     * This method is used to request what data will be needed to use the specified tool card and then use it,
+     * once the player has filled all the required fields in the requiredData JsonObject
+     *
+     * @param toolCardIndex the index of the specified tool card
+     */
     private void useToolCard(int toolCardIndex){
         int cardIndex;
         cardIndex = toolCardIndex;
@@ -959,6 +1014,13 @@ public class ClientGUIApplication extends Application implements Observer {
         return wpPane;
     }
 
+    /**
+     * This method creates the stack pane representing a cell of a window pattern
+     *
+     * @param jsonCell JsonObject containing the information of a cell
+     * @param resize the scale factor of the stack pane
+     * @return
+     */
     private static StackPane createCellStack(JsonObject jsonCell, Double resize) {
         if (resize == null) resize = STANDARD_FACTOR;
         StackPane pane = new StackPane();
@@ -1076,10 +1138,16 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
 
-    /*****************************
+    /*
      * Update and updateHandlers *
-     *****************************/
+     */
 
+    /**
+     * This method handles the updates received from the server
+     *
+     * @param o observable object
+     * @param arg JsonObject containing the information for the update
+     */
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof ClientNetwork && arg instanceof JsonObject) {
