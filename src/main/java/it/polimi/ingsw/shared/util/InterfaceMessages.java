@@ -23,6 +23,7 @@ public class InterfaceMessages {
     public static final String EMPTY_GRID = "la griglia è vuota";
     public static final String EMPTY_ROUND_TRACK = "il tracciato del round è vuoto";
     public static final String ONE_OR_LESS_DIE_MESSAGE = "la griglia è vuota o c'è un solo dado";
+    public static final String SUCCESSFUL_TOOL_CARD_USAGE = "Carta strumento usata con successo!";
     public static final String UNSUCCESSFUL_TOOL_CARD_USAGE = "La carta strumento non è stata usata: ";
     public static final String FIRST_HALF_OF_ROUND = "non è il tuo secondo turno";
     public static final String DIE_NOT_YET_PLACED_IN_THIS_TURN = "non hai ancora piazzato un dado questo turno";
@@ -54,6 +55,10 @@ public class InterfaceMessages {
 
     public static String patternSelected(int patternIndex) {
         return "Hai scelto il pattern numero " + patternIndex + ".\nPer favore attendi che tutti i giocatori facciano la propria scelta.";
+    }
+
+    public static String toolCardNotUsed(String errorMessage) {
+        return "Carta strumento non usata: " + errorMessage;
     }
 
 }

@@ -117,7 +117,7 @@ public class ClientGUIApplication extends Application implements Observer {
     private Integer requestedToCellX = null;
     private Integer requestedToCellY = null;
     private boolean movement = false;
-    private boolean stop = false;
+    private Boolean stop = null;
 
 
     /***********************
@@ -352,7 +352,7 @@ public class ClientGUIApplication extends Application implements Observer {
         GridPane.setValignment(nextTurnButton, VPos.BOTTOM);
 
         cancelButton = new Button("Annulla");
-        cancelButton.setOnAction(e -> cancelAction(true));
+        cancelButton.setOnAction(e -> cancelAction(true, true));
         cancelButton.setDisable(true);
         cancelButton.setEffect(getShadow());
         boardPane.add(cancelButton, 6, 4);
@@ -433,13 +433,14 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
-    private void cancelAction(boolean resetConsoleText) {
+    private void cancelAction(boolean resetConsoleText, boolean cancelToolCard) {
         if (toolCardIndex != null) {
             if (toolCardThread != null) {
                 toolCardThread.interrupt();
                 toolCardThread = null;
             }
-            ClientNetwork.getInstance().cancelToolCardUsage(toolCardIndex);
+            if (cancelToolCard)
+                ClientNetwork.getInstance().cancelToolCardUsage(toolCardIndex);
         }
         resetToolCardsEnvironment();
         Platform.runLater(() -> {
@@ -676,6 +677,7 @@ public class ClientGUIApplication extends Application implements Observer {
     private void resetToolCardsEnvironment() {
         toolCardIndex = null;
         requiredData = null;
+        stop = null;
         requestedDraftPoolIndex = null;
         requestedRoundTrackIndex = null;
         requestedDelta = null;
@@ -691,6 +693,7 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void resetToolCardContinue(){
+        stop = null;
         requestedRoundTrackIndex = null;
         requestedDelta = null;
         requestedNewValue = null;
@@ -753,7 +756,7 @@ public class ClientGUIApplication extends Application implements Observer {
             setConsoleText(InterfaceMessages.UNSUCCESSFUL_DIE_PLACEMENT + result.get(JsonFields.ERROR_MESSAGE).getAsString());
         }
         this.draftPoolIndex = null;
-        cancelAction(false);
+        cancelAction(false, false);
     }
 
     private void useToolCard(int toolCardIndex){
@@ -764,7 +767,7 @@ public class ClientGUIApplication extends Application implements Observer {
         if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS) || requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {
             Platform.runLater(() -> {
                 setConsoleText(InterfaceMessages.UNSUCCESSFUL_TOOL_CARD_USAGE + requiredData.get(JsonFields.DATA).getAsJsonObject().get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString());
-            cancelAction(false);
+            cancelAction(false, false);
             });
         } else {
             boolean valid;
@@ -772,14 +775,14 @@ public class ClientGUIApplication extends Application implements Observer {
             JsonObject result = ClientNetwork.getInstance().useToolCard(cardIndex, data);
             if (result.get(JsonFields.RESULT).getAsBoolean()) {
                 if (!data.has(JsonFields.CONTINUE)) {
-                    Platform.runLater(() -> setConsoleText("Carta strumento usata con successo!"));
-                    cancelAction(false);
+                    Platform.runLater(() -> setConsoleText(SUCCESSFUL_TOOL_CARD_USAGE));
+                    cancelAction(false, false);
                 }
                 valid = true;
             } else {
                 String errorMessage = result.get(JsonFields.ERROR_MESSAGE).getAsString();
-                Platform.runLater(() -> setConsoleText("Carta strumento non usata: " + errorMessage));
-                cancelAction(false);
+                Platform.runLater(() -> setConsoleText(toolCardNotUsed(errorMessage)));
+                cancelAction(false, false);
                 valid = false;
             }
             if (requiredData != null && requiredData.getAsJsonObject(JsonFields.DATA).has(JsonFields.CONTINUE) && valid) {
@@ -788,17 +791,27 @@ public class ClientGUIApplication extends Application implements Observer {
                 if(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP)) {
                     Platform.runLater(() -> {
                         TwoOptionsAlert continueAlert = new TwoOptionsAlert();
-                        Options answer = continueAlert.present("Vuoi continuare?", Options.YES, Options.NO, e -> cancelAction(true));
+                        Options answer = continueAlert.present("Vuoi continuare?", Options.YES, Options.NO, e -> cancelAction(true, false));
                         stop = answer == Options.NO;
                     });
-                    requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.STOP, stop);
                 }
+                while (stop == null) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                requiredData.getAsJsonObject(JsonFields.DATA).addProperty(JsonFields.STOP, stop);
                 resetToolCardContinue();
-                do{
+                do {
                     data = this.askForToolCardData(requiredData);
                     result = ClientNetwork.getInstance().useToolCard(cardIndex, data);
                     valid = result.get(JsonFields.RESULT).getAsBoolean();
                 } while(!valid);
+                Platform.runLater(() -> setConsoleText(SUCCESSFUL_TOOL_CARD_USAGE));
+                cancelAction(false, false);
+                resetToolCardsEnvironment();
             }
         }
     }
@@ -831,7 +844,7 @@ public class ClientGUIApplication extends Application implements Observer {
             if (data.has(JsonFields.DELTA)) {
                 Platform.runLater(() -> {
                     TwoOptionsAlert deltaAlert = new TwoOptionsAlert();
-                    Options answer = deltaAlert.present("Vuoi aumentare o diminuire il valore di questo dado", Options.DECREMENT, Options.INCREMENT, e -> cancelAction(false));
+                    Options answer = deltaAlert.present("Vuoi aumentare o diminuire il valore di questo dado", Options.DECREMENT, Options.INCREMENT, e -> cancelAction(false, true));
                     requestedDelta = answer == Options.INCREMENT ? 1 : -1;
                 });
                 while (requestedDelta == null) {
@@ -846,7 +859,7 @@ public class ClientGUIApplication extends Application implements Observer {
             if (data.has(JsonFields.NEW_VALUE)) {
                 Platform.runLater(() -> {
                     SpinnerAlert newValueAlert = new SpinnerAlert();
-                    requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", draftPoolColors.get(requestedDraftPoolIndex), 1, 6, e -> cancelAction(false));
+                    requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", draftPoolColors.get(requestedDraftPoolIndex), 1, 6, e -> cancelAction(false, true));
                 });
                 while (requestedNewValue == null) {
                     try {
