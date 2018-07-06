@@ -25,8 +25,6 @@ public class WaitingRoomController extends BaseController {
     UUID addPlayer(String nickname) throws LoginFailedException, NicknameAlreadyUsedInGameException {
         try {
             return WaitingRoom.getInstance().addPlayer(nickname);
-        } catch (LoginFailedException e) {
-            throw e;
         } catch (NicknameAlreadyUsedInGameException e) {
             Game game = e.getGame();
             try {

@@ -5,6 +5,7 @@ import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.placementconstraints.*;
 import it.polimi.ingsw.shared.util.Constants;
+import it.polimi.ingsw.shared.util.InterfaceMessages;
 import it.polimi.ingsw.shared.util.JsonFields;
 import it.polimi.ingsw.shared.util.Methods;
 
@@ -60,6 +61,8 @@ public class ToolCard4 extends ToolCard {
         int toCellX = data.get(JsonFields.TO_CELL_X).getAsInt();
         int toCellY = data.get(JsonFields.TO_CELL_Y).getAsInt();
         int toIndex = this.linearizeIndex(toCellX, toCellY);
+        if (fromIndex == toIndex)
+            throw new InvalidEffectResultException(InterfaceMessages.SAME_POSITION_INDEX);
         if (toIndex < 0 || toIndex >= player.getWindowPattern().getGrid().length)
             throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
         if (!this.firstMoveDone) {
@@ -118,7 +121,7 @@ public class ToolCard4 extends ToolCard {
      * @throws InvalidEffectResultException thrown when the placement is invalid.
      */
     private void secondMove(Player player, int fromIndex, int toIndex) throws InvalidEffectResultException {
-        if (fromIndex == this.firstMoveIndex) throw new InvalidEffectResultException("Cannot move the same die twice");
+        if (fromIndex == this.firstMoveIndex) throw new InvalidEffectResultException(InterfaceMessages.MULTIPLE_DIE_MOVEMENTS);
         this.moveDie(player, fromIndex, toIndex, PlacementConstraint.standardConstraint());
     }
 
