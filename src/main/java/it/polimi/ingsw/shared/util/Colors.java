@@ -20,11 +20,11 @@ public enum Colors {
     PURPLE;
 
     public Ansi.Color getJAnsiColor() {
-        try {
-            return Ansi.Color.valueOf(this.toString());
-        } catch (IllegalArgumentException e) {
-            return Ansi.Color.valueOf("MAGENTA");
-        }
+        if (this == PURPLE)
+            return Ansi.Color.MAGENTA;
+        else if (this == BLUE)
+            return Ansi.Color.CYAN;
+        return Ansi.Color.valueOf(toString());
     }
 
     public Color getJavaFXColor() {
@@ -32,6 +32,8 @@ public enum Colors {
             return Color.GOLD;
         else if (this == RED)
             return Color.CRIMSON;
+        else if (this == BLUE)
+            return Color.DARKTURQUOISE;
         return Color.valueOf(this.toString());
     }
 
