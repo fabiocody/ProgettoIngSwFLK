@@ -135,7 +135,6 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         JsonObject payload = new JsonObject();
         try {
             getGameController().useToolCard(getUuid(), cardIndex, requiredData);
-            Logger.log(getNickname() + " used a tool card");
             payload.addProperty(JsonFields.RESULT, true);
         } catch (InvalidEffectArgumentException | InvalidEffectResultException e) {
             Logger.printStackTraceConditionally(e);

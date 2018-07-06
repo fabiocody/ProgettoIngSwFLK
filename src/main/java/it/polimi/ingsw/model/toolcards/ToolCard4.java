@@ -123,12 +123,11 @@ public class ToolCard4 extends ToolCard {
     }
 
     @Override
-    public void cancel(Player player){
-        if(beforeFirstMoveIndex != null) {
+    public void cancel(Player player) {
+        if (firstMoveDone)
             player.getWindowPattern().moveDie(firstMoveIndex,beforeFirstMoveIndex,new EmptyConstraint());
-            this.firstMoveDone = false;
-            this.firstMoveIndex = null;
-            this.beforeFirstMoveIndex = null;
-        }
+        this.firstMoveDone = false;
+        this.firstMoveIndex = null;
+        this.beforeFirstMoveIndex = null;
     }
 }

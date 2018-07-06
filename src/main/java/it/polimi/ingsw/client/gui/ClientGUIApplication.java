@@ -472,7 +472,14 @@ public class ClientGUIApplication extends Application implements Observer {
             ImageView selectedToolCard = (ImageView) e.getSource();
             addZoomingAnimation(selectedToolCard);
             toolCardIndex = GridPane.getColumnIndex(selectedToolCard);
-            toolCardThread = new Thread(() -> useToolCard(toolCardIndex));
+            toolCardThread = new Thread(() -> {
+                try {
+                    useToolCard(toolCardIndex);
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                    Logger.debug("ToolCardThread INTERRUPTED");
+                }
+            });
             toolCardThread.start();
             cancelButton.setDisable(false);
             nextTurnButton.setDisable(true);
@@ -759,7 +766,7 @@ public class ClientGUIApplication extends Application implements Observer {
         cancelAction(false, false);
     }
 
-    private void useToolCard(int toolCardIndex){
+    private void useToolCard(int toolCardIndex) throws InterruptedException {
         int cardIndex;
         cardIndex = toolCardIndex;
         requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
@@ -767,7 +774,7 @@ public class ClientGUIApplication extends Application implements Observer {
         if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS) || requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {
             Platform.runLater(() -> {
                 setConsoleText(InterfaceMessages.UNSUCCESSFUL_TOOL_CARD_USAGE + requiredData.get(JsonFields.DATA).getAsJsonObject().get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString());
-            cancelAction(false, false);
+                cancelAction(false, false);
             });
         } else {
             boolean valid;
@@ -794,13 +801,8 @@ public class ClientGUIApplication extends Application implements Observer {
                         Options answer = continueAlert.present("Vuoi continuare?", Options.YES, Options.NO, e -> cancelAction(true, false));
                         stop = answer == Options.NO;
                     });
-                    while (stop == null) {
-                        try {
-                            Thread.sleep(1);
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
-                    }
+                    while (stop == null)
+                        Thread.sleep(1);
                     requiredData.getAsJsonObject(JsonFields.DATA).addProperty(JsonFields.STOP, stop);
                 }
                 resetToolCardContinue();
@@ -820,29 +822,19 @@ public class ClientGUIApplication extends Application implements Observer {
         }
     }
 
-    private JsonObject askForToolCardData(JsonObject requiredData) {
+    private JsonObject askForToolCardData(JsonObject requiredData) throws InterruptedException {
         JsonObject data = requiredData.getAsJsonObject(JsonFields.DATA);
         if (!(data.has(JsonFields.STOP) && data.get(JsonFields.STOP).getAsBoolean())) {
             if (data.has(JsonFields.DRAFT_POOL_INDEX)) {
                 Platform.runLater(() -> setConsoleText("Seleziona un dado dalla riserva"));
-                while (requestedDraftPoolIndex == null) {
-                    try {
-                        Thread.sleep(1);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
+                while (requestedDraftPoolIndex == null)
+                    Thread.sleep(1);
                 data.addProperty(JsonFields.DRAFT_POOL_INDEX, requestedDraftPoolIndex);
             }
             if (data.has(JsonFields.ROUND_TRACK_INDEX)) {
                 Platform.runLater(() -> setConsoleText("Seleziona un dado dal roundTrack"));
-                while (requestedRoundTrackIndex == null) {
-                    try {
-                        Thread.sleep(1);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
+                while (requestedRoundTrackIndex == null)
+                    Thread.sleep(1);
                 data.addProperty(JsonFields.ROUND_TRACK_INDEX, requestedRoundTrackIndex);
             }
             if (data.has(JsonFields.DELTA)) {
@@ -851,13 +843,8 @@ public class ClientGUIApplication extends Application implements Observer {
                     Options answer = deltaAlert.present("Vuoi aumentare o diminuire il valore di questo dado", Options.DECREMENT, Options.INCREMENT, e -> cancelAction(true, true));
                     requestedDelta = answer == Options.INCREMENT ? 1 : -1;
                 });
-                while (requestedDelta == null) {
-                    try {
-                        Thread.sleep(1);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
+                while (requestedDelta == null)
+                    Thread.sleep(1);
                 data.addProperty(JsonFields.DELTA, requestedDelta);
             }
             if (data.has(JsonFields.NEW_VALUE)) {
@@ -865,13 +852,8 @@ public class ClientGUIApplication extends Application implements Observer {
                     SpinnerAlert newValueAlert = new SpinnerAlert();
                     requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", draftPoolColors.get(requestedDraftPoolIndex), 1, 6, e -> cancelAction(true, true));
                 });
-                while (requestedNewValue == null) {
-                    try {
-                        Thread.sleep(1);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
+                while (requestedNewValue == null)
+                    Thread.sleep(1);
                 Platform.runLater(() -> {
                     Canvas newDie = createNumberedCell(requestedNewValue, draftPoolColors.get(requestedDraftPoolIndex).getJavaFXColor(), STANDARD_FACTOR);
                     draftPool.add(newDie, requestedDraftPoolIndex, 0);
@@ -881,25 +863,15 @@ public class ClientGUIApplication extends Application implements Observer {
             if (data.has(JsonFields.FROM_CELL_X)) {
                 Platform.runLater(() -> setConsoleText("Seleziona la cella da cui vuoi muovere il dado"));
                 movement = true;
-                while (requestedFromCellX == null) {
-                    try {
-                        Thread.sleep(1);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
+                while (requestedFromCellX == null)
+                    Thread.sleep(1);
                 data.addProperty(JsonFields.FROM_CELL_X, requestedFromCellX);
                 data.addProperty(JsonFields.FROM_CELL_Y, requestedFromCellY);
             }
             if (data.has(JsonFields.TO_CELL_X)) {
                 Platform.runLater(() -> setConsoleText("Seleziona la cella in cui vuoi muovere il dado"));
-                while (requestedToCellX == null) {
-                    try {
-                        Thread.sleep(1);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
+                while (requestedToCellX == null)
+                    Thread.sleep(1);
                 data.addProperty(JsonFields.TO_CELL_X, requestedToCellX);
                 data.addProperty(JsonFields.TO_CELL_Y, requestedToCellY);
             }

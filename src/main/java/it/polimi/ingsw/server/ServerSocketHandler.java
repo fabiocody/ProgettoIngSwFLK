@@ -218,14 +218,13 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
     private void useToolCard(JsonObject input) {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, JsonFields.USE_TOOL_CARD);
-        int cardIndex = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.CARD_INDEX).getAsInt();
-        JsonObject data = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DATA).getAsJsonObject();
+        int cardIndex = input.getAsJsonObject(JsonFields.ARG).get(JsonFields.CARD_INDEX).getAsInt();
+        JsonObject data = input.getAsJsonObject(JsonFields.ARG).getAsJsonObject(JsonFields.DATA);
         UUID id = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
         data.addProperty(JsonFields.PLAYER_ID, id.toString());
         try {
             getGameController().useToolCard(id, cardIndex, data);
             payload.addProperty(JsonFields.RESULT, true);
-            Logger.log(getNickname() + " used a tool card");
             Logger.debugPayload(payload);
             out.println(payload.toString());
         } catch (InvalidEffectArgumentException | InvalidEffectResultException e) {

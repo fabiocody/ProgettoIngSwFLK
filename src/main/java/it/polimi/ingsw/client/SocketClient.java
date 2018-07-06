@@ -65,7 +65,7 @@ public class SocketClient extends ClientNetwork {
                     Logger.debug("Waiting on pollResponseBuffer");
                     responseBufferLock.wait();
                 } catch (InterruptedException e) {
-                    Logger.printStackTrace(e);
+                    Logger.printStackTraceConditionally(e);
                     Thread.currentThread().interrupt();
                 }
             }
