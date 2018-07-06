@@ -144,13 +144,15 @@ public class ToolCard11 extends ToolCard {
 
     @Override
     public void cancel(Player player){
-        if (!this.isUsed()) {
-            player.setFavorTokens(player.getFavorTokens() - 1);
-        } else {
-            player.setFavorTokens(player.getFavorTokens() - 2);
+        if(state != 0) {
+            if (!this.isUsed()) {
+                player.setFavorTokens(player.getFavorTokens() - 1);
+            } else {
+                player.setFavorTokens(player.getFavorTokens() - 2);
+            }
+            this.setUsed();
+            player.setToolCardUsedThisTurn(true);
         }
-        this.setUsed();
-        player.setToolCardUsedThisTurn(true);
         state = 0;
     }
 
