@@ -2,10 +2,9 @@ package it.polimi.ingsw.client.gui.alerts;
 
 import it.polimi.ingsw.client.gui.ClientGUIApplication;
 import it.polimi.ingsw.shared.util.Colors;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
+import javafx.event.*;
+import javafx.geometry.*;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
@@ -13,7 +12,7 @@ import javafx.scene.layout.GridPane;
 
 public class SpinnerAlert extends AlertWindow {
 
-    private int value;
+    private Integer value;
     private Spinner<Integer> spinner;
     private Canvas dieCanvas;
     private Colors dieColor;
@@ -22,14 +21,17 @@ public class SpinnerAlert extends AlertWindow {
         super();
     }
 
-    public int present(String message, Colors dieColor, int from, int to) {
+    public Integer present(String message, Colors dieColor, int from, int to, EventHandler<ActionEvent> cancelHandler) {
         this.dieColor = dieColor;
         present(() -> {
 
             Label label = getMessageLabel(message);
-            Button button = getOkButton();
-            button.setOnAction(e -> onButtonClick());
-            button.setOnKeyPressed(this::onKeyPressed);
+            Button okButton = getOkButton();
+            okButton.setOnAction(e -> onButtonClick());
+            okButton.setOnKeyPressed(this::onKeyPressed);
+            Button cancelButton = getCancelButton();
+            if (cancelHandler != null)
+                cancelButton.setOnAction(cancelHandler);
 
             spinner = new Spinner<>();
             SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(from, to, from);
@@ -40,10 +42,11 @@ public class SpinnerAlert extends AlertWindow {
             getGridPane().setPadding(new Insets(25, 25, 25, 25));
             getGridPane().add(label, 0, 0);
             dieCanvas = ClientGUIApplication.createNumberedCell(spinner.getValue(), dieColor.getJavaFXColor(), ClientGUIApplication.STANDARD_FACTOR);
-            getGridPane().add(dieCanvas, 1, 0);
+            getGridPane().add(dieCanvas, 1, 0, 2, 1);
             GridPane.setHalignment(dieCanvas, HPos.CENTER);
             getGridPane().add(spinner, 0, 1);
-            getGridPane().add(button, 1, 1);
+            getGridPane().add(okButton, 1, 1);
+            getGridPane().add(cancelButton, 2, 1);
 
             getWindow().setMinWidth(200);
 
@@ -62,10 +65,10 @@ public class SpinnerAlert extends AlertWindow {
     }
 
     private void onSpinnerClick() {
-        value = spinner.getValue();
+        int tempValue = spinner.getValue();
         getGridPane().getChildren().remove(dieCanvas);
-        dieCanvas = ClientGUIApplication.createNumberedCell(value, dieColor.getJavaFXColor(), ClientGUIApplication.STANDARD_FACTOR);
-        getGridPane().add(dieCanvas, 1, 0);
+        dieCanvas = ClientGUIApplication.createNumberedCell(tempValue, dieColor.getJavaFXColor(), ClientGUIApplication.STANDARD_FACTOR);
+        getGridPane().add(dieCanvas, 1, 0, 2, 1);
         GridPane.setHalignment(dieCanvas, HPos.CENTER);
     }
 

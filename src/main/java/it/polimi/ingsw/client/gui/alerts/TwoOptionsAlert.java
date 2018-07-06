@@ -1,6 +1,6 @@
 package it.polimi.ingsw.client.gui.alerts;
 
-import javafx.event.ActionEvent;
+import javafx.event.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.control.*;
 import javafx.geometry.*;
@@ -17,7 +17,7 @@ public class TwoOptionsAlert extends AlertWindow {
         super();
     }
 
-    public Options present(String message, Options leftOption, Options rightOption) {
+    public Options present(String message, Options leftOption, Options rightOption, EventHandler<ActionEvent> cancelHandler) {
         present(() -> {
 
             Label label = getMessageLabel(message);
@@ -32,13 +32,24 @@ public class TwoOptionsAlert extends AlertWindow {
             rightButton.setOnAction(this::onButtonClick);
             rightButton.setOnKeyPressed(this::onKeyPressed);
 
+            Button cancelButton = getCancelButton();
+            cancelButton.setOnAction(cancelHandler);
+
             getGridPane().setPadding(new Insets(25, 25, 25, 25));
             setWideVGap();
-            getGridPane().add(label, 0, 0, 2, 1);
+            setNarrowHGap();
+
+            int colSpan = cancelHandler != null ? 5 : 2;
+
+            getGridPane().add(label, 0, 0, colSpan, 1);
             getGridPane().add(leftButton, 0, 1);
             GridPane.setHalignment(leftButton, HPos.LEFT);
             getGridPane().add(rightButton, 1, 1);
             GridPane.setHalignment(rightButton, HPos.RIGHT);
+            if (cancelHandler != null) {
+                getGridPane().add(cancelButton, 4, 1);
+                GridPane.setHalignment(cancelButton, HPos.RIGHT);
+            }
 
         });
         return answer;
@@ -61,7 +72,7 @@ public class TwoOptionsAlert extends AlertWindow {
     }
 
     public static Options presentExitAlert() {
-        return new TwoOptionsAlert().present(EXIT_MESSAGE, Options.YES, Options.NO);
+        return new TwoOptionsAlert().present(EXIT_MESSAGE, Options.YES, Options.NO, null);
     }
 
 }

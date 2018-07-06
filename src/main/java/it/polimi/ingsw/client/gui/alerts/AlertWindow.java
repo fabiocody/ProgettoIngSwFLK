@@ -70,7 +70,17 @@ public class AlertWindow {
         button.setMinWidth(SUGGESTED_BUTTON_WIDTH);
         button.setOnAction(e -> closeWindow());
         button.setOnKeyPressed(e -> {
-            if (e.getCode().equals(KeyCode.ENTER)) closeWindow();
+            if (e.getCode() == KeyCode.ENTER) closeWindow();
+        });
+        return button;
+    }
+
+    Button getCancelButton() {
+        Button button = new Button("Annulla");
+        button.setMinWidth(SUGGESTED_BUTTON_WIDTH);
+        button.setOnAction(e -> closeWindow());
+        button.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ENTER) closeWindow();
         });
         return button;
     }

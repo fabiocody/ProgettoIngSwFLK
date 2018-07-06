@@ -53,6 +53,7 @@ public class ClientGUIApplication extends Application implements Observer {
     private static boolean debug;
     private static DropShadow shadow;
     private static final List<AlertWindow> alertWindows = new ArrayList<>();
+    private Thread toolCardThread;
     private Stage primaryStage;
 
     /*********************
@@ -433,6 +434,13 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void cancelAction(boolean resetConsoleText) {
+        if (toolCardIndex != null) {
+            if (toolCardThread != null) {
+                toolCardThread.interrupt();
+                toolCardThread = null;
+            }
+            ClientNetwork.getInstance().cancelToolCardUsage(toolCardIndex);
+        }
         resetToolCardsEnvironment();
         Platform.runLater(() -> {
             cancelButton.setDisable(true);
@@ -463,7 +471,8 @@ public class ClientGUIApplication extends Application implements Observer {
             ImageView selectedToolCard = (ImageView) e.getSource();
             addZoomingAnimation(selectedToolCard);
             toolCardIndex = GridPane.getColumnIndex(selectedToolCard);
-            new Thread(() -> useToolCard(toolCardIndex)).start();
+            toolCardThread = new Thread(() -> useToolCard(toolCardIndex));
+            toolCardThread.start();
             cancelButton.setDisable(false);
             nextTurnButton.setDisable(true);
         }
@@ -779,7 +788,7 @@ public class ClientGUIApplication extends Application implements Observer {
                 if(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP)) {
                     Platform.runLater(() -> {
                         TwoOptionsAlert continueAlert = new TwoOptionsAlert();
-                        Options answer = continueAlert.present("Vuoi continuare?", Options.YES, Options.NO);
+                        Options answer = continueAlert.present("Vuoi continuare?", Options.YES, Options.NO, e -> cancelAction(true));
                         stop = answer == Options.NO;
                     });
                     requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.STOP, stop);
@@ -818,7 +827,7 @@ public class ClientGUIApplication extends Application implements Observer {
             if (data.has(JsonFields.DELTA)) {
                 Platform.runLater(() -> {
                     TwoOptionsAlert deltaAlert = new TwoOptionsAlert();
-                    Options answer = deltaAlert.present("Vuoi aumentare o diminuire il valore di questo dado", Options.DECREMENT, Options.INCREMENT);
+                    Options answer = deltaAlert.present("Vuoi aumentare o diminuire il valore di questo dado", Options.DECREMENT, Options.INCREMENT, e -> cancelAction(false));
                     requestedDelta = answer == Options.INCREMENT ? 1 : -1;
                 });
                 while (requestedDelta == null) {
@@ -833,9 +842,7 @@ public class ClientGUIApplication extends Application implements Observer {
             if (data.has(JsonFields.NEW_VALUE)) {
                 Platform.runLater(() -> {
                     SpinnerAlert newValueAlert = new SpinnerAlert();
-                    requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", draftPoolColors.get(requestedDraftPoolIndex), 1, 6);
-                    Canvas newDie = createNumberedCell(requestedNewValue, draftPoolColors.get(requestedDraftPoolIndex).getJavaFXColor(), STANDARD_FACTOR);
-                    draftPool.add(newDie, requestedDraftPoolIndex, 0);
+                    requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", draftPoolColors.get(requestedDraftPoolIndex), 1, 6, e -> cancelAction(false));
                 });
                 while (requestedNewValue == null) {
                     try {
@@ -844,6 +851,10 @@ public class ClientGUIApplication extends Application implements Observer {
                         Thread.currentThread().interrupt();
                     }
                 }
+                Platform.runLater(() -> {
+                    Canvas newDie = createNumberedCell(requestedNewValue, draftPoolColors.get(requestedDraftPoolIndex).getJavaFXColor(), STANDARD_FACTOR);
+                    draftPool.add(newDie, requestedDraftPoolIndex, 0);
+                });
                 data.addProperty(JsonFields.NEW_VALUE, requestedNewValue);
             }
             if (data.has(JsonFields.FROM_CELL_X)) {
