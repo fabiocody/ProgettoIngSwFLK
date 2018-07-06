@@ -10,7 +10,7 @@ public interface ServerAPI extends Remote {
     void probe() throws RemoteException;
 
     UUID addPlayer(String nickname) throws RemoteException;
-    void choosePattern(int patternIndex) throws RemoteException;
+    boolean choosePattern(int patternIndex) throws RemoteException;
     String placeDie (int draftPoolIndex, int x, int y) throws RemoteException;
     void nextTurn() throws RemoteException;
     String requiredData(int cardIndex) throws RemoteException;

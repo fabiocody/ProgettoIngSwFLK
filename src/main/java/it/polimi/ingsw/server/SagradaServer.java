@@ -4,6 +4,7 @@ import it.polimi.ingsw.model.game.*;
 import it.polimi.ingsw.shared.rmi.ServerAPI;
 import it.polimi.ingsw.shared.util.*;
 import joptsimple.*;
+import org.fusesource.jansi.AnsiConsole;
 import java.io.IOException;
 import java.net.*;
 import java.rmi.*;
@@ -45,10 +46,10 @@ public class SagradaServer extends Observable implements Observer {
         return instance;
     }
 
-    private void start(String host, int port, int wrTimeout, int gameTimeout, boolean debugActive) {
+    private void start(String host, int port, int wrTimeout, int gameTimeout, boolean debug) {
         this.port = port;
         this.gameTimeout = gameTimeout;
-        Logger.setDebugActive(debugActive);
+        Logger.setDebug(debug);
         WaitingRoom.getInstance().setTimeout(wrTimeout);
         new Thread(this::startSocketServer).start();
         this.startRMI(host);
@@ -182,6 +183,7 @@ public class SagradaServer extends Observable implements Observer {
             } else {
                 port = Constants.DEFAULT_PORT;
             }
+            AnsiConsole.systemInstall();
             SagradaServer.getInstance().start(host, port, wrTimeout, gameTimeout, debug);
         } catch (OptionException | NullPointerException e) {
             Logger.println(InterfaceMessages.SERVER_USAGE_STRING);

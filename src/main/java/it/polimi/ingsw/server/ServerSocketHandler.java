@@ -172,8 +172,18 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
 
     private void choosePattern(JsonObject input) {
         int patternIndex = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.PATTERN_INDEX).getAsInt();
-        getGameController().choosePattern(getUuid(), patternIndex);
-        Logger.log(getNickname() + " has chosen pattern " + patternIndex);
+        JsonObject payload = new JsonObject();
+        payload.addProperty(JsonFields.METHOD, Methods.CHOOSE_PATTERN.getString());
+        try {
+            getGameController().choosePattern(getUuid(), patternIndex);
+            payload.addProperty(JsonFields.RESULT, true);
+            Logger.log(getNickname() + " has chosen pattern " + patternIndex);
+        } catch (IndexOutOfBoundsException e) {
+            payload.addProperty(JsonFields.RESULT, false);
+            Logger.log("Pattern choosing for " + getNickname() + " unsuccessful");
+        }
+        Logger.debugPayload(payload);
+        out.println(payload.toString());
     }
 
     private void placeDie(JsonObject input) {
