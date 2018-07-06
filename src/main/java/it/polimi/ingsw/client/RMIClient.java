@@ -14,11 +14,9 @@ import java.util.*;
 public class RMIClient extends ClientNetwork implements ClientAPI {
 
     private ServerAPI server;
-    private JsonParser jsonParser;
 
     public RMIClient(String host, int port, boolean debug) {
         super(host, port, debug);
-        this.jsonParser = new JsonParser();
     }
 
     @Override
@@ -67,26 +65,17 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     @Override
     public JsonObject placeDie(int draftPoolIndex, int x, int y) {
         try {
-            return jsonParser.parse(server.placeDie(draftPoolIndex, x, y)).getAsJsonObject();
+            return getJsonParser().parse(server.placeDie(draftPoolIndex, x, y)).getAsJsonObject();
         } catch (RemoteException e) {
             connectionError(e);
             return null;
-        }
-    }
-
-    @Override
-    public void nextTurn() {
-        try {
-            server.nextTurn();
-        } catch (RemoteException e) {
-            connectionError(e);
         }
     }
 
     @Override
     public JsonObject requiredData(int cardIndex) {
         try {
-            return jsonParser.parse(server.requiredData(cardIndex)).getAsJsonObject();
+            return getJsonParser().parse(server.requiredData(cardIndex)).getAsJsonObject();
         } catch (RemoteException e) {
             connectionError(e);
             return null;
@@ -94,9 +83,9 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     }
 
     @Override
-    public JsonObject useToolCard(int cardIndex, JsonObject requiredData) {
+    public JsonObject useToolCard(int cardIndex, JsonObject data) {
         try {
-            return jsonParser.parse(server.useToolCard(cardIndex, requiredData.toString())).getAsJsonObject();
+            return getJsonParser().parse(server.useToolCard(cardIndex, data.toString())).getAsJsonObject();
         } catch (RemoteException e) {
             connectionError(e);
             return null;
@@ -107,6 +96,15 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
     public void cancelToolCardUsage(int cardIndex) {
         try {
             server.cancelToolCardUsage(cardIndex);
+        } catch (RemoteException e) {
+            connectionError(e);
+        }
+    }
+
+    @Override
+    public void nextTurn() {
+        try {
+            server.nextTurn();
         } catch (RemoteException e) {
             connectionError(e);
         }
@@ -124,7 +122,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
 
     @Override
     public void update(String jsonString) {
-        JsonObject payload = jsonParser.parse(jsonString).getAsJsonObject();
+        JsonObject payload = getJsonParser().parse(jsonString).getAsJsonObject();
         if (payload.get(JsonFields.METHOD).getAsString().equals(Methods.FINAL_SCORES.getString()))
             gameEnding = true;
         this.setChanged();
@@ -133,7 +131,7 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
 
     @Override
     public void reconnect(String privateObjString) {
-        JsonObject privateObjectiveCard = jsonParser.parse(privateObjString).getAsJsonObject();
+        JsonObject privateObjectiveCard = getJsonParser().parse(privateObjString).getAsJsonObject();
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
         payload.addProperty(JsonFields.RECONNECTED, true);

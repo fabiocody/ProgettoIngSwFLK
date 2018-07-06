@@ -648,6 +648,7 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     private void reset() {
+        waitingPlayersBox = new VBox();
         privateObjectiveCardName = null;
         loginErrorText = createText(16);
         consoleText = createText(18);

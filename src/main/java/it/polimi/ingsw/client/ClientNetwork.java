@@ -1,9 +1,7 @@
 package it.polimi.ingsw.client;
 
-import com.google.gson.JsonObject;
-import it.polimi.ingsw.shared.util.Constants;
-import it.polimi.ingsw.shared.util.JsonFields;
-import it.polimi.ingsw.shared.util.Logger;
+import com.google.gson.*;
+import it.polimi.ingsw.shared.util.*;
 import java.io.IOException;
 import java.util.*;
 
@@ -18,6 +16,7 @@ public abstract class ClientNetwork extends Observable {
     private String nickname;
     private UUID uuid;
 
+    private JsonParser jsonParser;
     private Timer probeTimer;
     boolean gameEnding = false;
 
@@ -59,16 +58,22 @@ public abstract class ClientNetwork extends Observable {
         this.uuid = uuid;
     }
 
+    JsonParser getJsonParser() {
+        if (jsonParser == null)
+            jsonParser = new JsonParser();
+        return jsonParser;
+    }
+
     public abstract void setup() throws IOException;
     public abstract void teardown() throws IOException;
 
     public abstract UUID addPlayer(String nickname);
     public abstract boolean choosePattern(int patternIndex);
     public abstract JsonObject placeDie(int draftPoolIndex, int x, int y);
-    public abstract void nextTurn();
     public abstract JsonObject requiredData(int cardIndex);
-    public abstract JsonObject useToolCard(int cardIndex, JsonObject requiredData);
+    public abstract JsonObject useToolCard(int cardIndex, JsonObject data);
     public abstract void cancelToolCardUsage(int cardIndex);
+    public abstract void nextTurn();
 
     void rescheduleProbeTimer() {
         if (this.probeTimer != null) {
@@ -85,7 +90,7 @@ public abstract class ClientNetwork extends Observable {
         }, Constants.PROBE_TIMEOUT * 2000);
     }
 
-    void connectionError(String message, Throwable e) {
+    private void connectionError(String message, Throwable e) {
         Logger.connectionLost();
         if (message != null) Logger.conditionalError(message);
         Logger.printStackTraceConditionally(e);
