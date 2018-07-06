@@ -749,7 +749,6 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private void useToolCard(int toolCardIndex){
         int cardIndex;
-        //boolean valid;
         cardIndex = toolCardIndex;
         requiredData = ClientNetwork.getInstance().requiredData(cardIndex);
         requiredData.remove(JsonFields.METHOD);
@@ -769,7 +768,8 @@ public class ClientGUIApplication extends Application implements Observer {
                 }
                 valid = true;
             } else {
-                Platform.runLater(() -> setConsoleText("Carta strumento non usata: " + result.get(JsonFields.ERROR_MESSAGE).getAsString()));
+                String errorMessage = result.get(JsonFields.ERROR_MESSAGE).getAsString();
+                Platform.runLater(() -> setConsoleText("Carta strumento non usata: " + errorMessage));
                 cancelAction(false);
                 valid = false;
             }
@@ -785,7 +785,11 @@ public class ClientGUIApplication extends Application implements Observer {
                     requiredData.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.STOP, stop);
                 }
                 resetToolCardContinue();
-                this.askForToolCardData(requiredData);
+                do{
+                    data = this.askForToolCardData(requiredData);
+                    result = ClientNetwork.getInstance().useToolCard(cardIndex, data);
+                    valid = result.get(JsonFields.RESULT).getAsBoolean();
+                } while(!valid);
             }
         }
     }

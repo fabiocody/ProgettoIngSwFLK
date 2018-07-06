@@ -344,8 +344,6 @@ public class ClientCLI extends Client implements Observer {
                 if (index == cancelValue) throw new CancelException();
             } catch (NumberFormatException e) {
                 Logger.println("Indice non valido\n");
-            } catch (CancelException | IOException e) {
-                throw e;
             }
         } while (index < lowerBound || index >= higherBound);
         return index;
