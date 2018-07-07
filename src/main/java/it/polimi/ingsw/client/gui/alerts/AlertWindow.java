@@ -1,6 +1,6 @@
 package it.polimi.ingsw.client.gui.alerts;
 
-import it.polimi.ingsw.client.gui.ClientGUIApplication;
+import it.polimi.ingsw.client.gui.ClientGUI;
 import javafx.application.Platform;
 import javafx.geometry.*;
 import javafx.scene.Scene;
@@ -21,7 +21,7 @@ public class AlertWindow {
 
     AlertWindow(String title) {
         this.title = title;
-        new Thread(() -> ClientGUIApplication.addAlertWindow(this)).start();
+        new Thread(() -> ClientGUI.addAlertWindow(this)).start();
         init();
     }
 
@@ -31,19 +31,6 @@ public class AlertWindow {
 
     Stage getWindow() {
         return window;
-    }
-
-    private void init() {
-        window = new Stage();
-        window.initModality(Modality.APPLICATION_MODAL);
-        window.setTitle(title);
-        window.setAlwaysOnTop(true);
-    }
-
-    private void show() {
-        Scene scene = new Scene(gridPane);
-        window.setScene(scene);
-        window.showAndWait();
     }
 
     GridPane getGridPane() {
@@ -85,16 +72,6 @@ public class AlertWindow {
         return button;
     }
 
-    void present(Runnable runnable) {
-        runnable.run();
-        show();
-    }
-
-    public void closeWindow() {
-        Platform.runLater(() -> window.close());
-        new Thread(() -> ClientGUIApplication.removeAlertWindow(this)).start();
-    }
-
     void setWideVGap() {
         getGridPane().setVgap(20);
     }
@@ -109,6 +86,29 @@ public class AlertWindow {
 
     void setNarrowHGap() {
         getGridPane().setHgap(10);
+    }
+
+    private void init() {
+        window = new Stage();
+        window.initModality(Modality.APPLICATION_MODAL);
+        window.setTitle(title);
+        window.setAlwaysOnTop(true);
+    }
+
+    private void show() {
+        Scene scene = new Scene(gridPane);
+        window.setScene(scene);
+        window.showAndWait();
+    }
+
+    void present(Runnable runnable) {
+        runnable.run();
+        show();
+    }
+
+    public void closeWindow() {
+        Platform.runLater(() -> window.close());
+        new Thread(() -> ClientGUI.removeAlertWindow(this)).start();
     }
 
 }

@@ -50,11 +50,11 @@ public abstract class ClientNetwork extends Observable {
         this.nickname = nickname;
     }
 
-    UUID getUuid() {
+    UUID getUUID() {
         return uuid;
     }
 
-    void setUuid(UUID uuid) {
+    void setUUID(UUID uuid) {
         this.uuid = uuid;
     }
 

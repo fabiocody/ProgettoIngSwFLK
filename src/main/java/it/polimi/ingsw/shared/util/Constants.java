@@ -27,7 +27,7 @@ public class Constants {
     public static final int DEFAULT_GAME_TIMEOUT = 90;
     public static final int EXIT_STATUS = 0;
     public static final int EXIT_ERROR = 1;
-    public static final long PROBE_TIMEOUT = 3000;
+    public static final long PROBE_TIMEOUT = 3;
     public static final String SERVER_RMI_NAME = "SagradaServer";
     public static final String TOOL_CARD_1_NAME = "Pinza Sgrossatrice";
     public static final String TOOL_CARD_2_NAME = "Pennello per Eglomise";

@@ -48,12 +48,12 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     @Override
     public UUID addPlayer(String nickname) {
         Logger.debug(nickname + " is attempting to log in");
-        setUuid(null);
+        setUUID(null);
         setNickname(null);
         try {
-            setUuid(WaitingRoomController.getInstance().addPlayer(nickname));
+            setUUID(WaitingRoomController.getInstance().addPlayer(nickname));
             setNickname(nickname);
-            Logger.log(nickname + " logged in successfully (" + getUuid() + ")");
+            Logger.log(nickname + " logged in successfully (" + getUUID() + ")");
             startProbeThread();
         } catch (LoginFailedException e) {
             Logger.error(nickname + " log in failed");
@@ -63,8 +63,8 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
             getGameController().addNetwork(this);
             setNickname(nickname);
             Player player = getGameController().getGame().getPlayer(nickname);
-            setUuid(player.getId());
-            getGameController().unsuspendPlayer(getUuid());
+            setUUID(player.getId());
+            getGameController().unsuspendPlayer(getUUID());
             startProbeThread();
             JsonObject privateObjectiveCard = createObjectiveCardJson(player.getPrivateObjectiveCard());
             try {
@@ -79,13 +79,13 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
                 }
             }, 500);
         }
-        return getUuid();
+        return getUUID();
     }
 
     @Override
     public boolean choosePattern(int patternIndex) {
         try {
-            getGameController().choosePattern(getUuid(), patternIndex);
+            getGameController().choosePattern(getUUID(), patternIndex);
             Logger.log(getNickname() + " has chosen pattern " + patternIndex);
             return true;
         } catch (IndexOutOfBoundsException e) {
@@ -98,7 +98,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     public String placeDie(int draftPoolIndex, int x, int y) {
         JsonObject payload = new JsonObject();
         try {
-            getGameController().placeDie(getUuid(), draftPoolIndex, x, y);
+            getGameController().placeDie(getUUID(), draftPoolIndex, x, y);
             Logger.log(getNickname() + " placed a die");
             payload.addProperty(JsonFields.RESULT, true);
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
@@ -112,8 +112,8 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     @Override
     public String requiredData(int cardIndex) {
-        JsonObject payload = getGameController().requiredData(cardIndex, getUuid());
-        Player player = getGameController().getPlayer(getUuid());
+        JsonObject payload = getGameController().requiredData(cardIndex, getUUID());
+        Player player = getGameController().getPlayer(getUUID());
         if ((player.getFavorTokens()<2 && getGameController().getToolCards().get(cardIndex).isUsed()) ||
                 (player.getFavorTokens()<1 && !getGameController().getToolCards().get(cardIndex).isUsed())){
             payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.NO_FAVOR_TOKENS, Constants.INDEX_CONSTANT);
@@ -131,11 +131,10 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     @Override
     public String useToolCard(int cardIndex, String requiredDataString) {
         JsonObject requiredData = getJsonParser().parse(requiredDataString).getAsJsonObject();
-        requiredData.addProperty(JsonFields.PLAYER_ID, getUuid().toString());
+        requiredData.addProperty(JsonFields.PLAYER_ID, getUUID().toString());
         JsonObject payload = new JsonObject();
         try {
-            getGameController().useToolCard(getUuid(), cardIndex, requiredData);
-            Logger.log(getNickname() + " used a tool card");
+            getGameController().useToolCard(getUUID(), cardIndex, requiredData);
             payload.addProperty(JsonFields.RESULT, true);
         } catch (InvalidEffectArgumentException | InvalidEffectResultException e) {
             Logger.printStackTraceConditionally(e);
@@ -148,7 +147,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     @Override
     public void cancelToolCardUsage(int cardIndex) {
-        getGameController().cancelToolCardUsage(getUuid(), cardIndex);
+        getGameController().cancelToolCardUsage(getUUID(), cardIndex);
     }
 
     @Override

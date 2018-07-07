@@ -58,7 +58,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
                 Logger.debug("Received: " + input.toString());
                 // UUID validation
                 if (!input.get(JsonFields.METHOD).getAsString().equals(Methods.ADD_PLAYER.getString()) &&
-                        !input.get(JsonFields.PLAYER_ID).getAsString().equals(getUuid().toString())) {
+                        !input.get(JsonFields.PLAYER_ID).getAsString().equals(getUUID().toString())) {
                     Logger.error("AUTH ERROR");
                     continue;
                 }
@@ -117,19 +117,19 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
 
     private void addPlayer(JsonObject input) {
         Logger.debug("addPlayer called");
-        setUuid(null);
+        setUUID(null);
         setNickname(null);
         Logger.debugInput(input);
         String tempNickname = input.get(JsonFields.NICKNAME).getAsString();
         try {
-            setUuid(WaitingRoomController.getInstance().addPlayer(tempNickname));
+            setUUID(WaitingRoomController.getInstance().addPlayer(tempNickname));
             setNickname(tempNickname);
-            Logger.log(getNickname() + " logged in successfully (" + getUuid() + ")");
+            Logger.log(getNickname() + " logged in successfully (" + getUUID() + ")");
             JsonObject payload = new JsonObject();
             payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
             payload.addProperty(JsonFields.LOGGED, true);
             payload.addProperty(JsonFields.RECONNECTED, false);
-            payload.addProperty(JsonFields.PLAYER_ID, getUuid().toString());
+            payload.addProperty(JsonFields.PLAYER_ID, getUUID().toString());
             JsonArray waitingPlayers = new JsonArray();
             for (String p : WaitingRoomController.getInstance().getWaitingPlayers())
                 waitingPlayers.add(p);
@@ -149,14 +149,14 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
             getGameController().addNetwork(this);
             setNickname(tempNickname);
             Player player = getGameController().getGame().getPlayer(getNickname());
-            setUuid(player.getId());
-            getGameController().unsuspendPlayer(getUuid());
-            Logger.log(getNickname() + " logged back in (" + getUuid() + ")");
+            setUUID(player.getId());
+            getGameController().unsuspendPlayer(getUUID());
+            Logger.log(getNickname() + " logged back in (" + getUUID() + ")");
             JsonObject payload = new JsonObject();
             payload.addProperty(JsonFields.METHOD, Methods.ADD_PLAYER.getString());
             payload.addProperty(JsonFields.LOGGED, true);
             payload.addProperty(JsonFields.RECONNECTED, true);
-            payload.addProperty(JsonFields.PLAYER_ID, getUuid().toString());
+            payload.addProperty(JsonFields.PLAYER_ID, getUUID().toString());
             payload.add(JsonFields.PRIVATE_OBJECTIVE_CARD, createObjectiveCardJson(player.getPrivateObjectiveCard()));
             Logger.debugPayload(payload);
             out.println(payload.toString());
@@ -175,7 +175,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.CHOOSE_PATTERN.getString());
         try {
-            getGameController().choosePattern(getUuid(), patternIndex);
+            getGameController().choosePattern(getUUID(), patternIndex);
             payload.addProperty(JsonFields.RESULT, true);
             Logger.log(getNickname() + " has chosen pattern " + patternIndex);
         } catch (IndexOutOfBoundsException e) {
@@ -193,7 +193,7 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.PLACE_DIE.getString());
         try {
-            getGameController().placeDie(getUuid(), draftPoolIndex, x, y);
+            getGameController().placeDie(getUUID(), draftPoolIndex, x, y);
             payload.addProperty(JsonFields.RESULT, true);
             Logger.log(getNickname() + " placed a die");
             Logger.debugPayload(payload);
@@ -218,14 +218,13 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
     private void useToolCard(JsonObject input) {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, JsonFields.USE_TOOL_CARD);
-        int cardIndex = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.CARD_INDEX).getAsInt();
-        JsonObject data = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DATA).getAsJsonObject();
+        int cardIndex = input.getAsJsonObject(JsonFields.ARG).get(JsonFields.CARD_INDEX).getAsInt();
+        JsonObject data = input.getAsJsonObject(JsonFields.ARG).getAsJsonObject(JsonFields.DATA);
         UUID id = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
         data.addProperty(JsonFields.PLAYER_ID, id.toString());
         try {
             getGameController().useToolCard(id, cardIndex, data);
             payload.addProperty(JsonFields.RESULT, true);
-            Logger.log(getNickname() + " used a tool card");
             Logger.debugPayload(payload);
             out.println(payload.toString());
         } catch (InvalidEffectArgumentException | InvalidEffectResultException e) {

@@ -1,6 +1,6 @@
 package it.polimi.ingsw.client.gui.alerts;
 
-import it.polimi.ingsw.client.gui.ClientGUIApplication;
+import it.polimi.ingsw.client.gui.ClientGUI;
 import it.polimi.ingsw.shared.util.Colors;
 import javafx.event.*;
 import javafx.geometry.*;
@@ -41,7 +41,7 @@ public class SpinnerAlert extends AlertWindow {
 
             getGridPane().setPadding(new Insets(25, 25, 25, 25));
             getGridPane().add(label, 0, 0);
-            dieCanvas = ClientGUIApplication.createNumberedCell(spinner.getValue(), dieColor.getJavaFXColor(), ClientGUIApplication.STANDARD_FACTOR);
+            dieCanvas = ClientGUI.createNumberedCell(spinner.getValue(), dieColor.getJavaFXColor(), ClientGUI.STANDARD_FACTOR);
             getGridPane().add(dieCanvas, 1, 0, 2, 1);
             GridPane.setHalignment(dieCanvas, HPos.CENTER);
             getGridPane().add(spinner, 0, 1);
@@ -67,7 +67,7 @@ public class SpinnerAlert extends AlertWindow {
     private void onSpinnerClick() {
         int tempValue = spinner.getValue();
         getGridPane().getChildren().remove(dieCanvas);
-        dieCanvas = ClientGUIApplication.createNumberedCell(tempValue, dieColor.getJavaFXColor(), ClientGUIApplication.STANDARD_FACTOR);
+        dieCanvas = ClientGUI.createNumberedCell(tempValue, dieColor.getJavaFXColor(), ClientGUI.STANDARD_FACTOR);
         getGridPane().add(dieCanvas, 1, 0, 2, 1);
         GridPane.setHalignment(dieCanvas, HPos.CENTER);
     }

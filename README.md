@@ -34,13 +34,13 @@ This game is written in Java, so you need to have Java Runtime Environment 8 or 
 
 ### Playing under Linux
 
-Before playing under Linux, we suggest to have a look at your `/etc/hosts` file. On certain distros (we tested on Debian and Ubuntu), it can contain a line such as
+Before playing under Linux, we suggest having a look at your `/etc/hosts` file. On certain distros (we tested on Debian and Ubuntu), it can contain a line such as
 
 ```
 127.0.1.1   <hostname>
 ```
 
-which can cause RMI connection problems. To avoid messing with your network configuration, we recommend to comment out this line (insert `#` at the beginning of the line), so you can bring it back once you finish playing.
+which can cause RMI connection problems. To avoid messing with your network configuration, we recommend commenting out this line (insert `#` at the beginning of the line), so you can bring it back once you finish playing.
 
 ### Playing under Windows
 
@@ -74,7 +74,7 @@ Additional parameters include:
 - `--port PORT`: the port to be used for socket connectivity (default to 42000).
 - `--wr-timeout`: the amount of seconds to wait before starting a new game (default to 30).
 - `--game-timeout`: the amount of seconds to wait before suspending a player (default to 90).
-- `--debug`: activate debug mode (to be used only if really needed).
+- `--debug`: activate debug mode (use it only if you really need it).
 
 ### Start a client
 
@@ -90,4 +90,8 @@ Additional parameters include:
 - `--port PORT`: the port to be used for socket connectivity (default to 42000).
 - `--connection CONNECTION`: the type of connection, it can only be `socket` or `rmi` (default to `socket`). Be aware that some network configurations (e.g. firewalls, NAT, ...) can cause connection problems, especially if you choose to use RMI.
 - `--interface INTERFACE`: the type of interface, it can only be `cli` or `gui` (default to `gui`).
-- `--debug`: activate debug mode (should be avoided).
+- `--debug`: activate debug mode (use it only if you really really need it).
+
+### An overview of the interface
+
+![GUI](https://i.imgur.com/O4JhaUI.jpg)

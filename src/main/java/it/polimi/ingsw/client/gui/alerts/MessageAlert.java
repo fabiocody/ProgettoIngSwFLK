@@ -12,27 +12,23 @@ public class MessageAlert extends AlertWindow {
         super(title);
     }
 
-    public void present(String message, TextAlignment textAlignment) {
+    public void present(String message) {
         present(() -> {
 
             Label label = getMessageLabel(message);
-            label.setTextAlignment(textAlignment);
+            label.setTextAlignment(TextAlignment.CENTER);
             Button button = getOkButton();
 
             setWideVGap();
             getGridPane().add(label, 0, 0);
-            GridPane.setHalignment(label, HPos.valueOf(textAlignment.toString()));
-            label.setAlignment(Pos.valueOf(textAlignment.toString()));
+            GridPane.setHalignment(label, HPos.CENTER);
+            label.setAlignment(Pos.CENTER);
             getGridPane().add(button, 0, 1);
             GridPane.setHalignment(button, HPos.CENTER);
 
             getWindow().setMinWidth(200);
 
         });
-    }
-
-    public void present(String message) {
-        present(message, TextAlignment.LEFT);
     }
 
 }

@@ -65,7 +65,7 @@ public class SocketClient extends ClientNetwork {
                     Logger.debug("Waiting on pollResponseBuffer");
                     responseBufferLock.wait();
                 } catch (InterruptedException e) {
-                    Logger.printStackTrace(e);
+                    Logger.printStackTraceConditionally(e);
                     Thread.currentThread().interrupt();
                 }
             }
@@ -159,8 +159,8 @@ public class SocketClient extends ClientNetwork {
     }
 
     private void sendMessage(JsonObject payload, Methods method) {
-        if (getUuid() != null)
-            payload.addProperty(JsonFields.PLAYER_ID, getUuid().toString());
+        if (getUUID() != null)
+            payload.addProperty(JsonFields.PLAYER_ID, getUUID().toString());
         payload.addProperty(JsonFields.METHOD, method.getString());
         Logger.debugPayload(payload);
         out.println(payload.toString());
@@ -178,7 +178,7 @@ public class SocketClient extends ClientNetwork {
         this.sendMessage(payload, Methods.ADD_PLAYER);
         JsonObject input = this.pollResponseBuffer();
         if (input.get(JsonFields.LOGGED).getAsBoolean()) {
-            setUuid(UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString()));
+            setUUID(UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString()));
             Logger.debugInput(input);
             if (input.get(JsonFields.RECONNECTED).getAsBoolean()) {
                 new Timer(true).schedule(new TimerTask() {
@@ -191,7 +191,7 @@ public class SocketClient extends ClientNetwork {
             } else {
                 this.rescheduleProbeTimer();
             }
-            return getUuid();
+            return getUUID();
         } else {
             return null;
         }

@@ -211,6 +211,7 @@ public class GameController extends BaseController {
             }
             toolCard.setUsed();
             this.getPlayer(id).setToolCardUsedThisTurn(true);
+            Logger.log(getPlayer(id).getNickname() + " used a tool card");
         }
         forEachNetwork(ServerNetwork::fullUpdate);
     }

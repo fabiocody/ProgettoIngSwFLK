@@ -1,6 +1,6 @@
 package it.polimi.ingsw.client;
 
-import it.polimi.ingsw.client.gui.ClientGUIApplication;
+import it.polimi.ingsw.client.gui.ClientGUI;
 import it.polimi.ingsw.shared.util.*;
 import javafx.application.Application;
 import joptsimple.*;
@@ -117,7 +117,7 @@ public class Client {
         this.gameOver = gameOver;
     }
 
-    String getActiveNickname() {
+    public String getActiveNickname() {
         return activeNickname;
     }
 
@@ -134,7 +134,7 @@ public class Client {
         suspendedPlayers = new ArrayList<>();
     }
 
-    public static boolean isValidHost(String host){
+    public static boolean isHostValid(String host){
         String ipRegex= "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
         String urlRegex = "^[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
         return host.matches(ipRegex) || host.matches(urlRegex);
@@ -163,7 +163,7 @@ public class Client {
                 case CLIArguments.CLI:
                     String host = null;
                     host = (String) options.valueOf(CLIArguments.HOST);
-                    if (!isValidHost(host)) {
+                    if (!isHostValid(host)) {
                         Logger.println("Invalid Host");
                         exitError();
                     }
@@ -186,9 +186,9 @@ public class Client {
                     break;
                 case CLIArguments.GUI:
                     Client client = new Client(debug, false);
-                    ClientGUIApplication.setClient(client);
-                    ClientGUIApplication.setDebug(debug);
-                    Application.launch(ClientGUIApplication.class);
+                    ClientGUI.setClient(client);
+                    ClientGUI.setDebug(debug);
+                    Application.launch(ClientGUI.class);
                     break;
                 default:
                     Logger.println("Invalid type of interface");
