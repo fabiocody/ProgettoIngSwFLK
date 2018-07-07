@@ -858,7 +858,7 @@ public class ClientGUI extends Application implements Observer {
                 if(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP)) {
                     Platform.runLater(() -> {
                         TwoOptionsAlert continueAlert = new TwoOptionsAlert();
-                        Options answer = continueAlert.present("Vuoi continuare?", Options.YES, Options.NO, e -> cancelAction(true, true));
+                        Options answer = continueAlert.present("Vuoi continuare?", Options.YES, Options.NO, null);
                         stop = answer == Options.NO;
                     });
                     while (stop == null)
