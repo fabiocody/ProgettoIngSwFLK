@@ -141,6 +141,9 @@ public class RoundTrack extends Observable implements Observer {
         }
     }
 
+    /**
+     * @return string representation of the round track
+     */
     public String toString() {
         StringBuilder roundTrackCli = new StringBuilder();
         Optional<Integer> maxDiceInRound = getDice().stream()

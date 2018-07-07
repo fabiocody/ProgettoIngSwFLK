@@ -17,10 +17,17 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
     private PrintWriter out;
     private boolean run = true;
 
+    /**
+     * This method is the constructor that sets the socket
+     * @param socket the socket
+     */
     ServerSocketHandler(Socket socket) {
         this.clientSocket = socket;
     }
 
+    /**
+     * This method is used to show the disconnected user message
+     */
     @Override
     void showDisconnectedUserMessage() {
         String address = clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort();
@@ -28,6 +35,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         run = false;
     }
 
+    /**
+     * This method is used to close the connection
+     */
     @Override
     void close() {
         try {
@@ -115,6 +125,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         return getJsonParser().parse(string).getAsJsonObject();
     }
 
+    /**
+     * @param input JsonObject containing the nickname of the player logging in
+     */
     private void addPlayer(JsonObject input) {
         Logger.debug("addPlayer called");
         setUUID(null);
@@ -170,6 +183,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         }
     }
 
+    /**
+     * @param input JsonObject containing the index of the pattern chosen by the player
+     */
     private void choosePattern(JsonObject input) {
         int patternIndex = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.PATTERN_INDEX).getAsInt();
         JsonObject payload = new JsonObject();
@@ -186,6 +202,10 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         out.println(payload.toString());
     }
 
+    /**
+     * @param input JsonObject containing the index of the die in the Draft Pool to be placed,
+     *              the column in which to place the die and the row in which to place the die
+     */
     private void placeDie(JsonObject input) {
         int draftPoolIndex = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.DRAFT_POOL_INDEX).getAsInt();
         int x = input.get(JsonFields.ARG).getAsJsonObject().get(JsonFields.TO_CELL_X).getAsInt();
@@ -207,6 +227,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         }
     }
 
+    /**
+     * @param input JsonObject containing the index of the Tool Card you need data for and the player's uuid
+     */
     private void requiredData(JsonObject input) {
         int cardIndex = input.get(JsonFields.CARD_INDEX).getAsInt();
         UUID id = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
@@ -215,6 +238,10 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         out.println(payload.toString());
     }
 
+    /**
+     * @param input JsonObject containing the index of the Tool Card you want to use,
+     *              the JSON-serialized data required to use the Tool Card and and the player's uuid
+     */
     private void useToolCard(JsonObject input) {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, JsonFields.USE_TOOL_CARD);
@@ -236,17 +263,26 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         }
     }
 
+    /**
+     * @param input JsonObject containing the index of the Tool Card and the player's uuid
+     */
     private void cancelToolCardUsage(JsonObject input) {
         UUID id = UUID.fromString(input.get(JsonFields.PLAYER_ID).getAsString());
         int cardIndex = input.getAsJsonObject(JsonFields.ARG).get(JsonFields.CARD_INDEX).getAsInt();
         getGameController().cancelToolCardUsage(id, cardIndex);
     }
 
+    /**
+     * This method is used to pass the turn
+     */
     private void nextTurn() {
         getGameController().nextTurn();
         Logger.log(getNickname() + " has ended his turn");
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a players list update
+     */
     @Override
     JsonObject updatePlayersList() {
         JsonObject payload = super.updatePlayersList();
@@ -254,6 +290,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a tool card update
+     */
     @Override
     JsonObject updateToolCards() {
         JsonObject payload = super.updateToolCards();
@@ -261,6 +300,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information of the public objective cards
+     */
     @Override
     JsonObject sendPublicObjectiveCards() {
         JsonObject payload = super.sendPublicObjectiveCards();
@@ -268,6 +310,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a window pattern update
+     */
     @Override
     JsonObject updateWindowPatterns() {
         JsonObject payload = super.updateWindowPatterns();
@@ -275,6 +320,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a favor token update
+     */
     @Override
     JsonObject updateFavorTokens() {
         JsonObject payload = super.updateFavorTokens();
@@ -282,6 +330,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a draft pool update
+     */
     @Override
     JsonObject updateDraftPool() {
         JsonObject payload = super.updateDraftPool();
@@ -289,6 +340,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a round track update
+     */
     @Override
     JsonObject updateRoundTrack() {
         JsonObject payload = super.updateRoundTrack();
@@ -296,6 +350,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a turn manager update
+     */
     @Override
     JsonObject turnManagement() {
         JsonObject payload = super.turnManagement();
@@ -303,6 +360,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a final score update
+     */
     @Override
     JsonObject updateFinalScores() {
         JsonObject payload = super.updateFinalScores();
@@ -310,6 +370,11 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         return payload;
     }
 
+    /**
+     * @param method can be WR_TIMER_TICK or GAME_TIMER_TICK depending on what timer we want to update
+     * @param tick the remaining time
+     * @return JsonObject containing the information necessary for a timer update
+     */
     @Override
     JsonObject updateTimerTick(Methods method, String tick) {
         JsonObject payload = super.updateTimerTick(method, tick);
@@ -317,6 +382,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for waiting players update
+     */
     @Override
     JsonObject updateWaitingPlayers() {
         JsonObject payload = super.updateWaitingPlayers();
@@ -324,6 +392,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for the game setup
+     */
     @Override
     JsonObject setupGame() {
         JsonObject payload = super.setupGame();
@@ -331,6 +402,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
         return payload;
     }
 
+    /**
+     * This method is used to send a probe to check if the client is still connected
+     */
     @Override
     void sendProbe() {
         JsonObject payload = new JsonObject();

@@ -10,18 +10,30 @@ public class WaitingRoomController extends BaseController {
 
     private static WaitingRoomController instance;
 
+    /**
+     * the constructor for the waiting room controller, which adds an observer on the waiting room and on the timer
+     */
     private WaitingRoomController() {
         super();
         WaitingRoom.getInstance().addObserver(this);
         WaitingRoom.getInstance().getTimer().addObserver(this);
     }
 
+    /**
+     * @return the istance of waiting room controller
+     */
     static WaitingRoomController getInstance() {
         if (instance == null)
             instance = new WaitingRoomController();
         return instance;
     }
 
+    /**
+     * @param nickname the nickname of the player logging in
+     * @return a random UUID if the user has been added, null if login has failed
+     * @throws LoginFailedException thrown in case of a failed login
+     * @throws NicknameAlreadyUsedInGameException thrown if ithe nickname is already used
+     */
     UUID addPlayer(String nickname) throws LoginFailedException, NicknameAlreadyUsedInGameException {
         try {
             return WaitingRoom.getInstance().addPlayer(nickname);
@@ -37,16 +49,28 @@ public class WaitingRoomController extends BaseController {
         }
     }
 
+    /**
+     * @param nickname of the player to remove
+     */
     void removePlayer(String nickname){
         WaitingRoom.getInstance().removePlayer(nickname);
     }
 
+    /**
+     * @return list of the players waiting in the waiting room
+     */
     List<String> getWaitingPlayers() {
         return WaitingRoom.getInstance().getWaitingPlayers().stream()
                 .map(Player::getNickname)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Observer method. Can update waiting players or the timer depending on the arg
+     *
+     * @param o the object that has triggered the update
+     * @param arg the arguments of the update
+     */
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof WaitingRoom) {

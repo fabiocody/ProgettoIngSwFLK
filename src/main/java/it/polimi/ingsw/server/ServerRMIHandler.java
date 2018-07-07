@@ -15,6 +15,10 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
 
     private ClientAPI client;
 
+    /**
+     * This method is the constructor that sets the client
+     * @param client the client
+     */
     private ServerRMIHandler(ClientAPI client) {
         System.setProperty("java.rmi.game.useCodebaseOnly", String.valueOf(false));
         this.client = client;
@@ -25,6 +29,12 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         this(null);
     }
 
+    /**
+     * This method is used to connect to the server
+     *
+     * @param client the client that wants to connect
+     * @return the server endpoint used later
+     */
     @Override
     public ServerAPI connect(ClientAPI client) {
         Logger.log("User connected via RMI");
@@ -39,12 +49,19 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         }
     }
 
+    /**
+     * This method is used to check if the server is still connected
+     */
     @Override
     public void probe() {
         Logger.debug(getNickname() + " has sent a probe message");
         setProbed();
     }
 
+    /**
+     * @param nickname the nickname of the player logging in
+     * @return a random UUID if the user has been added, null if login has failed
+     */
     @Override
     public UUID addPlayer(String nickname) {
         Logger.debug(nickname + " is attempting to log in");
@@ -82,6 +99,10 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         return getUUID();
     }
 
+    /**
+     * @param patternIndex the index of the pattern chosen by the player
+     * @return true if the index is valid and the pattern has been chosen, false otherwise
+     */
     @Override
     public boolean choosePattern(int patternIndex) {
         try {
@@ -94,6 +115,12 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         }
     }
 
+    /**
+     * @param draftPoolIndex the index of the die in the Draft Pool to be placed
+     * @param x the column in which to place the die
+     * @param y the row in which to place the die
+     * @return the serialized JSON describing the result of the placement
+     */
     @Override
     public String placeDie(int draftPoolIndex, int x, int y) {
         JsonObject payload = new JsonObject();
@@ -110,6 +137,10 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         return payload.toString();
     }
 
+    /**
+     * @param cardIndex the index of the Tool Card you need data for
+     * @return the data required by the specified Tool Card, JSON-serialized
+     */
     @Override
     public String requiredData(int cardIndex) {
         JsonObject payload = getGameController().requiredData(cardIndex, getUUID());
@@ -128,6 +159,11 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         return payload.toString();
     }
 
+    /**
+     * @param cardIndex the index of the Tool Card you want to use
+     * @param requiredDataString the JSON-serialized data required to use the Tool Card
+     * @return the serialized JSON describing the result of the Tool Card usage
+     */
     @Override
     public String useToolCard(int cardIndex, String requiredDataString) {
         JsonObject requiredData = getJsonParser().parse(requiredDataString).getAsJsonObject();
@@ -145,17 +181,28 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         return payload.toString();
     }
 
+    /**
+     * @param cardIndex the index of the Tool Card
+     */
     @Override
     public void cancelToolCardUsage(int cardIndex) {
         getGameController().cancelToolCardUsage(getUUID(), cardIndex);
     }
 
+    /**
+     * This method is used to pass the turn
+     */
     @Override
     public void nextTurn() {
         getGameController().nextTurn();
         Logger.log(getNickname() + " has ended his turn");
     }
 
+    /**
+     * This method is used to create an update for the client
+     *
+     * @param payload containing the information for the update
+     */
     private void clientUpdate(String payload) {
         try {
             if (client != null)
@@ -165,7 +212,9 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         }
     }
 
-
+    /**
+     * @return JsonObject containing the information necessary for a players list update
+     */
     @Override
     JsonObject updatePlayersList() {
         JsonObject payload = super.updatePlayersList();
@@ -173,6 +222,9 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a tool card update
+     */
     @Override
     JsonObject updateToolCards() {
         JsonObject payload = super.updateToolCards();
@@ -180,6 +232,9 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information of the public objective cards
+     */
     @Override
     JsonObject sendPublicObjectiveCards() {
         JsonObject payload = super.sendPublicObjectiveCards();
@@ -187,6 +242,9 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a window pattern update
+     */
     @Override
     JsonObject updateWindowPatterns() {
         JsonObject payload = super.updateWindowPatterns();
@@ -194,6 +252,9 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a favor token update
+     */
     @Override
     JsonObject updateFavorTokens() {
         JsonObject payload = super.updateFavorTokens();
@@ -201,6 +262,9 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a draft pool update
+     */
     @Override
     JsonObject updateDraftPool() {
         JsonObject payload = super.updateDraftPool();
@@ -208,6 +272,9 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a round track update
+     */
     @Override
     JsonObject updateRoundTrack() {
         JsonObject payload = super.updateRoundTrack();
@@ -215,6 +282,9 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a turn manager update
+     */
     @Override
     JsonObject turnManagement() {
         JsonObject payload = super.turnManagement();
@@ -222,6 +292,9 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a final score update
+     */
     @Override
     JsonObject updateFinalScores() {
         JsonObject payload = super.updateFinalScores();
@@ -229,6 +302,11 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         return payload;
     }
 
+    /**
+     * @param method can be WR_TIMER_TICK or GAME_TIMER_TICK depending on what timer we want to update
+     * @param tick the remaining time
+     * @return JsonObject containing the information necessary for a timer update
+     */
     @Override
     JsonObject updateTimerTick(Methods method, String tick) {
         JsonObject payload = super.updateTimerTick(method, tick);
@@ -236,6 +314,9 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for waiting players update
+     */
     @Override
     JsonObject updateWaitingPlayers() {
         JsonObject payload = super.updateWaitingPlayers();
@@ -243,6 +324,9 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for the game setup
+     */
     @Override
     JsonObject setupGame() {
         JsonObject payload = super.setupGame();
@@ -250,6 +334,9 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         return payload;
     }
 
+    /**
+     * This method is used to send a probe to check if the client is still connected
+     */
     @Override
     void sendProbe() {
         try {
@@ -259,17 +346,26 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
         }
     }
 
+    /**
+     * This method is used to show the disconnected user message
+     */
     @Override
     void showDisconnectedUserMessage() {
         Logger.log(getNickname() + " was disconnected");
         Thread.currentThread().interrupt();
     }
 
+    /**
+     * This method is used to close the connection
+     */
     @Override
     void close() {
         client = null;
     }
 
+    /**
+     * @param e the thrown exception
+     */
     private void connectionError(Throwable e) {
         Logger.connectionLost(getNickname());
         Logger.printStackTraceConditionally(e);

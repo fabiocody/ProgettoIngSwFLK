@@ -10,6 +10,9 @@ import it.polimi.ingsw.shared.util.*;
 import java.util.*;
 
 
+/**
+ * the base class for the serverRMIHandler and the serverSocketHandler
+ */
 public abstract class ServerNetwork extends Observable implements Observer {
 
     private String nickname;
@@ -19,39 +22,66 @@ public abstract class ServerNetwork extends Observable implements Observer {
     private boolean probed = true;
     private JsonParser jsonParser;
 
+    /**
+     * @return the nickname
+     */
     String getNickname() {
         return nickname;
     }
 
+    /**
+     * @param nickname the string to which the nickname will be set
+     */
     void setNickname(String nickname) {
         this.nickname = nickname;
     }
 
+    /**
+     * @return the uuid
+     */
     UUID getUUID() {
         return uuid;
     }
 
+    /**
+     * @param uuid the uuid to which the uuid will be set
+     */
     void setUUID(UUID uuid) {
         this.uuid = uuid;
     }
 
+    /**
+     * @return the game controller
+     */
     GameController getGameController() {
         return gameController;
     }
 
+    /**
+     * @param gameController the game controller
+     */
     void setGameController(GameController gameController) {
         this.gameController = gameController;
     }
 
+    /**
+     * This method starts the thread that sends the probes
+     */
     void startProbeThread() {
         probeThread = new Thread(this::probeCheck);
         probeThread.start();
     }
 
+    /**
+     * This method sets the probe attribute to true
+     */
     void setProbed() {
         this.probed = true;
     }
 
+    /**
+     * @return the JsonParser, and creates it if it was null
+     */
     JsonParser getJsonParser() {
         if (jsonParser == null)
             jsonParser = new JsonParser();
@@ -62,6 +92,12 @@ public abstract class ServerNetwork extends Observable implements Observer {
     abstract void showDisconnectedUserMessage();
     abstract void close();
 
+    /**
+     * This method creates a JsonObject containing the information of a window pattern
+     *
+     * @param wp the window pattern
+     * @return the JsonObject
+     */
     private JsonObject createWindowPatternJson(WindowPattern wp) {
         JsonObject wpJSON = new JsonObject();
         wpJSON.addProperty(JsonFields.NAME, wp.getPatternName());
@@ -85,6 +121,12 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return wpJSON;
     }
 
+    /**
+     * This method creates a JsonObject containing the information of a tool card
+     *
+     * @param card the tool card
+     * @return the JsonObject
+     */
     private JsonObject createToolCardJson(ToolCard card) {
         JsonObject jsonCard = new JsonObject();
         jsonCard.addProperty(JsonFields.NAME, card.getName());
@@ -93,6 +135,12 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return jsonCard;
     }
 
+    /**
+     * This method creates a JsonObject containing the information of a public objective card
+     *
+     * @param card the public objective card
+     * @return the JsonObject
+     */
     JsonObject createObjectiveCardJson(ObjectiveCard card) {
         JsonObject jsonCard = new JsonObject();
         jsonCard.addProperty(JsonFields.NAME, card.getName());
@@ -101,6 +149,12 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return jsonCard;
     }
 
+    /**
+     * This method creates a JsonObject containing the information of a die
+     *
+     * @param d the die
+     * @return the JsonObject
+     */
     private JsonObject createDieJson(Die d) {
         JsonObject jsonDie = new JsonObject();
         jsonDie.addProperty(JsonFields.COLOR, d.getColor().toString());
@@ -109,6 +163,9 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return jsonDie;
     }
 
+    /**
+     * This method probes the player periodically, and disconnects him if he isn't probed correctly
+     */
     private void probeCheck() {
         while (true) {
             try {
@@ -132,6 +189,10 @@ public abstract class ServerNetwork extends Observable implements Observer {
         }
     }
 
+    /**
+     * This method is used to disconnect the player by removing it from the waiting room
+     * or suspending it if it's already in a game
+     */
     void onUserDisconnection() {
         if (probeThread != null) probeThread.interrupt();
         SagradaServer.getInstance().deleteObserver(this);
@@ -146,6 +207,9 @@ public abstract class ServerNetwork extends Observable implements Observer {
         this.showDisconnectedUserMessage();
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a players list update
+     */
     JsonObject updatePlayersList() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.PLAYERS.getString());
@@ -158,6 +222,9 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a tool card update
+     */
     JsonObject updateToolCards() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.TOOL_CARDS.getString());
@@ -169,6 +236,9 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information of the public objective cards
+     */
     JsonObject sendPublicObjectiveCards() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.PUBLIC_OBJECTIVE_CARDS.getString());
@@ -182,6 +252,9 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a window pattern update
+     */
     JsonObject updateWindowPatterns() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.WINDOW_PATTERNS.getString());
@@ -194,6 +267,9 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a favor token update
+     */
     JsonObject updateFavorTokens() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.FAVOR_TOKENS.getString());
@@ -206,6 +282,9 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a draft pool update
+     */
     JsonObject updateDraftPool() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.DRAFT_POOL.getString());
@@ -218,6 +297,9 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a round track update
+     */
     JsonObject updateRoundTrack() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.ROUND_TRACK.getString());
@@ -234,6 +316,9 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a turn manager update
+     */
     JsonObject turnManagement() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.TURN_MANAGEMENT.getString());
@@ -247,6 +332,9 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for a final score update
+     */
     JsonObject updateFinalScores() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.FINAL_SCORES.getString());
@@ -262,6 +350,11 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return payload;
     }
 
+    /**
+     * @param method can be WR_TIMER_TICK or GAME_TIMER_TICK depending on what timer we want to update
+     * @param tick the remaining time
+     * @return JsonObject containing the information necessary for a timer update
+     */
     JsonObject updateTimerTick(Methods method, String tick) {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, method.getString());
@@ -270,6 +363,9 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for waiting players update
+     */
     JsonObject updateWaitingPlayers() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.UPDATE_WAITING_PLAYERS.getString());
@@ -280,6 +376,9 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return payload;
     }
 
+    /**
+     * @return JsonObject containing the information necessary for the game setup
+     */
     JsonObject setupGame() {
         JsonObject payload = new JsonObject();
         payload.addProperty(JsonFields.METHOD, Methods.GAME_SETUP.getString());
@@ -301,6 +400,9 @@ public abstract class ServerNetwork extends Observable implements Observer {
         return payload;
     }
 
+    /**
+     * This method is used to send a full update
+     */
     void fullUpdate() {
         updatePlayersList();
         updateToolCards();
@@ -312,6 +414,13 @@ public abstract class ServerNetwork extends Observable implements Observer {
         turnManagement();
     }
 
+    /**
+     * Observer method. Removes the waiting room controller, adds the game controller to the list of networks,
+     * and sets up the game
+     *
+     * @param o the object that has triggered the update
+     * @param arg the arguments of the update
+     */
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof SagradaServer) {
