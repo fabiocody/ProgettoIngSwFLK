@@ -7,12 +7,25 @@ import javafx.scene.image.*;
 import javafx.scene.layout.GridPane;
 
 
+/**
+ * Used to display an error message in a pop-up window
+ */
 public class ErrorAlert extends AlertWindow {
 
+    /**
+     * Creates an AlertWindow window and set the title to "Errore"
+     *
+     * @see AlertWindow#AlertWindow(String)
+     */
     public ErrorAlert() {
         super("Errore");
     }
 
+    /**
+     * Handles the actual displaying of the AlertWindow
+     *
+     * @param message the error message to be displayed
+     */
     public void present(String message) {
         present(() -> {
 

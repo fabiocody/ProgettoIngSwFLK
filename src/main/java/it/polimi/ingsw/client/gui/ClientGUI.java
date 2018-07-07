@@ -52,7 +52,7 @@ public class ClientGUI extends Application implements Observer {
     private static boolean clientSet = false;
     private static boolean debug;
     private static DropShadow shadow;
-    private static final List<AlertWindow> alertWindows = new ArrayList<>();
+    private static List<AlertWindow> alertWindows = new ArrayList<>();
     private Thread toolCardThread;
     private Stage primaryStage;
 

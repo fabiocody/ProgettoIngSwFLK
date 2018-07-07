@@ -12,7 +12,6 @@ import java.util.stream.*;
  * @author Fabio Codiglioni
  */
 public class TurnManager extends Observable {
-    // Is observed by RoundTrack
 
     private List<Player> players;
     private List<Integer> playersOrder;

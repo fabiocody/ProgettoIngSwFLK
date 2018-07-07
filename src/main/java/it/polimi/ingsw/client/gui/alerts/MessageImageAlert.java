@@ -7,12 +7,25 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextAlignment;
 
 
+/**
+ * Used to display a message and an image one under the other in a pop-up window
+ */
 public class MessageImageAlert extends AlertWindow {
 
+    /**
+     * @param title the title of the window
+     * @see AlertWindow#AlertWindow(String)
+     */
     public MessageImageAlert(String title) {
         super(title);
     }
 
+    /**
+     * Handles the actual displaying of the AlertWindow
+     *
+     * @param message the message to be displayed
+     * @param image the image to be displayed
+     */
     public void present(String message, Image image) {
         present(() -> {
 

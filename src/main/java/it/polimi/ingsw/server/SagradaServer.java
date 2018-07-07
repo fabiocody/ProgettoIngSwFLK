@@ -15,12 +15,11 @@ import java.util.concurrent.*;
 
 
 /**
- * Main game class
+ * Main Server class
  *
  * @author Team
  */
 public class SagradaServer extends Observable implements Observer {
-    // Observes WaitingRoom
 
     private static SagradaServer instance;
 
@@ -38,7 +37,7 @@ public class SagradaServer extends Observable implements Observer {
     }
 
     /**
-     * @return the only instance of the game
+     * @return the only instance of the Server
      */
     public static synchronized SagradaServer getInstance() {
         if (instance == null)
@@ -87,10 +86,12 @@ public class SagradaServer extends Observable implements Observer {
 
     /**
      * This method starts the RMI server
+     *
+     * @param host the server IP address, used to set <code>java.rmi.server.hostname</code>
      */
     private void startRMIServer(String host) {
         try {
-            if (host != null) System.setProperty("java.rmi.game.hostname", host);
+            if (host != null) System.setProperty("java.rmi.server.hostname", host);
             Registry registry = LocateRegistry.createRegistry(Constants.DEFAULT_RMI_PORT);
             welcomeRMIServer = (ServerAPI) UnicastRemoteObject.exportObject(new ServerRMIHandler(), 0);
             registry.rebind(Constants.SERVER_RMI_NAME, welcomeRMIServer);
@@ -206,6 +207,7 @@ public class SagradaServer extends Observable implements Observer {
 
     /**
      * Server main method
+     *
      * @param args arguments passed from command line
      */
     public static void main(String[] args) {
