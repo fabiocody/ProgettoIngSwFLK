@@ -7,7 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
- * This Enum is used to represent the possible colors of dice, and for color printing.
+ * This Enum is used to represent the possible colors of dice.
  *
  * @author Team
  */
@@ -19,6 +19,9 @@ public enum Colors {
     BLUE,
     PURPLE;
 
+    /**
+     * @return the Ansi.Color corresponding to the Colors instance
+     */
     public Ansi.Color getJAnsiColor() {
         if (this == PURPLE)
             return Ansi.Color.MAGENTA;
@@ -27,6 +30,9 @@ public enum Colors {
         return Ansi.Color.valueOf(toString());
     }
 
+    /**
+     * @return the JavaFX Color corresponding to the Colors instance
+     */
     public Color getJavaFXColor() {
         if (this == YELLOW)
             return Color.GOLD;

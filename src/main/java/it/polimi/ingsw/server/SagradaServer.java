@@ -206,7 +206,7 @@ public class SagradaServer extends Observable implements Observer {
 
     /**
      * Server main method
-     * @param args arguments passed from command line 
+     * @param args arguments passed from command line
      */
     public static void main(String[] args) {
         OptionParser parser = new OptionParser();
