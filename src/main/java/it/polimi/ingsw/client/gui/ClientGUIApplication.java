@@ -63,13 +63,13 @@ public class ClientGUIApplication extends Application implements Observer {
     private TextField hostTextField = new TextField();
     private TextField portTextField = new TextField();
     private TextField nicknameTextField = new TextField();
-    private Text loginErrorText = createText(16);
+    private Label loginErrorLabel = createLabel(16);
 
     /****************************
      * Graphical (Waiting Room) *
      ****************************/
     private VBox waitingPlayersBox = new VBox();
-    private Text wrTimerText = createText(40);
+    private Label wrTimerLabel = createLabel(40);
 
     /********************
      * Graphical (Game) *
@@ -78,14 +78,14 @@ public class ClientGUIApplication extends Application implements Observer {
     private ImageView privateObjectiveCard;
     private Image privateObjectiveCardFront;
     private Image privateObjectiveCardBack;
-    private Text gameTimerText = createText(30);
+    private Label gameTimerLabel = createLabel(30);
     private GridPane boardPane;
     private List<ImageView> toolCards = new ArrayList<>();
     private List<ImageView> publicObjectiveCards = new ArrayList<>();
     private List<GridPane> windowPatterns = new ArrayList<>();
     private GridPane roundTrack;
     private GridPane draftPool;
-    private Text consoleText = createText(18 );
+    private Label consoleLabel = createLabel(18 );
     private Button nextTurnButton;
     private Button cancelButton;
 
@@ -93,7 +93,7 @@ public class ClientGUIApplication extends Application implements Observer {
      * Animations *
      **************/
     private List<Animation> zoomingAnimations = new ArrayList<>();
-    private FadeTransition gameTimerTextAnimation;
+    private FadeTransition gameTimerLabelAnimation;
     private ScaleTransition privateObjectiveCardAnimation;
 
     /*************
@@ -159,13 +159,13 @@ public class ClientGUIApplication extends Application implements Observer {
     }
 
     /**
-     * This method is used to change the console text, which displays the game messages in the main board of the game
+     * This method is used to change the console label, which displays the game messages in the main board of the game
      *
      * @param text the new text that will be displayed
      */
-    private void setConsoleText(String text) {
-        consoleText.setText(text);
-        FadeTransition transition = new FadeTransition(Duration.millis(300), consoleText);
+    private void setConsoleLabel(String text) {
+        consoleLabel.setText(text);
+        FadeTransition transition = new FadeTransition(Duration.millis(300), consoleLabel);
         transition.setFromValue(1.0);
         transition.setToValue(0);
         transition.setCycleCount(4);
@@ -220,9 +220,9 @@ public class ClientGUIApplication extends Application implements Observer {
         reset();
 
         primaryStage.setTitle(WINDOW_TITLE);
-        Text hostText = createText(HOST_PROMPT);
-        Text portText = createText(PORT_PROMPT);
-        Text nicknameText = createText(NICKNAME_PROMPT);
+        Label hostLabel = createLabel(HOST_PROMPT);
+        Label portLabel = createLabel(PORT_PROMPT);
+        Label nicknameLabel = createLabel(NICKNAME_PROMPT);
         Button loginButton = new Button("Login");
         loginButton.setEffect(getShadow());
         loginButton.setOnAction(e -> loginAction());
@@ -260,18 +260,19 @@ public class ClientGUIApplication extends Application implements Observer {
         loginPane.setPadding(new Insets(25, 25, 25, 25));
         loginPane.add(logo, 0, 0, 3, 1);
         loginPane.add(connectionChoiceBox, 0, 3, 1, 3);
-        loginPane.add(hostText, 1, 3);
-        GridPane.setHalignment(hostText, HPos.RIGHT);
+        loginPane.add(hostLabel, 1, 3);
+        GridPane.setHalignment(hostLabel, HPos.RIGHT);
         loginPane.add(hostTextField, 2, 3);
-        loginPane.add(portText, 1, 4);
-        GridPane.setHalignment(portText, HPos.RIGHT);
+        loginPane.add(portLabel, 1, 4);
+        GridPane.setHalignment(portLabel, HPos.RIGHT);
         loginPane.add(portTextField, 2, 4);
-        loginPane.add(nicknameText, 1, 5);
-        GridPane.setHalignment(nicknameText, HPos.RIGHT);
+        loginPane.add(nicknameLabel, 1, 5);
+        GridPane.setHalignment(nicknameLabel, HPos.RIGHT);
         loginPane.add(nicknameTextField, 2, 5);
         loginPane.add(loginButton, 2, 6);
         GridPane.setHalignment(loginButton, HPos.RIGHT);
-        loginPane.add(loginErrorText, 0, 7, 3, 1);
+        loginErrorLabel.setPrefHeight(2 * CELL_SIZE);
+        loginPane.add(loginErrorLabel, 0, 7, 3, 1);
 
         setBackground(loginPane, PicturesPaths.LOGIN_BACKGROUND);
 
@@ -294,9 +295,9 @@ public class ClientGUIApplication extends Application implements Observer {
 
         waitingPlayersBox.setSpacing(10);
         waitingPlayersBox.setAlignment(Pos.CENTER_RIGHT);
-        wrTimerText.setWrappingWidth(CELL_SIZE * 2);
+        wrTimerLabel.setMinWidth(CELL_SIZE * 2);
         pane.add(waitingPlayersBox, 0, 0);
-        pane.add(wrTimerText, 1, 0);
+        pane.add(wrTimerLabel, 1, 0);
 
         setBackground(pane, PicturesPaths.LOGIN_BACKGROUND);
 
@@ -361,12 +362,15 @@ public class ClientGUIApplication extends Application implements Observer {
 
         createPrivateObjectiveCard();
 
-        gameTimerText.setWrappingWidth(CELL_SIZE * 2);
-        boardPane.add(gameTimerText, 6, 0);
-        GridPane.setHalignment(gameTimerText, HPos.CENTER);
+        gameTimerLabel.setMinWidth(CELL_SIZE * 2);
+        boardPane.add(gameTimerLabel, 6, 0);
+        GridPane.setHalignment(gameTimerLabel, HPos.CENTER);
 
-        consoleText.setWrappingWidth(CARD_SIZE * 3 + boardPane.getHgap() * 3);
-        boardPane.add(consoleText, 0, 5, 4, 1);
+        consoleLabel.setPrefWidth(CARD_SIZE * 3 + boardPane.getHgap() * 3);
+        consoleLabel.setPrefHeight(2 * CELL_SIZE);
+        consoleLabel.setAlignment(Pos.TOP_LEFT);
+        boardPane.add(consoleLabel, 0, 5, 4, 1);
+        GridPane.setValignment(consoleLabel, VPos.TOP);
 
         nextTurnButton = new Button("Termina il turno");
         nextTurnButton.setOnAction(e -> nextTurn());
@@ -429,16 +433,16 @@ public class ClientGUIApplication extends Application implements Observer {
                     if (client.isLogged())
                         showWaitingRoom();
                     else
-                        updateLoginErrorText(LOGIN_FAILED_USED, null);
+                        updateLoginErrorLabel(LOGIN_FAILED_USED, null);
 
                 } catch (IOException e) {
-                    updateLoginErrorText(CONNECTION_FAILED, e);
+                    updateLoginErrorLabel(CONNECTION_FAILED, e);
                 }
             } else {
-                updateLoginErrorText(INVALID_HOST, null);
+                updateLoginErrorLabel(INVALID_HOST, null);
             }
         } else {
-            updateLoginErrorText(MISSING_DATA, null);
+            updateLoginErrorLabel(MISSING_DATA, null);
         }
     }
 
@@ -453,15 +457,15 @@ public class ClientGUIApplication extends Application implements Observer {
         client.setPatternChosen(true);
         if (!client.isGameStarted()) {
             BorderPane pane = new BorderPane();
-            Text text = createText(patternSelected(index + 1), 20);
-            pane.setCenter(text);
+            Label label = createLabel(patternSelected(index + 1), 20);
+            pane.setCenter(label);
             setBackground(pane, PicturesPaths.BACKGROUND);
             Scene scene = new Scene(pane, SELECTABLE_WP_WINDOW_WIDTH, SELECTABLE_WP_WINDOW_HEIGHT);
             primaryStage.setScene(scene);
         }
     }
 
-    private void cancelAction(boolean resetConsoleText, boolean cancelToolCard) {
+    private void cancelAction(boolean resetConsoleLabel, boolean cancelToolCard) {
         if (toolCardIndex != null) {
             if (toolCardThread != null) {
                 toolCardThread.interrupt();
@@ -474,7 +478,7 @@ public class ClientGUIApplication extends Application implements Observer {
         Platform.runLater(() -> {
             cancelButton.setDisable(true);
             nextTurnButton.setDisable(false);
-            if (resetConsoleText) setConsoleText(ITS_YOUR_TURN);
+            if (resetConsoleLabel) setConsoleLabel(ITS_YOUR_TURN_GUI);
             restoreZoomedNodes();
         });
     }
@@ -589,22 +593,22 @@ public class ClientGUIApplication extends Application implements Observer {
      *
      * @param tick the remaining time for the turn
      */
-    private void animateGameTimerText(int tick) {
+    private void animateGameTimerLabel(int tick) {
         if ((tick == 20 || tick == 10) && client.isActive()) {
             if (tick == 20) {
-                gameTimerTextAnimation = new FadeTransition(Duration.millis(500), gameTimerText);
-                gameTimerTextAnimation.setCycleCount(2 * 10);
+                gameTimerLabelAnimation = new FadeTransition(Duration.millis(500), gameTimerLabel);
+                gameTimerLabelAnimation.setCycleCount(2 * 10);
             } else {
-                gameTimerText.setFill(Color.CRIMSON);
-                if (gameTimerTextAnimation != null)
-                    gameTimerTextAnimation.stop();
-                gameTimerTextAnimation = new FadeTransition(Duration.millis(250), gameTimerText);
-                gameTimerTextAnimation.setCycleCount(2 * 2 * 10);
+                gameTimerLabel.setTextFill(Color.CRIMSON);
+                if (gameTimerLabelAnimation != null)
+                    gameTimerLabelAnimation.stop();
+                gameTimerLabelAnimation = new FadeTransition(Duration.millis(250), gameTimerLabel);
+                gameTimerLabelAnimation.setCycleCount(2 * 2 * 10);
             }
-            gameTimerTextAnimation.setFromValue(1.0);
-            gameTimerTextAnimation.setToValue(0.25);
-            gameTimerTextAnimation.setAutoReverse(true);
-            gameTimerTextAnimation.play();
+            gameTimerLabelAnimation.setFromValue(1.0);
+            gameTimerLabelAnimation.setToValue(0.25);
+            gameTimerLabelAnimation.setAutoReverse(true);
+            gameTimerLabelAnimation.play();
         }
     }
 
@@ -612,15 +616,15 @@ public class ClientGUIApplication extends Application implements Observer {
      * This method is used to stop the game timer animation
      * @param wasActive
      */
-    private void restoreGameTimerTextAnimation(boolean wasActive) {
-        if (gameTimerTextAnimation != null && (!wasActive || !client.isActive())) {
-            gameTimerText.setFill(Color.WHITE);
-            gameTimerTextAnimation.stop();
-            gameTimerTextAnimation.setToValue(1);
-            gameTimerTextAnimation.setCycleCount(1);
-            gameTimerTextAnimation.setAutoReverse(false);
-            gameTimerTextAnimation.play();
-            gameTimerTextAnimation = null;
+    private void restoreGameTimerLabelAnimation(boolean wasActive) {
+        if (gameTimerLabelAnimation != null && (!wasActive || !client.isActive())) {
+            gameTimerLabel.setTextFill(Color.WHITE);
+            gameTimerLabelAnimation.stop();
+            gameTimerLabelAnimation.setToValue(1);
+            gameTimerLabelAnimation.setCycleCount(1);
+            gameTimerLabelAnimation.setAutoReverse(false);
+            gameTimerLabelAnimation.play();
+            gameTimerLabelAnimation = null;
         }
     }
 
@@ -677,23 +681,23 @@ public class ClientGUIApplication extends Application implements Observer {
 
     private boolean checkNickname(String nickname) {
         if (nickname.equals("")) {
-            loginErrorText.setText(InterfaceMessages.LOGIN_FAILED_EMPTY);
+            loginErrorLabel.setText(InterfaceMessages.LOGIN_FAILED_EMPTY);
             ClientNetwork.getInstance().deleteObserver(this);
             return false;
         } else if (nickname.contains(" ")) {
-            loginErrorText.setText(InterfaceMessages.LOGIN_FAILED_SPACES);
+            loginErrorLabel.setText(InterfaceMessages.LOGIN_FAILED_SPACES);
             ClientNetwork.getInstance().deleteObserver(this);
             return false;
         } else if (nickname.length() > Constants.MAX_NICKNAME_LENGTH) {
-            loginErrorText.setText(InterfaceMessages.LOGIN_FAILED_LENGTH);
+            loginErrorLabel.setText(InterfaceMessages.LOGIN_FAILED_LENGTH);
             ClientNetwork.getInstance().deleteObserver(this);
             return false;
         }
         return true;
     }
 
-    private void updateLoginErrorText(String message, Throwable e) {
-        loginErrorText.setText(message);
+    private void updateLoginErrorLabel(String message, Throwable e) {
+        loginErrorLabel.setText(message);
         if (ClientNetwork.getInstance() != null) {
             ClientNetwork.getInstance().deleteObserver(this);
             try {
@@ -716,11 +720,11 @@ public class ClientGUIApplication extends Application implements Observer {
     private void reset() {
         waitingPlayersBox = new VBox();
         privateObjectiveCardName = null;
-        loginErrorText = createText(16);
-        consoleText = createText(18);
+        loginErrorLabel = createLabel(16);
+        consoleLabel = createLabel(18);
         nextTurnButton = null;
-        wrTimerText = createText("∞", 40);
-        gameTimerText = createText("∞", 30);
+        wrTimerLabel = createLabel("∞", 40);
+        gameTimerLabel = createLabel("∞", 30);
         boardPane = null;
         toolCards = new Vector<>();
         publicObjectiveCards = new Vector<>();
@@ -772,20 +776,21 @@ public class ClientGUIApplication extends Application implements Observer {
         return shadow;
     }
 
-    private static Text createText(String content, Integer fontSize) {
-        Text text = new Text(content);
-        if (fontSize != null) text.setFont(new Font(fontSize));
-        text.setFill(Color.WHITE);
-        text.setEffect(getShadow());
-        return text;
+    private static Label createLabel(String content, Integer fontSize) {
+        Label label = new Label(content);
+        if (fontSize != null) label.setFont(new Font(fontSize));
+        label.setTextFill(Color.WHITE);
+        label.setWrapText(true);
+        label.setEffect(getShadow());
+        return label;
     }
 
-    private static Text createText(int fontSize) {
-        return createText("", fontSize);
+    private static Label createLabel(int fontSize) {
+        return createLabel("", fontSize);
     }
 
-    private static Text createText(String content) {
-        return createText(content, null);
+    private static Label createLabel(String content) {
+        return createLabel(content, null);
     }
 
 
@@ -807,9 +812,9 @@ public class ClientGUIApplication extends Application implements Observer {
     private void placeDie(int draftPoolIndex, int x, int y) {
         JsonObject result = ClientNetwork.getInstance().placeDie(draftPoolIndex, x, y);
         if (result.get(JsonFields.RESULT).getAsBoolean()) {
-            setConsoleText(InterfaceMessages.SUCCESSFUL_DIE_PLACEMENT);
+            setConsoleLabel(InterfaceMessages.SUCCESSFUL_DIE_PLACEMENT);
         } else {
-            setConsoleText(InterfaceMessages.UNSUCCESSFUL_DIE_PLACEMENT + result.get(JsonFields.ERROR_MESSAGE).getAsString());
+            setConsoleLabel(InterfaceMessages.UNSUCCESSFUL_DIE_PLACEMENT + result.get(JsonFields.ERROR_MESSAGE).getAsString());
         }
         this.draftPoolIndex = null;
         cancelAction(false, false);
@@ -828,7 +833,7 @@ public class ClientGUIApplication extends Application implements Observer {
         requiredData.remove(JsonFields.METHOD);
         if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS) || requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {
             Platform.runLater(() -> {
-                setConsoleText(InterfaceMessages.UNSUCCESSFUL_TOOL_CARD_USAGE + requiredData.get(JsonFields.DATA).getAsJsonObject().get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString());
+                setConsoleLabel(InterfaceMessages.UNSUCCESSFUL_TOOL_CARD_USAGE + requiredData.get(JsonFields.DATA).getAsJsonObject().get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString());
                 cancelAction(false, false);
             });
         } else {
@@ -837,13 +842,13 @@ public class ClientGUIApplication extends Application implements Observer {
             JsonObject result = ClientNetwork.getInstance().useToolCard(cardIndex, data);
             if (result.get(JsonFields.RESULT).getAsBoolean()) {
                 if (!data.has(JsonFields.CONTINUE)) {
-                    Platform.runLater(() -> setConsoleText(SUCCESSFUL_TOOL_CARD_USAGE));
+                    Platform.runLater(() -> setConsoleLabel(SUCCESSFUL_TOOL_CARD_USAGE));
                     cancelAction(false, false);
                 }
                 valid = true;
             } else {
                 String errorMessage = result.get(JsonFields.ERROR_MESSAGE).getAsString();
-                Platform.runLater(() -> setConsoleText(toolCardNotUsed(errorMessage)));
+                Platform.runLater(() -> setConsoleLabel(toolCardNotUsed(errorMessage)));
                 cancelAction(false, false);
                 valid = false;
             }
@@ -870,7 +875,7 @@ public class ClientGUIApplication extends Application implements Observer {
                     result = ClientNetwork.getInstance().useToolCard(cardIndex, data);
                     valid = result.get(JsonFields.RESULT).getAsBoolean();
                 } while(!valid);
-                Platform.runLater(() -> setConsoleText(SUCCESSFUL_TOOL_CARD_USAGE));
+                Platform.runLater(() -> setConsoleLabel(SUCCESSFUL_TOOL_CARD_USAGE));
                 cancelAction(false, false);
                 resetToolCardsEnvironment();
             }
@@ -881,13 +886,13 @@ public class ClientGUIApplication extends Application implements Observer {
         JsonObject data = requiredData.getAsJsonObject(JsonFields.DATA);
         if (!(data.has(JsonFields.STOP) && data.get(JsonFields.STOP).getAsBoolean())) {
             if (data.has(JsonFields.DRAFT_POOL_INDEX)) {
-                Platform.runLater(() -> setConsoleText("Seleziona un dado dalla riserva"));
+                Platform.runLater(() -> setConsoleLabel("Seleziona un dado dalla riserva"));
                 while (requestedDraftPoolIndex == null)
                     Thread.sleep(1);
                 data.addProperty(JsonFields.DRAFT_POOL_INDEX, requestedDraftPoolIndex);
             }
             if (data.has(JsonFields.ROUND_TRACK_INDEX)) {
-                Platform.runLater(() -> setConsoleText("Seleziona un dado dal roundTrack"));
+                Platform.runLater(() -> setConsoleLabel("Seleziona un dado dal roundTrack"));
                 while (requestedRoundTrackIndex == null)
                     Thread.sleep(1);
                 data.addProperty(JsonFields.ROUND_TRACK_INDEX, requestedRoundTrackIndex);
@@ -916,7 +921,7 @@ public class ClientGUIApplication extends Application implements Observer {
                 data.addProperty(JsonFields.NEW_VALUE, requestedNewValue);
             }
             if (data.has(JsonFields.FROM_CELL_X)) {
-                Platform.runLater(() -> setConsoleText("Seleziona la cella da cui vuoi muovere il dado"));
+                Platform.runLater(() -> setConsoleLabel("Seleziona la cella da cui vuoi muovere il dado"));
                 movement = true;
                 while (requestedFromCellX == null)
                     Thread.sleep(1);
@@ -924,7 +929,7 @@ public class ClientGUIApplication extends Application implements Observer {
                 data.addProperty(JsonFields.FROM_CELL_Y, requestedFromCellY);
             }
             if (data.has(JsonFields.TO_CELL_X)) {
-                Platform.runLater(() -> setConsoleText("Seleziona la cella in cui vuoi muovere il dado"));
+                Platform.runLater(() -> setConsoleLabel("Seleziona la cella in cui vuoi muovere il dado"));
                 while (requestedToCellX == null)
                     Thread.sleep(1);
                 data.addProperty(JsonFields.TO_CELL_X, requestedToCellX);
@@ -1078,12 +1083,12 @@ public class ClientGUIApplication extends Application implements Observer {
         for (int i = 0; i < Constants.NUMBER_OF_ROUNDS; i++) {
             roundTrack.setHgap(5);
             roundTrack.setVgap(1);
-            Text roundText = createText(String.valueOf(i+1), 20);
-            roundText.setTextAlignment(TextAlignment.CENTER);
-            roundText.setWrappingWidth(CELL_SIZE);
-            roundText.setFill(Color.WHITE);
-            roundTrack.add(roundText, i, 0);
-            GridPane.setHalignment(roundText, HPos.CENTER);
+            Label roundLabel = createLabel(String.valueOf(i+1), 20);
+            roundLabel.setTextAlignment(TextAlignment.CENTER);
+            roundLabel.setMinWidth(CELL_SIZE);
+            roundLabel.setTextFill(Color.WHITE);
+            roundTrack.add(roundLabel, i, 0);
+            GridPane.setHalignment(roundLabel, HPos.CENTER);
             JsonArray diceArray = roundTrackArray.get(i).getAsJsonArray();
             List<JsonObject> diceList = StreamSupport.stream(diceArray.spliterator(), false)
                     .map(JsonElement::getAsJsonObject)
@@ -1204,21 +1209,21 @@ public class ClientGUIApplication extends Application implements Observer {
             JsonArray playersArray = jsonArg.get(JsonFields.PLAYERS).getAsJsonArray();
             for (JsonElement element : playersArray) {
                 String nickname = element.getAsString();
-                Text text = createText(nickname, 20);
-                waitingPlayersBox.getChildren().add(text);
+                Label label = createLabel(nickname, 20);
+                waitingPlayersBox.getChildren().add(label);
             }
         }
     }
 
     private void wrTimerTickUpdateHandler(JsonObject jsonArg) {
-        wrTimerText.setText(jsonArg.get(JsonFields.TICK).getAsString());
+        wrTimerLabel.setText(jsonArg.get(JsonFields.TICK).getAsString());
     }
 
     private void gameTimerTickUpdateHandler(JsonObject jsonArg) {
         String tickString = jsonArg.get(JsonFields.TICK).getAsString();
-        gameTimerText.setText(tickString);
+        gameTimerLabel.setText(tickString);
         int tick = Integer.parseInt(tickString);
-        animateGameTimerText(tick);
+        animateGameTimerLabel(tick);
     }
 
     private void windowPatternsUpdateHandler(JsonObject jsonArg) {
@@ -1279,15 +1284,15 @@ public class ClientGUIApplication extends Application implements Observer {
             int favorTokens = card.get(JsonFields.USED).getAsBoolean() ? 2 : 1;
             String favorTokensString = new String(new char[favorTokens]).replace('\0', '•');
             favorTokensString = "Costo " + favorTokensString;
-            Text favorTokensText;
+            Label favorTokensLabel;
             try {
-                favorTokensText = (Text) getNode(boardPane, i, 2);
+                favorTokensLabel = (Label) getNode(boardPane, i, 2);
             } catch (NoSuchElementException e) {
-                favorTokensText = createText(20);
-                boardPane.add(favorTokensText, i, 2);
-                GridPane.setHalignment(favorTokensText, HPos.CENTER);
+                favorTokensLabel = createLabel(20);
+                boardPane.add(favorTokensLabel, i, 2);
+                GridPane.setHalignment(favorTokensLabel, HPos.CENTER);
             }
-            favorTokensText.setText(favorTokensString);
+            favorTokensLabel.setText(favorTokensString);
         }
     }
 
@@ -1358,11 +1363,11 @@ public class ClientGUIApplication extends Application implements Observer {
         draftPool.getChildren().forEach(node -> node.setOnMouseClicked(this::onDraftPoolClick));
         toolCards.forEach(toolCard -> toolCard.setOnMouseClicked(this::onToolCardClick));
         if (!client.isActive() && !client.isGameOver()) {
-            setConsoleText(InterfaceMessages.itsHisHerTurn(activePlayer) + ". " + WAIT_FOR_YOUR_TURN);
+            setConsoleLabel(InterfaceMessages.itsHisHerTurn(activePlayer) + "\n" + WAIT_FOR_YOUR_TURN);
             nextTurnButton.setDisable(true);
         } else if (client.isActive()) {
             if (!wasActive)
-                setConsoleText(ITS_YOUR_TURN);
+                setConsoleLabel(ITS_YOUR_TURN_GUI);
             nextTurnButton.setDisable(false);
         }
         if (client.isSuspended() && !client.isGameOver())
@@ -1371,7 +1376,7 @@ public class ClientGUIApplication extends Application implements Observer {
                 if (!client.isGameOver() && text != null && !text.isEmpty())
                     ClientNetwork.getInstance().addPlayer(client.getNickname());
             });
-        restoreGameTimerTextAnimation(wasActive);
+        restoreGameTimerLabelAnimation(wasActive);
     }
 
     private void roundTrackUpdateHandler(JsonObject jsonArg) {
@@ -1392,7 +1397,7 @@ public class ClientGUIApplication extends Application implements Observer {
             int favorTokens = jsonFavorTokens.get(nickname).getAsInt();
             String favorTokensString = new String(new char[favorTokens]).replace('\0', '•');
             favorTokensString = "Segnalini favore " + favorTokensString;
-            Text text;
+            Label label;
             int row;
             if (nickname.equals(client.getNickname())) {
                 row = 5;
@@ -1400,13 +1405,14 @@ public class ClientGUIApplication extends Application implements Observer {
                 row = 2;
             }
             try {
-                text = (Text) getNode(boardPane, GridPane.getColumnIndex(pane), row);
+                label = (Label) getNode(boardPane, GridPane.getColumnIndex(pane), row);
             } catch (NoSuchElementException e) {
-                text = createText(20);
-                boardPane.add(text, GridPane.getColumnIndex(pane), row);
+                label = createLabel(20);
+                boardPane.add(label, GridPane.getColumnIndex(pane), row);
             }
-            GridPane.setHalignment(text, HPos.CENTER);
-            text.setText(favorTokensString);
+            GridPane.setHalignment(label, HPos.CENTER);
+            GridPane.setValignment(label, VPos.TOP);
+            label.setText(favorTokensString);
         }
     }
 
