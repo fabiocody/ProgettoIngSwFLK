@@ -91,3 +91,7 @@ Additional parameters include:
 - `--connection CONNECTION`: the type of connection, it can only be `socket` or `rmi` (default to `socket`). Be aware that some network configurations (e.g. firewalls, NAT, ...) can cause connection problems, especially if you choose to use RMI.
 - `--interface INTERFACE`: the type of interface, it can only be `cli` or `gui` (default to `gui`).
 - `--debug`: activate debug mode (use it only if you really really need it).
+
+### An overview of the interface
+
+![GUI](https://i.imgur.com/PMoFSBx.jpg)
