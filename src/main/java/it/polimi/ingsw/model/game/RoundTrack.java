@@ -16,8 +16,6 @@ import static org.fusesource.jansi.Ansi.ansi;
  * @author Fabio Codiglioni
  */
 public class RoundTrack extends Observable implements Observer {
-    // Observes TurnManager
-    // Is observed by Game
 
     // Attributes
     private List<List<Die>> dice;
@@ -38,6 +36,9 @@ public class RoundTrack extends Observable implements Observer {
         }
     }
 
+    /**
+     * @return list of lists of the dice on the round track, divided by rounds
+     */
     public List<List<Die>> getDice(){
         return dice;
     }
@@ -69,6 +70,9 @@ public class RoundTrack extends Observable implements Observer {
         return currentRound;
     }
 
+    /**
+     * @return the index of the round track where the left over dice at the end of the round will be placed
+     */
     public int getCurrentRoundDiceIndex() {
         return currentRound - 2;
     }
@@ -108,6 +112,31 @@ public class RoundTrack extends Observable implements Observer {
     public void putDice(List<Die> draftPool) {
         this.dice.get(this.getCurrentRoundDiceIndex()).addAll(draftPool);
         draftPool.clear();
+    }
+
+    /**
+     * This method swaps the provided die with the die at <code>roundTrackIndex</code>.
+     *
+     * @param d the die to be swapped (should come from the Draft Pool)
+     * @param roundTrackIndex the flattened index of the die to be swapped
+     * @return the die previously at <code>roundTrackIndex</code>
+     */
+    public Die swapDice(Die d, int roundTrackIndex) {
+        int index = 0;
+        int round = 0;
+        int i = 0;
+        for (; round < NUMBER_OF_ROUNDS && index < roundTrackIndex; round++) {
+            List<Die> roundDice = dice.get(round);
+            for (i = 0; i < roundDice.size() && index < roundTrackIndex; i++, index++);
+        }
+        round -= 1;
+        if (index == roundTrackIndex) {
+            Die roundTrackDie = dice.get(round).remove(i);
+            dice.get(round).add(i, d);
+            return roundTrackDie;
+        } else {
+            throw new NoSuchElementException("No dice on RoundTrack at roundTrackIndex " + roundTrackIndex);
+        }
     }
 
     public String toString() {

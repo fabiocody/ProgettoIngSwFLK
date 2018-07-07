@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.model.game.Player;
-import it.polimi.ingsw.model.patterncards.Cell;
 import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
 import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.InterfaceMessages;
@@ -74,18 +73,29 @@ public class ToolCard8 extends ToolCard {
         return payload;
     }
 
+    /**
+     * @param player the player who used the tool card
+     * @param draftPoolIndex index of the die in the draftpool
+     * @param cellIndex the index of the cell where the die will be placed
+     * @throws InvalidEffectResultException
+     */
     private void placeDie(Player player, int draftPoolIndex, int cellIndex) throws InvalidEffectResultException {
         Die die = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
         try {
             player.getWindowPattern().placeDie(die, cellIndex);
             this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
         } catch (InvalidPlacementException e) {
-            Cell cell = player.getWindowPattern().getCell(cellIndex);
-            //"Invalid placement on cell at index " + cellIndex + " (" + cell + ") of die " + die
             throw new InvalidEffectResultException(InterfaceMessages.DIE_INVALID_POSITION);
         }
     }
 
+    /**
+     * This method is used to cancel the usage of a tool card by a player,
+     * if empty the tool card doesn't need a cancel method
+     *
+     * @author Team
+     * @param player the player
+     */
     @Override
     public void cancel(Player player){
         // Nothing to cancel

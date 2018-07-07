@@ -74,6 +74,13 @@ public class ToolCard1 extends ToolCard {
         return payload;
     }
 
+    /**
+     * This method is used to cancel the usage of a tool card by a player,
+     * if empty the tool card doesn't need a cancel method
+     *
+     * @author Team
+     * @param player the player
+     */
     @Override
     public void cancel(Player player){
         // Nothing to cancel

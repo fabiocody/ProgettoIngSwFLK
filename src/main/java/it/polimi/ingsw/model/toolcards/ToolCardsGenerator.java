@@ -2,7 +2,6 @@ package it.polimi.ingsw.model.toolcards;
 
 import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.shared.util.Constants;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;

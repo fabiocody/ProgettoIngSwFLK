@@ -187,8 +187,16 @@ public class Player extends Observable {
         this.diePlacedInThisTurn = value;
     }
 
+    /**
+     * @author Kai de Gast
+     * @return true if the Player has already used a too card in the current turn.
+     */
     public boolean isToolCardUsedThisTurn() {return toolCardUsedThisTurn; }
 
+    /**
+     * @author Kai de Gast
+     * @param value whether or not the Player has used a tool card in the current turn.
+     */
     public void setToolCardUsedThisTurn(boolean value) { this.toolCardUsedThisTurn= value; }
 
     /**

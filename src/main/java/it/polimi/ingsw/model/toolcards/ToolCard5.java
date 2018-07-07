@@ -51,9 +51,8 @@ public class ToolCard5 extends ToolCard {
             throw new InvalidEffectArgumentException("Invalid roundTrackIndex: " + roundTrackIndex);
         try {
             Die fromDraftPool = this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
-            Die fromRoundTrack = this.getGame().getRoundTrack().getDice().get(this.getGame().getRoundTrack().getCurrentRoundDiceIndex()).remove(roundTrackIndex);
+            Die fromRoundTrack = this.getGame().getRoundTrack().swapDice(fromDraftPool, roundTrackIndex);
             this.getGame().getDiceGenerator().getDraftPool().add(draftPoolIndex, fromRoundTrack);
-            this.getGame().getRoundTrack().getDice().get(this.getGame().getRoundTrack().getCurrentRoundDiceIndex()).add(roundTrackIndex, fromDraftPool);
         } catch (Exception e) {
             throw new InvalidEffectResultException(INVALID_MOVE);
         }
@@ -76,6 +75,13 @@ public class ToolCard5 extends ToolCard {
         return payload;
     }
 
+    /**
+     * This method is used to cancel the usage of a tool card by a player,
+     * if empty the tool card doesn't need a cancel method
+     *
+     * @author Team
+     * @param player the player
+     */
     @Override
     public void cancel(Player player){
         // Nothing to cancel

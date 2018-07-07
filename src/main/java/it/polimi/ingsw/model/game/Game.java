@@ -16,8 +16,6 @@ import java.util.stream.Collectors;
  * @author Fabio Codiglioni
  */
 public class Game extends Observable implements Observer {
-    // Observes RoundTrack and Player(s)
-    // Is observed by GameController
 
     // Game
     private List<Player> players;
@@ -95,11 +93,17 @@ public class Game extends Observable implements Observer {
         return this.players.size();
     }
 
+    /**
+     * @return true if all the players have either chosen their window pattern or are suspended
+     */
     public boolean arePlayersReady() {
         return this.players.stream()
                 .allMatch(p -> p.isWindowPatternChosen() || p.isSuspended());
     }
 
+    /**
+     * @return list of the suspended players
+     */
     public List<String> getSuspendedPlayers() {
         return this.players.stream()
                 .filter(Player::isSuspended)
@@ -269,6 +273,10 @@ public class Game extends Observable implements Observer {
         return scores;
     }
 
+    /**
+     * @param scores list of the scores of the players
+     * @param nicknames list of the nicknames in the last round order
+     */
     static void breakTies(List<Scores> scores, List<String> nicknames) {
         scores.sort(Comparator.comparingInt(Scores::getFinalScore)
                 .thenComparingInt(Scores::getPrivateObjectiveCardScore)
