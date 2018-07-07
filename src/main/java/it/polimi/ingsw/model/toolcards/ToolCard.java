@@ -127,6 +127,13 @@ public abstract class ToolCard {
      */
     public abstract JsonObject requiredData();
 
+    /**
+     * This method is used to cancel the usage of a tool card by a player,
+     * if empty the tool card doesn't need a cancel method
+     *
+     * @author Team
+     * @param player the player
+     */
     public abstract void cancel(Player player);
 
     /**

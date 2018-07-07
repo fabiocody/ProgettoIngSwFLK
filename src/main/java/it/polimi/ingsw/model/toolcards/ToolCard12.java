@@ -60,7 +60,8 @@ public class ToolCard12 extends ToolCard {
     }
 
     /**
-     * this method is used to send a JsonObject containing the fields that the user will have to fill to use this tool card
+     * this method is used to send a JsonObject containing the fields that the user will have to fill
+     * in order to use this tool card
      *
      * @author Kai de Gast
      * @return JsonObject containing the required fields filled with momentary constants
@@ -146,6 +147,13 @@ public class ToolCard12 extends ToolCard {
         this.firstMoveColor = null;
     }
 
+    /**
+     * This method is used to cancel the usage of a tool card by a player,
+     * if empty the tool card doesn't need a cancel method
+     *
+     * @author Team
+     * @param player the player
+     */
     @Override
     public void cancel(Player player){
         if(this.firstMoveIndex != null && this.firstMoveColor!= null) {

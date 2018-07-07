@@ -38,6 +38,9 @@ public class RoundTrack extends Observable implements Observer {
         }
     }
 
+    /**
+     * @return list of lists of the dice on the round track, divided by rounds
+     */
     public List<List<Die>> getDice(){
         return dice;
     }
@@ -69,6 +72,9 @@ public class RoundTrack extends Observable implements Observer {
         return currentRound;
     }
 
+    /**
+     * @return the index of the round track where the left over dice at the end of the round will be placed
+     */
     public int getCurrentRoundDiceIndex() {
         return currentRound - 2;
     }
@@ -110,6 +116,9 @@ public class RoundTrack extends Observable implements Observer {
         draftPool.clear();
     }
 
+    /**
+     * @return string representation
+     */
     public String toString() {
         StringBuilder roundTrackCli = new StringBuilder();
         Optional<Integer> maxDiceInRound = getDice().stream()

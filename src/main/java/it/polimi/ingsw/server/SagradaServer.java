@@ -31,7 +31,7 @@ public class SagradaServer extends Observable implements Observer {
     private ServerAPI welcomeRMIServer;
 
     /**
-     * this method is the constructor that sets the port and adds an observer to the waiting room
+     * This method is the constructor that sets the port and adds an observer to the waiting room
      */
     private SagradaServer() {
         WaitingRoom.getInstance().addObserver(this);
@@ -46,17 +46,26 @@ public class SagradaServer extends Observable implements Observer {
         return instance;
     }
 
+    /**
+     * This method starts the server
+     *
+     * @param host host name
+     * @param port network port
+     * @param wrTimeout waiting room timer
+     * @param gameTimeout game timer
+     * @param debug whether or not the debug mode is active
+     */
     private void start(String host, int port, int wrTimeout, int gameTimeout, boolean debug) {
         this.port = port;
         this.gameTimeout = gameTimeout;
         Logger.setDebug(debug);
         WaitingRoom.getInstance().setTimeout(wrTimeout);
         new Thread(this::startSocketServer).start();
-        this.startRMI(host);
+        this.startRMIServer(host);
     }
 
     /**
-     *
+     * This method starts the socket server
      */
     private void startSocketServer() {
         boolean run = true;
@@ -76,7 +85,10 @@ public class SagradaServer extends Observable implements Observer {
         }
     }
 
-    private void startRMI(String host) {
+    /**
+     * This method starts the RMI server
+     */
+    private void startRMIServer(String host) {
         try {
             if (host != null) System.setProperty("java.rmi.game.hostname", host);
             Registry registry = LocateRegistry.createRegistry(Constants.DEFAULT_RMI_PORT);
@@ -98,6 +110,10 @@ public class SagradaServer extends Observable implements Observer {
         return this.gameControllers;
     }
 
+    /**
+     * @param game the game
+     * @return an active game controller on the specified game
+     */
     GameController getGameController(Game game) {
         Optional<GameController> controller = getGameControllers().stream()
                 .filter(gc -> gc.getGame() == game)
@@ -108,7 +124,7 @@ public class SagradaServer extends Observable implements Observer {
     }
 
     /**
-     * this method checks if a nickname is already used in an active game
+     * This method checks if a nickname is already used server wide
      *
      * @param nickname the nickname that we want to check
      * @return a boolean true if the nickname is already in use or false otherwise
@@ -117,12 +133,24 @@ public class SagradaServer extends Observable implements Observer {
         return isNicknameUsedWR(nickname) || (isNicknameUsedGame(nickname) != null && !isNicknameSuspended(nickname));
     }
 
+    /**
+     * This method checks if a nickname is already used in the waiting room
+     *
+     * @param nickname the nickname that we want to check
+     * @return a boolean true if the nickname is already in use or false otherwise
+     */
     private synchronized boolean isNicknameUsedWR(String nickname) {
         return WaitingRoom.getInstance().getWaitingPlayers().stream()
                 .map(Player::getNickname)
                 .anyMatch(n -> n.equals(nickname));
     }
 
+    /**
+     * This method checks if a nickname is used in an active game
+     *
+     * @param nickname the nickname that we want to check
+     * @return the game to which the nickname belongs
+     */
     public synchronized Game isNicknameUsedGame(String nickname) {
         Optional<Game> game = this.getGameControllers().stream()
                 .map(GameController::getGame)
@@ -131,6 +159,12 @@ public class SagradaServer extends Observable implements Observer {
         return game.orElse(null);
     }
 
+    /**
+     * This method checks if a nickname is of a suspended player in all the active games
+     *
+     * @param nickname the nickname that we want to check
+     * @return a boolean true if the nickname is already in use or false otherwise
+     */
     private synchronized boolean isNicknameSuspended(String nickname) {
         return this.getGameControllers().stream()
                 .flatMap(controller -> controller.getGame().getPlayers().stream())
@@ -138,6 +172,12 @@ public class SagradaServer extends Observable implements Observer {
                 .anyMatch(Player::isSuspended);
     }
 
+    /**
+     * This method checks if a nickname is valid
+     *
+     * @param nickname the nickname that we want to check
+     * @return a boolean true if the nickname is valid or false otherwise
+     */
     public synchronized boolean isNicknameNotValid(String nickname) {
         return nickname.contains(" ") || nickname.equals("") || nickname.length() > Constants.MAX_NICKNAME_LENGTH;
     }
@@ -164,6 +204,10 @@ public class SagradaServer extends Observable implements Observer {
         }
     }
 
+    /**
+     * Server main method
+     * @param args arguments passed from command line 
+     */
     public static void main(String[] args) {
         OptionParser parser = new OptionParser();
         parser.accepts(CLIArguments.DEBUG);

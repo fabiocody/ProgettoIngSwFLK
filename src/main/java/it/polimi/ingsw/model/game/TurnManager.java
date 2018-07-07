@@ -58,10 +58,16 @@ public class TurnManager extends Observable {
         return this.players.get(this.getCurrentPlayerIndex());
     }
 
+    /**
+     * @return the active player
+     */
     public String getActivePlayer() {
         return getCurrentPlayer().getNickname();
     }
 
+    /**
+     * @param observer to be added to the list of observers on the timer
+     */
     public void subscribeToTimer(Observer observer) {
         this.timer.addObserver(observer);
         this.timer.schedule(() -> {
@@ -88,6 +94,9 @@ public class TurnManager extends Observable {
         }
     }
 
+    /**
+     * This method cancels the timer
+     */
     void cancelTimer() {
         if (timer != null) timer.cancel();
     }
@@ -99,6 +108,9 @@ public class TurnManager extends Observable {
         return this.index >= this.playersOrder.size() / 2;
     }
 
+    /**
+     * @return the number of not suspended players
+     */
     public int countNotSuspendedPlayers() {
         return (int) players.stream()
                 .filter(player -> !player.isSuspended())
