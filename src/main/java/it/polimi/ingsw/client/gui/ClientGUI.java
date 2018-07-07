@@ -1087,6 +1087,7 @@ public class ClientGUI extends Application implements Observer {
             roundLabel.setTextAlignment(TextAlignment.CENTER);
             roundLabel.setMinWidth(CELL_SIZE);
             roundLabel.setTextFill(Color.WHITE);
+            roundLabel.setAlignment(Pos.CENTER);
             roundTrack.add(roundLabel, i, 0);
             GridPane.setHalignment(roundLabel, HPos.CENTER);
             JsonArray diceArray = roundTrackArray.get(i).getAsJsonArray();
