@@ -1139,7 +1139,7 @@ public class ClientGUI extends Application implements Observer {
                         Platform.runLater(() -> addPlayerUpdateHandler(jsonArg));
                         break;
                     case UPDATE_WAITING_PLAYERS:
-                        Platform.runLater(() -> updateWaitingPlayersUpdateHandler(jsonArg));
+                        Platform.runLater(() -> waitingPlayersUpdateHandler(jsonArg));
                         break;
                     case WR_TIMER_TICK:
                         Platform.runLater(() -> wrTimerTickUpdateHandler(jsonArg));
@@ -1206,7 +1206,7 @@ public class ClientGUI extends Application implements Observer {
         }
     }
 
-    private void updateWaitingPlayersUpdateHandler(JsonObject jsonArg) {
+    private void waitingPlayersUpdateHandler(JsonObject jsonArg) {
         if (!client.isPatternChosen()) {
             waitingPlayersBox.getChildren().clear();
             JsonArray playersArray = jsonArg.get(JsonFields.PLAYERS).getAsJsonArray();

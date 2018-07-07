@@ -24,11 +24,11 @@ public class ClientCLI extends Client implements Observer {
     private boolean stopAsyncInput = false;
     private boolean bypassWaitingRoom = false;
 
-    private String wrTimeout;
+    private String wrTimer;
     private String wrPlayers;
-    private String gameTimeout = "00";
+    private String gameTimer = "00";
     private int draftPoolLength;
-    private long roundTrackLength = 0;
+    private int roundTrackLength = 0;
 
     private String input = "";
     private String privateObjectiveCard;
@@ -154,6 +154,29 @@ public class ClientCLI extends Client implements Observer {
         input = asyncInput(TIMER_PROMPT);
     }
 
+    /**
+     * this method handles log in of a player
+     *
+     * @throws IOException socket error
+     */
+    private void addPlayer() throws IOException {
+        String nickname = this.input("Nickname >>>");
+        if (nickname.equals("")) {
+            Logger.println(InterfaceMessages.LOGIN_FAILED_EMPTY);
+        } else if (nickname.contains(" ")) {
+            Logger.println(InterfaceMessages.LOGIN_FAILED_SPACES);
+        } else if (nickname.length() > Constants.MAX_NICKNAME_LENGTH) {
+            Logger.println(InterfaceMessages.LOGIN_FAILED_LENGTH);
+        } else {
+            this.setNickname(nickname);
+            setUUID(ClientNetwork.getInstance().addPlayer(this.getNickname()));
+            setLogged(this.getUUID() != null);
+            if (!isLogged()) {
+                Logger.println(InterfaceMessages.LOGIN_FAILED_USED);
+            }
+        }
+    }
+
     private void placeDieMove() throws IOException, CancelException {
         int draftPoolIndex;
         int x;
@@ -271,7 +294,7 @@ public class ClientCLI extends Client implements Observer {
         int escape = 0;
         String bufferString = "";
         try {
-            setTerminalToCBreak();
+            setTerminalToRawMode();
             synchronized (stdinBufferLock) {
                 if (stdinBuffer == null) stdinBuffer = new StringBuilder();
             }
@@ -328,6 +351,50 @@ public class ClientCLI extends Client implements Observer {
         return bufferString;
     }
 
+    /**
+     * This method is used to put the terminal in raw mode, in order to simultaneously read from stdin and write to stdout.
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    private void setTerminalToRawMode() throws IOException, InterruptedException {
+        ttyConfig = stty("-g");
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                stty(ttyConfig.trim());
+            } catch (IOException | InterruptedException e) {
+                Logger.printStackTrace(e);
+            }
+        }));
+        stty("-icanon min 1");      // set the console to be character-buffered instead of line-buffered
+        stty("-echo");              // disable character echoing
+    }
+
+    /**
+     *  This method execute the stty command with the specified arguments
+     *  against the current active terminal.
+     */
+    private static String stty(String args) throws IOException, InterruptedException {
+        String cmd = "stty " + args + " < /dev/tty";
+        return exec(new String[] {"sh", "-c", cmd});
+    }
+
+    /**
+     *  Execute the specified command and return the output
+     *  (both stdout and stderr).
+     */
+    private static String exec(String[] cmd) throws IOException, InterruptedException {
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        Process p = Runtime.getRuntime().exec(cmd);
+        int c;
+        InputStream in = p.getInputStream();
+        while ((c = in.read()) != -1) bout.write(c);
+        in = p.getErrorStream();
+        while ((c = in.read()) != -1) bout.write(c);
+        p.waitFor();
+        return new String(bout.toByteArray());
+    }
+
     private int getInputIndex(String cliMessage, int lowerBound, int higherBound, boolean scale) throws CancelException, IOException {
         int index = Constants.INDEX_CONSTANT;
         int cancelValue = 0;
@@ -380,73 +447,6 @@ public class ClientCLI extends Client implements Observer {
         return index == 1;
     }
 
-    /**
-     * This method is used to put the terminal in raw mode, in order to simultaneously read from stdin and write to stdout.
-     *
-     * @throws IOException
-     * @throws InterruptedException
-     */
-    private void setTerminalToCBreak() throws IOException, InterruptedException {
-        ttyConfig = stty("-g");
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                stty(ttyConfig.trim());
-            } catch (IOException | InterruptedException e) {
-                Logger.printStackTrace(e);
-            }
-        }));
-        stty("-icanon min 1");      // set the console to be character-buffered instead of line-buffered
-        stty("-echo");              // disable character echoing
-    }
-
-    /**
-     *  This method execute the stty command with the specified arguments
-     *  against the current active terminal.
-     */
-    private static String stty(final String args) throws IOException, InterruptedException {
-        String cmd = "stty " + args + " < /dev/tty";
-        return exec(new String[] {"sh", "-c", cmd});
-    }
-
-    /**
-     *  Execute the specified command and return the output
-     *  (both stdout and stderr).
-     */
-    private static String exec(final String[] cmd) throws IOException, InterruptedException {
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        Process p = Runtime.getRuntime().exec(cmd);
-        int c;
-        InputStream in = p.getInputStream();
-        while ((c = in.read()) != -1) bout.write(c);
-        in = p.getErrorStream();
-        while ((c = in.read()) != -1) bout.write(c);
-        p.waitFor();
-        return new String(bout.toByteArray());
-    }
-
-    /**
-     * this method handles log in of a player
-     *
-     * @throws IOException socket error
-     */
-    private void addPlayer() throws IOException {
-        String nickname = this.input("Nickname >>>");
-        if (nickname.equals("")) {
-            Logger.println(InterfaceMessages.LOGIN_FAILED_EMPTY);
-        } else if (nickname.contains(" ")) {
-            Logger.println(InterfaceMessages.LOGIN_FAILED_SPACES);
-        } else if (nickname.length() > Constants.MAX_NICKNAME_LENGTH) {
-            Logger.println(InterfaceMessages.LOGIN_FAILED_LENGTH);
-        } else {
-            this.setNickname(nickname);
-            setUUID(ClientNetwork.getInstance().addPlayer(this.getNickname()));
-            setLogged(this.getUUID() != null);
-            if (!isLogged()) {
-                Logger.println(InterfaceMessages.LOGIN_FAILED_USED);
-            }
-        }
-    }
-
     private static String concatWindowPatterns(String[] pattern1, String[] pattern2) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < pattern1.length; i++) {
@@ -475,7 +475,7 @@ public class ClientCLI extends Client implements Observer {
                     .a(this.wrPlayers)
                     .a("\n")
                     .a("Tempo rimasto: ")
-                    .a(this.wrTimeout != null ? this.wrTimeout : "∞")
+                    .a(this.wrTimer != null ? this.wrTimer : "∞")
                     .a("\n")
                     .a(">>> ")
                     .a(stdinBuffer.toString()).toString();
@@ -484,7 +484,7 @@ public class ClientCLI extends Client implements Observer {
 
     private String timerPrompt() {
         synchronized (stdinBufferLock) {
-            String prompt = String.format("[%s] >>> %s", gameTimeout, stdinBuffer.toString());
+            String prompt = String.format("[%s] >>> %s", gameTimer, stdinBuffer.toString());
             return updateLine(prompt);
         }
     }
@@ -516,10 +516,10 @@ public class ClientCLI extends Client implements Observer {
                         addPlayerUpdateHandler(jsonArg);
                         break;
                     case UPDATE_WAITING_PLAYERS:
-                        updateWaitingPlayersUpdateHandler(jsonArg);
+                        waitingPlayersUpdateHandler(jsonArg);
                         break;
                     case WR_TIMER_TICK:
-                        this.wrTimeout = jsonArg.get(JsonFields.TICK).getAsString();
+                        this.wrTimer = jsonArg.get(JsonFields.TICK).getAsString();
                         if (isLogged()) Logger.print(waitingRoomPrompt());
                         break;
                     case GAME_TIMER_TICK:
@@ -546,7 +546,7 @@ public class ClientCLI extends Client implements Observer {
                         break;
                     case ROUND_TRACK:
                         String roundTrack = jsonArg.get(JsonFields.CLI_STRING).getAsString();
-                        roundTrackLength = roundTrack.chars().filter(ch -> ch == ']').count();
+                        roundTrackLength = (int) roundTrack.chars().filter(ch -> ch == ']').count();
                         Logger.println("Tracciato del Round\n" + roundTrack + "\n");
                         break;
                     case PLAYERS:
@@ -581,7 +581,7 @@ public class ClientCLI extends Client implements Observer {
         }
     }
 
-    private void updateWaitingPlayersUpdateHandler(JsonObject jsonArg) {
+    private void waitingPlayersUpdateHandler(JsonObject jsonArg) {
         if (!this.isPatternChosen()) {
             JsonArray playersArray = jsonArg.get(JsonFields.PLAYERS).getAsJsonArray();
             this.wrPlayers = StreamSupport.stream(playersArray.spliterator(), false)
@@ -593,11 +593,11 @@ public class ClientCLI extends Client implements Observer {
     }
 
     private void gameTimerTickUpdateHandler(JsonObject jsonArg) {
-        this.gameTimeout = jsonArg.get(JsonFields.TICK).getAsString();
+        this.gameTimer = jsonArg.get(JsonFields.TICK).getAsString();
         if (isActive())
             Logger.print(timerPrompt());
         else {
-            String timerString = InterfaceMessages.itsHisHerTurn(getActiveNickname()) + " [" + gameTimeout + "]";
+            String timerString = InterfaceMessages.itsHisHerTurn(getActiveNickname()) + " [" + gameTimer + "]";
             if (isSuspended()) {
                 Logger.print(ansi()
                         .eraseLine(Erase.ALL)
