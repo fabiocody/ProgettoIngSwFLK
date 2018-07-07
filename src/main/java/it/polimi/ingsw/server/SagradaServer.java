@@ -173,7 +173,7 @@ public class SagradaServer extends Observable implements Observer {
         parser.accepts(CLIArguments.PORT).withRequiredArg().ofType(Integer.class);
         try {
             OptionSet options = parser.parse(args);
-            String host = options.has(CLIArguments.HOST) ? options.valueOf(CLIArguments.HOST).toString() : null;
+            String host = options.has(CLIArguments.HOST) ? options.valueOf(CLIArguments.HOST).toString().trim() : null;
             boolean debug = options.has(CLIArguments.DEBUG);
             int wrTimeout = (Integer) options.valueOf(CLIArguments.WR_TIMEOUT);
             int gameTimeout = (Integer) options.valueOf(CLIArguments.GAME_TIMEOUT);

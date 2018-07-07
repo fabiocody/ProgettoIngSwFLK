@@ -161,8 +161,7 @@ public class Client {
             String iface = (String) options.valueOf(CLIArguments.INTERFACE);
             switch (iface) {
                 case CLIArguments.CLI:
-                    String host = null;
-                    host = (String) options.valueOf(CLIArguments.HOST);
+                    String host = options.valueOf(CLIArguments.HOST).toString().trim();
                     if (!isHostValid(host)) {
                         Logger.println("Invalid Host");
                         exitError();
