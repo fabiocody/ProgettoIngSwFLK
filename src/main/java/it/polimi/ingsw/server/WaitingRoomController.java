@@ -50,7 +50,7 @@ public class WaitingRoomController extends BaseController {
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof WaitingRoom) {
-            if (arg instanceof List /*&& getUuid() != null*/) {
+            if (arg instanceof List /*&& getUUID() != null*/) {
                 Logger.debug("Updating waiting players");
                 forEachNetwork(ServerNetwork::updateWaitingPlayers);
             }

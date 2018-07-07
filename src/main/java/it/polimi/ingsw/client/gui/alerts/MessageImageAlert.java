@@ -13,11 +13,11 @@ public class MessageImageAlert extends AlertWindow {
         super(title);
     }
 
-    public void present(String message, Image image, TextAlignment textAlignment) {
+    public void present(String message, Image image) {
         present(() -> {
 
             Label label = getMessageLabel(message);
-            label.setTextAlignment(textAlignment);
+            label.setTextAlignment(TextAlignment.CENTER);
             ImageView imageView = new ImageView(image);
             imageView.setFitWidth(100);
             imageView.setPreserveRatio(true);
@@ -27,16 +27,12 @@ public class MessageImageAlert extends AlertWindow {
             getGridPane().add(imageView, 0, 0);
             GridPane.setHalignment(imageView, HPos.CENTER);
             getGridPane().add(label, 0, 1);
-            label.setAlignment(Pos.valueOf(textAlignment.toString()));
+            label.setAlignment(Pos.CENTER);
             GridPane.setHalignment(label, HPos.CENTER);
             getGridPane().add(button, 0, 2);
             GridPane.setHalignment(button, HPos.CENTER);
 
         });
-    }
-
-    public void present(String message, Image image) {
-        present(message, image, TextAlignment.LEFT);
     }
 
 }

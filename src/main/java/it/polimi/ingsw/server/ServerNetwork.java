@@ -27,11 +27,11 @@ public abstract class ServerNetwork extends Observable implements Observer {
         this.nickname = nickname;
     }
 
-    UUID getUuid() {
+    UUID getUUID() {
         return uuid;
     }
 
-    void setUuid(UUID uuid) {
+    void setUUID(UUID uuid) {
         this.uuid = uuid;
     }
 

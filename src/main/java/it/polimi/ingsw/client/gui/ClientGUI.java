@@ -26,7 +26,7 @@ import java.util.stream.*;
 import static it.polimi.ingsw.shared.util.InterfaceMessages.*;
 
 
-public class ClientGUIApplication extends Application implements Observer {
+public class ClientGUI extends Application implements Observer {
 
     /*************
      * Constants *
@@ -424,7 +424,7 @@ public class ClientGUIApplication extends Application implements Observer {
         if (!nicknameTextField.getText().isEmpty()) {
             String host = hostTextField.getText();
             if (host.isEmpty()) host = Constants.DEFAULT_HOST;
-            if (Client.isValidHost(host)) {
+            if (Client.isHostValid(host)) {
                 try {
                     setupConnection(host);
                     String nickname = nicknameTextField.getText();
@@ -1358,12 +1358,11 @@ public class ClientGUIApplication extends Application implements Observer {
             transition.play();
         }
         boolean wasActive = client.isActive();
-        String activePlayer = jsonArg.get(JsonFields.ACTIVE_PLAYER).getAsString();
-        client.setActive(activePlayer);
+        client.setActive(jsonArg.get(JsonFields.ACTIVE_PLAYER).getAsString());
         draftPool.getChildren().forEach(node -> node.setOnMouseClicked(this::onDraftPoolClick));
         toolCards.forEach(toolCard -> toolCard.setOnMouseClicked(this::onToolCardClick));
         if (!client.isActive() && !client.isGameOver()) {
-            setConsoleLabel(InterfaceMessages.itsHisHerTurn(activePlayer) + "\n" + WAIT_FOR_YOUR_TURN);
+            setConsoleLabel(InterfaceMessages.itsHisHerTurn(client.getActiveNickname()) + "\n"+ WAIT_FOR_YOUR_TURN);
             nextTurnButton.setDisable(true);
         } else if (client.isActive()) {
             if (!wasActive)
@@ -1439,9 +1438,9 @@ public class ClientGUIApplication extends Application implements Observer {
             String title = "Risultati finali";
             clearAlertWindows();
             if (isWinner)
-                new MessageImageAlert(title).present(scoresSB.toString(), new Image(PicturesPaths.CUP), TextAlignment.CENTER);
+                new MessageImageAlert(title).present(scoresSB.toString(), new Image(PicturesPaths.CUP));
             else
-                new MessageAlert(title).present(scoresSB.toString(), TextAlignment.CENTER);
+                new MessageAlert(title).present(scoresSB.toString());
             ClientNetwork.getInstance().deleteObserver(this);
             try {
                 ClientNetwork.getInstance().teardown();
