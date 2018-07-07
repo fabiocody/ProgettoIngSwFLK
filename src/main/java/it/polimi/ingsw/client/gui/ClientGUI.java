@@ -28,9 +28,9 @@ import static it.polimi.ingsw.shared.util.InterfaceMessages.*;
 
 public class ClientGUI extends Application implements Observer {
 
-    /*************
-     * Constants *
-     *************/
+    /*
+     * Constants
+     */
     private static final int LOGIN_WINDOW_WIDTH = 700;
     private static final int LOGIN_WINDOW_HEIGHT = 500;
     private static final int SELECTABLE_WP_WINDOW_WIDTH = 1000;
@@ -45,9 +45,9 @@ public class ClientGUI extends Application implements Observer {
     private static final int CARD_SIZE = 225;
     private static final Color VALUE_CELL_COLOR = Color.SILVER;
 
-    /**************
-     * Attributes *
-     **************/
+    /*
+     * Attributes
+     */
     private static Client client;
     private static boolean clientSet = false;
     private static boolean debug;
@@ -56,24 +56,24 @@ public class ClientGUI extends Application implements Observer {
     private Thread toolCardThread;
     private Stage primaryStage;
 
-    /*********************
-     * Graphical (Login) *
-     *********************/
+    /*
+     * Graphical (Login)
+     */
     private ChoiceBox<String> connectionChoiceBox;
     private TextField hostTextField = new TextField();
     private TextField portTextField = new TextField();
     private TextField nicknameTextField = new TextField();
     private Label loginErrorLabel = createLabel(16);
 
-    /****************************
-     * Graphical (Waiting Room) *
-     ****************************/
+    /*
+     * Graphical (Waiting Room)
+     */
     private VBox waitingPlayersBox = new VBox();
     private Label wrTimerLabel = createLabel(40);
 
-    /********************
-     * Graphical (Game) *
-     ********************/
+    /*
+     * Graphical (Game)
+     */
     private String privateObjectiveCardName;
     private ImageView privateObjectiveCard;
     private Image privateObjectiveCardFront;
@@ -89,23 +89,23 @@ public class ClientGUI extends Application implements Observer {
     private Button nextTurnButton;
     private Button cancelButton;
 
-    /**************
-     * Animations *
-     **************/
+    /*
+     * Animations
+     */
     private List<Animation> zoomingAnimations = new ArrayList<>();
     private FadeTransition gameTimerLabelAnimation;
     private ScaleTransition privateObjectiveCardAnimation;
 
-    /*************
-     * Game data *
-     *************/
+    /*
+     * Game data
+     */
     private boolean boardShown = false;
     private Integer draftPoolIndex = null;
     private Integer toolCardIndex = null;
 
-    /*******************
-     * Tool Cards data *
-     *******************/
+    /*
+     * Tool Cards data
+     */
     private List<Colors> draftPoolColors = new ArrayList<>();
     private JsonObject requiredData = null;
     private Integer requestedDraftPoolIndex = null;
@@ -120,9 +120,9 @@ public class ClientGUI extends Application implements Observer {
     private Boolean stop = null;
 
 
-    /***********************
-     * Getters and setters *
-     ***********************/
+    /*
+     * Getters and setters
+     */
 
     public static void setClient(Client c) {
         if (clientSet) {
@@ -188,13 +188,14 @@ public class ClientGUI extends Application implements Observer {
     private static void clearAlertWindows() {
         synchronized (alertWindows) {
             alertWindows.forEach(AlertWindow::closeWindow);
+            alertWindows.clear();
         }
     }
 
 
-    /*********
-     * Start *
-     *********/
+    /*
+     * Start
+     */
 
     @Override
     public void start(Stage primaryStage) {
@@ -207,8 +208,9 @@ public class ClientGUI extends Application implements Observer {
         showLogin();
     }
 
+
     /*
-     Scenes
+     * Scenes
      */
 
     /**
@@ -405,9 +407,9 @@ public class ClientGUI extends Application implements Observer {
     }
 
 
-    /***********
-     * Actions *
-     ***********/
+    /*
+     * Actions
+     */
 
     private void onConnectionChoiceBoxSelection() {
         String value = connectionChoiceBox.getValue();
@@ -659,9 +661,9 @@ public class ClientGUI extends Application implements Observer {
     }
 
 
-    /******************
-     * Helper methods *
-     ******************/
+    /*
+     * Helper methods
+     */
 
     private void setupConnection(String host) throws IOException {
         String connection = connectionChoiceBox.getValue();
@@ -794,9 +796,9 @@ public class ClientGUI extends Application implements Observer {
     }
 
 
-    /*************
-     * Movements *
-     *************/
+    /*
+     * Movements
+     */
 
     private void addPlayer(String nickname) {
         client.setNickname(nickname);
@@ -940,9 +942,9 @@ public class ClientGUI extends Application implements Observer {
     }
 
 
-    /***********************
-     * Graphics generators *
-     ***********************/
+    /*
+     * Graphics generators
+     */
 
     private void createPrivateObjectiveCard() {
         privateObjectiveCardBack = new Image(PicturesPaths.privateObjectiveCard("back"));
@@ -1117,7 +1119,7 @@ public class ClientGUI extends Application implements Observer {
 
 
     /*
-     * Update and updateHandlers *
+     * Update and updateHandlers
      */
 
     /**
