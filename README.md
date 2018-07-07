@@ -94,4 +94,4 @@ Additional parameters include:
 
 ### An overview of the interface
 
-![GUI](https://i.imgur.com/PMoFSBx.jpg)
+![GUI](https://i.imgur.com/O4JhaUI.jpg)
