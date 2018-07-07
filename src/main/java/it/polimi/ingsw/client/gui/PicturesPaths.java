@@ -1,6 +1,9 @@
 package it.polimi.ingsw.client.gui;
 
 
+/**
+ * This class contains the paths of the pictures used in the GUI
+ */
 public class PicturesPaths {
 
     private static final String IMAGES_PATH = "images/";

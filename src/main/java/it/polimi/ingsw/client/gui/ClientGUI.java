@@ -25,7 +25,10 @@ import java.util.*;
 import java.util.stream.*;
 import static it.polimi.ingsw.shared.util.InterfaceMessages.*;
 
-
+/**
+ * This is the graphical interface of the game
+ * @author Team
+ */
 public class ClientGUI extends Application implements Observer {
 
     /*************
@@ -133,10 +136,17 @@ public class ClientGUI extends Application implements Observer {
         }
     }
 
+    /**
+     * @param value whether the client should start in debug mode or not
+     */
     public static void setDebug(boolean value) {
         debug = value;
     }
 
+    /**
+     * @param pane the pane to work on
+     * @param imagePath the path of the background image
+     */
     private static void setBackground(Pane pane, String imagePath) {
         Image loginBackground = new Image(imagePath);
         BackgroundImage backgroundImage = new BackgroundImage(loginBackground, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, new BackgroundSize(1.0, 1.0, true, true, false, false));
@@ -173,18 +183,28 @@ public class ClientGUI extends Application implements Observer {
         transition.play();
     }
 
+    /**
+     * This method adds the <code>alertWindow</code> to the list of current alert windows
+     * @param alertWindow the window to be added
+     */
     public static void addAlertWindow(AlertWindow alertWindow) {
         synchronized (alertWindows) {
             alertWindows.add(alertWindow);
         }
     }
-
+    /**
+     * This method removes the <code>alertWindow</code> to the list of current alert windows
+     * @param alertWindow the window to be removed
+     */
     public static void removeAlertWindow(AlertWindow alertWindow) {
         synchronized (alertWindows) {
             alertWindows.remove(alertWindow);
         }
     }
 
+    /**
+     * This method closes all the alert windows
+     */
     private static void clearAlertWindows() {
         synchronized (alertWindows) {
             alertWindows.forEach(AlertWindow::closeWindow);
@@ -196,6 +216,10 @@ public class ClientGUI extends Application implements Observer {
      * Start *
      *********/
 
+    /**
+     * This method starts GUI
+     * @param primaryStage passed from <code>ClientGUI</code>constructor
+     */
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -409,6 +433,10 @@ public class ClientGUI extends Application implements Observer {
      * Actions *
      ***********/
 
+    /**
+     * This method describes the action bound to a selection on <code>connectionChoiceBox</code>
+     */
+
     private void onConnectionChoiceBoxSelection() {
         String value = connectionChoiceBox.getValue();
         if (value.equals(SOCKET)) {
@@ -420,6 +448,9 @@ public class ClientGUI extends Application implements Observer {
         }
     }
 
+    /**
+     * This method describes the action bound to a click on <code>loginButton</code>
+     */
     private void loginAction() {
         if (!nicknameTextField.getText().isEmpty()) {
             String host = hostTextField.getText();
@@ -465,6 +496,11 @@ public class ClientGUI extends Application implements Observer {
         }
     }
 
+    /**
+     * This method described the action bound to a click on <code>cancelButton</code>
+     * @param resetConsoleLabel whether to reset the <code>consoleLabel</code>
+     * @param cancelToolCard whether to cancel the tool card usage
+     */
     private void cancelAction(boolean resetConsoleLabel, boolean cancelToolCard) {
         if (toolCardIndex != null) {
             if (toolCardThread != null) {
@@ -483,6 +519,10 @@ public class ClientGUI extends Application implements Observer {
         });
     }
 
+    /**
+     * This method describes the action bound to a click on the draft pool
+     * @param e the mouse event
+     */
     private void onDraftPoolClick(MouseEvent e) {
         if (client.isActive()) {
             Canvas dieCanvas = (Canvas) e.getSource();
@@ -498,6 +538,10 @@ public class ClientGUI extends Application implements Observer {
         }
     }
 
+    /**
+     * This method describes the action bound to a click on a tool card
+     * @param e the mouse event
+     */
     private void onToolCardClick(MouseEvent e) {
         if (client.isActive()) {
             restoreZoomedNodes();
@@ -518,6 +562,10 @@ public class ClientGUI extends Application implements Observer {
         }
     }
 
+    /**
+     * This method describes the action bound to a click on a window pattern cell
+     * @param e the mouse event
+     */
     private void onCellClick(MouseEvent e) {
         StackPane cell = (StackPane) e.getSource();
         int x = GridPane.getColumnIndex(cell);
@@ -535,9 +583,13 @@ public class ClientGUI extends Application implements Observer {
         }
     }
 
-    private void onRoundTrackCellClick(MouseEvent event) {
+    /**
+     * This method describes the action bound to a click on a round track cell
+     * @param e the mouse event
+     */
+    private void onRoundTrackCellClick(MouseEvent e) {
         if (toolCardIndex != null) {
-            Canvas source = (Canvas) event.getSource();
+            Canvas source = (Canvas) e.getSource();
             int column = GridPane.getColumnIndex(source);
             int row = GridPane.getRowIndex(source);
             GridPane parent = (GridPane) source.getParent();
@@ -658,11 +710,13 @@ public class ClientGUI extends Application implements Observer {
         privateObjectiveCardAnimation.play();
     }
 
-
     /******************
      * Helper methods *
      ******************/
 
+    /**
+     * This method sets up the connection
+     */
     private void setupConnection(String host) throws IOException {
         String connection = connectionChoiceBox.getValue();
         if (connection.equals(RMI)) {
@@ -679,6 +733,11 @@ public class ClientGUI extends Application implements Observer {
         ClientNetwork.getInstance().setup();
     }
 
+    /**
+     * This method checks if the nickname is valid
+     * @param nickname user's nickname
+     * @return
+     */
     private boolean checkNickname(String nickname) {
         if (nickname.equals("")) {
             loginErrorLabel.setText(InterfaceMessages.LOGIN_FAILED_EMPTY);
@@ -696,6 +755,11 @@ public class ClientGUI extends Application implements Observer {
         return true;
     }
 
+    /**
+     * This method updates <code>loginErrorLabel</code>
+     * @param message the string to display
+     * @param e for debugging purposes
+     */
     private void updateLoginErrorLabel(String message, Throwable e) {
         loginErrorLabel.setText(message);
         if (ClientNetwork.getInstance() != null) {
@@ -709,6 +773,12 @@ public class ClientGUI extends Application implements Observer {
         Logger.printStackTraceConditionally(e);
     }
 
+    /**
+     * @param gridPane  the pane to search in
+     * @param column    the column of the node
+     * @param row       the row of the node
+     * @return          the required <code>Node</code>
+     */
     private static Node getNode(GridPane gridPane, int column, int row) {
         for (Node node : gridPane.getChildren()) {
             if (GridPane.getColumnIndex(node) == column && GridPane.getRowIndex(node) == row)
@@ -717,6 +787,9 @@ public class ClientGUI extends Application implements Observer {
         throw new NoSuchElementException("Nothing found at given position");
     }
 
+    /**
+     * This method resets the window to default condition
+     */
     private void reset() {
         waitingPlayersBox = new VBox();
         privateObjectiveCardName = null;
@@ -734,6 +807,9 @@ public class ClientGUI extends Application implements Observer {
         boardShown = false;
     }
 
+    /**
+     * This method resets the <code>requiredData</code> variables after it's used
+     */
     private void resetToolCardsEnvironment() {
         toolCardIndex = null;
         requiredData = null;
@@ -752,6 +828,10 @@ public class ClientGUI extends Application implements Observer {
         });
     }
 
+    /**
+     * This method resets the <code>requiredData</code> variables before the second step of a tool card (required by
+     * <code>ToolCard4</code>, <code>ToolCard11</code> and <code>ToolCard12</code>
+     */
     private void resetToolCardContinue(){
         stop = null;
         requestedRoundTrackIndex = null;
@@ -767,6 +847,9 @@ public class ClientGUI extends Application implements Observer {
         });
     }
 
+    /**
+     * @return the shadow to add to the GUI elements
+     */
     private static DropShadow getShadow() {
         if (shadow == null) {
             shadow = new DropShadow();
@@ -776,6 +859,11 @@ public class ClientGUI extends Application implements Observer {
         return shadow;
     }
 
+    /**
+     * @param content the string to display on the GUI
+     * @param fontSize the size of the font
+     * @return the requested <code>Label</code>
+     */
     private static Label createLabel(String content, Integer fontSize) {
         Label label = new Label(content);
         if (fontSize != null) label.setFont(new Font(fontSize));
@@ -785,10 +873,18 @@ public class ClientGUI extends Application implements Observer {
         return label;
     }
 
+    /**
+     * @param fontSize the size of the font
+     * @return an empty <code>Label</code>
+     */
     private static Label createLabel(int fontSize) {
         return createLabel("", fontSize);
     }
 
+    /**
+     * @param content the string to display on the GUI
+     * @return an <code>Label</code> of standard size
+     */
     private static Label createLabel(String content) {
         return createLabel(content, null);
     }
@@ -798,17 +894,29 @@ public class ClientGUI extends Application implements Observer {
      * Movements *
      *************/
 
+    /**
+     * This method adds a player to a <code>WaitingRoom</code>
+     * @param nickname the player's nickname
+     */
     private void addPlayer(String nickname) {
         client.setNickname(nickname);
         client.setUUID(ClientNetwork.getInstance().addPlayer(nickname));
         client.setLogged(client.getUUID() != null);
     }
 
+    /**
+     * This method ends the turn
+     */
     private void nextTurn() {
         client.setActive(false);
         ClientNetwork.getInstance().nextTurn();
     }
 
+    /**
+     * @param draftPoolIndex    the die index on the draft pool
+     * @param x                 the column to place the die at
+     * @param y                 the row to place the die at
+     */
     private void placeDie(int draftPoolIndex, int x, int y) {
         JsonObject result = ClientNetwork.getInstance().placeDie(draftPoolIndex, x, y);
         if (result.get(JsonFields.RESULT).getAsBoolean()) {
@@ -882,6 +990,12 @@ public class ClientGUI extends Application implements Observer {
         }
     }
 
+    /**
+     * This method is used to ask the user the required information for a tool card usage
+     * @param   requiredData the data required by the tool card
+     * @return  a <code>JsonObject</code> containing the data provided by the player
+     * @throws  InterruptedException when the thread is interrupted
+     */
     private JsonObject askForToolCardData(JsonObject requiredData) throws InterruptedException {
         JsonObject data = requiredData.getAsJsonObject(JsonFields.DATA);
         if (!(data.has(JsonFields.STOP) && data.get(JsonFields.STOP).getAsBoolean())) {
@@ -944,6 +1058,9 @@ public class ClientGUI extends Application implements Observer {
      * Graphics generators *
      ***********************/
 
+    /**
+     * This method creates the graphical representation of a private objective card
+     */
     private void createPrivateObjectiveCard() {
         privateObjectiveCardBack = new Image(PicturesPaths.privateObjectiveCard("back"));
         privateObjectiveCardFront = new Image(PicturesPaths.privateObjectiveCard(privateObjectiveCardName));
@@ -956,6 +1073,14 @@ public class ClientGUI extends Application implements Observer {
         boardPane.add(privateObjectiveCard, 3, 4);
     }
 
+
+    /**
+     * This method creates the graphical representation of a window pattern
+     * @param wpJson the <code>JsonObject</code> that describes a window pattern
+     * @param nickname the user's nickname
+     * @param resize the scaling factor
+     * @return
+     */
     private static GridPane createWindowPattern(JsonObject wpJson, String nickname, Double resize) {
         if (resize == null) resize = STANDARD_FACTOR;
         GridPane wpPane = new GridPane();
@@ -993,7 +1118,6 @@ public class ClientGUI extends Application implements Observer {
 
     /**
      * This method creates the stack pane representing a cell of a window pattern
-     *
      * @param jsonCell JsonObject containing the information of a cell
      * @param resize the scale factor of the stack pane
      * @return
@@ -1078,6 +1202,10 @@ public class ClientGUI extends Application implements Observer {
         return canvas;
     }
 
+    /**
+     * This method creates the graphical representation of a round track
+     * @param roundTrackArray the <code>JsonArray</code> that represents the round track
+     */
     private void createRoundTrack(JsonArray roundTrackArray) {
         roundTrack.getChildren().clear();
         for (int i = 0; i < Constants.NUMBER_OF_ROUNDS; i++) {
@@ -1195,6 +1323,11 @@ public class ClientGUI extends Application implements Observer {
         }
     }
 
+    /**
+     * This method handles the add player message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     *
+     */
     private void addPlayerUpdateHandler(JsonObject jsonArg) {
         if (jsonArg.get(JsonFields.RECONNECTED).getAsBoolean()) {
             client.setPatternChosen(true);
@@ -1204,6 +1337,10 @@ public class ClientGUI extends Application implements Observer {
         }
     }
 
+    /**
+     * This method handles the update waiting room message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void updateWaitingPlayersUpdateHandler(JsonObject jsonArg) {
         if (!client.isPatternChosen()) {
             waitingPlayersBox.getChildren().clear();
@@ -1216,10 +1353,18 @@ public class ClientGUI extends Application implements Observer {
         }
     }
 
+    /**
+     * This method handles the waiting room timer tick message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void wrTimerTickUpdateHandler(JsonObject jsonArg) {
         wrTimerLabel.setText(jsonArg.get(JsonFields.TICK).getAsString());
     }
 
+    /**
+     * This method handles the game timer tick message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void gameTimerTickUpdateHandler(JsonObject jsonArg) {
         String tickString = jsonArg.get(JsonFields.TICK).getAsString();
         gameTimerLabel.setText(tickString);
@@ -1227,6 +1372,10 @@ public class ClientGUI extends Application implements Observer {
         animateGameTimerLabel(tick);
     }
 
+    /**
+     * This method handles the window patterns update message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void windowPatternsUpdateHandler(JsonObject jsonArg) {
         windowPatterns.forEach(wp -> boardPane.getChildren().remove(wp));
         windowPatterns.clear();
@@ -1268,6 +1417,10 @@ public class ClientGUI extends Application implements Observer {
         }
     }
 
+    /**
+     * This method handles the tool card update message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void toolCardsUpdateHandler(JsonObject jsonArg) {
         JsonArray array = jsonArg.getAsJsonArray(JsonFields.TOOL_CARDS);
         for (int i = 0; i < array.size(); i++) {
@@ -1297,6 +1450,10 @@ public class ClientGUI extends Application implements Observer {
         }
     }
 
+    /**
+     * This method handles the public objective cards update message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void publicObjectiveCardsUpdateHandler(JsonObject jsonArg) {
         if (publicObjectiveCards.size() < Constants.NUMBER_OF_PUB_OBJ_CARDS_PER_GAME) {
             JsonArray array = jsonArg.getAsJsonArray(JsonFields.PUBLIC_OBJECTIVE_CARDS);
@@ -1313,6 +1470,10 @@ public class ClientGUI extends Application implements Observer {
         }
     }
 
+    /**
+     * This method handles the draft pool update message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void draftPoolUpdateHandler(JsonObject jsonArg) {
         if (draftPool == null) {
             draftPool = new GridPane();
@@ -1339,6 +1500,10 @@ public class ClientGUI extends Application implements Observer {
         draftPool.setAlignment(Pos.CENTER);
     }
 
+    /**
+     * This method handles the turn management update message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void turnManagementUpdateHandler(JsonObject jsonArg) {
         clearAlertWindows();
         client.setGameStarted();
@@ -1379,6 +1544,10 @@ public class ClientGUI extends Application implements Observer {
         restoreGameTimerLabelAnimation(wasActive);
     }
 
+    /**
+     * This method handles the round track update message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void roundTrackUpdateHandler(JsonObject jsonArg) {
         if (roundTrack == null) {
             roundTrack = new GridPane();
@@ -1390,6 +1559,10 @@ public class ClientGUI extends Application implements Observer {
         createRoundTrack(jsonArg.getAsJsonArray(JsonFields.DICE));
     }
 
+    /**
+     * This method handles the favor tokens update message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void favorTokensUpdateHandler(JsonObject jsonArg) {
         JsonObject jsonFavorTokens = jsonArg.getAsJsonObject(JsonFields.FAVOR_TOKENS);
         for (GridPane pane : windowPatterns) {
@@ -1416,6 +1589,10 @@ public class ClientGUI extends Application implements Observer {
         }
     }
 
+    /**
+     * This method handles the final scores update message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void finalScoresUpdateHandler(JsonObject jsonArg) {
         JsonObject scores = jsonArg.getAsJsonObject(JsonFields.FINAL_SCORES);
         StringBuilder scoresSB = new StringBuilder();

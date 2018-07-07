@@ -9,7 +9,10 @@ import java.util.*;
 import java.util.stream.*;
 import static org.fusesource.jansi.Ansi.*;
 
-
+/**
+ * This is the command line interface of the game
+ * @author Team
+ */
 public class ClientCLI extends Client implements Observer {
 
     private String ttyConfig;
@@ -33,11 +36,17 @@ public class ClientCLI extends Client implements Observer {
     private String input = "";
     private String privateObjectiveCard;
 
+    /**
+     * @param debug whether or not to start the client in debug mode
+     */
     ClientCLI(boolean debug) {
         super(debug);
         ClientNetwork.getInstance().addObserver(this);
     }
 
+    /**
+     * This method starts a CLI client and executes the game actions
+     */
     void start() {
         AnsiConsole.systemInstall();
         Logger.print(ansi().eraseScreen().cursor(0, 0).toString());
@@ -111,6 +120,10 @@ public class ClientCLI extends Client implements Observer {
         }
     }
 
+
+    /**
+     * This method closes the client
+     */
     private void exit() {
         Logger.println("");
         try {
@@ -123,6 +136,12 @@ public class ClientCLI extends Client implements Observer {
         System.exit(Constants.EXIT_ERROR);
     }
 
+
+    /**
+     * This method prompts the user with the choose pattern message
+     * @throws IOException thrown by the <code>readLine</code> used to take user input
+     * @throws InterruptedException when the thread is interrupted
+     */
     private void choosePatternMessage() throws IOException, InterruptedException{
         try {
             Integer patternIndex = Constants.INDEX_CONSTANT;
@@ -147,6 +166,10 @@ public class ClientCLI extends Client implements Observer {
         }
     }
 
+    /**
+     * This method prompts the user with the choose action message
+     * @throws IOException thrown by the <code>readLine</code> used to take user input
+     */
     private void chooseActionMessage() throws IOException{
         Logger.println("\nPremi 1 per piazzare un dado\nPremi 2 per usare una carta strumento\nPremi 3 per " +
                 "passare il turno.");
@@ -154,6 +177,11 @@ public class ClientCLI extends Client implements Observer {
         input = asyncInput(TIMER_PROMPT);
     }
 
+    /**
+     * This method is called when the player wants to place a die
+     * @throws IOException thrown by the <code>readLine</code> used to take user input
+     * @throws CancelException thrown if the user decides to cancel the move
+     */
     private void placeDieMove() throws IOException, CancelException {
         int draftPoolIndex;
         int x;
@@ -168,7 +196,15 @@ public class ClientCLI extends Client implements Observer {
             Logger.println(InterfaceMessages.UNSUCCESSFUL_DIE_PLACEMENT + result.get(JsonFields.ERROR_MESSAGE).getAsString());
     }
 
-    private boolean useData(JsonObject requiredData, int cardIndex) throws CancelException, IOException{
+    /**
+     * This method asks the user the data required by the selected tool card
+     * @param requiredData the required data by the tool card
+     * @param cardIndex the index of the tool card
+     * @return whether or not the usage was successful
+     * @throws IOException thrown by the <code>readLine</code> used to take user input
+     * @throws CancelException thrown if the user decides to cancel the move
+     */
+    private boolean useData(JsonObject requiredData, int cardIndex) throws IOException, CancelException{
         int draftPoolIndex;
         int roundTrackIndex;
         int delta;
@@ -177,7 +213,6 @@ public class ClientCLI extends Client implements Observer {
         int fromCellY;
         int toCellX;
         int toCellY;
-
         try{
             if (!(requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.STOP) && requiredData.get(JsonFields.DATA).getAsJsonObject().get(JsonFields.STOP).getAsBoolean())) {
                 if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.DRAFT_POOL_INDEX)) {
@@ -228,6 +263,11 @@ public class ClientCLI extends Client implements Observer {
         }
     }
 
+    /**
+     * This method is called when the player wants to use a tool card
+     * @throws IOException thrown by the <code>readLine</code> used to take user input
+     * @throws CancelException thrown if the user decides to cancel the move
+     */
     private void useToolCardMove() throws IOException, CancelException {
         int cardIndex;
         boolean stop;
@@ -266,6 +306,12 @@ public class ClientCLI extends Client implements Observer {
         return stdin.readLine();
     }
 
+    /**
+     * This methods asks for input from the user and simultaneously prints messages
+     * @param methodName the name of the method creating the message (Java Reflection)
+     * @return the input taken from the user
+     * @throws IOException thrown if an IO error occurs.
+     */
     private String asyncInput(String methodName) throws IOException {
         stopAsyncInput = false;
         int escape = 0;
@@ -328,7 +374,17 @@ public class ClientCLI extends Client implements Observer {
         return bufferString;
     }
 
-    private int getInputIndex(String cliMessage, int lowerBound, int higherBound, boolean scale) throws CancelException, IOException {
+    /**
+     * This method takes numeric input from the user with bounds.
+     * @param cliMessage the message to print on screen
+     * @param lowerBound the lowest valid number
+     * @param higherBound the highest valid number
+     * @param scale whether or not to use zero-based numbering
+     * @return the number typed by the user
+     * @throws IOException thrown by the <code>readLine</code> used to take user input
+     * @throws CancelException thrown if the user decides to cancel the move
+     */
+    private int getInputIndex(String cliMessage, int lowerBound, int higherBound, boolean scale) throws IOException, CancelException {
         int index = Constants.INDEX_CONSTANT;
         int cancelValue = 0;
         String userInput;
@@ -349,6 +405,13 @@ public class ClientCLI extends Client implements Observer {
         return index;
     }
 
+    /**
+     * This method takes numeric input from the user without bounds.
+     * @param cliMessage the message to print on screen
+     * @return the number typed by the user
+     * @throws IOException thrown by the <code>readLine</code> used to take user input
+     * @throws CancelException thrown if the user decides to cancel the move
+     */
     private int getInputIndex(String cliMessage) throws CancelException, IOException {
         int index = Constants.INDEX_CONSTANT;
         String userInput;
@@ -365,6 +428,13 @@ public class ClientCLI extends Client implements Observer {
         return index;
     }
 
+    /**
+     * This method is used to get whether or not the user wants to continue using a tool card that has the
+     * <code>JsonFields.STOP</code> field. The user cannot cancel the action, hence <code>CancelException</code>
+     * is not thrown
+     * @return the boolean that corresponds to the user's answer
+     * @throws IOException thrown by the <code>readLine</code> used to take user input
+     */
     private boolean getInputStop() throws IOException {
         int index = Constants.INDEX_CONSTANT;
         String userInput;
@@ -447,6 +517,12 @@ public class ClientCLI extends Client implements Observer {
         }
     }
 
+    /**
+     * This method is used to horizontally align two window patterns
+     * @param pattern1 the first pattern
+     * @param pattern2 the second pattern
+     * @return the string that describes two window patterns horizontally aligned
+     */
     private static String concatWindowPatterns(String[] pattern1, String[] pattern2) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < pattern1.length; i++) {
@@ -459,6 +535,12 @@ public class ClientCLI extends Client implements Observer {
         return builder.toString();
     }
 
+
+    /**
+     * This method is used to build a string describing the window patterns
+     * @param patterns the players' window patterns
+     * @return the string that describes the patterns
+     */
     private static String windowPatternsMessage(List<String> patterns) {
         String message = concatWindowPatterns(patterns.get(0).split("\n"), patterns.get(1).split("\n"));
         if (patterns.size() == 3)
@@ -468,6 +550,10 @@ public class ClientCLI extends Client implements Observer {
         return message;
     }
 
+
+    /**
+     * @return the waiting room string to be displayed
+     */
     private String waitingRoomPrompt() {
         synchronized (stdinBufferLock) {
             return ansi().eraseLine().cursorUpLine().eraseLine().cursorUpLine().eraseLine()
@@ -482,6 +568,9 @@ public class ClientCLI extends Client implements Observer {
         }
     }
 
+    /**
+     * @return the timer string to be displayed
+     */
     private String timerPrompt() {
         synchronized (stdinBufferLock) {
             String prompt = String.format("[%s] >>> %s", gameTimeout, stdinBuffer.toString());
@@ -489,6 +578,10 @@ public class ClientCLI extends Client implements Observer {
         }
     }
 
+    /**
+     * @param line the line to append to be returned string
+     * @return the update string to be displayed
+     */
     private String updateLine(String line) {
         return ansi().eraseLine()
                 .a('\r')
@@ -496,6 +589,9 @@ public class ClientCLI extends Client implements Observer {
                 .toString();
     }
 
+    /**
+     * @return the reconnection string to be displayed
+     */
     private String reconnectionPrompt() {
         synchronized (stdinBufferLock) {
             String prompt = "Per riconnetterti, inserisci il tuo nickname >>> " + stdinBuffer.toString();
@@ -505,6 +601,12 @@ public class ClientCLI extends Client implements Observer {
 
     // OBSERVER METHODS
 
+    /**
+     * This method handles the updates received from the server
+     *
+     * @param o observable object
+     * @param arg JsonObject containing the information for the update
+     */
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof ClientNetwork && arg instanceof JsonObject) {
@@ -567,6 +669,11 @@ public class ClientCLI extends Client implements Observer {
         }
     }
 
+    /**
+     * This method handles the add player message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     *
+     */
     private void addPlayerUpdateHandler(JsonObject jsonArg) {
         if (jsonArg.get(JsonFields.RECONNECTED).getAsBoolean()) {
             bypassWaitingRoom = true;
@@ -581,6 +688,10 @@ public class ClientCLI extends Client implements Observer {
         }
     }
 
+    /**
+     * This method handles the update waiting room message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void updateWaitingPlayersUpdateHandler(JsonObject jsonArg) {
         if (!this.isPatternChosen()) {
             JsonArray playersArray = jsonArg.get(JsonFields.PLAYERS).getAsJsonArray();
@@ -592,6 +703,10 @@ public class ClientCLI extends Client implements Observer {
         }
     }
 
+    /**
+     * This method handles the game timer tick message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void gameTimerTickUpdateHandler(JsonObject jsonArg) {
         this.gameTimeout = jsonArg.get(JsonFields.TICK).getAsString();
         if (isActive())
@@ -613,7 +728,10 @@ public class ClientCLI extends Client implements Observer {
             }
         }
     }
-
+    /**
+     * This method handles message received from the server containg the pattern that the player can choose
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void selectableWindowPatternsUpdateHandler(JsonObject jsonArg) {
         stopAsyncInput = true;
         JsonArray windowPatternsArray = jsonArg.getAsJsonArray(JsonFields.WINDOW_PATTERNS);
@@ -629,6 +747,10 @@ public class ClientCLI extends Client implements Observer {
         Logger.println(windowPatternsMessage(windowPatterns));
     }
 
+    /**
+     * This method handles the window patterns update message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void windowPatternsUpdateHandler(JsonObject jsonArg) {
         JsonObject windowPatternsJson = jsonArg.getAsJsonObject(JsonFields.WINDOW_PATTERNS);
         List<String> windowPatterns = new ArrayList<>();
@@ -643,6 +765,10 @@ public class ClientCLI extends Client implements Observer {
         Logger.println(windowPatternsMessage(windowPatterns));
     }
 
+    /**
+     * This method handles the tool card update message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void toolCardsUpdateHandler(JsonObject jsonArg) {
         JsonArray toolCards = jsonArg.getAsJsonArray(JsonFields.TOOL_CARDS);
         StringBuilder toolCardsString = new StringBuilder();
@@ -664,6 +790,10 @@ public class ClientCLI extends Client implements Observer {
         Logger.println(toolCardsString.toString());
     }
 
+    /**
+     * This method handles the public objective cards update message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void publicObjectiveCardsUpdateHandler(JsonObject jsonArg) {
         JsonArray publicObjectiveCards = jsonArg.getAsJsonArray(JsonFields.PUBLIC_OBJECTIVE_CARDS);
         StringBuilder objectiveCardsString = new StringBuilder();
@@ -682,6 +812,10 @@ public class ClientCLI extends Client implements Observer {
         Logger.println(objectiveCardsString.toString());
     }
 
+    /**
+     * This method handles the private objective cards update message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void privateObjectiveCardUpdateHandler(JsonObject jsonArg) {
         Logger.print(ansi().eraseScreen().cursor(0, 0).toString());
         JsonObject cardJson = jsonArg.getAsJsonObject(JsonFields.PRIVATE_OBJECTIVE_CARD);
@@ -692,6 +826,10 @@ public class ClientCLI extends Client implements Observer {
         Logger.println(privateObjectiveCard);
     }
 
+    /**
+     * This method handles the draft pool update message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void draftPoolUpdateHandler(JsonObject jsonArg) {
         JsonArray draftPoolDice = jsonArg.getAsJsonArray(JsonFields.DICE);
         StringBuilder draftPoolString = new StringBuilder("Riserva: ");
@@ -703,6 +841,10 @@ public class ClientCLI extends Client implements Observer {
         Logger.println("\n" + draftPoolString.toString() + "\n");
     }
 
+    /**
+     * This method handles the turn management update message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void turnManagementUpdateHandler(JsonObject jsonArg) {
         if (!this.isGameStarted()) this.setGameStarted();
         this.setGameOver(jsonArg.get(JsonFields.GAME_OVER).getAsBoolean());
@@ -718,6 +860,10 @@ public class ClientCLI extends Client implements Observer {
         stopAsyncInput = true;
     }
 
+    /**
+     * This method handles the favor tokens update message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void favorTokensUpdateHandler(JsonObject jsonArg) {
         StringBuilder favorTokenString = new StringBuilder("\nSegnalini Favore");
         Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FAVOR_TOKENS).getAsJsonObject().entrySet();
@@ -727,6 +873,10 @@ public class ClientCLI extends Client implements Observer {
         Logger.println(favorTokenString.toString());
     }
 
+    /**
+     * This method handles the final scores update message received from the server
+     * @param jsonArg the message from the server (message format is described in the SocketProtocol)
+     */
     private void finalScoresUpdateHandler(JsonObject jsonArg) {
         StringBuilder finalScoresString = new StringBuilder("\nLa partita è finita!\nRisultati finali");
         Set<Map.Entry<String, JsonElement>> entrySet = jsonArg.get(JsonFields.FINAL_SCORES).getAsJsonObject().entrySet();

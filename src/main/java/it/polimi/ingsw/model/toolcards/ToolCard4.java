@@ -99,7 +99,7 @@ public class ToolCard4 extends ToolCard {
     }
 
     /**
-     * This methods executes the first of the two movements.
+     * This method executes the first of the two movements.
      *
      * @param player the player using the card.
      * @param fromIndex the starting cell of the movement.
