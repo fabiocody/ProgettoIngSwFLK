@@ -31,9 +31,9 @@ public class InterfaceMessages {
     public static final String SAME_POSITION_INDEX = "posizione iniziale e finale coincidono.";
     public static final String MULTIPLE_DIE_MOVEMENTS = "non puoi muovere lo stesso dado due volte.";
     public static final String NOT_MATCHING_COLORS = "i colori non corrispondono.";
-    public static final String INVALID_MOVE_CAPITALIZED = "Mossa non valida.";
-    public static final String CANCELED_MOVE = "Mossa cancellata.";
-    public static final String INDEX_NOT_VALID = "Indice non valido.";
+    public static final String INVALID_MOVE_CAPITALIZED = "\nMossa non valida.";
+    public static final String CANCELED_MOVE = "\nMossa cancellata.";
+    public static final String INDEX_NOT_VALID = "\nIndice non valido.";
 
     public static final String ITS_YOUR_TURN = "È il tuo turno.";
     public static final String ITS_YOUR_TURN_GUI = ITS_YOUR_TURN + "\nClicca su un dado della riserva per piazzarlo, oppure su una Carta Strumento per utilizzarla.";
