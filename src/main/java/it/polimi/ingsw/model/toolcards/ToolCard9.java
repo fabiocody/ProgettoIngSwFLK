@@ -64,15 +64,13 @@ public class ToolCard9 extends ToolCard {
         }
         Die d = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
         try {
-                player.placeDie(d, cellIndex, constraint);
-                this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
+            player.placeDie(d, cellIndex, constraint);
+            this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
         } catch (InvalidPlacementException e) {
             throw new InvalidEffectResultException(DIE_INVALID_POSITION);
-        }
-        catch (DieAlreadyPlacedException e){
+        } catch (DieAlreadyPlacedException e){
             throw new InvalidEffectResultException(DIE_ALREADY_PLACED_IN_THIS_TURN);
         }
-
     }
 
     /**

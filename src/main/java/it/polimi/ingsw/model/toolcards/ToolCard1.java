@@ -7,7 +7,6 @@ import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.shared.util.InterfaceMessages;
 import it.polimi.ingsw.shared.util.JsonFields;
 import java.util.*;
-import java.util.List;
 import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_1_NAME;
 
 

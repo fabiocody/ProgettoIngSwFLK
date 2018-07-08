@@ -251,10 +251,10 @@ public class ClientGUI extends Application implements Observer {
         Label nicknameLabel = createLabel(NICKNAME_PROMPT);
         Button loginButton = new Button("Login");
         loginButton.setEffect(getShadow());
-        loginButton.setOnAction(e -> loginAction());
+        loginButton.setOnAction(e -> onLogin());
         loginButton.setOnKeyPressed(e -> {
             if (e.getCode().equals(KeyCode.ENTER))
-                loginAction();
+                onLogin();
         });
 
         connectionChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(SOCKET, RMI));
@@ -268,7 +268,7 @@ public class ClientGUI extends Application implements Observer {
             textField.setEffect(getShadow());
             textField.setOnKeyPressed(e -> {
                 if (e.getCode().equals(KeyCode.ENTER))
-                    loginAction();
+                    onLogin();
             });
         }
 
@@ -360,7 +360,7 @@ public class ClientGUI extends Application implements Observer {
             int row = (i / 2) * 2;
             selectableWPPane.add(windowPattern, column, row);
             Button button = new Button("Seleziona pattern " + (i+1));
-            button.setOnAction(this::chooseWindowPattern);
+            button.setOnAction(this::onChooseWindowPattern);
             button.setEffect(getShadow());
             selectableWPPane.add(button, column, row+1);
             GridPane.setHalignment(button, HPos.CENTER);
@@ -406,7 +406,7 @@ public class ClientGUI extends Application implements Observer {
         GridPane.setValignment(nextTurnButton, VPos.BOTTOM);
 
         cancelButton = new Button("Annulla");
-        cancelButton.setOnAction(e -> cancelAction(true, true));
+        cancelButton.setOnAction(e -> onCancel(true, true));
         cancelButton.setDisable(true);
         cancelButton.setEffect(getShadow());
         boardPane.add(cancelButton, 6, 4);
@@ -453,7 +453,7 @@ public class ClientGUI extends Application implements Observer {
     /**
      * This method describes the action bound to a click on <code>loginButton</code>
      */
-    private void loginAction() {
+    private void onLogin() {
         if (!nicknameTextField.getText().isEmpty()) {
             String host = hostTextField.getText();
             if (host.isEmpty()) host = Constants.DEFAULT_HOST;
@@ -481,10 +481,10 @@ public class ClientGUI extends Application implements Observer {
 
     /**
      * This method is invoked when a client clicks on a button in the window pattern selection scene
-     * @param event MouseClickedEvent on a button
+     * @param e MouseClickedEvent on a button
      */
-    private void chooseWindowPattern(ActionEvent event) {
-        Button source = (Button) event.getSource();
+    private void onChooseWindowPattern(ActionEvent e) {
+        Button source = (Button) e.getSource();
         int index = Integer.parseInt(source.getText().split(" ")[2]) - 1;
         ClientNetwork.getInstance().choosePattern(index);
         client.setPatternChosen(true);
@@ -503,7 +503,7 @@ public class ClientGUI extends Application implements Observer {
      * @param resetConsoleLabel whether to reset the <code>consoleLabel</code>
      * @param cancelToolCard whether to cancel the tool card usage
      */
-    private void cancelAction(boolean resetConsoleLabel, boolean cancelToolCard) {
+    private void onCancel(boolean resetConsoleLabel, boolean cancelToolCard) {
         if (toolCardIndex != null) {
             if (toolCardThread != null) {
                 toolCardThread.interrupt();
@@ -605,6 +605,10 @@ public class ClientGUI extends Application implements Observer {
         }
     }
 
+
+    /*
+     * Animations
+     */
 
     /**
      * This method creates the pulsing animation on a specified node
@@ -816,14 +820,14 @@ public class ClientGUI extends Application implements Observer {
         toolCardIndex = null;
         requiredData = null;
         requestedDraftPoolIndex = null;
-        resetToolCardContinue();
+        resetToolCardsContinue();
     }
 
     /**
      * This method resets the <code>requiredData</code> variables before the second step of a tool card (required by
      * <code>ToolCard4</code>, <code>ToolCard11</code> and <code>ToolCard12</code>
      */
-    private void resetToolCardContinue(){
+    private void resetToolCardsContinue(){
         stop = null;
         requestedRoundTrackIndex = null;
         requestedDelta = null;
@@ -851,12 +855,12 @@ public class ClientGUI extends Application implements Observer {
     }
 
     /**
-     * @param content the string to display on the GUI
+     * @param text the string to display on the GUI
      * @param fontSize the size of the font
      * @return the requested <code>Label</code>
      */
-    private static Label createLabel(String content, Integer fontSize) {
-        Label label = new Label(content);
+    private static Label createLabel(String text, Integer fontSize) {
+        Label label = new Label(text);
         if (fontSize != null) label.setFont(new Font(fontSize));
         label.setTextFill(Color.WHITE);
         label.setWrapText(true);
@@ -873,11 +877,11 @@ public class ClientGUI extends Application implements Observer {
     }
 
     /**
-     * @param content the string to display on the GUI
-     * @return an <code>Label</code> of standard size
+     * @param text the string to display on the GUI
+     * @return a <code>Label</code> of standard size
      */
-    private static Label createLabel(String content) {
-        return createLabel(content, null);
+    private static Label createLabel(String text) {
+        return createLabel(text, null);
     }
 
 
@@ -916,7 +920,7 @@ public class ClientGUI extends Application implements Observer {
             setConsoleLabel(InterfaceMessages.UNSUCCESSFUL_DIE_PLACEMENT + result.get(JsonFields.ERROR_MESSAGE).getAsString());
         }
         this.draftPoolIndex = null;
-        cancelAction(false, false);
+        onCancel(false, false);
     }
 
     /**
@@ -933,7 +937,7 @@ public class ClientGUI extends Application implements Observer {
         if (requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.NO_FAVOR_TOKENS) || requiredData.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD)) {
             Platform.runLater(() -> {
                 setConsoleLabel(InterfaceMessages.UNSUCCESSFUL_TOOL_CARD_USAGE + requiredData.get(JsonFields.DATA).getAsJsonObject().get(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD).getAsString());
-                cancelAction(false, false);
+                onCancel(false, false);
             });
         } else {
             boolean valid;
@@ -942,13 +946,13 @@ public class ClientGUI extends Application implements Observer {
             if (result.get(JsonFields.RESULT).getAsBoolean()) {
                 if (!data.has(JsonFields.CONTINUE)) {
                     Platform.runLater(() -> setConsoleLabel(SUCCESSFUL_TOOL_CARD_USAGE));
-                    cancelAction(false, false);
+                    onCancel(false, false);
                 }
                 valid = true;
             } else {
                 String errorMessage = result.get(JsonFields.ERROR_MESSAGE).getAsString();
                 Platform.runLater(() -> setConsoleLabel(toolCardNotUsed(errorMessage)));
-                cancelAction(false, false);
+                onCancel(false, false);
                 valid = false;
             }
             if (requiredData != null && requiredData.getAsJsonObject(JsonFields.DATA).has(JsonFields.CONTINUE) && valid) {
@@ -964,7 +968,7 @@ public class ClientGUI extends Application implements Observer {
                         Thread.sleep(1);
                     requiredData.getAsJsonObject(JsonFields.DATA).addProperty(JsonFields.STOP, stop);
                 }
-                resetToolCardContinue();
+                resetToolCardsContinue();
                 do {
                     Platform.runLater(() -> {
                         nextTurnButton.setDisable(true);
@@ -975,7 +979,7 @@ public class ClientGUI extends Application implements Observer {
                     valid = result.get(JsonFields.RESULT).getAsBoolean();
                 } while(!valid);
                 Platform.runLater(() -> setConsoleLabel(SUCCESSFUL_TOOL_CARD_USAGE));
-                cancelAction(false, false);
+                onCancel(false, false);
                 resetToolCardsEnvironment();
             }
         }
@@ -1005,7 +1009,7 @@ public class ClientGUI extends Application implements Observer {
             if (data.has(JsonFields.DELTA)) {
                 Platform.runLater(() -> {
                     TwoOptionsAlert deltaAlert = new TwoOptionsAlert();
-                    Options answer = deltaAlert.present("Vuoi aumentare o diminuire il valore di questo dado", Options.DECREMENT, Options.INCREMENT, e -> cancelAction(true, true));
+                    Options answer = deltaAlert.present("Vuoi aumentare o diminuire il valore di questo dado", Options.DECREMENT, Options.INCREMENT, e -> onCancel(true, true));
                     requestedDelta = answer == Options.INCREMENT ? 1 : -1;
                 });
                 while (requestedDelta == null)
@@ -1015,7 +1019,7 @@ public class ClientGUI extends Application implements Observer {
             if (data.has(JsonFields.NEW_VALUE)) {
                 Platform.runLater(() -> {
                     SpinnerAlert newValueAlert = new SpinnerAlert();
-                    requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", draftPoolColors.get(requestedDraftPoolIndex), 1, 6, e -> cancelAction(true, true));
+                    requestedNewValue = newValueAlert.present("Quale valore vuoi assegnare al dado?", draftPoolColors.get(requestedDraftPoolIndex), 1, 6, e -> onCancel(true, true));
                 });
                 while (requestedNewValue == null)
                     Thread.sleep(1);
