@@ -291,7 +291,7 @@ public class GameController extends BaseController {
             data.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, InterfaceMessages.TOOL_CARD_ALREADY_USED_IN_THIS_TURN);
         } else if (this.getPlayer(id).getFavorTokens() < 2 && this.getToolCards().get(toolCardIndex).isUsed() ||
                 (this.getPlayer(id).getFavorTokens() < 1 && !this.getToolCards().get(toolCardIndex).isUsed())){
-            data.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.NO_FAVOR_TOKENS,InterfaceMessages.NO_FAVOR_TOKENS);
+            data.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD,InterfaceMessages.NO_FAVOR_TOKENS);
         }
         else unusabilityMessages(toolCardIndex, id, data);
         return data;

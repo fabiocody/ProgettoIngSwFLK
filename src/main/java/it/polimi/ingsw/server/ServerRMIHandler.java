@@ -144,20 +144,7 @@ public class ServerRMIHandler extends ServerNetwork implements ServerAPI {
     @Override
     public String requiredData(int cardIndex) {
         JsonObject payload = getGameController().requiredData(cardIndex, getUUID());
-        Player player = getGameController().getPlayer(getUUID());
-        if ((player.getFavorTokens()<2 && getGameController().getToolCards().get(cardIndex).isUsed()) ||
-                (player.getFavorTokens()<1 && !getGameController().getToolCards().get(cardIndex).isUsed())){
-            payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.NO_FAVOR_TOKENS, Constants.INDEX_CONSTANT);
-        }
-        if (payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.ROUND_TRACK_INDEX) && getGameController().getRoundTrack()
-                .getFlattenedDice().isEmpty()){
-            payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.ROUND_TRACK);
-        }
-        if ((payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.TO_CELL_X)) &&
-                (!(payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.FROM_CELL_X))) && (player.isDiePlacedInThisTurn()) &&
-                (!payload.get(JsonFields.DATA).getAsJsonObject().has(JsonFields.SECOND_DIE_PLACEMENT))) {
-            payload.get(JsonFields.DATA).getAsJsonObject().addProperty(JsonFields.IMPOSSIBLE_TO_USE_TOOL_CARD, JsonFields.DIE);
-        }
+        Logger.debugPayload(payload);
         return payload.toString();
     }
 
