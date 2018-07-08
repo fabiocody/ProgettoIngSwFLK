@@ -92,7 +92,9 @@ Additional parameters include:
 - `--interface INTERFACE`: the type of interface, it can only be `cli` or `gui` (default to `gui`).
 - `--debug`: activate debug mode (use it only if you really really need it).
 
-If you want to play using the GUI, you can simply double-click on the client JAR.
+Note that every option you pass from the shell when you start a client in GUI mode is ignored (except for `--debug` and, of course, `--interface`), because you will be asked for them in a graphical environment.
+
+If you want to play using the GUI, you can simply double-click on the client JAR. 
 
 ### An overview of the interface
 
