@@ -234,7 +234,7 @@ public class GameController extends BaseController {
     }
 
     /**
-     * @return the base message for a un-usability error
+     * This methods build the string containing the base message for a un-usability error
      */
     private void unusabilityMessages(int toolCardIndex, UUID id, JsonObject data) {
         String unusabilityMessage = "";
