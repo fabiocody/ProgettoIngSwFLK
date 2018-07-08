@@ -55,7 +55,7 @@ public class ClientGUI extends Application implements Observer {
     private static boolean clientSet = false;
     private static boolean debug;
     private static DropShadow shadow;
-    private static List<AlertWindow> alertWindows = new ArrayList<>();
+    private static final List<AlertWindow> alertWindows = new ArrayList<>();
     private Thread toolCardThread;
     private Stage primaryStage;
 
@@ -668,7 +668,7 @@ public class ClientGUI extends Application implements Observer {
 
     /**
      * This method is used to stop the game timer animation
-     * @param wasActive
+     * @param wasActive true if the user was active at the previous round
      */
     private void restoreGameTimerLabelAnimation(boolean wasActive) {
         if (gameTimerLabelAnimation != null && (!wasActive || !client.isActive())) {
@@ -712,9 +712,9 @@ public class ClientGUI extends Application implements Observer {
         privateObjectiveCardAnimation.play();
     }
 
-    /******************
-     * Helper methods *
-     ******************/
+    /*
+     * Helper methods
+     */
 
     /**
      * This method sets up the connection
@@ -738,7 +738,7 @@ public class ClientGUI extends Application implements Observer {
     /**
      * This method checks if the nickname is valid
      * @param nickname user's nickname
-     * @return
+     * @return true if the nickname can be used, false otherwise
      */
     private boolean checkNickname(String nickname) {
         if (nickname.equals("")) {
@@ -815,19 +815,8 @@ public class ClientGUI extends Application implements Observer {
     private void resetToolCardsEnvironment() {
         toolCardIndex = null;
         requiredData = null;
-        stop = null;
         requestedDraftPoolIndex = null;
-        requestedRoundTrackIndex = null;
-        requestedDelta = null;
-        requestedNewValue = null;
-        requestedFromCellX = null;
-        requestedFromCellY = null;
-        requestedToCellX = null;
-        requestedToCellY = null;
-        Platform.runLater(() -> {
-            cancelButton.setDisable(true);
-            nextTurnButton.setDisable(false);
-        });
+        resetToolCardContinue();
     }
 
     /**
@@ -1081,7 +1070,7 @@ public class ClientGUI extends Application implements Observer {
      * @param wpJson the <code>JsonObject</code> that describes a window pattern
      * @param nickname the user's nickname
      * @param resize the scaling factor
-     * @return
+     * @return the GridPane containing the window pattern
      */
     private static GridPane createWindowPattern(JsonObject wpJson, String nickname, Double resize) {
         if (resize == null) resize = STANDARD_FACTOR;
@@ -1122,7 +1111,7 @@ public class ClientGUI extends Application implements Observer {
      * This method creates the stack pane representing a cell of a window pattern
      * @param jsonCell JsonObject containing the information of a cell
      * @param resize the scale factor of the stack pane
-     * @return
+     * @return the StackPane containing a cell
      */
     private static StackPane createCellStack(JsonObject jsonCell, Double resize) {
         if (resize == null) resize = STANDARD_FACTOR;
@@ -1173,34 +1162,23 @@ public class ClientGUI extends Application implements Observer {
             canvas.setEffect(getShadow());
         }
         gc.setFill(Color.WHITE);
-        if (value == 1) {
+
+        if (value % 2 == 1) {
             gc.fillOval(25 * resize,25 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
-        } else if (value == 2) {
+        }
+        if (value >= 2) {
             gc.fillOval(10 * resize,10 * resize,DOT_SIZE * resize, DOT_SIZE * resize);
             gc.fillOval(40 * resize,40 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
-        } else if (value == 3) {
-            gc.fillOval(10 * resize,10 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
-            gc.fillOval(40 * resize,40 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
-            gc.fillOval(25 * resize,25 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
-        } else if (value == 4) {
-            gc.fillOval(10 * resize,10 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
-            gc.fillOval(40 * resize,40 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+        }
+        if (value >= 4) {
             gc.fillOval(10 * resize,40 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
             gc.fillOval(40 * resize,10 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
-        } else if (value == 5) {
-            gc.fillOval(10 * resize,10 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
-            gc.fillOval(40 * resize,40 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
-            gc.fillOval(10 * resize,40 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
-            gc.fillOval(40 * resize,10 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
-            gc.fillOval(25 * resize,25 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
-        } else if (value == 6) {
-            gc.fillOval(10 * resize,10 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
-            gc.fillOval(40 * resize,40 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
-            gc.fillOval(10 * resize,40 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
-            gc.fillOval(40 * resize,10 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
+        }
+        if (value == 6) {
             gc.fillOval(10 * resize,25 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
             gc.fillOval(40 * resize,25 * resize, DOT_SIZE * resize, DOT_SIZE * resize);
         }
+
         return canvas;
     }
 

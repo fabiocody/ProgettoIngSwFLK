@@ -8,8 +8,7 @@ import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.shared.util.Constants;
 import it.polimi.ingsw.shared.util.JsonFields;
-import it.polimi.ingsw.shared.util.Methods;
-
+import java.util.*;
 import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_11_NAME;
 import static it.polimi.ingsw.shared.util.InterfaceMessages.DIE_INVALID_POSITION;
 
@@ -18,6 +17,9 @@ import static it.polimi.ingsw.shared.util.InterfaceMessages.DIE_INVALID_POSITION
  * @author Fabio Codiglioni
  */
 public class ToolCard11 extends ToolCard {
+
+    private final List<String> requiredDataFirst = Arrays.asList(JsonFields.DRAFT_POOL_INDEX, JsonFields.CONTINUE);
+    private final List<String> requiredDataSecond = Arrays.asList(JsonFields.NEW_VALUE, JsonFields.TO_CELL_X, JsonFields.TO_CELL_Y);
 
     private int state = 0;
     private int draftPoolIndex = Constants.INDEX_CONSTANT;
@@ -50,6 +52,7 @@ public class ToolCard11 extends ToolCard {
      * @throws InvalidEffectResultException thrown if the effect produces an invalid result.
      * @throws InvalidEffectArgumentException thrown if <code>data</code> contains any invalid values.
      */
+    @Override
     public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         if (state == 0) {
             draftPoolIndex = data.get(JsonFields.DRAFT_POOL_INDEX).getAsInt();
@@ -66,37 +69,9 @@ public class ToolCard11 extends ToolCard {
             Player player = this.getGame().getPlayer(nickname);
             int cellX = data.get(JsonFields.TO_CELL_X).getAsInt();
             int cellY = data.get(JsonFields.TO_CELL_Y).getAsInt();
-            int cellIndex = this.linearizeIndex(cellX, cellY);
-            if (cellIndex < 0 || cellIndex >= player.getWindowPattern().getGrid().length)
-                //"Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")"
-                throw new InvalidEffectResultException(DIE_INVALID_POSITION);
-            this.placeDie(player, draftPoolIndex, cellX, cellY, cellIndex);
+            this.placeDie(player, draftPoolIndex, cellX, cellY);
 
         }
-    }
-
-    /**
-     * This method is used to send a JsonObject containing the fields that the user will have to fill to use this tool card
-     *
-     * @author Kai de Gast
-     * @return JsonObject containing the required fields filled with momentary constants
-     */
-    @Override
-    public JsonObject requiredData() {
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
-        JsonObject data = new JsonObject();
-        if(state==0){
-            data.addProperty(JsonFields.DRAFT_POOL_INDEX, Constants.INDEX_CONSTANT);
-            data.addProperty(JsonFields.CONTINUE, Constants.INDEX_CONSTANT);
-        }
-        else{
-            data.addProperty(JsonFields.NEW_VALUE, Constants.INDEX_CONSTANT);
-            data.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
-            data.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
-        }
-        payload.add(JsonFields.DATA, data);
-        return payload;
     }
 
     /**
@@ -122,23 +97,22 @@ public class ToolCard11 extends ToolCard {
     }
 
     /**
-     * This method handles the die placement part of this Tool Card effect.
+     * Handles the die placement part of this Tool Card effect
      *
-     * @param player the player using this Tool Card.
-     * @param draftPoolIndex the index of the die from the Draft Pool.
-     * @param cellIndex the index of the cell you want to move the die to.
-     * @throws InvalidEffectResultException thrown when the placement is invalid.
+     * @param player the Player object representing the player using the Tool Card
+     * @param draftPoolIndex the index of the die from the Draft Pool
+     * @param cellX the column you want to place the die on
+     * @param cellY the row you want to place the die on
+     * @throws InvalidEffectResultException when the placement is invalid
      */
-    private void placeDie(Player player, int draftPoolIndex, int cellX, int cellY, int cellIndex) throws InvalidEffectResultException {
+    private void placeDie(Player player, int draftPoolIndex, int cellX, int cellY) throws InvalidEffectResultException {
         Die die = this.getGame().getDiceGenerator().getDraftPool().get(draftPoolIndex);
         try {
             player.placeDie(die, cellX, cellY);
             this.getGame().getDiceGenerator().drawDieFromDraftPool(draftPoolIndex);
             this.state = 0;
         } catch (InvalidPlacementException | DieAlreadyPlacedException e) {
-            Cell cell = player.getWindowPattern().getCell(cellIndex);
             this.state = 0;
-            //"Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")"
             throw new InvalidEffectResultException(DIE_INVALID_POSITION);
         }
     }
@@ -162,6 +136,13 @@ public class ToolCard11 extends ToolCard {
             player.setToolCardUsedThisTurn(true);
         }
         state = 0;
+    }
+
+    @Override
+    public List<String> getRequiredData() {
+        if (state == 0)
+            return new ArrayList<>(requiredDataFirst);
+        return new ArrayList<>(requiredDataSecond);
     }
 
 }

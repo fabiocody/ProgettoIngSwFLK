@@ -5,19 +5,17 @@ import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.patterncards.InvalidPlacementException;
-import it.polimi.ingsw.shared.util.Constants;
-import it.polimi.ingsw.shared.util.InterfaceMessages;
-import it.polimi.ingsw.shared.util.JsonFields;
-import it.polimi.ingsw.shared.util.Methods;
-
+import it.polimi.ingsw.shared.util.*;
+import java.util.*;
 import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_8_NAME;
-import static it.polimi.ingsw.shared.util.InterfaceMessages.DIE_INVALID_POSITION;
 
 
 /**
  * @author Fabio Codiglioni
  */
 public class ToolCard8 extends ToolCard {
+
+    private final List<String> requiredData = Arrays.asList(JsonFields.DRAFT_POOL_INDEX, JsonFields.TO_CELL_X, JsonFields.TO_CELL_Y, JsonFields.SECOND_DIE_PLACEMENT);
 
     /**
      * This constructor initializes the card with its name and description.
@@ -41,6 +39,7 @@ public class ToolCard8 extends ToolCard {
      * @author Fabio Codiglioni
      * @param data the data the effect needs.
      */
+    @Override
     public void effect(JsonObject data) throws InvalidEffectArgumentException, InvalidEffectResultException  {
         Player player = this.getGame().getPlayer(data.get(JsonFields.PLAYER).getAsString());
         player.setSecondTurnToBeSkipped(true);
@@ -49,28 +48,8 @@ public class ToolCard8 extends ToolCard {
         int cellY= data.get(JsonFields.TO_CELL_Y).getAsInt();
         int cellIndex = this.linearizeIndex(cellX, cellY);
         if (cellIndex < 0 || cellIndex >= player.getWindowPattern().getGrid().length)
-            //"Invalid cellIndex: " + cellIndex + " (" + cellX + ", " + cellY + ")"
-            throw new InvalidEffectArgumentException(DIE_INVALID_POSITION);
+            throw new InvalidEffectArgumentException(InterfaceMessages.DIE_INVALID_POSITION);
         this.placeDie(player, draftPoolIndex, cellIndex);
-    }
-
-    /**
-     * This method is used to send a JsonObject containing the fields that the user will have to fill to use this tool card
-     *
-     * @author Kai de Gast
-     * @return JsonObject containing the required fields filled with momentary constants
-     */
-    @Override
-    public JsonObject requiredData() {
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
-        JsonObject data = new JsonObject();
-        data.addProperty(JsonFields.DRAFT_POOL_INDEX, Constants.INDEX_CONSTANT);
-        data.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
-        data.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
-        data.addProperty(JsonFields.SECOND_DIE_PLACEMENT, Constants.INDEX_CONSTANT);
-        payload.add(JsonFields.DATA, data);
-        return payload;
     }
 
     /**
@@ -99,6 +78,11 @@ public class ToolCard8 extends ToolCard {
     @Override
     public void cancel(Player player){
         // Nothing to cancel
+    }
+
+    @Override
+    public List<String> getRequiredData() {
+        return new ArrayList<>(requiredData);
     }
 
 }

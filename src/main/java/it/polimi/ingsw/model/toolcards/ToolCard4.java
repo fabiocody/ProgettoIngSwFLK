@@ -4,11 +4,8 @@ import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.placementconstraints.*;
-import it.polimi.ingsw.shared.util.Constants;
-import it.polimi.ingsw.shared.util.InterfaceMessages;
-import it.polimi.ingsw.shared.util.JsonFields;
-import it.polimi.ingsw.shared.util.Methods;
-
+import it.polimi.ingsw.shared.util.*;
+import java.util.*;
 import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_4_NAME;
 
 
@@ -16,6 +13,8 @@ import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_4_NAME;
  * @author Fabio Codiglioni
  */
 public class ToolCard4 extends ToolCard {
+
+    private final List<String> requiredData = Arrays.asList(JsonFields.FROM_CELL_X, JsonFields.FROM_CELL_Y, JsonFields.TO_CELL_X, JsonFields.TO_CELL_Y);
 
     private boolean firstMoveDone;
     private Integer firstMoveIndex;
@@ -50,21 +49,14 @@ public class ToolCard4 extends ToolCard {
      * @throws InvalidEffectResultException thrown if the effect produces an invalid result.
      * @throws InvalidEffectArgumentException thrown if <code>data</code> contains any invalid values.
      */
+    @Override
     public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         String nickname = data.get(JsonFields.PLAYER).getAsString();
         Player player = this.getGame().getPlayer(nickname);
-        int fromCellX = data.get(JsonFields.FROM_CELL_X).getAsInt();
-        int fromCellY = data.get(JsonFields.FROM_CELL_Y).getAsInt();
-        int fromIndex = this.linearizeIndex(fromCellX, fromCellY);
-        if (fromIndex < 0 || fromIndex >= player.getWindowPattern().getGrid().length)
-            throw new InvalidEffectArgumentException("Invalid fromIndex: " + fromIndex + " (" + fromCellX + ", " + fromCellY + ")");
-        int toCellX = data.get(JsonFields.TO_CELL_X).getAsInt();
-        int toCellY = data.get(JsonFields.TO_CELL_Y).getAsInt();
-        int toIndex = this.linearizeIndex(toCellX, toCellY);
+        int fromIndex = getFromIndex(data, player);
+        int toIndex = getToIndex(data, player);
         if (fromIndex == toIndex)
             throw new InvalidEffectResultException(InterfaceMessages.SAME_POSITION_INDEX);
-        if (toIndex < 0 || toIndex >= player.getWindowPattern().getGrid().length)
-            throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
         if (!this.firstMoveDone) {
             firstMove(player, fromIndex, toIndex);
             this.firstMoveDone = true;
@@ -74,28 +66,6 @@ public class ToolCard4 extends ToolCard {
             this.beforeFirstMoveIndex = null;
             this.firstMoveDone = false;
         }
-    }
-
-    /**
-     * This method is used to send a JsonObject containing the fields that the user will have to fill to use this tool card
-     *
-     * @author Kai de Gast
-     * @return JsonObject containing the required fields filled with momentary constants
-     */
-    @Override
-    public JsonObject requiredData() {
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
-        JsonObject data = new JsonObject();
-        data.addProperty(JsonFields.FROM_CELL_X, Constants.INDEX_CONSTANT);
-        data.addProperty(JsonFields.FROM_CELL_Y, Constants.INDEX_CONSTANT);
-        data.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
-        data.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
-        if (!firstMoveDone){
-            data.addProperty(JsonFields.CONTINUE, true);
-        }
-        payload.add(JsonFields.DATA, data);
-        return payload;
     }
 
     /**
@@ -139,5 +109,13 @@ public class ToolCard4 extends ToolCard {
         this.firstMoveDone = false;
         this.firstMoveIndex = null;
         this.beforeFirstMoveIndex = null;
+    }
+
+    @Override
+    public List<String> getRequiredData() {
+        List<String> data = new ArrayList<>(requiredData);
+        if (!firstMoveDone)
+            data.add(JsonFields.CONTINUE);
+        return data;
     }
 }

@@ -136,7 +136,7 @@ public class WindowPattern {
      * @author  Luca dell'Oglio
      */
     public void placeDie(Die d, int position, PlacementConstraint constraint) {
-        if (constraint.checkConstraint(this.grid, position, d))
+        if (position < this.grid.length && constraint.checkConstraint(this.grid, position, d))
             this.grid[position].setPlacedDie(d);
         else
             throw new InvalidPlacementException(InterfaceMessages.DIE_INVALID_POSITION);

@@ -25,7 +25,7 @@ public class InterfaceMessages {
     public static final String ONE_OR_LESS_DIE_MESSAGE = "la griglia è vuota o c'è un solo dado.";
     public static final String SUCCESSFUL_TOOL_CARD_USAGE = "Carta strumento usata con successo!";
     public static final String UNSUCCESSFUL_TOOL_CARD_USAGE = "La carta strumento non è stata usata: ";
-    public static final String FIRST_HALF_OF_ROUND = "non è il tuo secondo turno.";
+    public static final String FIRST_HALF_OF_ROUND = "non è il tuo secondo turno";
     public static final String DIE_NOT_YET_PLACED_IN_THIS_TURN = "non hai ancora piazzato un dado questo turno.";
     public static final String NO_PROPER_COLOR_DIE_ON_ROUND_TRACK = "non ci sono dadi di questo colore nel tracciato del round.";
     public static final String SAME_POSITION_INDEX = "posizione iniziale e finale coincidono.";

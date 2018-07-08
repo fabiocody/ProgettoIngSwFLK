@@ -4,9 +4,7 @@ import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.game.Game;
 import it.polimi.ingsw.model.game.Player;
-import it.polimi.ingsw.shared.util.JsonFields;
-import it.polimi.ingsw.shared.util.Methods;
-
+import java.util.*;
 import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_7_NAME;
 import static it.polimi.ingsw.shared.util.InterfaceMessages.FIRST_HALF_OF_ROUND;
 
@@ -15,6 +13,8 @@ import static it.polimi.ingsw.shared.util.InterfaceMessages.FIRST_HALF_OF_ROUND;
  * @author Fabio Codiglioni
  */
 public class ToolCard7 extends ToolCard {
+
+    private final List<String> requiredData = new ArrayList<>();
 
     /**
      * This constructor initializes the card with its name and description.
@@ -34,25 +34,11 @@ public class ToolCard7 extends ToolCard {
      * @param data the data the effect needs.
      * @throws InvalidEffectResultException thrown if the effect produces an invalid result.
      */
+    @Override
     public void effect(JsonObject data) throws InvalidEffectResultException {
         if (!this.getGame().getTurnManager().isSecondHalfOfRound())
             throw new InvalidEffectResultException(FIRST_HALF_OF_ROUND);
         this.getGame().getDiceGenerator().getDraftPool().forEach(Die::roll);
-    }
-
-    /**
-     * This method is used to send a JsonObject containing the fields that the user will have to fill to use this tool card
-     *
-     * @author Kai de Gast
-     * @return JsonObject containing the required fields filled with momentary constants
-     */
-    @Override
-    public JsonObject requiredData() {
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
-        JsonObject data = new JsonObject();
-        payload.add(JsonFields.DATA, data);
-        return payload;
     }
 
     /**
@@ -65,6 +51,11 @@ public class ToolCard7 extends ToolCard {
     @Override
     public void cancel(Player player){
         // Nothing to cancel
+    }
+
+    @Override
+    public List<String> getRequiredData() {
+        return new ArrayList<>(requiredData);
     }
 
 }

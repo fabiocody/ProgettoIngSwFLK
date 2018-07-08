@@ -4,9 +4,8 @@ import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.dice.Die;
 import it.polimi.ingsw.model.game.*;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
-import it.polimi.ingsw.shared.util.Colors;
 import it.polimi.ingsw.shared.util.*;
-
+import java.util.*;
 import static it.polimi.ingsw.shared.util.Constants.TOOL_CARD_12_NAME;
 import static it.polimi.ingsw.shared.util.InterfaceMessages.NO_PROPER_COLOR_DIE_ON_ROUND_TRACK;
 
@@ -15,6 +14,8 @@ import static it.polimi.ingsw.shared.util.InterfaceMessages.NO_PROPER_COLOR_DIE_
  * @author Fabio Codiglioni
  */
 public class ToolCard12 extends ToolCard {
+
+    private final List<String> requiredData = Arrays.asList(JsonFields.FROM_CELL_X, JsonFields.FROM_CELL_Y, JsonFields.TO_CELL_X, JsonFields.TO_CELL_Y, JsonFields.STOP);
 
     private Colors firstMoveColor;
     private Integer firstMoveIndex;
@@ -48,6 +49,7 @@ public class ToolCard12 extends ToolCard {
      * @throws InvalidEffectResultException thrown if the effect produces an invalid result.
      * @throws InvalidEffectArgumentException thrown if <code>data</code> contains any invalid values.
      */
+    @Override
     public void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         if (this.firstMoveColor == null && this.firstMoveIndex == null) {
             this.firstMove(data);
@@ -60,30 +62,6 @@ public class ToolCard12 extends ToolCard {
     }
 
     /**
-     * this method is used to send a JsonObject containing the fields that the user will have to fill
-     * in order to use this tool card
-     *
-     * @author Kai de Gast
-     * @return JsonObject containing the required fields filled with momentary constants
-     */
-    @Override
-    public JsonObject requiredData() {
-        JsonObject payload = new JsonObject();
-        payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
-        JsonObject data = new JsonObject();
-        data.addProperty(JsonFields.FROM_CELL_X, Constants.INDEX_CONSTANT); //for each movement
-        data.addProperty(JsonFields.FROM_CELL_Y, Constants.INDEX_CONSTANT);
-        data.addProperty(JsonFields.TO_CELL_X, Constants.INDEX_CONSTANT);
-        data.addProperty(JsonFields.TO_CELL_Y, Constants.INDEX_CONSTANT);
-        if (this.firstMoveColor == null && this.firstMoveIndex == null) {
-            data.addProperty(JsonFields.CONTINUE, Constants.INDEX_CONSTANT);
-            data.addProperty(JsonFields.STOP, Constants.INDEX_CONSTANT);
-        } else data.addProperty(JsonFields.STOP, Constants.INDEX_CONSTANT);
-        payload.add(JsonFields.DATA, data);
-        return payload;
-    }
-
-    /**
      * This method handles the first of the two movements.
      *
      * @param data the JSON object passed to <code>effect</code>.
@@ -93,18 +71,10 @@ public class ToolCard12 extends ToolCard {
     private void firstMove(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         String nickname = data.get(JsonFields.PLAYER).getAsString();
         Player player = this.getGame().getPlayer(nickname);
-        int fromCellX = data.get(JsonFields.FROM_CELL_X).getAsInt();
-        int fromCellY = data.get(JsonFields.FROM_CELL_Y).getAsInt();
-        int fromIndex = this.linearizeIndex(fromCellX, fromCellY);
-        if (fromIndex < 0 || fromIndex >= player.getWindowPattern().getGrid().length)
-            throw new InvalidEffectArgumentException("Invalid fromIndex: " + fromIndex + " (" + fromCellX + ", " + fromCellY + ")");
-        int toCellX = data.get(JsonFields.TO_CELL_X).getAsInt();
-        int toCellY = data.get(JsonFields.TO_CELL_Y).getAsInt();
-        int toIndex = this.linearizeIndex(toCellX, toCellY);
+        int fromIndex = getFromIndex(data, player);
+        int toIndex = getToIndex(data, player);
         if (fromIndex == toIndex)
             throw new InvalidEffectArgumentException(InterfaceMessages.SAME_POSITION_INDEX);
-        if (toIndex < 0 || toIndex >= player.getWindowPattern().getGrid().length)
-            throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
         Colors dieColor = player.getWindowPattern().getCell(fromIndex).getPlacedDie().getColor();
         long numberOfDiceOfTheSameColorOnRoundTrack = this.getGame().getRoundTrack().getFlattenedDice().stream()
                 .map(Die::getColor)
@@ -127,18 +97,10 @@ public class ToolCard12 extends ToolCard {
     private void secondMove(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException {
         String nickname = data.get(JsonFields.PLAYER).getAsString();
         Player player = this.getGame().getPlayer(nickname);
-        int fromCellX = data.get(JsonFields.FROM_CELL_X).getAsInt();
-        int fromCellY = data.get(JsonFields.FROM_CELL_Y).getAsInt();
-        int fromIndex = this.linearizeIndex(fromCellX, fromCellY);
-        if (fromIndex < 0 || fromIndex >= player.getWindowPattern().getGrid().length)
-            throw new InvalidEffectArgumentException("Invalid fromIndex: " + fromIndex + " (" + fromCellX + ", " + fromCellY + ")");
-        int toCellX = data.get(JsonFields.TO_CELL_X).getAsInt();
-        int toCellY = data.get(JsonFields.TO_CELL_Y).getAsInt();
-        int toIndex = this.linearizeIndex(toCellX, toCellY);
+        int fromIndex = getFromIndex(data, player);
+        int toIndex = getToIndex(data, player);
         if (fromIndex == toIndex)
             throw new InvalidEffectArgumentException(InterfaceMessages.SAME_POSITION_INDEX);
-        if (toIndex < 0 || toIndex >= player.getWindowPattern().getGrid().length)
-            throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
         if (player.getWindowPattern().getCell(fromIndex).getPlacedDie().getColor() != this.firstMoveColor)
             throw new InvalidEffectResultException(InterfaceMessages.NOT_MATCHING_COLORS);
         if (fromIndex == this.firstMoveIndex) throw new InvalidEffectResultException(InterfaceMessages.MULTIPLE_DIE_MOVEMENTS);
@@ -167,6 +129,14 @@ public class ToolCard12 extends ToolCard {
         }
         this.firstMoveIndex = null;
         this.firstMoveColor = null;
+    }
+
+    @Override
+    public List<String> getRequiredData() {
+        List<String> data = new ArrayList<>(requiredData);
+        if (firstMoveColor == null && firstMoveIndex == null)
+            data.add(JsonFields.CONTINUE);
+        return data;
     }
 
 }

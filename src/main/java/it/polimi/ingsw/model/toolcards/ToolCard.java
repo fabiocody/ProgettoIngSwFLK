@@ -6,6 +6,10 @@ import it.polimi.ingsw.model.game.Player;
 import it.polimi.ingsw.model.patterncards.*;
 import it.polimi.ingsw.model.placementconstraints.PlacementConstraint;
 import it.polimi.ingsw.shared.util.Constants;
+import it.polimi.ingsw.shared.util.JsonFields;
+import it.polimi.ingsw.shared.util.Methods;
+
+import java.util.List;
 
 import static it.polimi.ingsw.shared.util.InterfaceMessages.DIE_INVALID_POSITION;
 
@@ -78,6 +82,44 @@ public abstract class ToolCard {
     }
 
     /**
+     * This method represents the effect of the Tool Card.
+     *
+     * @author Fabio Codiglioni
+     * @param data the data the effect needs.
+     * @throws InvalidEffectResultException thrown if the effect produces an invalid result.
+     * @throws InvalidEffectArgumentException thrown if <code>data</code> contains any invalid values.
+     */
+    public abstract void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException;
+
+    /**
+     * This method is used to cancel the usage of a tool card by a player,
+     * if empty the tool card doesn't need a cancel method
+     *
+     * @author Team
+     * @param player the player
+     */
+    public abstract void cancel(Player player);
+
+    /**
+     * @return the required data for the Tool Card
+     */
+    public abstract List<String> getRequiredData();
+
+    /**
+     * This method is used to send a JsonObject containing the fields that the user will have to fill to use this tool card
+     *
+     * @return JsonObject containing the required fields filled with momentary constants
+     */
+    public JsonObject requiredData() {
+        JsonObject payload = new JsonObject();
+        payload.addProperty(JsonFields.METHOD, Methods.REQUIRED_DATA.getString());
+        JsonObject data = new JsonObject();
+        getRequiredData().forEach(rd -> data.addProperty(rd, Constants.INDEX_CONSTANT));
+        payload.add(JsonFields.DATA, data);
+        return payload;
+    }
+
+    /**
      * This method is useful since we implemented the grid of each Window Pattern as a linear array,
      * thus we needed a way to convert from xy coordinates (used elsewhere) to a linear index.
      *
@@ -110,31 +152,34 @@ public abstract class ToolCard {
     }
 
     /**
-     * This method represents the effect of the Tool Card.
-     *
-     * @author Fabio Codiglioni
-     * @param data the data the effect needs.
-     * @throws InvalidEffectResultException thrown if the effect produces an invalid result.
-     * @throws InvalidEffectArgumentException thrown if <code>data</code> contains any invalid values.
+     * @param data the data required by the Tool Card
+     * @param player the Player object representing the player using the ToolCard
+     * @return the linearized "from" index
+     * @throws InvalidEffectArgumentException when the index if out of bound
      */
-    public abstract void effect(JsonObject data) throws InvalidEffectResultException, InvalidEffectArgumentException;
+    int getFromIndex(JsonObject data, Player player) throws InvalidEffectArgumentException {
+        int fromCellX = data.get(JsonFields.FROM_CELL_X).getAsInt();
+        int fromCellY = data.get(JsonFields.FROM_CELL_Y).getAsInt();
+        int fromIndex = this.linearizeIndex(fromCellX, fromCellY);
+        if (fromIndex < 0 || fromIndex >= player.getWindowPattern().getGrid().length)
+            throw new InvalidEffectArgumentException("Invalid fromIndex: " + fromIndex + " (" + fromCellX + ", " + fromCellY + ")");
+        return fromIndex;
+    }
 
     /**
-     * This method is used to send a JsonObject containing the fields that the user will have to fill to use this tool card
-     *
-     * @author Kai de Gast
-     * @return JsonObject containing the required fields filled with momentary constants
+     * @param data the data required by the Tool Card
+     * @param player the Player object representing the player using the Tool Card
+     * @return the linearized "to" index
+     * @throws InvalidEffectArgumentException when the index is out of bound
      */
-    public abstract JsonObject requiredData();
-
-    /**
-     * This method is used to cancel the usage of a tool card by a player,
-     * if empty the tool card doesn't need a cancel method
-     *
-     * @author Team
-     * @param player the player
-     */
-    public abstract void cancel(Player player);
+    int getToIndex(JsonObject data, Player player) throws InvalidEffectArgumentException {
+        int toCellX = data.get(JsonFields.TO_CELL_X).getAsInt();
+        int toCellY = data.get(JsonFields.TO_CELL_Y).getAsInt();
+        int toIndex = this.linearizeIndex(toCellX, toCellY);
+        if (toIndex < 0 || toIndex >= player.getWindowPattern().getGrid().length)
+            throw new InvalidEffectArgumentException("Invalid toIndex: " + toIndex + " (" + toCellX + ", " + toCellY + ")");
+        return toIndex;
+    }
 
     /**
      * @author Fabio Codiglioni
