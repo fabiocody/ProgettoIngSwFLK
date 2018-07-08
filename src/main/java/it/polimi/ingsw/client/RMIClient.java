@@ -15,6 +15,12 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
 
     private ServerAPI server;
 
+    /**
+     * This is the constructor of the client
+     * @param host the IP or URL address of the server you want to connect to
+     * @param port the port of the server to which it is listening
+     * @param debug debug messages will be shown if true
+     */
     public RMIClient(String host, int port, boolean debug) {
         super(host, port, debug);
     }
@@ -110,6 +116,9 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         }
     }
 
+    /**
+     * This method sends probe messages
+     */
     @Override
     public void probe() {
         try {
@@ -129,6 +138,11 @@ public class RMIClient extends ClientNetwork implements ClientAPI {
         this.notifyObservers(payload);
     }
 
+
+    /**
+     * This method handles the user reconnection
+     * @param privateObjString the private objective card of the disconnected user
+     */
     @Override
     public void reconnect(String privateObjString) {
         JsonObject privateObjectiveCard = getJsonParser().parse(privateObjString).getAsJsonObject();

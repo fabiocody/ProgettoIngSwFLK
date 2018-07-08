@@ -26,7 +26,7 @@ public class CountdownTimer extends Observable implements Runnable {
     }
 
     /**
-     * This methods makes the timer start counting.
+     * This method makes the timer start counting.
      * When the countdown expires, the task's <code>run</code> method is called.
      *
      * @author Fabio Codiglioni

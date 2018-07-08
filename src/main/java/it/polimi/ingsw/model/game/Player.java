@@ -34,7 +34,7 @@ public class Player extends Observable {
     private boolean secondTurnToBeSkipped;
 
     /**
-     * This methods creates a Player object with a given nickname and computes a random UUID of it.
+     * This method creates a Player object with a given nickname and computes a random UUID of it.
      *
      * @author Fabio Codiglioni
      * @param nickname the nickname of the player.

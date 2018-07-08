@@ -9,8 +9,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 /**
- * This is the main client class
- *
+ * This class contains the methods used by a client who joined via socket
  * @author Team
  */
 public class SocketClient extends ClientNetwork {
@@ -153,11 +152,20 @@ public class SocketClient extends ClientNetwork {
         return line;
     }
 
+    /**
+     * This method sends probe messages
+     */
     private void probe() {
         this.sendMessage(new JsonObject(), Methods.PROBE);
         this.rescheduleProbeTimer();
     }
 
+
+    /**
+     * This method sends a Json message to the server
+     * @param payload the payload of the message to send
+     * @param method the name of the method that sends the message
+     */
     private void sendMessage(JsonObject payload, Methods method) {
         if (getUUID() != null)
             payload.addProperty(JsonFields.PLAYER_ID, getUUID().toString());
@@ -166,9 +174,6 @@ public class SocketClient extends ClientNetwork {
         out.println(payload.toString());
     }
 
-    /**
-     * This method handles log in of a player
-     */
     @Override
     public UUID addPlayer(String nickname) {
         setNickname(nickname);
@@ -197,11 +202,6 @@ public class SocketClient extends ClientNetwork {
         }
     }
 
-    /**
-     * This method is used when a player chooses his window pattern at the beginning of the game
-     *
-     * @param patternIndex the index of the chosen window pattern
-     */
     @Override
     public boolean choosePattern(int patternIndex) {
         JsonObject payload = new JsonObject();
@@ -213,14 +213,6 @@ public class SocketClient extends ClientNetwork {
         return input.get(JsonFields.RESULT).getAsBoolean();
     }
 
-    /**
-     * This method is used to place a die from the draft pool in the specified position
-     *
-     * @param draftPoolIndex the index of the draft pool which contains the die
-     * @param x the column index in which the user wants to place the die
-     * @param y the row index in which the user wants to place the die
-     * @return input the result message of the placement
-     */
     @Override
     public JsonObject placeDie(int draftPoolIndex, int x, int y){
         JsonObject payload = new JsonObject();
@@ -235,12 +227,6 @@ public class SocketClient extends ClientNetwork {
         return input;
     }
 
-    /**
-     * This method is used to request the information needed to use the specified tool card
-     *
-     * @param cardIndex the index of the tool card that the user wants to use
-     * @return JsonObject containing the required fields for the specified tool card
-     */
     @Override
     public JsonObject requiredData(int cardIndex){
         JsonObject payload = new JsonObject();
@@ -251,13 +237,6 @@ public class SocketClient extends ClientNetwork {
         return input;
     }
 
-    /**
-     * This method handles the request from a user to use a tool card
-     *
-     * @param cardIndex index of the specified tool card
-     * @param data JsonObject containing all the necessary fields filled with information given by the user
-     * @return JsonObject containing the result of the usage
-     */
     @Override
     public JsonObject useToolCard(int cardIndex, JsonObject data){
         JsonObject payload = new JsonObject();
@@ -280,9 +259,6 @@ public class SocketClient extends ClientNetwork {
         this.sendMessage(payload, Methods.CANCEL_TOOL_CARD_USAGE);
     }
 
-    /**
-     * This method is used to pass to the next turn
-     */
     @Override
     public void nextTurn() {
         JsonObject payload = new JsonObject();

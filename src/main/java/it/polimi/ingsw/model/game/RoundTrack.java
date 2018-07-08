@@ -16,8 +16,6 @@ import static org.fusesource.jansi.Ansi.ansi;
  * @author Fabio Codiglioni
  */
 public class RoundTrack extends Observable implements Observer {
-    // Observes TurnManager
-    // Is observed by Game
 
     // Attributes
     private List<List<Die>> dice;
