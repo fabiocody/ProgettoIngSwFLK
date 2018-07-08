@@ -51,6 +51,9 @@ public class ServerSocketHandler extends ServerNetwork implements Runnable {
 
     // REQUESTS HANDLER
 
+    /**
+     * This method receives instructions from the client
+     */
     @Override
     public void run() {
         try (Socket socket = this.clientSocket;
