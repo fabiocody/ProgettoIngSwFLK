@@ -175,16 +175,14 @@ public abstract class ServerNetwork extends Observable implements Observer {
                 return;
             }
             Logger.debug("Checking probe for " + nickname);
-            if (!Thread.currentThread().isInterrupted()) {
-                if (!probed) {
-                    Logger.error("Probe error");
-                    this.onUserDisconnection();
-                    Thread.currentThread().interrupt();
-                    return;
-                } else {
-                    probed = false;
-                    this.sendProbe();
-                }
+            if (!probed) {
+                Logger.error("Probe error");
+                this.onUserDisconnection();
+                Thread.currentThread().interrupt();
+                return;
+            } else {
+                probed = false;
+                this.sendProbe();
             }
         }
     }
