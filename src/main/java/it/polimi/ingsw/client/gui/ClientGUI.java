@@ -1521,6 +1521,8 @@ public class ClientGUI extends Application implements Observer {
         }
         if (client.isSuspended() && !client.isGameOver())
             Platform.runLater(() -> {
+                resetToolCardsEnvironment();
+                restoreZoomedNodes();
                 String text = PromptAlert.presentReconnectionPrompt(client.getNickname());
                 if (!client.isGameOver() && text != null && !text.isEmpty())
                     ClientNetwork.getInstance().addPlayer(client.getNickname());

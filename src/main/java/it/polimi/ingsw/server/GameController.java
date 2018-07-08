@@ -375,15 +375,22 @@ public class GameController extends BaseController {
                 default:
                     break;
             }
-        } else if (o instanceof Player && game.arePlayersReady()) {
-            if (!getRoundTrack().isGameOver()) {
+        } else if (o instanceof Player) {
+            if (stringArg.equals(NotificationMessages.CANCEL_TOOL_CARD))
+                new Thread(() -> getToolCards().forEach(card -> card.cancel((Player) o))).start();
+            if (game.arePlayersReady() && !getRoundTrack().isGameOver()) {
                 this.game.getTurnManager().subscribeToTimer(this);
                 forEachNetwork(ServerNetwork::fullUpdate);
             }
         } else if (o instanceof ServerNetwork) {
             String nickname = String.valueOf(arg);
-            if (nickname.equals(getActivePlayer()) || game.getTurnManager().countNotSuspendedPlayers() <= 1)
-                new Thread(this::nextTurn).start();
+            Player player = game.getPlayer(nickname);
+            if (nickname.equals(getActivePlayer()) || game.getTurnManager().countNotSuspendedPlayers() <= 1) {
+                new Thread(() -> {
+                    nextTurn();
+                    getToolCards().forEach(card -> card.cancel(player));
+                }).start();
+            }
         }
     }
 }

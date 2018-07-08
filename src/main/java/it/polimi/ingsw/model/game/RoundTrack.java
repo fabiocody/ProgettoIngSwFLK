@@ -125,11 +125,13 @@ public class RoundTrack extends Observable implements Observer {
         int index = 0;
         int round = 0;
         int i = 0;
-        for (; round < NUMBER_OF_ROUNDS && index < roundTrackIndex; round++) {
-            List<Die> roundDice = dice.get(round);
-            for (i = 0; i < roundDice.size() && index < roundTrackIndex; i++, index++);
+        if (roundTrackIndex > 0) {
+            for (; round < NUMBER_OF_ROUNDS && index < roundTrackIndex; round++) {
+                List<Die> roundDice = dice.get(round);
+                for (i = 0; i < roundDice.size() && index < roundTrackIndex; i++, index++) ;
+            }
+            round -= 1;
         }
-        round -= 1;
         if (index == roundTrackIndex) {
             Die roundTrackDie = dice.get(round).remove(i);
             dice.get(round).add(i, d);

@@ -9,7 +9,7 @@ public class NotificationMessages {
     public static final String GAME_INTERRUPTED = "gameInterrupted";
     public static final String WAITING_ROOM = "waitingRoom";
     public static final String TURN_MANAGER = "turnManager";
-    public static final String SUSPENDED = "suspended";
+    public static final String CANCEL_TOOL_CARD = "cancelToolCard";
 
     private NotificationMessages() throws IllegalAccessException {
         throw new IllegalAccessException("Cannot instantiate");

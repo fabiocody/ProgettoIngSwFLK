@@ -248,7 +248,7 @@ public class Player extends Observable {
         if (suspended) {
             new Thread(() -> {
                 setChanged();
-                notifyObservers(NotificationMessages.SUSPENDED);
+                notifyObservers(NotificationMessages.CANCEL_TOOL_CARD);
             }).start();
         }
     }
