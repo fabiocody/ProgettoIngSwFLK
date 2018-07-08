@@ -1057,6 +1057,12 @@ public class ClientGUI extends Application implements Observer {
      * This method creates the graphical representation of a private objective card
      */
     private void createPrivateObjectiveCard() {
+        try {
+            Node node = getNode(boardPane, 3, 4);
+            boardPane.getChildren().remove(node);
+        } catch (NoSuchElementException e) {
+            // Nothing to do here
+        }
         privateObjectiveCardBack = new Image(PicturesPaths.privateObjectiveCard("back"));
         privateObjectiveCardFront = new Image(PicturesPaths.privateObjectiveCard(privateObjectiveCardName));
         privateObjectiveCard = new ImageView(privateObjectiveCardBack);
@@ -1067,7 +1073,6 @@ public class ClientGUI extends Application implements Observer {
         privateObjectiveCard.setOnMouseExited(e -> startRotation());
         boardPane.add(privateObjectiveCard, 3, 4);
     }
-
 
     /**
      * This method creates the graphical representation of a window pattern
